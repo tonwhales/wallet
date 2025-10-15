@@ -1,13 +1,12 @@
 import { useCallback, useMemo, useState } from "react";
 import { SelectedInput } from "../../../secure/simpleTransfer/hooks/useSimpleTransfer";
-import { TypedNavigation } from "../../../../utils/useTypedNavigation";
-import { SolanaAddressInputState } from "../../../../components/address/SolanaAddressInput";
+import { useTypedNavigation } from "../../../../utils/useTypedNavigation";
 import { fromNano, toNano } from "@ton/core";
-import { solanaAddressFromPublicKey, isSolanaAddress } from "../../../../utils/solana/address";
-import { useSelectedAccount, useSolanaAccount, useSolanaToken, useSolanaClients } from "../../../../engine/hooks";
+import { isSolanaAddress } from "../../../../utils/solana/address";
+import { useSolanaAccount, useSolanaToken, useSolanaClients, useCurrentAddress } from "../../../../engine/hooks";
 import { t } from "../../../../i18n/t";
 import { formatInputAmount } from "../../../../utils/formatCurrency";
-import { SolanaSimpleTransferParams } from "../SolanaSimpleTransferFragment";
+import { SolanaSimpleTransferParams } from "../../../secure/simpleTransfer/SimpleTransferFragment";
 import { usePrevious } from "../../../secure/simpleTransfer/hooks/usePrevious";
 import { SolanaOrder } from "../../../secure/ops/Order";
 import { Alert } from "react-native";
@@ -16,16 +15,20 @@ import { emulateSolanaTranOrder } from "../../../secure/utils/emulateSolanaTranO
 
 type Options = {
     params: SolanaSimpleTransferParams;
-    navigation: TypedNavigation;
-    owner: string;
-    token?: string | null;
 }
 
-export const useSolanaSimpleTransfer = ({ params, navigation, owner, token }: Options) => {
-    const acc = useSelectedAccount();
-    const accSolanaAddress = solanaAddressFromPublicKey(acc!.publicKey).toString();
-    const account = useSolanaAccount(accSolanaAddress);
-    const accountToken = useSolanaToken(accSolanaAddress, token);
+export type SolanaAddressInputState = {
+    input: string,
+    target: string | undefined,
+    suffix: string | undefined
+}
+
+export const useSolanaSimpleTransfer = ({ params }: Options) => {
+    const navigation = useTypedNavigation();
+    const { solanaAddress } = useCurrentAddress();
+    const token = params.token;
+    const account = useSolanaAccount(solanaAddress!);
+    const accountToken = useSolanaToken(solanaAddress!, token);
     const { client, publicClient } = useSolanaClients();
     const hasParamsFilled = !!params?.target && !!params?.amount;
     const [selectedInput, setSelectedInput] = useState<SelectedInput | null>(hasParamsFilled ? null : SelectedInput.ADDRESS);
@@ -127,7 +130,7 @@ export const useSolanaSimpleTransfer = ({ params, navigation, owner, token }: Op
     const continueDisabled = !order;
 
     const doSendData = usePrevious({
-        owner: owner,
+        owner: solanaAddress,
         balance,
         order,
         callback: params?.callback
@@ -157,7 +160,7 @@ export const useSolanaSimpleTransfer = ({ params, navigation, owner, token }: Op
         }
 
         try {
-            const emulationError = await emulateSolanaTranOrder({ order, solanaClients: { client, publicClient }, sender: owner });
+            const emulationError = await emulateSolanaTranOrder({ order, solanaClients: { client, publicClient }, sender: solanaAddress! });
             if (emulationError?.lamportsNeeded && !token) {
                 const accountAfterAmount = order.amount - emulationError.lamportsNeeded;
 
@@ -199,7 +202,7 @@ export const useSolanaSimpleTransfer = ({ params, navigation, owner, token }: Op
             // Handle other errors
             Alert.alert(t('common.error'), error.message || 'Unknown error occurred');
         }
-    }, [navigation, targetAddressValid, validAmount, commentString, client, publicClient, owner, token]);
+    }, [navigation, targetAddressValid, validAmount, commentString, client, publicClient, solanaAddress, token]);
 
     return {
         addressInputState,

@@ -105,7 +105,6 @@ import { LanguageFragment } from './fragments/LanguageFragment';
 import { MixpanelEvent, trackEvent } from './analytics/mixpanel';
 import { CachedLinking } from './utils/CachedLinking';
 import { LedgerSignDataFragment } from './fragments/ledger/LedgerSignDataFragment';
-import { SolanaSimpleTransferFragment } from './fragments/solana/simpleTransfer/SolanaSimpleTransferFragment';
 import { TransferFragment } from './fragments/secure/transfer/TransferFragment';
 import { SolanaTransferFragment } from './fragments/secure/transfer/SolanaTransferFragment';
 import { useSolanaAccountWatcher } from './engine/useSolanaAccountWatcher';
@@ -404,7 +403,6 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('AddressBook', AddressBookFragment, safeArea),
 
     // Solana
-    modalScreen('SolanaSimpleTransfer', SolanaSimpleTransferFragment, safeArea),
     modalScreen('SolanaTransfer', SolanaTransferFragment, safeArea),
     modalScreen('SolanaReceive', ReceiveFragment, safeArea),
     modalScreen('SolanaTransaction', SolanaTransactionPreviewFragment, safeArea),

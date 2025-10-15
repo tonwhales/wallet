@@ -19,16 +19,16 @@ import { useLedgerAddress } from './useLedgerAddress';
 import { useEstimation } from './useEstimation';
 import { useOrder } from './useOrder';
 import { usePrevious } from './usePrevious';
-import { ParamListBase, RouteProp } from '@react-navigation/native';
-import { TypedNavigation } from '../../../../utils/useTypedNavigation';
+import { useTypedNavigation } from '../../../../utils/useTypedNavigation';
 import { LedgerOrder, Order } from '../../ops/Order';
 import { Alert, Keyboard, Platform } from 'react-native';
 import { contractFromPublicKey } from '../../../../engine/contractFromPublicKey';
 import { useExtraCurrency } from '../../../../engine/hooks/jettons/useExtraCurrency';
-import { SimpleTransferParams } from '../SimpleTransferFragment';
+import { TonTransferParams } from '../SimpleTransferFragment';
 import { useLedgerTransport } from '../../../ledger/components/TransportContext';
 import { useAddressFormatsHistory } from '../../../../engine/hooks';
 import { useQRCodeHandler } from '../../../../engine/hooks/qrcode/useQRCodeHandler';
+import { isSolanaAddress } from '../../../../utils/solana/address';
 
 export type SimpleTransferAsset = {
     type: 'jetton';
@@ -43,9 +43,7 @@ export type SimpleTransferAsset = {
 }
 
 type Options = {
-    params: SimpleTransferParams;
-    route: RouteProp<ParamListBase>;
-    navigation: TypedNavigation;
+    params: TonTransferParams;
 }
 
 export enum SelectedInput {
@@ -54,7 +52,8 @@ export enum SelectedInput {
     COMMENT = 2,
 }
 
-export const useSimpleTransfer = ({ params, navigation }: Options) => {
+export const useSimpleTransfer = ({ params }: Options) => {
+    const navigation = useTypedNavigation();
     const network = useNetwork();
     const isLedger = useIsLedgerRoute();
     const knownWallets = useKnownWallets(network.isTestnet);
@@ -258,6 +257,12 @@ export const useSimpleTransfer = ({ params, navigation }: Options) => {
     const onQRCodeRead = useCallback((src: string) => {
         if (!onQRCodeReadData.current) {
             return
+        }
+
+        if (isSolanaAddress(src)) {
+            navigation.navigateSolanaSimpleTransfer({
+                target: src,
+            }, { replace: true });
         }
 
         const {

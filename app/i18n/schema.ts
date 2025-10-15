@@ -1482,6 +1482,29 @@ export type LocalizationSchema = {
         declined: string,
         expired: string,
         pending: string,
+    },
+    aiChat: {
+        title: string,
+        sessionId: string,
+        connecting: string,
+        noConnection: string,
+        welcomeTitle: string,
+        welcomeSubtitle: string,
+        placeholder: string,
+        characterCount: string,
+        recoveringRequest: string,
+        clearHistory: string,
+        reconnect: string,
+        messageTooLong: string,
+        notConnected: string,
+        loadingProfile: string,
+        profileNotAvailable: string,
+        errors: {
+            certificateError: string,
+            connectionError: string,
+            sessionNotFound: string,
+            invalidUserId: string,
+        }
     }
 };
 

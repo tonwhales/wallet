@@ -127,6 +127,7 @@ import { ChangellyCalculationFragment } from './fragments/integrations/Changelly
 import { ChangellyOrderFragment } from './fragments/integrations/ChangellyOrderFragment';
 import { SwapFragment } from './fragments/wallet/SwapFragment';
 import { isLatestIos } from './utils/isLatestIos';
+import { HoldersAIChatFragment } from './fragments/holders/HoldersAIChatFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -387,6 +388,7 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('Holders', HoldersAppFragment, safeArea, true, 0),
     modalScreen('Exchanges', ExchangesFragment, safeArea),
     modalScreen('SelectHoldersMainAccount', SelectHoldersMainAccountFragment, safeArea),
+    modalScreen('HoldersAIChat', HoldersAIChatFragment, safeArea),
 
     // Utils
     genericScreen('Privacy', PrivacyFragment, safeArea, true),

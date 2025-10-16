@@ -472,9 +472,6 @@ export const AIChatComponent = memo((props: AIChatComponentProps) => {
                     paddingHorizontal: 16,
                     paddingVertical: 12,
                 }}
-                onLayout={(event) => {
-                    console.log('input height', event.nativeEvent.layout.height);
-                }}
             >
                 <View
                     style={{

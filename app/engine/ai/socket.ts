@@ -40,7 +40,7 @@ export interface ServerToClientEvents {
 }
 
 export interface ClientToServerEvents {
-    new_session: () => void;
+    new_session: (data: { userId: string }) => void;
     join_session: (data: { sessionId: string }) => void;
     send_message: (data: {
         message: string;

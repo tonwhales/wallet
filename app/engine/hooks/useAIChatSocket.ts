@@ -116,7 +116,7 @@ export function useAIChatSocket(options: UseAIChatSocketOptions): UseAIChatSocke
             if (sessionId) {
                 socket.emit('join_session', { sessionId });
             } else {
-                socket.emit('new_session');
+                socket.emit('new_session', { userId });
             }
         }
 
@@ -137,12 +137,6 @@ export function useAIChatSocket(options: UseAIChatSocketOptions): UseAIChatSocke
             console.log('[useAIChatSocket] onSessionCreated', data.sessionId);
             setSessionId(data.sessionId);
             saveToStorage(sessionStorageKey, data.sessionId);
-
-            // Send userId after session is created
-            socket.emit('send_message', {
-                message: userId,
-                sessionId: data.sessionId
-            });
         }
 
         function onSessionJoined(data: {
@@ -160,14 +154,6 @@ export function useAIChatSocket(options: UseAIChatSocketOptions): UseAIChatSocke
             if (data.serverHistory && data.serverHistory.length > 0 && messages.length === 0) {
                 setMessages(data.serverHistory);
                 saveToStorage(historyStorageKey, data.serverHistory);
-            }
-
-            // Send userId after joining session (if no history exists)
-            if (!data.serverHistory || data.serverHistory.length === 0) {
-                socket.emit('send_message', {
-                    message: userId,
-                    sessionId: data.sessionId
-                });
             }
 
             // Handle pending request recovery

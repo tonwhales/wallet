@@ -180,7 +180,7 @@ export const SimpleTransferAmount = memo(forwardRef(({
                             )}
                         </View>
                     </View>
-                    {onAssetSelected && (
+                    {(onAssetSelected || isSolana) && (
                         <IcChevron style={{ height: 12, width: 12 }} height={12} width={12} />
                     )}
                 </View>

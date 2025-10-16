@@ -23,7 +23,8 @@ export type AddressInputState = {
     input: string,
     target: string,
     domain: string | undefined,
-    suffix: string | undefined
+    suffix: string | undefined,
+    addressType?: 'ton' | 'solana'
 }
 
 export enum InputAction {
@@ -62,22 +63,26 @@ export function addressInputReducer() {
                 if (action.input === state.input) {
                     return state;
                 }
+
+                let addressType: 'ton' | 'solana' | undefined;
+                let target = '';
+
                 try {
                     Address.parse(action.input);
-                    return {
-                        ...state,
-                        input: action.input,
-                        target: action.input,
-                        suffix: undefined
-                    };
+                    target = action.input;
+                    addressType = 'ton';
                 } catch {
-                    // ignore
+                    if (isSolanaAddress(action.input)) {
+                        target = action.input;
+                        addressType = 'solana';
+                    }
                 }
                 return {
                     ...state,
                     input: action.input,
-                    target: '',
-                    suffix: undefined
+                    target,
+                    suffix: undefined,
+                    addressType
                 };
             case InputAction.Target:
                 return {
@@ -223,6 +228,7 @@ export const AddressDomainInput = memo(forwardRef(({
             target: initTarget || '',
             domain: initDomain || undefined,
             suffix: undefined,
+            addressType: isSolanaAddress(initTarget || '') ? 'solana' : 'ton'
         }
     );
 

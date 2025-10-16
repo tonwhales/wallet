@@ -1,6 +1,6 @@
-import { Dispatch, forwardRef, memo, SetStateAction, useImperativeHandle, useRef } from 'react';
+import { forwardRef, memo, useImperativeHandle, useRef } from 'react';
 import { useTypedNavigation } from '../../../../utils/useTypedNavigation';
-import { useNetwork, useSelectedAccount, useSolanaSelectedAccount } from '../../../../engine/hooks';
+import { useCurrentAddress, useNetwork } from '../../../../engine/hooks';
 import { TransferAddressInput } from '../../../../components/address/TransferAddressInput';
 import { Address } from '@ton/core';
 import { SimpleTransferParams } from '../SimpleTransferFragment';
@@ -13,7 +13,7 @@ type Props = {
     params: SimpleTransferParams;
     domain?: string;
     onInputFocus: (index: number) => void
-    setAddressDomainInputState: Dispatch<SetStateAction<AddressInputState>>;
+    setAddressDomainInputState: (state: AddressInputState) => void
     onInputSubmit: () => void
     onQRCodeRead: (src: string) => void;
     isActive: boolean;
@@ -37,8 +37,7 @@ export const SimpleTransferAddress = memo(forwardRef(({
 }: Props, ref) => {
     const network = useNetwork();
     const navigation = useTypedNavigation();
-    const acc = useSelectedAccount();
-    const solanaAddress = useSolanaSelectedAccount()!;
+    const { tonAddress, solanaAddress } = useCurrentAddress();
     const innerRef = useRef(null)
     useImperativeHandle(ref, () => innerRef.current)
 
@@ -46,7 +45,7 @@ export const SimpleTransferAddress = memo(forwardRef(({
         <TransferAddressInput
             index={0}
             ref={innerRef}
-            acc={ledgerAddress ?? acc!.address}
+            acc={ledgerAddress ?? tonAddress}
             solanaAddress={solanaAddress}
             initTarget={params?.target || ''}
             domain={domain}

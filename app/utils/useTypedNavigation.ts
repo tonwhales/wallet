@@ -30,7 +30,7 @@ import { LedgerDeviceSelectionParams } from '../fragments/ledger/LedgerDeviceSel
 import { LedgerSelectAccountParams } from '../fragments/ledger/LedgerSelectAccountFragment';
 import { TonTransaction } from '../engine/types';
 import { SolanaWalletFragmentProps } from '../fragments/wallet/SolanaWalletFragment';
-import { SolanaSimpleTransferParams } from '../fragments/solana/simpleTransfer/SolanaSimpleTransferFragment';
+import { SolanaSimpleTransferParams } from '../fragments/secure/simpleTransfer/SimpleTransferFragment';
 import { SolanaTransferParams } from '../fragments/secure/transfer/SolanaTransferFragment';
 import { SolanaTokenWalletFragmentProps } from '../fragments/wallet/SolanaTokenWalletFragment';
 import { SolanaTransactionPreviewParams } from '../fragments/solana/transaction/SolanaTransactionPreviewFragment';
@@ -154,11 +154,11 @@ export class TypedNavigation {
         const action = options?.replace ? this.replace : this.navigate;
 
         if (options?.ledger) {
-            action('LedgerSimpleTransfer', tx);
+            action('LedgerSimpleTransfer', { ...tx, blockchain: 'ton' });
             return;
         }
 
-        action('SimpleTransfer', tx);
+        action('SimpleTransfer', { ...tx, blockchain: 'ton' });
     }
 
     navigateSign(tx: {
@@ -397,8 +397,9 @@ export class TypedNavigation {
         this.navigate('SolanaWallet', params);
     }
 
-    navigateSolanaSimpleTransfer(params: SolanaSimpleTransferParams) {
-        this.navigate('SolanaSimpleTransfer', params);
+    navigateSolanaSimpleTransfer(params: SolanaSimpleTransferParams, options?: { replace?: boolean }) {
+        const action = options?.replace ? this.replace : this.navigate;
+        action('SimpleTransfer', { ...params, blockchain: 'solana' });
     }
 
     navigateSolanaTransfer(params: SolanaTransferParams) {

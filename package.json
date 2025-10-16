@@ -148,6 +148,7 @@
     "recoil": "^0.7.7",
     "rxjs": "^7.5.7",
     "semver": "^7.7.1",
+    "socket.io-client": "^4.8.1",
     "stream-browserify": "^3.0.0",
     "teslabot": "^1.4.1",
     "text-encoding-polyfill": "^0.6.7",

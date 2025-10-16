@@ -1480,6 +1480,29 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "declined": "Запит відхилено",
         "expired": "Запит просрочений",
         "pending": "Очікування підтвердження...",
+    },
+    "aiChat": {
+        "title": "AI Асистент",
+        "sessionId": "Сесія",
+        "connecting": "Підключення...",
+        "noConnection": "Немає з'єднання",
+        "welcomeTitle": "Ласкаво просимо до AI чату!",
+        "welcomeSubtitle": "Запитайте про ваші витрати або попросіть поради",
+        "placeholder": "Напишіть повідомлення...",
+        "characterCount": "{{count}}/1000",
+        "recoveringRequest": "Відновлюємо запит...",
+        "clearHistory": "Очистити історію",
+        "reconnect": "Перепідключитися",
+        "messageTooLong": "Повідомлення занадто довге. Максимум 1000 символів.",
+        "notConnected": "Немає з'єднання з сервером чату",
+        "loadingProfile": "Завантаження профілю...",
+        "profileNotAvailable": "Профіль недоступний. Перевірте ваш аккаунт Holders.",
+        "errors": {
+            "certificateError": "Помилка перевірки сертифіката. Перевірте SSL конфігурацію сервера.",
+            "connectionError": "Помилка WebSocket з'єднання",
+            "sessionNotFound": "Сесію не знайдено",
+            "invalidUserId": "Неправильний формат ID користувача"
+        }
     }
 };
 

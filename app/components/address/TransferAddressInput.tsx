@@ -41,10 +41,11 @@ type TransferAddressInputProps = {
     setAddressDomainInputState: (state: AddressInputState) => void,
     autoFocus?: boolean,
     isLedger?: boolean
+    initialBlockchain?: 'ton' | 'solana';
 }
 
 export const TransferAddressInput = memo(forwardRef((props: TransferAddressInputProps, ref: ForwardedRef<AddressDomainInputRef>) => {
-    const { acc: account, solanaAddress, isTestnet, index, initTarget, onFocus, onSubmit, onQRCodeRead, isSelected, onSearchItemSelected, knownWallets, navigation, setAddressDomainInputState, autoFocus, isLedger, domain } = props;
+    const { acc: account, solanaAddress, isTestnet, index, initTarget, onFocus, onSubmit, onQRCodeRead, isSelected, onSearchItemSelected, knownWallets, navigation, setAddressDomainInputState, autoFocus, isLedger, domain, initialBlockchain } = props;
     const theme = useTheme();
 
     const [state, setState] = useState<AddressInputState>({
@@ -264,14 +265,16 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                 {__DEV__ && addressType === 'ton' && ( // TODO: return when wallet confirmation design is refined
                     <AddressConfirmationRequest address={validTonAddress ? state.target : undefined} />
                 )}
-                <HoldersAccountsSearch
-                    theme={theme}
-                    onSelect={onAddressSearchItemSelected}
-                    query={query}
-                    holdersAccounts={holdersAccounts}
-                    owner={account}
-                    isLedger={isLedger}
-                />
+                {initialBlockchain === 'ton' &&
+                    <HoldersAccountsSearch
+                        theme={theme}
+                        onSelect={onAddressSearchItemSelected}
+                        query={query}
+                        holdersAccounts={holdersAccounts}
+                        owner={account}
+                        isLedger={isLedger}
+                    />
+                }
             </View>
         </View>
     );

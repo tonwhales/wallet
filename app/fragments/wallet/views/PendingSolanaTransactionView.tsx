@@ -41,7 +41,7 @@ const PendingInstructionsView = memo(({
                 paddingVertical: viewType === 'main' ? 20 : 8,
                 marginVertical: viewType === 'history' ? 8 : undefined,
                 borderRadius: viewType === 'history' ? 12 : undefined,
-                maxHeight: ASSET_ITEM_HEIGHT,
+                maxHeight: viewType === 'main' ? undefined : ASSET_ITEM_HEIGHT,
                 backgroundColor: viewType === 'main' ? theme.surfaceOnBg : theme.backgroundPrimary,
             }}
         >
@@ -165,7 +165,7 @@ const PendingTxView = memo((
                 paddingVertical: viewType === 'main' ? 20 : 8,
                 marginVertical: viewType === 'history' ? 8 : undefined,
                 borderRadius: viewType === 'history' ? 12 : undefined,
-                maxHeight: ASSET_ITEM_HEIGHT,
+                maxHeight: viewType === 'main' ? undefined : ASSET_ITEM_HEIGHT,
                 backgroundColor: viewType === 'main' ? theme.surfaceOnBg : theme.backgroundPrimary,
             }}
         >

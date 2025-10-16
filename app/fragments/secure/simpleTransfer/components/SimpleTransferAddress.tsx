@@ -21,6 +21,7 @@ type Props = {
     knownWallets: {
         [key: string]: KnownWallet;
     };
+    initialBlockchain?: 'ton' | 'solana';
 }
 
 export const SimpleTransferAddress = memo(forwardRef(({
@@ -34,6 +35,7 @@ export const SimpleTransferAddress = memo(forwardRef(({
     isActive,
     onSearchItemSelected,
     knownWallets,
+    initialBlockchain,
 }: Props, ref) => {
     const network = useNetwork();
     const navigation = useTypedNavigation();
@@ -59,6 +61,7 @@ export const SimpleTransferAddress = memo(forwardRef(({
             knownWallets={knownWallets}
             navigation={navigation}
             autoFocus={isActive}
+            initialBlockchain={initialBlockchain}
         />
     )
 }))

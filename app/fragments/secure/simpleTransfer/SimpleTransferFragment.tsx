@@ -233,6 +233,7 @@ const SimpleTransferComponent = () => {
                 isActive={selected === 'address'}
                 onSearchItemSelected={onSearchItemSelected}
                 knownWallets={tonTransfer.knownWallets || {}}
+                initialBlockchain={params?.blockchain}
             />
         );
     }, [selected, params, tonTransfer, onInputFocus, onInputSubmit, onSearchItemSelected, handleAddressStateChange]);

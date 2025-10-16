@@ -266,7 +266,7 @@ export const AIChatComponent = memo((props: AIChatComponentProps) => {
                 props.style
             ]}
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? safeArea.bottom + 86 : 16}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? safeArea.top + 86 : 16}
         >
             <View
                 style={{
@@ -471,6 +471,9 @@ export const AIChatComponent = memo((props: AIChatComponentProps) => {
                     borderTopColor: theme.border,
                     paddingHorizontal: 16,
                     paddingVertical: 12,
+                }}
+                onLayout={(event) => {
+                    console.log('input height', event.nativeEvent.layout.height);
                 }}
             >
                 <View

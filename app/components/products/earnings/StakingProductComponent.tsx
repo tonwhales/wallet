@@ -90,7 +90,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
 
         return Object.keys(active).filter((k) => {
             const state = active[k];
-            return state.pendingDeposit > 0n || state.pendingWithdraw > 0n || state.withdraw > 0n;
+            return state.pendingDeposit > 0n || state.pendingWithdraw > 0n
         })
     }, [active]);
 
@@ -255,7 +255,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
                 renderItem={renderItem}
                 theme={theme}
                 renderFace={renderFace}
-                action={items.length ? <AddStakeButton /> : undefined}
+                action={(items.length || pendingPools.length > 0) ? <AddStakeButton /> : undefined}
                 itemHeight={ASSET_ITEM_HEIGHT}
                 subtitleSection={<StakingProductPendingComponent address={address} isLedger={isLedger} />}
             />

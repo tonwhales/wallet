@@ -28,6 +28,7 @@ import { AboutIconButton } from '../../components/AboutIconButton';
 import { StatusBar } from 'expo-status-bar';
 import { useValidAmount } from '../../utils/useValidAmount';
 import { AppsFlyerEvent, trackAppsFlyerEvent } from '../../analytics/appsflyer';
+import { Typography } from '../../components/styles';
 
 export type TransferAction = 'withdraw' | 'top_up' | 'withdraw_ready';
 
@@ -486,11 +487,7 @@ export const StakingTransferFragment = fragment(() => {
                                     flexDirection: 'row', width: '100%',
                                     justifyContent: 'space-between', alignItems: 'center',
                                 }}>
-                                    <Text style={{
-                                        fontSize: 15,
-                                        fontWeight: '400',
-                                        color: theme.textSecondary
-                                    }}>
+                                    <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
                                         {t('products.staking.info.withdrawFee')}
                                         <View style={{ height: 16, width: 16 + 6, alignItems: 'flex-end' }}>
                                             <AboutIconButton
@@ -500,12 +497,8 @@ export const StakingTransferFragment = fragment(() => {
                                             />
                                         </View>
                                     </Text>
-                                    <View style={{ justifyContent: 'center' }}>
-                                        <Text style={{
-                                            fontWeight: '400',
-                                            fontSize: 17,
-                                            color: theme.textPrimary
-                                        }}>
+                                    <View style={{ justifyContent: 'center', alignItems: 'flex-end' }}>
+                                        <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
                                             {`${fromNano(withdrawFee)} TON`}
                                         </Text>
                                         <PriceComponent

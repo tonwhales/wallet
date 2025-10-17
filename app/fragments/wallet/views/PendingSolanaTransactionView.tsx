@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useMemo } from "react";
 import { View, Text } from "react-native";
 import { PendingSolanaTransaction, PendingSolanaTransactionInstructions, PendingSolanaTransactionTx } from "../../../engine/state/pending";
-import { useNetwork, usePendingSolanaActions, useSolanaToken, useSolanaTransactionStatus, useTheme } from "../../../engine/hooks";
+import { useNetwork, useSolanaToken, useSolanaTransactionStatus, useTheme } from "../../../engine/hooks";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { t } from "../../../i18n/t";
 import Animated, { FadeInDown, FadeOutUp } from "react-native-reanimated";
@@ -14,6 +14,7 @@ import { ValueComponent } from "../../../components/ValueComponent";
 import { ForcedAvatar } from "../../../components/avatar/ForcedAvatar";
 import { InstructionName } from "../../../utils/solana/parseInstructions";
 import { ASSET_ITEM_HEIGHT, TRANSACTION_AVATAR_SIZE, TRANSACTION_PROCESSING_TIMEOUT } from "../../../utils/constants";
+import { TransactionType } from "../../../engine/types";
 
 const PendingInstructionsView = memo(({
     transaction,
@@ -40,7 +41,7 @@ const PendingInstructionsView = memo(({
                 paddingVertical: viewType === 'main' ? 20 : 8,
                 marginVertical: viewType === 'history' ? 8 : undefined,
                 borderRadius: viewType === 'history' ? 12 : undefined,
-                maxHeight: ASSET_ITEM_HEIGHT,
+                maxHeight: viewType === 'main' ? undefined : ASSET_ITEM_HEIGHT,
                 backgroundColor: viewType === 'main' ? theme.surfaceOnBg : theme.backgroundPrimary,
             }}
         >
@@ -164,7 +165,7 @@ const PendingTxView = memo((
                 paddingVertical: viewType === 'main' ? 20 : 8,
                 marginVertical: viewType === 'history' ? 8 : undefined,
                 borderRadius: viewType === 'history' ? 12 : undefined,
-                maxHeight: ASSET_ITEM_HEIGHT,
+                maxHeight: viewType === 'main' ? undefined : ASSET_ITEM_HEIGHT,
                 backgroundColor: viewType === 'main' ? theme.surfaceOnBg : theme.backgroundPrimary,
             }}
         >
@@ -252,29 +253,32 @@ const PendingTxView = memo((
 export const PendingSolanaTransactionView = memo(({
     transaction,
     address,
+    markAsTimedOut,
     mint,
     viewType = 'main'
 }: {
     transaction: PendingSolanaTransaction,
     address: string,
+    markAsTimedOut: (id: string, txType: TransactionType) => void
     mint?: string,
     viewType?: 'history' | 'main'
 }) => {
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const status = useSolanaTransactionStatus(address, transaction.id, isTestnet ? 'devnet' : 'mainnet');
-    const { markAsTimedOut, txsQuery } = usePendingSolanaActions(address, mint);
 
     useEffect(() => {
+        if (transaction.status !== 'pending') {
+            return;
+        }
         const timeout = setTimeout(async () => {
-            await txsQuery.refresh();
-            markAsTimedOut(transaction.id);
+            markAsTimedOut(transaction.id, TransactionType.SOLANA);
         }, TRANSACTION_PROCESSING_TIMEOUT);
 
         return () => {
             clearTimeout(timeout);
         }
-    }, [address, isTestnet]);
+    }, [markAsTimedOut, transaction.id, transaction.status]);
     const statusText = useMemo(() => {
         if (status.data?.confirmationStatus === 'finalized') {
             return t('tx.sent');

@@ -11,7 +11,7 @@ export const HoldersLandingFragment = fragment(() => {
     const theme = useTheme();
     const isLedger = useIsLedgerRoute()
 
-    const { endpoint, onEnrollType, inviteId } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams, inviteId?: string }>();
+    const { endpoint, onEnrollType, inviteId, invitationId } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams, inviteId?: string, invitationId?: string }>();
 
     return (
         <View style={{ flex: 1, backgroundColor: theme.backgroundPrimary }}>
@@ -20,6 +20,7 @@ export const HoldersLandingFragment = fragment(() => {
                 endpoint={endpoint}
                 onEnrollType={onEnrollType}
                 inviteId={inviteId}
+                invitationId={invitationId}
                 isLedger={isLedger}
             />
         </View>

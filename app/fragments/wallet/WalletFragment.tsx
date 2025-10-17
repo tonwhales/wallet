@@ -36,6 +36,7 @@ import { SolanaTokenWalletFragment } from './SolanaTokenWalletFragment';
 import { SolanaWalletFragment } from './SolanaWalletFragment';
 import { LiquidUSDeStakingFragment } from '../staking/LiquidUSDeStakingFragment';
 import { AppModeToggle } from '../../components/AppModeToggle';
+import { useAccountTransactionsV3 } from '../../engine/hooks/transactions/useAccountTransactionsV3';
 
 const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount & { solanaAddress: string } }) => {
     const network = useNetwork();
@@ -204,6 +205,9 @@ export const WalletFragment = fragment(() => {
     const { isTestnet } = useNetwork();
     const selectedAcc = useSelectedAccount();
     const solanaAddress = useSolanaSelectedAccount()!;
+
+    // Prefetching first page of transaction history on mount
+    useAccountTransactionsV3({ refetchOnMount: true });
 
     useEffect(() => {
         if (!selectedAcc) {

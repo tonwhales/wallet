@@ -7,18 +7,21 @@ import Animated, { FadeInDown, FadeOutUp } from "react-native-reanimated";
 import { Typography } from "../../../components/styles";
 import { t } from "../../../i18n/t";
 import { PendingSolanaTransactionView } from "./PendingSolanaTransactionView";
+import { TransactionType } from "../../../engine/types";
 
 export const PendingSolanaTransactionsList = memo((
     {
         txs,
         style,
         viewType = 'main',
-        address
+        address,
+        markAsTimedOut
     }: {
         txs: PendingSolanaTransaction[],
         style?: StyleProp<ViewStyle>,
         viewType?: 'history' | 'main',
         address: string
+        markAsTimedOut: (id: string, txType: TransactionType) => void
     }
 ) => {
     return (
@@ -36,6 +39,7 @@ export const PendingSolanaTransactionsList = memo((
                     transaction={tx}
                     viewType={viewType}
                     address={address}
+                    markAsTimedOut={markAsTimedOut}
                 />
             ))}
         </View>
@@ -49,7 +53,7 @@ export const PendingSolanaTransactions = memo(({
     filter,
     onChange,
     listStyle,
-    mint
+    mint,
 }: {
     address?: string,
     viewType?: 'history' | 'main',
@@ -60,7 +64,7 @@ export const PendingSolanaTransactions = memo(({
 }) => {
     const selectedAddress = useSolanaSelectedAccount();
     const addr = address ?? selectedAddress ?? '';
-    const { state: pending, remove } = usePendingSolanaActions(addr, mint);
+    const { state: pending, remove, markAsTimedOut } = usePendingSolanaActions(addr, mint);
     const theme = useTheme();
 
     const pendingTxs = useMemo(() => {
@@ -115,6 +119,7 @@ export const PendingSolanaTransactions = memo(({
                 viewType={viewType}
                 style={listStyle}
                 address={addr}
+                markAsTimedOut={markAsTimedOut}
             />
         </View>
     );

@@ -163,7 +163,8 @@ const SolanaWalletComponent = memo(({ owner }: SolanaWalletFragmentProps) => {
         refreshing,
         hasNext,
         next,
-        refresh
+        refresh,
+        markAsTimedOut
     } = useUnifiedSolanaTransactions(owner);
     const account = useSolanaAccount(owner);
 
@@ -200,6 +201,7 @@ const SolanaWalletComponent = memo(({ owner }: SolanaWalletFragmentProps) => {
                 pendingCount={pendingCount}
                 owner={owner}
                 header={<SolanaTransactionsHeader owner={owner} />}
+                markAsTimedOut={markAsTimedOut}
             />
         </View>
     );

@@ -1,11 +1,11 @@
 import { memo, useMemo } from "react";
-import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Pressable } from "react-native-gesture-handler";
 import { View, Text } from "react-native";
-import { Typography } from "../styles";
+import { Typography } from "../../styles";
 import { Image } from "expo-image";
-import { useStakingApy, useTheme } from "../../engine/hooks";
-import { t } from "../../i18n/t";
+import { useStakingApy, useTheme } from "../../../engine/hooks";
+import { t } from "../../../i18n/t";
 
 export const StakingProductBanner = memo(({ isLedger, type = 'ton' }: { isLedger?: boolean, type?: 'ton' | 'usde' }) => {
     const navigation = useTypedNavigation();

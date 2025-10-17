@@ -7,7 +7,7 @@ import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useRoute } from "@react-navigation/native";
-import { useAccountLite, useCloudValue, useDisplayableJettons, useExtraCurrencyHints, useHintsFull, useHoldersAccounts, useHoldersAccountStatus, useNetwork, useSelectedAccount, useSolanaSelectedAccount, useTheme } from "../../engine/hooks";
+import { useAccountLite, useCloudValue, useDisplayableJettons, useExtraCurrencyHints, useHintsFull, useHoldersAccounts, useHoldersAccountStatus, useNetwork, useSelectedAccount, useSolanaSelectedAccount, useTheme, useSolanaTokens, useSolanaAccount } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StatusBar } from "expo-status-bar";
@@ -28,13 +28,19 @@ import { ExtraCurrencyHint } from "../../engine/api/fetchExtraCurrencyHints";
 import { SimpleTransferAsset } from "../secure/simpleTransfer/hooks/useSimpleTransfer";
 import { ExtraCurrencyProductItem } from "../../components/products/ExtraCurrencyProductItem";
 import { ASSET_ITEM_HEIGHT } from "../../utils/constants";
+import { SolanaToken } from "../../engine/api/solana/fetchSolanaTokens";
+import { solanaAddressFromPublicKey } from "../../utils/solana/address";
+import { SolanaTokenProduct } from "../../components/products/savings/SolanaTokenProduct";
 
 import IcCheck from "@assets/ic-check.svg";
+import SolanaIcon from '@assets/ic-solana.svg';
 
 type ListItem =
     { type: 'jetton', hint: JettonFull }
     | { type: 'extraCurrency', currency: ExtraCurrencyHint }
     | { type: 'ton' }
+    | { type: 'sol' }
+    | { type: 'solana-token', token: SolanaToken }
     | { type: 'holders', account: GeneralHoldersAccount };
 
 export enum AssetViewType {
@@ -43,15 +49,40 @@ export enum AssetViewType {
     Default = 'default'
 }
 
-const TonAssetItem = memo((params: {
-    onTonSelected: () => void,
+const NativeAssetItem = memo((params: {
+    onSelected: () => void,
     balance: bigint,
     selectable: boolean,
     isSelected: boolean
     viewType: AssetViewType
+    symbol: 'TON' | 'SOL'
 }) => {
-    const { onTonSelected, balance, selectable, isSelected, viewType } = params;
+    const { onSelected, balance, selectable, isSelected, viewType, symbol } = params;
     const theme = useTheme();
+
+    const icon = useMemo(() => {
+        if (symbol === 'SOL') {
+            return (
+                <View style={{
+                    height: 46, width: 46,
+                    justifyContent: 'center', alignItems: 'center',
+                    marginRight: 12,
+                    backgroundColor: theme.elevation,
+                    borderRadius: 23
+                }}>
+                    <SolanaIcon
+                        style={{ height: 32, width: 32 }}
+                        height={32}
+                        width={32}
+                    />
+                </View>
+            );
+        }
+        return <Image
+            source={require('@assets/ic-ton-acc.png')}
+            style={{ height: 46, width: 46 }}
+        />;
+    }, [symbol, theme]);
 
     return (
         <View style={{ height: ASSET_ITEM_HEIGHT }}>
@@ -65,13 +96,10 @@ const TonAssetItem = memo((params: {
                     alignItems: 'center',
                     justifyContent: 'space-between'
                 }}
-                onPress={onTonSelected}
+                onPress={onSelected}
             >
                 <View style={{ width: 46, height: 46 }}>
-                    <Image
-                        source={require('@assets/ic-ton-acc.png')}
-                        style={{ height: 46, width: 46 }}
-                    />
+                    {icon}
                     <View style={{
                         justifyContent: 'center', alignItems: 'center',
                         height: 20, width: 20, borderRadius: 10,
@@ -86,14 +114,14 @@ const TonAssetItem = memo((params: {
                 </View>
                 <View style={{ justifyContent: 'center', flexGrow: 1, flex: 1, marginLeft: 12 }}>
                     <Text style={[{ flexShrink: 1, color: theme.textPrimary }, Typography.semiBold17_24]}>
-                        {'TON'}
+                        {symbol}
                     </Text>
                     {viewType !== AssetViewType.Receive && (
                         <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                             <ValueComponent
                                 value={balance}
                                 precision={2}
-                                suffix={' TON'}
+                                suffix={` ${symbol}`}
                                 centFontStyle={{ color: theme.textSecondary }}
                                 forcePrecision
                             />
@@ -125,7 +153,8 @@ export type AssetsFragmentParams = {
     selectedAsset?: SimpleTransferAsset | null,
     viewType: AssetViewType,
     isLedger?: boolean,
-    hideSelection?: boolean
+    hideSelection?: boolean,
+    isSolana?: boolean
 }
 
 export const AssetsFragment = fragment(() => {
@@ -138,7 +167,7 @@ export const AssetsFragment = fragment(() => {
     const solanaAddress = useSolanaSelectedAccount()!;
     const [disabledState] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
 
-    const { target, simpleTransferAssetCallback, assetCallback, selectedAsset, viewType, includeHolders, isLedger, hideSelection } = useParams<AssetsFragmentParams>();
+    const { target, simpleTransferAssetCallback, assetCallback, selectedAsset, viewType, includeHolders, isLedger, hideSelection, isSolana } = useParams<AssetsFragmentParams>();
 
     const title = viewType === AssetViewType.Receive
         ? t('receive.assets')
@@ -163,7 +192,29 @@ export const AssetsFragment = fragment(() => {
     const hints = useHintsFull(owner.toString({ testOnly: isTestnet })).data?.hints ?? [];
     const extraCurrencies = useExtraCurrencyHints(owner.toString({ testOnly: isTestnet })).data ?? [];
 
+    // Solana assets
+    const solanaAccountAddress = solanaAddressFromPublicKey(selected!.publicKey).toString();
+    const solanaTokensQuery = useSolanaTokens(solanaAccountAddress, isLedger);
+    const solanaTokens = solanaTokensQuery.data ?? [];
+    const solanaAccountQuery = useSolanaAccount(solanaAccountAddress);
+    const solanaAccount = solanaAccountQuery.data;
+
     const itemsList = useMemo(() => {
+        if (isSolana) {
+            const solanaTokensList: ListItem[] = solanaTokens.map((token) => ({
+                type: 'solana-token',
+                token
+            }));
+
+            let items: ListItem[] = [...solanaTokensList];
+
+            if (!isJettonsReceiveRoute) {
+                items = [{ type: 'sol' }, ...items];
+            }
+
+            return items;
+        }
+
         const filtered: ListItem[] = hints
             .filter((j) => {
                 const isSpecial = getSpecialJetton(isTestnet) === j.jetton.address
@@ -221,7 +272,7 @@ export const AssetsFragment = fragment(() => {
         }
 
         return items;
-    }, [disabledState, isTestnet, hints, holdersAccounts, includeHolders, savings, isJettonsReceiveRoute, extraCurrencies]);
+    }, [isSolana, solanaTokens, disabledState, isTestnet, hints, holdersAccounts, includeHolders, savings, isJettonsReceiveRoute, extraCurrencies]);
 
     const onJettonCallback = useCallback((selected?: SimpleTransferAsset) => {
         if (simpleTransferAssetCallback) {
@@ -310,6 +361,24 @@ export const AssetsFragment = fragment(() => {
         }, { ledger: isLedger, replace: isLedger });
     }, [isLedger, onJettonCallback, onAssetCallback]);
 
+    const onSolanaAssetSelected = useCallback((token?: SolanaToken) => {
+        if (simpleTransferAssetCallback) {
+            onJettonCallback();
+            return;
+        } else if (assetCallback) {
+            onAssetCallback(null);
+            return;
+        }
+
+        navigation.navigateSolanaSimpleTransfer({
+            amount: null,
+            target: target,
+            comment: null,
+            token: token?.address,
+            callback: undefined
+        });
+    }, [simpleTransferAssetCallback, assetCallback, isLedger, target]);
+
     const onHoldersSelected = useCallback((target: GeneralHoldersAccount) => {
         if (!target.address) {
             return;
@@ -339,7 +408,7 @@ export const AssetsFragment = fragment(() => {
         }, { ledger: isLedger, replace: isLedger });
     }, [onJettonCallback, onAssetCallback, isTestnet, isLedger]);
 
-    const renderItem = useCallback(({ item }: { item: ListItem }) => { 
+    const renderItem = useCallback(({ item }: { item: ListItem }) => {
         switch (item.type) {
             case 'holders':
                 let isSelected = false;
@@ -393,20 +462,42 @@ export const AssetsFragment = fragment(() => {
                         itemStyle={{ backgroundColor: theme.surfaceOnElevation }}
                     />
                 );
+            case 'sol':
+                return (
+                    <NativeAssetItem
+                        balance={solanaAccount?.balance ?? 0n}
+                        onSelected={onSolanaAssetSelected}
+                        selectable={!!simpleTransferAssetCallback || !!assetCallback}
+                        isSelected={!selectedAsset}
+                        viewType={viewType}
+                        symbol="SOL"
+                    />
+                );
+            case 'solana-token':
+                return (
+                    <SolanaTokenProduct
+                        theme={theme}
+                        token={item.token}
+                        address={solanaAccountAddress}
+                        onSelect={() => onSolanaAssetSelected(item.token)}
+                        viewType={viewType}
+                    />
+                );
             default:
                 return (
-                    <TonAssetItem
+                    <NativeAssetItem
                         balance={account?.balance ?? 0n}
-                        onTonSelected={onTonSelected}
+                        onSelected={onTonSelected}
                         selectable={!!simpleTransferAssetCallback || !!assetCallback}
                         isSelected={!selectedAsset || (selectedAsset.type === 'address' && selectedAsset.address.equals(owner))}
                         viewType={viewType}
+                        symbol="TON"
                     />
                 );
         }
     }, [
-        selectedAsset, owner, isTestnet, theme, viewType, account?.balance, owner, holdersAccStatus,
-        onJettonSelected, onTonSelected, onHoldersSelected, onExtraCurrencySelected
+        selectedAsset, owner, isTestnet, theme, viewType, account?.balance, holdersAccStatus, solanaAccount,
+        onJettonSelected, onTonSelected, onSolanaAssetSelected, onHoldersSelected, onExtraCurrencySelected
     ]);
 
     const renderSectionHeader = useCallback(({ section }: { section: { type: string, data: ListItem[] } }) => {

@@ -27,10 +27,11 @@ export type HoldersLandingComponentProps = {
     endpoint: string,
     onEnrollType: HoldersAppParams,
     inviteId?: string,
+    invitationId?: string,
     isLedger?: boolean
 };
 
-export const HoldersLandingComponent = memo(({ endpoint, onEnrollType, inviteId, isLedger }: HoldersLandingComponentProps) => {
+export const HoldersLandingComponent = memo(({ endpoint, onEnrollType, inviteId, invitationId, isLedger }: HoldersLandingComponentProps) => {
     const acc = useSelectedAccount()!;
     const solanaAddress = useSolanaSelectedAccount()!
     const theme = useTheme();
@@ -51,8 +52,8 @@ export const HoldersLandingComponent = memo(({ endpoint, onEnrollType, inviteId,
     const [confirmOnLedger, setConfirmOnLedger] = useState(false);
     const isComponentMounted = useRef(true);
 
-    const enroll = useHoldersEnroll({ acc, domain, authContext, inviteId, authStyle: { paddingTop: 32 }, solanaAddress: isLedger ? undefined : solanaAddress });
-    const ledgerEnroll = useHoldersLedgerEnroll({ inviteId, setConfirming: setConfirmOnLedger });
+    const enroll = useHoldersEnroll({ acc, domain, authContext, inviteId, invitationId, authStyle: { paddingTop: 32 }, solanaAddress: isLedger ? undefined : solanaAddress });
+    const ledgerEnroll = useHoldersLedgerEnroll({ inviteId, invitationId, setConfirming: setConfirmOnLedger });
     const authenticate = isLedger ? ledgerEnroll : enroll;
 
     useEffect(() => {

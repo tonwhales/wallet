@@ -1,22 +1,26 @@
 import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Platform, BackHandler, Keyboard } from "react-native";
-import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import { Cell } from '@ton/core';
 import { setStatusBarStyle } from 'expo-status-bar';
 import { ScrollView } from 'react-native-gesture-handler';
 import { ATextInputRef } from '../../../components/ATextInput';
-import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import { fragment } from '../../../fragment';
 import { useParams } from '../../../utils/useParams';
-import { useNetwork, useTheme } from '../../../engine/hooks';
+import { useCurrentAddress, useNetwork, useTheme } from '../../../engine/hooks';
 import { AddressSearchItem } from '../../../components/address/AddressSearch';
-import { AddressDomainInputRef } from '../../../components/address/AddressDomainInput';
+import { AddressDomainInputRef, AddressInputState } from '../../../components/address/AddressDomainInput';
 import { SimpleTransferLayout, SimpleTransferAmount, SimpleTransferAddress, SimpleTransferComment, SimpleTransferFees, SimpleTransferHeader, SimpleTransferFooter } from './components';
 import { SelectedInput, SimpleTransferAsset, useSimpleTransfer } from './hooks/useSimpleTransfer';
 import { t } from '../../../i18n/t';
 import { TransferHeader } from '../../../components/transfer/TransferHeader';
+import { SolanaTransferHeader } from '../../../components/transfer/SolanaTransferHeader';
+import { useSolanaSimpleTransfer } from '../../solana/simpleTransfer/hooks/useSolanaSimpleTransfer';
+import { isSolanaAddress } from '../../../utils/solana/address';
+import { isTonAddress } from '../../../utils/ton/address';
 
-export type SimpleTransferParams = {
+export type TonTransferParams = {
+    blockchain?: 'ton';
     target?: string | null,
     comment?: string | null,
     amount?: bigint | null,
@@ -38,51 +42,63 @@ export type SimpleTransferParams = {
     unknownDecimals?: boolean
 }
 
+export type SolanaSimpleTransferParams = {
+    blockchain?: 'solana';
+    target?: string | null,
+    comment?: string | null,
+    amount?: string | null,
+    token?: string | null
+    callback?: (ok: boolean, signature: string | null) => void
+}
+
+export type SimpleTransferParams = TonTransferParams | SolanaSimpleTransferParams
+
 const SimpleTransferComponent = () => {
+    const { isLedger } = useCurrentAddress()
     const theme = useTheme();
-    const navigation = useTypedNavigation();
-    const params: SimpleTransferParams | undefined = useParams();
-    const route = useRoute();
+    const params = useParams<SimpleTransferParams>();
     const network = useNetwork();
+
+    const [addressType, setAddressType] = useState<'ton' | 'solana' | null>(() => {
+        if (!params?.target) return null;
+        if (!isLedger && isSolanaAddress(params.target)) return 'solana';
+        if (isTonAddress(params.target)) return 'ton';
+        return null;
+    });
+
+    const tonParams: TonTransferParams = addressType === 'ton' || params?.blockchain === 'ton'
+        ? params as TonTransferParams
+        : { blockchain: 'ton' };
+
+    const solanaParams: SolanaSimpleTransferParams = addressType === 'solana' || params?.blockchain === 'solana'
+        ? params as SolanaSimpleTransferParams
+        : { blockchain: 'solana' };
+
+    const tonTransfer = useSimpleTransfer({
+        params: tonParams
+    });
+
+    const solanaTransfer = useSolanaSimpleTransfer({
+        params: solanaParams,
+    });
+
+    const activeTransfer = addressType === 'solana' ? solanaTransfer : tonTransfer;
 
     const {
         amount,
         amountError,
         balance,
-        commentError,
         commentString,
         continueDisabled,
-        continueLoading,
-        domain,
-        estimation,
-        estimationPrice,
-        holdersTarget,
-        isLedger,
-        isSCAM,
-        jetton,
-        known,
-        knownWallets,
-        ledgerAddress,
-        onAddAll,
-        onAssetSelected,
-        onChangeJetton,
-        onQRCodeRead,
-        payload,
-        priceText,
-        setAddressDomainInputState,
         setAmount,
         setComment,
-        shouldChangeJetton,
         symbol,
-        targetAddressValid,
-        setSelectedInput,
-        selectedInput,
+        decimals,
+        onAddAll,
         doSend,
-        selectedAsset,
-        extraCurrency,
-        isTargetLedger,
-        decimals
-    } = useSimpleTransfer({ params, route, navigation });
+        selectedInput,
+        setSelectedInput,
+    } = activeTransfer;
 
     const [isScrolling, setIsScrolling] = useState(false);
 
@@ -97,8 +113,26 @@ const SimpleTransferComponent = () => {
     const commentRef = useRef<ATextInputRef>(null);
     const scrollRef = useRef<ScrollView>(null);
 
-    const onInputFocus = useCallback((index: SelectedInput) => setSelectedInput(index), []);
-    const onInputSubmit = useCallback(() => setSelectedInput(null), []);
+    const onInputFocus = useCallback((index: SelectedInput) => setSelectedInput(index), [setSelectedInput]);
+    const onInputSubmit = useCallback(() => setSelectedInput(null), [setSelectedInput]);
+
+    const handleAddressStateChange = useCallback((state: AddressInputState) => {
+        if (state.addressType === 'solana' && !isLedger) {
+            setAddressType('solana');
+            solanaTransfer.setAddressInputState({
+                input: state.input || state.target,
+                target: state.target,
+                suffix: state.suffix
+            });
+        } else {
+            setAddressType('ton');
+            tonTransfer.setAddressDomainInputState(state);
+        }
+
+    }, [tonTransfer, solanaTransfer, isLedger]);
+
+    const hasValidAddress = (addressType === 'ton' && tonTransfer.targetAddressValid) ||
+        (addressType === 'solana' && solanaTransfer.targetAddressValid?.[0]);
 
     useFocusEffect(() => {
         setStatusBarStyle(Platform.select({
@@ -148,22 +182,34 @@ const SimpleTransferComponent = () => {
             titleComponent?: ReactNode,
         }
     }>(() => {
-        const headerTitle = targetAddressValid ? {
-            titleComponent: (
-                <TransferHeader
-                    theme={theme}
-                    address={targetAddressValid.address}
-                    isTestnet={network.isTestnet}
-                    bounceable={targetAddressValid.isBounceable}
-                    knownWallets={knownWallets}
-                    isLedger={isTargetLedger}
-                />
-            )
-        } : { title: t('transfer.title') };
+        let headerTitle: { title?: string, titleComponent?: ReactNode };
+
+        if (addressType === 'ton' && tonTransfer.targetAddressValid) {
+            headerTitle = {
+                titleComponent: (
+                    <TransferHeader
+                        theme={theme}
+                        address={tonTransfer.targetAddressValid.address}
+                        isTestnet={network.isTestnet}
+                        bounceable={tonTransfer.targetAddressValid.isBounceable}
+                        knownWallets={tonTransfer.knownWallets}
+                        isLedger={tonTransfer.isTargetLedger}
+                    />
+                )
+            };
+        } else if (addressType === 'solana' && solanaTransfer.targetAddressValid?.[0]) {
+            headerTitle = {
+                titleComponent: (
+                    <SolanaTransferHeader address={solanaTransfer.targetAddressValid[0]} />
+                )
+            };
+        } else {
+            headerTitle = { title: t('transfer.title') };
+        }
 
         switch (selectedInput) {
             case SelectedInput.ADDRESS:
-                return { selected: 'address', onNext: targetAddressValid ? resetInput : null, header: { title: t('common.recipient') } };
+                return { selected: 'address', onNext: hasValidAddress ? resetInput : null, header: { title: t('common.recipient') } };
             case SelectedInput.AMOUNT:
                 return { selected: 'amount', onNext: resetInput, header: headerTitle };
             case SelectedInput.COMMENT:
@@ -171,17 +217,111 @@ const SimpleTransferComponent = () => {
             default:
                 return { selected: null, onNext: null, header: { title: t('transfer.title') } };
         }
-    }, [selectedInput, targetAddressValid, theme, network.isTestnet, knownWallets, t]);
+    }, [selectedInput, addressType, tonTransfer, solanaTransfer, theme, network.isTestnet, hasValidAddress]);
+
+    const addressComponent = useMemo(() => {
+        return (
+            <SimpleTransferAddress
+                ref={addressRef}
+                ledgerAddress={tonTransfer.ledgerAddress}
+                params={params}
+                domain={tonTransfer.domain}
+                onInputFocus={onInputFocus}
+                setAddressDomainInputState={handleAddressStateChange}
+                onInputSubmit={onInputSubmit}
+                onQRCodeRead={tonTransfer.onQRCodeRead}
+                isActive={selected === 'address'}
+                onSearchItemSelected={onSearchItemSelected}
+                knownWallets={tonTransfer.knownWallets || {}}
+                initialBlockchain={params?.blockchain}
+            />
+        );
+    }, [selected, params, tonTransfer, onInputFocus, onInputSubmit, onSearchItemSelected, handleAddressStateChange]);
+
+    const commentComponent = useMemo(() => {
+        return (
+            hasValidAddress ? (
+                addressType === 'ton' ? (
+                    <SimpleTransferComment
+                        ref={commentRef}
+                        commentString={commentString}
+                        isScrolling={isScrolling}
+                        isActive={selected === 'comment'}
+                        payload={tonTransfer.payload}
+                        onInputFocus={onInputFocus}
+                        setComment={setComment}
+                        known={tonTransfer.known}
+                        commentError={tonTransfer.commentError}
+                        maxHeight={selected === 'comment' ? 200 : undefined}
+                    />
+                ) : (
+                    <SimpleTransferComment
+                        ref={commentRef}
+                        commentString={commentString}
+                        isScrolling={isScrolling}
+                        isActive={selected === 'comment'}
+                        onInputFocus={onInputFocus}
+                        setComment={setComment}
+                        maxHeight={selected === 'comment' ? 200 : undefined}
+                    />
+                )
+            ) : null
+        );
+    }, [commentString, selected, addressType, tonTransfer, solanaTransfer.logoURI, symbol]);
+
+    const amountComponent = useMemo(() => {
+        return (
+            hasValidAddress ? (
+                addressType === 'ton' ? (
+                    <SimpleTransferAmount
+                        ref={amountRef}
+                        onAssetSelected={tonTransfer.onAssetSelected}
+                        jetton={tonTransfer.jetton}
+                        isLedger={tonTransfer.isLedger}
+                        isSCAM={tonTransfer.isSCAM}
+                        symbol={symbol}
+                        balance={balance}
+                        onAddAll={onAddAll}
+                        onInputFocus={onInputFocus}
+                        amount={amount}
+                        setAmount={setAmount}
+                        amountError={amountError}
+                        priceText={tonTransfer.priceText}
+                        shouldChangeJetton={tonTransfer.shouldChangeJetton}
+                        holdersTarget={tonTransfer.holdersTarget}
+                        onChangeJetton={tonTransfer.onChangeJetton}
+                        selectedAsset={tonTransfer.selectedAsset}
+                        extraCurrency={tonTransfer.extraCurrency}
+                        decimals={decimals}
+                    />
+                ) : (
+                    <SimpleTransferAmount
+                        ref={amountRef}
+                        symbol={symbol}
+                        decimals={decimals}
+                        balance={balance}
+                        onAddAll={onAddAll}
+                        onInputFocus={onInputFocus}
+                        amount={amount}
+                        setAmount={setAmount}
+                        amountError={amountError}
+                        logoURI={solanaTransfer.logoURI}
+                        isSolana={true}
+                    />
+                )
+            ) : null
+        );
+    }, [amount, amountError, balance, decimals, onAddAll, onInputFocus, solanaTransfer.logoURI, symbol, addressType, tonTransfer, solanaTransfer]);
 
     return (
         <SimpleTransferLayout
             ref={scrollRef}
             headerComponent={<SimpleTransferHeader {...header} />}
-            footerComponent={<SimpleTransferFooter {...{ selected, onNext, continueDisabled, continueLoading, doSend }} />}
-            addressComponent={<SimpleTransferAddress ref={addressRef} {...{ ledgerAddress, params, domain, onInputFocus, setAddressDomainInputState, onInputSubmit, onQRCodeRead, isActive: selected === 'address', onSearchItemSelected, knownWallets }} />}
-            amountComponent={<SimpleTransferAmount ref={amountRef} {...{ onAssetSelected, jetton, isLedger, isSCAM, symbol, balance, onAddAll, onInputFocus, amount, setAmount, amountError, priceText, shouldChangeJetton, holdersTarget, onChangeJetton, selectedAsset, extraCurrency, decimals }} />}
-            commentComponent={<SimpleTransferComment ref={commentRef} {...{ commentString, isScrolling, isActive: selected === 'comment', payload, onInputFocus, setComment, known, commentError, maxHeight: selected === 'comment' ? 200 : undefined }} />}
-            feesComponent={estimation ? <SimpleTransferFees {...{ estimation, estimationPrice }} /> : null}
+            footerComponent={<SimpleTransferFooter {...{ selected, onNext, continueDisabled, continueLoading: addressType === 'ton' ? tonTransfer.continueLoading : undefined, doSend }} />}
+            addressComponent={addressComponent}
+            amountComponent={amountComponent}
+            commentComponent={commentComponent}
+            feesComponent={addressType === 'ton' && hasValidAddress && tonTransfer.estimation ? <SimpleTransferFees estimation={tonTransfer.estimation} estimationPrice={tonTransfer.estimationPrice} /> : null}
             scrollEnabled={!selectedInput}
             nestedScrollEnabled={!selectedInput}
             selected={selected}

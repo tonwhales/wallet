@@ -6,7 +6,6 @@ import { AddressDomainInput, AddressDomainInputRef, AddressInputState, InputActi
 import { ATextInputRef } from "../ATextInput";
 import { KnownWallet } from "../../secure/KnownWallets";
 import { useAppState, useBounceableWalletFormat, useContractInfo, useHoldersAccounts, useTheme, useWalletSettings } from "../../engine/hooks";
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { AddressSearchItem } from "./AddressSearch";
 import { t } from "../../i18n/t";
 import { PerfText } from "../basic/PerfText";
@@ -22,6 +21,7 @@ import { hasDirectTonDeposit } from "../../utils/holders/hasDirectDeposit";
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
 import { AddressConfirmationRequest } from "../../fragments/secure/simpleTransfer/components/AddressConfirmationRequest";
+import { isSolanaAddress } from "../../utils/solana/address";
 
 type TransferAddressInputProps = {
     acc: Address,
@@ -41,31 +41,34 @@ type TransferAddressInputProps = {
     setAddressDomainInputState: (state: AddressInputState) => void,
     autoFocus?: boolean,
     isLedger?: boolean
+    initialBlockchain?: 'ton' | 'solana';
 }
 
 export const TransferAddressInput = memo(forwardRef((props: TransferAddressInputProps, ref: ForwardedRef<AddressDomainInputRef>) => {
-    const { acc: account, solanaAddress, isTestnet, index, initTarget, onFocus, onSubmit, onQRCodeRead, isSelected, onSearchItemSelected, knownWallets, navigation, setAddressDomainInputState, autoFocus, isLedger, domain } = props;
+    const { acc: account, solanaAddress, isTestnet, index, initTarget, onFocus, onSubmit, onQRCodeRead, isSelected, onSearchItemSelected, knownWallets, navigation, setAddressDomainInputState, autoFocus, isLedger, domain, initialBlockchain } = props;
     const theme = useTheme();
 
     const [state, setState] = useState<AddressInputState>({
         input: initTarget,
         target: initTarget,
         suffix: '',
-        domain: domain
+        domain: domain,
+        addressType: isSolanaAddress(initTarget) ? 'solana' : 'ton'
     });
 
     useEffect(() => {
         setAddressDomainInputState(state);
     }, [state]);
 
-    const [validAddress, isInvalid] = useMemo(() => {
-        if (state.target.length < 48) {
-            return [null, false];
-        }
-        try {
-            return [Address.parse(state.target), false]
-        } catch {
-            return [null, true];
+    const [validTonAddress, validSolanaAddress] = useMemo(() => {
+        if (isSolanaAddress(state.target)) {
+            return [null, state.target];
+        } else {
+            try {
+                return [Address.parse(state.target), null];
+            } catch {
+                return [null, null];
+            }
         }
     }, [state.target]);
 
@@ -76,32 +79,36 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     const appState = useAppState();
     const dimentions = useDimensions();
     const screenWidth = dimentions.screen.width;
-    const validAddressFriendly = validAddress?.toString({ testOnly: isTestnet });
-    const [walletSettings] = useWalletSettings(validAddressFriendly);
+    const addressType = state.addressType || 'ton';
+    const validTonAddressFriendly = validTonAddress?.toString({ testOnly: isTestnet });
+    const [walletSettings] = useWalletSettings(validTonAddressFriendly);
     const [bounceableFormat] = useBounceableWalletFormat();
     const ledgerTransport = useLedgerTransport();
     const holdersAccounts = useHoldersAccounts(account, isLedger ? undefined : solanaAddress).data?.accounts
         ?.filter(acc => hasDirectTonDeposit(acc) && acc.network !== 'solana') ?? [];
-    const targetContract = useContractInfo(validAddressFriendly || '');
-    const isTargetHolders = holdersAccounts.find((acc) => !!acc.address && validAddress?.equals(Address.parse(acc.address))) ||
+    const targetContract = useContractInfo(validTonAddressFriendly || '');
+    const isTargetHolders = addressType === 'ton' ? (
+        holdersAccounts.find((acc) => !!acc.address && validTonAddress?.equals(Address.parse(acc.address))) ||
         targetContract?.kind === 'card' ||
-        targetContract?.kind === 'jetton-card';
+        targetContract?.kind === 'jetton-card'
+    ) : false;
 
-    const avatarColorHash = walletSettings?.color ?? avatarHash(validAddressFriendly ?? '', avatarColors.length);
+    const displayAddress = validSolanaAddress || validTonAddressFriendly;
+    const avatarColorHash = walletSettings?.color ?? avatarHash(displayAddress ?? '', avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
 
     const isSelectedLedger = useMemo(() => {
         try {
-            if (ledgerTransport.wallets.length > 0 && validAddress) {
+            if (ledgerTransport.wallets.length > 0 && validTonAddress) {
                 return ledgerTransport.wallets.some(wallet => {
-                    return Address.parse(wallet.address).equals(validAddress);
+                    return Address.parse(wallet.address).equals(validTonAddress);
                 });
             }
             return false;
         } catch {
             return false;
         }
-    }, [ledgerTransport.wallets, validAddress]);
+    }, [ledgerTransport.wallets, validTonAddress]);
 
     const myWallets = useMemo(() => {
         return appState.addresses
@@ -120,11 +127,27 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
             .filter((acc) => !acc.address.equals(account))
     }, [appState.addresses, ledgerTransport.addr?.address]);
 
-    const own = !!myWallets.find((acc) => {
-        if (validAddress) {
-            return acc.address.equals(validAddress);
+    const own = useMemo(() => {
+        if (validTonAddress) {
+            return !!myWallets.find((acc) => acc.address.equals(validTonAddress));
         }
-    });
+        return false;
+    }, [validTonAddress, myWallets]);
+
+    const addressInputAvatar = useMemo(() => (
+        <AddressInputAvatar
+            size={46}
+            theme={theme}
+            isOwn={own}
+            markContact={addressType === 'ton' ? !!contact : false}
+            hash={addressType === 'ton' ? walletSettings?.avatar : undefined}
+            isLedger={addressType === 'ton' ? isSelectedLedger : false}
+            friendly={displayAddress}
+            avatarColor={avatarColor}
+            knownWallets={addressType === 'ton' ? knownWallets : {}}
+            forceAvatar={isTargetHolders ? 'holders' : undefined}
+        />
+    ), [theme, own, addressType, contact, walletSettings?.avatar, isSelectedLedger, displayAddress, avatarColor, knownWallets, isTargetHolders]);
 
     const onFocusCallback = useCallback(() => onFocus(index), [index]);
 
@@ -180,18 +203,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                     }}
                     onPress={select}
                 >
-                    <AddressInputAvatar
-                        size={46}
-                        theme={theme}
-                        isOwn={own}
-                        markContact={!!contact}
-                        hash={walletSettings?.avatar}
-                        isLedger={isSelectedLedger}
-                        friendly={validAddressFriendly}
-                        avatarColor={avatarColor}
-                        knownWallets={knownWallets}
-                        forceAvatar={!!isTargetHolders ? 'holders' : undefined}
-                    />
+                    {addressInputAvatar}
                     <View style={{ paddingHorizontal: 12, flexGrow: 1 }}>
                         <PerfText style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
                             {t('common.recipient')}
@@ -225,18 +237,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                     }}
                 >
                     <View style={{ height: '100%' }}>
-                        <AddressInputAvatar
-                            size={46}
-                            theme={theme}
-                            isOwn={own}
-                            markContact={!!contact}
-                            hash={walletSettings?.avatar}
-                            isLedger={isSelectedLedger}
-                            friendly={validAddressFriendly}
-                            avatarColor={avatarColor}
-                            knownWallets={knownWallets}
-                            forceAvatar={isTargetHolders ? 'holders' : undefined}
-                        />
+                        {addressInputAvatar}
                     </View>
                     <AddressDomainInput
                         onStateChange={setState}
@@ -261,28 +262,19 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         initDomain={domain}
                     />
                 </View>
-                {isInvalid && (
-                    <Animated.View entering={FadeIn} exiting={FadeOut}>
-                        <PerfText style={[{
-                            color: theme.accentRed,
-                            marginTop: 4,
-                            marginLeft: 16,
-                        }, Typography.regular13_18]}>
-                            {t('transfer.error.invalidAddress')}
-                        </PerfText>
-                    </Animated.View>
+                {__DEV__ && addressType === 'ton' && ( // TODO: return when wallet confirmation design is refined
+                    <AddressConfirmationRequest address={validTonAddress ? state.target : undefined} />
                 )}
-                {__DEV__ && ( // TODO: return when wallet confirmation design is refined
-                    <AddressConfirmationRequest address={validAddress ? state.target : undefined} />
-                )}
-                <HoldersAccountsSearch
-                    theme={theme}
-                    onSelect={onAddressSearchItemSelected}
-                    query={query}
-                    holdersAccounts={holdersAccounts}
-                    owner={account}
-                    isLedger={isLedger}
-                />
+                {initialBlockchain === 'ton' &&
+                    <HoldersAccountsSearch
+                        theme={theme}
+                        onSelect={onAddressSearchItemSelected}
+                        query={query}
+                        holdersAccounts={holdersAccounts}
+                        owner={account}
+                        isLedger={isLedger}
+                    />
+                }
             </View>
         </View>
     );

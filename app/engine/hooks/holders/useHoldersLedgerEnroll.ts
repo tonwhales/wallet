@@ -22,9 +22,9 @@ import { handleLedgerSignError } from "../../../utils/ledger/handleLedgerSignErr
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { wait } from "../../../utils/wait";
 import { getAppsFlyerUID } from "../../../analytics/appsflyer";
-import { getInviteId } from "../../../utils/holders/storage";
+import { getInvitationId, getInviteId } from "../../../utils/holders/storage";
 
-export function useHoldersLedgerEnroll({ inviteId, setConfirming }: { inviteId?: string, setConfirming?: (value: boolean) => void }) {
+export function useHoldersLedgerEnroll({ inviteId, invitationId, setConfirming }: { inviteId?: string, invitationId?: string, setConfirming?: (value: boolean) => void }) {
     const { isTestnet } = useNetwork();
     const ledgerContext = useLedgerTransport();
     const navigation = useTypedNavigation();
@@ -39,6 +39,7 @@ export function useHoldersLedgerEnroll({ inviteId, setConfirming }: { inviteId?:
             const tokenRes = await (async () => {
                 try {
                     const storedInviteId = getInviteId();
+                    const storedInvitationId = getInvitationId();
                     const path = pathFromAccountNumber(ledgerContext!.addr!.acc, isTestnet);
                     const url = holdersUrl(isTestnet);
                     const manifestUrl = `${url}/jsons/tonconnect-manifest.json`;
@@ -46,7 +47,7 @@ export function useHoldersLedgerEnroll({ inviteId, setConfirming }: { inviteId?:
                     const connections = !!app ? connectAppConnections(extensionKey(app.url)) : [];
                     const isInjected = connections.find((item) => item?.type === TonConnectBridgeType.Injected);
 
-                    if (inviteId || storedInviteId) {
+                    if (inviteId || storedInviteId || invitationId || storedInvitationId) {
 
                         //
                         // Reset holders token with every invite attempt

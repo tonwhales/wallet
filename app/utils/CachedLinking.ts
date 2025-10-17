@@ -27,6 +27,7 @@ function resolveAndProcessLink(link: string) {
 // Fetch initial
 (async () => {
     let url = await Linking.getInitialURL();
+    
     if (url) {
         resolveAndProcessLink(url);
     }

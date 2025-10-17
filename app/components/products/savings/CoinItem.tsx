@@ -11,6 +11,7 @@ import { ValueComponent } from "../../ValueComponent";
 import { ChainIcon } from "./ChainIcon";
 import { CoinIcon } from "./CoinIcon";
 import { Currency } from "../../../engine/types/deposit";
+import { AssetViewType } from "../../../fragments/wallet/AssetsFragment";
 
 interface CoinItemProps {
     theme: ThemeType;
@@ -31,6 +32,7 @@ interface CoinItemProps {
     isPressable?: boolean
     withArrow?: boolean
     priceUSD?: number
+    viewType?: AssetViewType
 }
 
 export const Tag = memo(({ tag, theme }: { tag: string, theme: ThemeType }) => {
@@ -66,6 +68,7 @@ export const CoinItem = memo(({
     isPressable = true,
     withArrow,
     priceUSD,
+    viewType
 }: CoinItemProps) => {
     return (
         <Pressable
@@ -79,7 +82,7 @@ export const CoinItem = memo(({
                     alignItems: 'center',
                     paddingHorizontal: 20,
                     minHeight: ASSET_ITEM_HEIGHT,
-                    backgroundColor: theme.surfaceOnBg,
+                    backgroundColor: viewType === AssetViewType.Transfer ? theme.surfaceOnElevation : theme.surfaceOnBg,
                     borderRadius: 20,
                     overflow: 'hidden',
                     gap: 12
@@ -93,13 +96,25 @@ export const CoinItem = memo(({
                     alignItems: 'center'
                 }}>
                     <CoinIcon type={currency} url={imageUrl} />
-                    {blockchain && (
+                    {viewType !== AssetViewType.Transfer ? blockchain && (
                         <View style={{
                             justifyContent: 'center', alignItems: 'center',
                             height: 21, width: 21, borderRadius: 10,
                             position: 'absolute', right: -3, bottom: -3,
                         }}>
                             <ChainIcon blockchain={blockchain} size={21} />
+                        </View>
+                    ) : (
+                        <View style={{
+                            justifyContent: 'center', alignItems: 'center',
+                            height: 20, width: 20, borderRadius: 10,
+                            position: 'absolute', right: -2, bottom: -2,
+                            backgroundColor: theme.surfaceOnBg
+                        }}>
+                            <Image
+                                source={require('@assets/ic-verified.png')}
+                                style={{ height: 20, width: 20 }}
+                            />
                         </View>
                     )}
                 </View>
@@ -114,10 +129,12 @@ export const CoinItem = memo(({
                         </Text>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             {(isGassless && !assetCallback) && (<GaslessInfoButton />)}
-                            {tag ? <Tag tag={tag} theme={theme} /> : <Image
-                                source={require('@assets/ic-verified.png')}
-                                style={{ height: 20, width: 20 }}
-                            />}
+                            {viewType !== AssetViewType.Transfer && (
+                                tag ? <Tag tag={tag} theme={theme} /> : <Image
+                                    source={require('@assets/ic-verified.png')}
+                                    style={{ height: 20, width: 20 }}
+                                />
+                            )}
                         </View>
                     </View>
                     <Text
@@ -125,10 +142,23 @@ export const CoinItem = memo(({
                         ellipsizeMode={'tail'}
                         style={[{ color: theme.textSecondary }, Typography.regular15_20]}
                     >
-                        {description}
+                        {viewType !== AssetViewType.Transfer ? description : (
+                            <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
+                                <ValueComponent
+                                    value={balance ?? 0n}
+                                    precision={2}
+                                    decimals={decimals}
+                                    centFontStyle={{ color: theme.textSecondary }}
+                                />
+                                <Text
+                                    style={[{ color: theme.textSecondary }, Typography.semiBold17_24]}>
+                                    {` ${symbol}`}
+                                </Text>
+                            </Text>
+                        )}
                     </Text>
                 </View>
-                {withArrow ? (
+                {viewType !== AssetViewType.Transfer ? withArrow ? (
                     <View style={{ flexGrow: 1, alignItems: 'flex-end', marginLeft: 8 }}>
                         <Image
                             source={require('@assets/ic-chevron-right.png')}
@@ -166,7 +196,7 @@ export const CoinItem = memo(({
                         </View>
                         )}
                     </>
-                )}
+                ) : null}
             </View>
         </Pressable>
     );

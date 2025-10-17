@@ -42,6 +42,9 @@ export const Queries = {
 
         return base;
     },
+    TransactionsV3: (tonAddress: string, solanaAddress?: string) => {
+        return ['transactions', 'v3', tonAddress, solanaAddress];
+    },
     TransactionStatus: (txHash: string, network: 'mainnet' | 'testnet') => [
         'transactions',
         'status',

@@ -96,7 +96,7 @@ export const StakingPool = memo((props: {
     const pool = useStakingPool(props.pool, props.member);
     const poolFee = pool?.params.poolFee ? Number(toNano(fromNano(pool.params.poolFee))) / 100 : undefined;
     const knownPools = useKnownPools(network.isTestnet);
-
+    
     const stakeUntil = pool?.status.proxyStakeUntil || 0;
     const name = knownPools[poolAddressString]?.name;
     const sub = poolFee ? `${t('products.staking.info.poolFeeTitle')}: ${poolFee}%` : poolAddressString.slice(0, 10) + '...' + poolAddressString.slice(poolAddressString.length - 6);

@@ -5,17 +5,20 @@ import { toNano } from "@ton/core";
 import { SolanaToken } from "../../../engine/api/solana/fetchSolanaTokens";
 import { CoinItem } from "./CoinItem";
 import { ThemeType } from "../../../engine/state/theme";
+import { AssetViewType } from "../../../fragments/wallet/AssetsFragment";
 
 export const SolanaTokenProduct = memo(({
     theme,
     token,
     address,
-    onSelect
+    onSelect,
+    viewType
 }: {
     theme: ThemeType,
     token: SolanaToken,
     address: string,
-    onSelect?: () => void
+    onSelect?: () => void,
+    viewType?: AssetViewType
 }) => {
     const navigation = useTypedNavigation();
 
@@ -47,6 +50,7 @@ export const SolanaTokenProduct = memo(({
             withArrow={!!onSelect}
             blockchain="solana"
             imageUrl={token.logoURI}
+            viewType={viewType}
         />
     );
 });

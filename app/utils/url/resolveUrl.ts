@@ -43,7 +43,17 @@ function resolveHoldersUrl(url: Url<Record<string, string | undefined>>): Resolv
     if (isInvite && inviteId) {
         return {
             type: 'holders-invite',
-            inviteId: inviteId
+            inviteId: inviteId,
+        }
+    }
+
+    const isInvitation = url.pathname.startsWith('/holders/i');
+    const invitationId = url.pathname.split('holders/i')[1]
+
+    if (isInvitation && invitationId) {
+        return {
+            type: 'holders-invitation',
+            invitationId: invitationId
         }
     }
 

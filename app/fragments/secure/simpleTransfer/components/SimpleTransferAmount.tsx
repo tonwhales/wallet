@@ -135,17 +135,18 @@ export const SimpleTransferAmount = memo(forwardRef(({
             simpleTransferAssetCallback: onAssetSelected,
             selectedAsset,
             viewType: AssetViewType.Transfer,
-            isLedger
+            isLedger,
+            isSolana
         });
-    }, [onAssetSelected, jetton?.master, isLedger, selectedAsset])
+    }, [onAssetSelected, jetton?.master, isLedger, selectedAsset, isSolana])
 
     const assetButton = useMemo(() => {
         const icUrl = selectedAsset?.type === 'extraCurrency' ? extraCurrency?.preview?.image : logoURI;
 
         return (
             <Pressable
-                style={({ pressed }) => ({ opacity: (pressed && !isSolana) ? 0.5 : 1 })}
-                onPress={isSolana ? undefined : onNavigateAssets}
+                style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                onPress={onNavigateAssets}
             >
                 <View style={{
                     flexDirection: 'row',
@@ -179,7 +180,7 @@ export const SimpleTransferAmount = memo(forwardRef(({
                             )}
                         </View>
                     </View>
-                    {onAssetSelected && (
+                    {(onAssetSelected || isSolana) && (
                         <IcChevron style={{ height: 12, width: 12 }} height={12} width={12} />
                     )}
                 </View>

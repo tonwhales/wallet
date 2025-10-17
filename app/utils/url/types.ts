@@ -107,6 +107,9 @@ export type ResolvedUrl = ResolvedTxUrl
         type: 'holders-invite',
         inviteId: string
     } | {
+        type: 'holders-invitation',
+        invitationId: string
+    } | {
         type: 'solana-transfer',
         request: TransactionRequestURL | TransferRequestURL
     } | {

@@ -98,7 +98,7 @@ export const AmountInput = memo(forwardRef((props: AmountInputProps, ref: Forwar
                                 maxLength={maxLength}
                             />
                             {ticker && (
-                                <View style={{ flexDirection: 'row', position: 'absolute', left: 0, gap: 2 }}>
+                                <View pointerEvents="none" style={{ flexDirection: 'row', position: 'absolute', left: 0, gap: 2 }}>
                                     <Text style={{
                                         flexShrink: 1,
                                         fontSize: fontSize ?? 17,

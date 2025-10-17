@@ -1,5 +1,5 @@
 import { toNano } from "@ton/core";
-import { SolanaSimpleTransferParams } from "../../fragments/solana/simpleTransfer/SolanaSimpleTransferFragment";
+import { SolanaSimpleTransferParams } from "../../fragments/secure/simpleTransfer/SimpleTransferFragment";
 import { SolanaTransactionPreview } from "../../engine/hooks/solana/useSolanaTransferInfo";
 
 export function solanaPreviewToTransferParams(preview: SolanaTransactionPreview): SolanaSimpleTransferParams | null {

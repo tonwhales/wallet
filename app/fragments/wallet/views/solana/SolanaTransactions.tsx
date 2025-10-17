@@ -1,18 +1,17 @@
 import React, { memo, useCallback, useMemo } from "react";
-import { View, StyleSheet, SectionList, SectionListData } from "react-native";
+import { StyleSheet, SectionList, SectionListData } from "react-native";
 import { ThemeType } from "../../../../engine/state/theme";
-import { EdgeInsets } from "react-native-safe-area-context";
 import { Typography } from "../../../../components/styles";
 import { TransactionsSkeleton } from "../../../../components/skeletons/TransactionsSkeleton";
 import { TransactionsEmptyState, TransactionsEmptyStateType } from "../TransactionsEmptyStateView";
-import { formatDate, getDateKey } from "../../../../utils/dates";
 import { TransactionsSectionHeader } from "../TransactionsSectionHeader";
-import { TypedNavigation } from "../../../../utils/useTypedNavigation";
 import { ReceiveableSolanaAsset } from "../../ReceiveFragment";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { ReAnimatedCircularProgress } from "../../../../components/CircularProgress/ReAnimatedCircularProgress";
 import { UnifiedSolanaTransaction } from "../../../../engine/types/unifiedTransaction";
 import { UnifiedSolanaTransactionView } from "../UnifiedSolanaTransactionView";
+import { useSectionedTransactions } from "../../../../engine/hooks/transactions";
+import { TransactionsListFooter } from "../../../../components/transactions/TransactionsListFooter";
+import { TransactionType } from "../../../../engine/types";
 
 type SolanaTransactionsProps = {
   theme: ThemeType;
@@ -29,6 +28,7 @@ type SolanaTransactionsProps = {
   owner: string;
   asset?: ReceiveableSolanaAsset;
   pendingCount?: number;
+  markAsTimedOut: (id: string, txType: TransactionType) => void
 };
 
 export const SolanaTransactions = memo(({
@@ -42,36 +42,24 @@ export const SolanaTransactions = memo(({
   header,
   owner,
   asset,
-  pendingCount
+  pendingCount,
+  markAsTimedOut
 }: SolanaTransactionsProps) => {
   const bottomBarHeight = useBottomTabBarHeight();
-  const { transactionsSections } = useMemo(() => {
-    const sectioned = new Map<string, { title: string, data: UnifiedSolanaTransaction[] }>();
-    for (let i = 0; i < txs.length; i++) {
-      const unifiedTx = txs[i];
-      const time = getDateKey(unifiedTx.time);
-      const section = sectioned.get(time);
+  
+  const filterFn = useCallback((unifiedTx: UnifiedSolanaTransaction) => {
+    if (unifiedTx.type === 'blockchain') {
+      const tx = unifiedTx.data;
+      const addToSection = asset
+        ? true
+        : 'nativeTransfers' in tx && tx.nativeTransfers.some((transfer: any) => transfer.toUserAccount === owner || transfer.fromUserAccount === owner);
 
-      if (unifiedTx.type === 'blockchain') {
-        const tx = unifiedTx.data;
-        const addToSection = asset
-          ? true
-          : 'nativeTransfers' in tx && tx.nativeTransfers.some((transfer: any) => transfer.toUserAccount === owner || transfer.fromUserAccount === owner);
-
-        if (!addToSection) {
-          continue;
-        }
-      }
-
-      if (section) {
-        section.data.push(unifiedTx);
-      } else {
-        sectioned.set(time, { title: formatDate(unifiedTx.time), data: [unifiedTx] });
-      }
+      return addToSection;
     }
+    return true;
+  }, [owner, asset]);
 
-    return { transactionsSections: Array.from(sectioned.values()) };
-  }, [txs, owner, asset]);
+  const transactionsSections = useSectionedTransactions(txs, filterFn);
 
   const renderSectionHeader = (section: { section: SectionListData<any, { title: string }> }) => (
     <TransactionsSectionHeader theme={theme} title={section.section.title} />
@@ -83,9 +71,10 @@ export const SolanaTransactions = memo(({
         item={item}
         owner={owner}
         asset={asset}
+        markAsTimedOut={markAsTimedOut}
       />
     );
-  }, [owner, asset]);
+  }, [owner, asset, markAsTimedOut]);
 
   const ListEmptyComponent = useMemo(() => {
     if (loading) {
@@ -93,23 +82,6 @@ export const SolanaTransactions = memo(({
     }
     return <TransactionsEmptyState type={TransactionsEmptyStateType.Solana} addr={owner} asset={asset} />;
   }, [loading, owner, asset]);
-
-  const ListFooterComponent = useMemo(() => {
-    if (hasNext) {
-      return (
-        <View style={{ height: 64, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-          <ReAnimatedCircularProgress
-            size={24}
-            color={theme.iconPrimary}
-            reverse
-            infinitRotate
-            progress={0.8}
-          />
-        </View>
-      );
-    }
-    return null;
-  }, [hasNext, theme]);
 
   return (
     <SectionList
@@ -122,7 +94,7 @@ export const SolanaTransactions = memo(({
       contentContainerStyle={styles.listContent}
       ListHeaderComponent={header}
       ListEmptyComponent={pendingCount ? undefined : ListEmptyComponent}
-      ListFooterComponent={ListFooterComponent}
+      ListFooterComponent={<TransactionsListFooter hasNext={hasNext} theme={theme} />}
       onEndReached={onLoadMore}
       initialNumToRender={16}
       scrollEventThrottle={50}

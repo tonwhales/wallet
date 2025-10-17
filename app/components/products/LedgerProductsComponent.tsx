@@ -25,6 +25,7 @@ import { IbanBanner } from "../holders/IbanBanner";
 import { LedgerJettonsHiddenComponent } from "./LedgerJettonsHiddenComponent";
 import { OrdersList } from "../orders/OrdersList";
 import { TonhubChangellyBanner } from "./TonhubChangellyBanner";
+import { StakingWithdrawReady } from "./earnings/StakingWithdrawReady";
 
 export const LedgerProductsComponent = memo(({ wallet, testOnly }: { wallet: LedgerWallet, testOnly: boolean }) => {
     const theme = useTheme();
@@ -81,6 +82,7 @@ export const LedgerProductsComponent = memo(({ wallet, testOnly }: { wallet: Led
             <View style={{ backgroundColor: theme.backgroundPrimary }}>
                 {isWalletMode && <OrdersList />}
                 <PendingTransactions address={address.toString({ testOnly })} isLedger={true} />
+                <StakingWithdrawReady address={address} isLedger={true} />
                 {!isWalletMode && (
                     <IbanBanner isLedger={true} />
                 )}

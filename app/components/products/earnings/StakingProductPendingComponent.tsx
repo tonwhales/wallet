@@ -1,12 +1,11 @@
 import { memo, useMemo } from "react";
 import { View } from "react-native";
-import { useNetwork, useStakingActive, useTheme } from "../../../engine/hooks";
+import { useNetwork, useStakingActive } from "../../../engine/hooks";
 import { Address } from "@ton/core";
 import { StakingPoolMember } from "../../../engine/types";
 import { StakingPendingComponent } from "../../staking/StakingPendingComponent";
 
 export const StakingProductPendingComponent = memo(({ address, isLedger }: { address: Address, isLedger?: boolean }) => {
-    const theme = useTheme();
     const { isTestnet } = useNetwork();
     const active = useStakingActive(address);
 
@@ -17,7 +16,7 @@ export const StakingProductPendingComponent = memo(({ address, isLedger }: { add
 
         return Object.keys(active).filter((k) => {
             const state = active[k];
-            return state.pendingDeposit > 0n || state.pendingWithdraw > 0n || state.withdraw > 0n;
+            return state.pendingDeposit > 0n || state.pendingWithdraw > 0n;
         }).map((k) => {
             const state = active[k];
             return {
@@ -38,6 +37,7 @@ export const StakingProductPendingComponent = memo(({ address, isLedger }: { add
         <View style={{ paddingHorizontal: 16 }}>
             {pendingArray.map((p) => (
                 <StakingPendingComponent
+                    hideWithdrawReady
                     isTestnet={isTestnet}
                     target={Address.parse(p.pool)}
                     member={p}

@@ -36,6 +36,7 @@ import { TonhubChangellyBanner } from "./TonhubChangellyBanner"
 import { WalletRequests } from "../requests/WalletRequests"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
+import { StakingWithdrawReady } from "./earnings/StakingWithdrawReady"
 
 export type HoldersBannerType = { type: 'built-in' } | { type: 'custom', banner: HoldersCustomBanner };
 
@@ -114,6 +115,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                     viewType="main"
                     mint={solanaTokenMint}
                 />
+                <StakingWithdrawReady address={selected.address} />
                 <PaymentOtpBanner address={selected.address} />
                 {isWalletMode ? (
                     <>

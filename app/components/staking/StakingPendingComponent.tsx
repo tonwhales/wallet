@@ -18,7 +18,8 @@ export const StakingPendingComponent = memo((
         isLedger,
         isTestnet,
         showTitle,
-        routeToPool
+        routeToPool,
+        hideWithdrawReady
     }: {
         member?: StakingPoolMember | null,
         target: Address,
@@ -26,7 +27,8 @@ export const StakingPendingComponent = memo((
         isLedger?: boolean,
         isTestnet: boolean,
         showTitle?: boolean,
-        routeToPool?: boolean
+        routeToPool?: boolean,
+        hideWithdrawReady?: boolean
     }
 ) => {
     const theme = useTheme();
@@ -143,7 +145,7 @@ export const StakingPendingComponent = memo((
                 </>
             )}
 
-            {member.withdraw > 0n && (
+            {member.withdraw > 0n && !hideWithdrawReady && (
                 <>
                     {(member.pendingWithdraw > 0n || member.pendingDeposit > 0n) && (
                         <View style={{

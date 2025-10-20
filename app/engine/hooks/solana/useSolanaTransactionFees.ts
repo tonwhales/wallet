@@ -4,12 +4,13 @@ import { Queries } from "../../queries";
 import { useNetwork } from "../network";
 import { Transaction } from "@solana/web3.js";
 
-export function useSolanaTransactionFees(tx: Transaction) {
+export function useSolanaTransactionFees(tx?: Transaction) {
     const { isTestnet } = useNetwork();
 
-    const txString = tx.serialize({ requireAllSignatures: false }).toString('base64');
+    const txString = !!tx ? tx.serialize({ requireAllSignatures: false }).toString('base64') : '';
 
     const query = useQuery({
+        enabled: !!tx,
         queryKey: Queries.SolanaTransactionFees(isTestnet ? 'testnet' : 'mainnet', txString),
         queryFn: () => {
             try {

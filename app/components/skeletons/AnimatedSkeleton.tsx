@@ -17,6 +17,7 @@ interface AnimatedSkeletonProps {
     height?: number;
     backgroundColor?: string;
     style?: StyleProp<ViewStyle>;
+    duration?: number;
 }
 
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
@@ -25,7 +26,8 @@ export const AnimatedSkeleton = memo(({
     width,
     height,
     backgroundColor,
-    style
+    style,
+    duration
 }: AnimatedSkeletonProps) => {
     const theme = useTheme();
     const animation = useSharedValue(0);
@@ -34,7 +36,7 @@ export const AnimatedSkeleton = memo(({
     useEffect(() => {
         animation.value = withRepeat(
             withTiming(1, {
-                duration: 1500,
+                duration: duration || 1500,
                 easing: Easing.linear
             }),
             -1,
@@ -55,8 +57,9 @@ export const AnimatedSkeleton = memo(({
         };
     });
 
-    const bgColor = backgroundColor || theme.surfaceOnElevation;
+    const bgColor = backgroundColor || theme.style === 'dark' ? theme.surfaceOnElevation : theme.divider;
     const shimmerColor = theme.style === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.6)';
+    const sideColor = theme.style === 'dark' ? 'transparent' : theme.divider;
 
     return (
         <View
@@ -73,7 +76,7 @@ export const AnimatedSkeleton = memo(({
             ]}
         >
             <AnimatedLinearGradient
-                colors={['transparent', shimmerColor, 'transparent']}
+                colors={[sideColor, shimmerColor, sideColor]}
                 start={{ x: 0, y: 1 }}
                 end={{ x: 1, y: 1 }}
                 style={[

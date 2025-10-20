@@ -14,6 +14,7 @@ export const WImage = memo((props: {
     borderRadius: number,
     style?: StyleProp<ViewStyle>,
     lockLoading?: boolean
+    disablePlaceholder?: boolean
 }) => {
     const theme = useTheme();
     let url = props.src ? resolveLink(props.src) : null;
@@ -54,8 +55,8 @@ export const WImage = memo((props: {
                     source={{ uri: url }}
                     style={{ width: props.width, height: props.height }}
                     resizeMode={'cover'}
-                    placeholder={require('@assets/ic_app_placeholder.png')}
-                    transition={{
+                    placeholder={props.disablePlaceholder ? undefined : require('@assets/ic_app_placeholder.png')}
+                    transition={props.disablePlaceholder ? undefined : {
                         duration: 150,
                         timing: 'ease-in-out',
                         effect: 'cross-dissolve'

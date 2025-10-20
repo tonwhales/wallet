@@ -1,9 +1,9 @@
 import { useCallback, useMemo, useState } from "react";
-import { SelectedInput } from "../../../secure/simpleTransfer/hooks/useSimpleTransfer";
+import { SelectedInput, SimpleTransferAsset } from "../../../secure/simpleTransfer/hooks/useSimpleTransfer";
 import { useTypedNavigation } from "../../../../utils/useTypedNavigation";
 import { fromNano, toNano } from "@ton/core";
 import { isSolanaAddress } from "../../../../utils/solana/address";
-import { useSolanaAccount, useSolanaToken, useSolanaClients, useCurrentAddress } from "../../../../engine/hooks";
+import { useSolanaAccount, useSolanaToken, useSolanaClients, useCurrentAddress, useHoldersAccounts, useUsdcMintAddress } from "../../../../engine/hooks";
 import { t } from "../../../../i18n/t";
 import { formatInputAmount } from "../../../../utils/formatCurrency";
 import { SolanaSimpleTransferParams } from "../../../secure/simpleTransfer/SimpleTransferFragment";
@@ -12,6 +12,7 @@ import { SolanaOrder } from "../../../secure/ops/Order";
 import { Alert } from "react-native";
 import { fromBnWithDecimals, toBnWithDecimals } from "../../../../utils/withDecimals";
 import { emulateSolanaTranOrder } from "../../../secure/utils/emulateSolanaTranOrder";
+import { GeneralHoldersAccount } from "../../../../engine/api/holders/fetchAccounts";
 
 type Options = {
     params: SolanaSimpleTransferParams;
@@ -25,13 +26,16 @@ export type SolanaAddressInputState = {
 
 export const useSolanaSimpleTransfer = ({ params }: Options) => {
     const navigation = useTypedNavigation();
-    const { solanaAddress } = useCurrentAddress();
-    const token = params.token;
+    const { solanaAddress, tonAddress } = useCurrentAddress();
+    const usdcMintAddress = useUsdcMintAddress();
+    const [selectedAsset, setSelectedAsset] = useState<SimpleTransferAsset | null>(params.token ? { type: 'solana-token', address: params.token } : { type: 'solana' });
+    const token = selectedAsset?.type === 'solana-token' ? selectedAsset.address : null;
     const account = useSolanaAccount(solanaAddress!);
     const accountToken = useSolanaToken(solanaAddress!, token);
     const { client, publicClient } = useSolanaClients();
     const hasParamsFilled = !!params?.target && !!params?.amount;
     const [selectedInput, setSelectedInput] = useState<SelectedInput | null>(hasParamsFilled ? null : SelectedInput.ADDRESS);
+    const holdersAccounts = useHoldersAccounts(tonAddress, solanaAddress);
 
     const [addressInputState, setAddressInputState] = useState<SolanaAddressInputState>(
         {
@@ -101,7 +105,30 @@ export const useSolanaSimpleTransfer = ({ params }: Options) => {
         }
     }, [targetAddressValid[0], validAmount, commentString, accountToken]);
 
+    const onAssetSelected = useCallback((selected?: SimpleTransferAsset) => {
+        if (selected?.type === 'solana-token') {
+            setSelectedAsset({ type: 'solana-token', address: selected.address });
+            return;
+        } else {
+            setSelectedAsset({ type: 'solana' });
+        }
+    }, []);
+
+    const solanaHoldersTarget: GeneralHoldersAccount | undefined = holdersAccounts.data?.accounts?.find((a) => targetAddressValid[0] === a.address);
+    const holdersTargetSymbol = solanaHoldersTarget?.cryptoCurrency.ticker;
+    const shouldChangeToken = holdersTargetSymbol
+        ? holdersTargetSymbol !== accountToken?.symbol
+        : false;
+
+    const onChangeToken = useCallback(() => {
+        onAssetSelected({ type: 'solana-token', address: usdcMintAddress });
+    }, [onAssetSelected]);
+    
+
     const amountError = useMemo(() => {
+        if (shouldChangeToken) {
+            return t('transfer.error.jettonChange', { symbol: holdersTargetSymbol });
+        }
         if (amount.length === 0) {
             return undefined;
         }
@@ -116,7 +143,7 @@ export const useSolanaSimpleTransfer = ({ params }: Options) => {
         }
 
         return undefined;
-    }, [validAmount, balance, amount]);
+    }, [validAmount, balance, amount, shouldChangeToken]);
 
     const onAddAll = useCallback(() => {
         // Reserve 5000 lamports (0.000005 SOL) for transaction fees when sending SOL
@@ -223,6 +250,11 @@ export const useSolanaSimpleTransfer = ({ params }: Options) => {
         doSend,
         symbol: accountToken?.symbol ?? 'SOL',
         decimals: accountToken?.decimals ?? 9,
-        logoURI: accountToken?.logoURI ?? ''
+        logoURI: accountToken?.logoURI ?? '',
+        shouldChangeToken,
+        holdersTargetSymbol,
+        onChangeToken,
+        onAssetSelected,
+        selectedAsset
     }
 }

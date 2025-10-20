@@ -13,6 +13,8 @@ import { CoinIcon } from "./CoinIcon";
 import { Currency } from "../../../engine/types/deposit";
 import { AssetViewType } from "../../../fragments/wallet/AssetsFragment";
 
+import IcCheck from "@assets/ic-check.svg";
+
 interface CoinItemProps {
     theme: ThemeType;
     balance?: bigint | string;
@@ -33,6 +35,7 @@ interface CoinItemProps {
     withArrow?: boolean
     priceUSD?: number
     viewType?: AssetViewType
+    isSelected?: boolean
 }
 
 export const Tag = memo(({ tag, theme }: { tag: string, theme: ThemeType }) => {
@@ -68,7 +71,8 @@ export const CoinItem = memo(({
     isPressable = true,
     withArrow,
     priceUSD,
-    viewType
+    viewType,
+    isSelected
 }: CoinItemProps) => {
     return (
         <Pressable
@@ -196,6 +200,22 @@ export const CoinItem = memo(({
                         </View>
                         )}
                     </>
+                ) : isSelected !== undefined ? (
+                    <View style={{
+                        flexGrow: 1, alignItems: 'flex-end'
+                    }}>
+                        <View style={{
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            height: 24, width: 24,
+                            backgroundColor: isSelected ? theme.accent : theme.divider,
+                            borderRadius: 12
+                        }}>
+                            {isSelected && (
+                                <IcCheck color={theme.white} height={16} width={16} style={{ height: 16, width: 16 }} />
+                            )}
+                        </View>
+                    </View>
                 ) : null}
             </View>
         </Pressable>

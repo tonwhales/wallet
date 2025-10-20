@@ -54,6 +54,7 @@ export type AddressInputAction = {
     input: string,
     target: string,
     suffix: string,
+    addressType: 'ton' | 'solana' | undefined,
 } | { type: InputAction.Clear }
 
 export function addressInputReducer() {
@@ -108,7 +109,8 @@ export function addressInputReducer() {
                     ...state,
                     input: action.input,
                     target: action.target,
-                    suffix: action.suffix
+                    suffix: action.suffix,
+                    addressType: action.addressType
                 };
             case InputAction.Clear:
                 return {

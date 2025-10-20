@@ -16,7 +16,6 @@ import { PressableChip } from '../../../../components/PressableChip';
 import { AmountInput } from '../../../../components/input/AmountInput';
 import IcChevron from '@assets/ic_chevron_forward.svg';
 import { Jetton } from '../../../../engine/types';
-import { HoldersAccountTarget } from '../../../../engine/hooks/holders/useHoldersAccountTrargets';
 import { SimpleTransferAsset } from '../hooks/useSimpleTransfer';
 import { ExtraCurrencyHint } from '../../../../engine/api/fetchExtraCurrencyHints';
 import { WImage } from '../../../../components/WImage';
@@ -37,7 +36,7 @@ type Props = {
     setAmount: Dispatch<SetStateAction<string>>;
     priceText?: string;
     shouldChangeJetton?: boolean;
-    holdersTarget?: HoldersAccountTarget;
+    holdersTargetSymbol?: string;
     decimals?: number;
     logoURI?: string;
     onChangeJetton?: () => void;
@@ -61,6 +60,7 @@ const AmountIcon = memo(({ symbol, jetton, logoURI }: { symbol: string, jetton?:
                 width: 46,
                 marginRight: 12
             }}
+            disablePlaceholder={true}
         />
     }
 
@@ -111,7 +111,7 @@ export const SimpleTransferAmount = memo(forwardRef(({
     amountError,
     priceText,
     shouldChangeJetton,
-    holdersTarget,
+    holdersTargetSymbol,
     onChangeJetton,
     onInputFocus,
     decimals,
@@ -258,13 +258,13 @@ export const SimpleTransferAmount = memo(forwardRef(({
             layout={LinearTransition.duration(200).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
         >
             <PressableChip
-                text={t('transfer.changeJetton', { symbol: holdersTarget?.symbol })}
+                text={t('transfer.changeJetton', { symbol: holdersTargetSymbol })}
                 style={{ backgroundColor: theme.accent }}
                 textStyle={{ color: theme.textUnchangeable }}
                 onPress={onChangeJetton}
             />
         </Animated.View>
-    ), [shouldChangeJetton, holdersTarget?.symbol, onChangeJetton, theme])
+    ), [shouldChangeJetton, holdersTargetSymbol, onChangeJetton, theme])
 
     return (
         <View

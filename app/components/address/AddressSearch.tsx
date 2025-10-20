@@ -30,6 +30,14 @@ export type AddressSearchItem = {
     memo?: string
 };
 
+export type SolanaAddressSearchItem = {
+    address: string,
+    title: string,
+    searchable: string,
+    type: 'holders',
+    memo?: string
+};
+
 export const AddressSearch = memo(({
     query,
     onSelect,

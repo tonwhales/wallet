@@ -121,6 +121,7 @@ export const WalletActions = memo(({
                     navigation={navigation}
                     theme={theme}
                     isLedger={isLedger}
+                    fromHomeScreen={!actionAsset}
                 />
                 {isWalletMode && (
                     <WalletActionButton

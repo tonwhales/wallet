@@ -75,12 +75,14 @@ export const WalletActionButton = memo(({
     action,
     navigation,
     theme,
-    isLedger
+    isLedger,
+    fromHomeScreen
 }: {
     action: WalletAction,
     navigation: TypedNavigation,
     theme: ThemeType,
     isLedger?: boolean
+    fromHomeScreen?: boolean
 }) => {
     const { isTestnet } = useNetwork();
     const ledgerContext = useLedgerTransport();
@@ -144,7 +146,7 @@ export const WalletActionButton = memo(({
                     const asset: SimpleTransferAsset | null = action.jettonWallet ? { type: 'jetton', wallet: action.jettonWallet } : null;
                     navigation.navigateSimpleTransfer(
                         { ...nullTransfer, asset },
-                        { ledger: isLedger }
+                        { ledger: isLedger, fromHomeScreen }
                     );
                 } else {
                     const accountId = accounts?.[0]?.id;

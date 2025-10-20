@@ -7,17 +7,20 @@ import { useDebouncedValue } from "../../utils/useDebouncedValue";
 import { ThemeType } from "../../engine/state/theme";
 import { Typography } from "../styles";
 import { getAccountName } from "../../utils/holders/getAccountName";
-import { AddressSearchItem } from "./AddressSearch";
+import { AddressSearchItem, SolanaAddressSearchItem } from "./AddressSearch";
 import { HoldersAccountItem } from "../products/HoldersAccountItem";
 import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
 import { Address } from "@ton/core";
-import Animated from "react-native-reanimated";
+import { hasDirectSolanaDeposit, hasDirectTonDeposit } from "../../utils/holders/hasDirectDeposit";
 
-type HoldersSearchItem = AddressSearchItem & { acc: GeneralHoldersAccount };
+type TonHoldersSearchItem = AddressSearchItem & { acc: GeneralHoldersAccount };
+type SolanaHoldersSearchItem = { acc: GeneralHoldersAccount, type: 'solana', searchable: string };
+type HoldersSearchItem = TonHoldersSearchItem | SolanaHoldersSearchItem;
 
 export const HoldersAccountsSearch = memo(({
     query,
     onSelect,
+    onSolanaSelect,
     theme,
     holdersAccounts,
     owner,
@@ -25,6 +28,7 @@ export const HoldersAccountsSearch = memo(({
 }: {
     query?: string,
     onSelect?: (item: AddressSearchItem) => void,
+    onSolanaSelect?: (item: SolanaAddressSearchItem) => void,
     theme: ThemeType,
     holdersAccounts?: GeneralHoldersAccount[],
     owner: Address,
@@ -37,10 +41,21 @@ export const HoldersAccountsSearch = memo(({
     const searchItems: HoldersSearchItem[] = useMemo(() => {
         return (holdersAccounts || [])
             .filter((a) => !!a.address)
-            .map((acc) => {
+            .map((acc): HoldersSearchItem => {
                 const title = getAccountName(acc.accountIndex, acc.name);
-                const address = Address.parse(acc.address!!);
                 const searchable = `${title.toLowerCase()} ${acc.address!.toLowerCase()}`;
+
+                // Check if it's a Solana account
+                if (hasDirectSolanaDeposit(acc)) {
+                    return {
+                        type: 'solana',
+                        searchable,
+                        acc
+                    };
+                }
+
+                // TON account logic
+                const address = Address.parse(acc.address!!);
                 let memo: string | undefined = undefined;
 
                 if (acc.cryptoCurrency.ticker === 'TON') {
@@ -81,7 +96,22 @@ export const HoldersAccountsSearch = memo(({
                     </Text>
                     <View style={{ borderRadius: 20, gap: 16 }}>
                         {filtered.map((item, index) => {
-                            const onOpen = () => onSelect?.(item);
+                            const onOpen = () => {
+                                if ('addr' in item && item.type === 'holders') {
+                                    // TON holders account - pass to onSelect
+                                    onSelect?.(item);
+                                } else if (item.type === 'solana' && item.acc.address) {
+                                    // Solana holders account - pass to onSolanaSelect
+                                    const title = getAccountName(item.acc.accountIndex, item.acc.name);
+                                    onSolanaSelect?.({
+                                        address: item.acc.address,
+                                        title,
+                                        searchable: item.searchable,
+                                        type: 'holders',
+                                        memo: item.acc.cryptoCurrency.ticker === 'USDC' ? 'Top Up' : undefined
+                                    });
+                                }
+                            };
                             return (
                                 <HoldersAccountItem
                                     key={`holders-${item.acc.id}`}

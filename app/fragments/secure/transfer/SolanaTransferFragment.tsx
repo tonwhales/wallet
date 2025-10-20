@@ -262,7 +262,7 @@ const TransferOrder = (props: { order: SolanaOrder, callback?: (ok: boolean, sig
                             </View>
                         </ItemGroup>
                     )}
-                    {/* <SolanaTransferFees tx={transaction} /> */}
+                    <SolanaTransferFees tx={transaction!} />
                     <View style={{ height: 54 }} />
                 </View>
             </ScrollView>

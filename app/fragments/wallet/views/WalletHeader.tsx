@@ -22,7 +22,7 @@ export const WalletHeader = memo(({ address, height, walletCardHeight, scrollOff
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const [isWalletMode] = useAppMode(address);
-    const { rates } = useRates(['ton'], ['usd']);
+    const rates = useRates(['ton'], ['usd'])?.rates;
     const diff = rates?.TON?.diff24h?.USD;
     const isNegative = diff?.startsWith('−');
     const diffPercent = diff?.replace(/^[+−]/, '');
@@ -99,7 +99,7 @@ export const WalletHeader = memo(({ address, height, walletCardHeight, scrollOff
                                 <PriceComponent
                                     showSign
                                     amount={toNano(1)}
-                                    style={{ backgroundColor: 'transparent' , paddingHorizontal: 6}}
+                                    style={{ backgroundColor: 'transparent', paddingHorizontal: 6 }}
                                     textStyle={{ color: theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary }}
                                     theme={theme}
                                 />
@@ -112,7 +112,7 @@ export const WalletHeader = memo(({ address, height, walletCardHeight, scrollOff
                                     width={12}
                                     height={12}
                                     color={diffTextColor}
-                                    style={{ 
+                                    style={{
                                         transform: [{ rotate: isNegative ? '180deg' : '0deg' }],
                                         marginRight: 4
                                     }}

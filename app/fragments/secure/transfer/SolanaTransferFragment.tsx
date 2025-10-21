@@ -4,13 +4,13 @@ import { useParams } from "../../../utils/useParams";
 import { SolanaOrder, SolanaOrderApp } from "../ops/Order"
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../../../components/ScreenHeader";
-import { useSolanaClients, useSolanaSelectedAccount, useSolanaToken, useTheme, useRegisterPendingSolana, useSolanaTransactionFromOrder } from "../../../engine/hooks";
+import { useSolanaClients, useSolanaSelectedAccount, useSolanaToken, useTheme, useRegisterPendingSolana, useSolanaTransactionFromOrder, useHoldersAccounts, useCurrentAddress } from "../../../engine/hooks";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ItemGroup } from "../../../components/ItemGroup";
 import { Typography } from "../../../components/styles";
 import { t } from "../../../i18n/t";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { copyText } from "../../../utils/copyText";
 import { ToastDuration, useToaster } from "../../../components/toast/ToastProvider";
 import { RoundButton } from "../../../components/RoundButton";
@@ -27,6 +27,7 @@ import { parseTransactionInstructions } from "../../../utils/solana/parseInstruc
 import { TransferInstructions } from "../components/TransferInstructions";
 import { SolanaTransactionAppHeader } from "./SolanaTransactionAppHeader";
 import { SolanaTransferFees } from "../../solana/transfer/components/SolanaTransferFees";
+import { useTransactionsHistoryContext } from "../../../engine/TransactionsHistoryContext";
 
 type SolanaOrderTransferParams = {
     type: 'order';
@@ -100,10 +101,12 @@ const TransferOrder = (props: { order: SolanaOrder, callback?: (ok: boolean, sig
     const authContext = useKeysAuth();
     const solanaAddress = useSolanaSelectedAccount()!;
     const navigation = useTypedNavigation();
-
+    const { checkIsHoldersTarget } = useTransactionsHistoryContext();
     const token = useSolanaToken(solanaAddress, order.token?.mint);
     const registerPending = useRegisterPendingSolana(solanaAddress);
     const transaction = useSolanaTransactionFromOrder(order, solanaAddress, solanaClients);
+   
+    const forceAvatar = useMemo(() => checkIsHoldersTarget(order.target) ? 'holders' : undefined, [checkIsHoldersTarget, order.target]);
 
     const onCopyAddress = useCallback((address: string) => {
         copyText(address);
@@ -177,6 +180,7 @@ const TransferOrder = (props: { order: SolanaOrder, callback?: (ok: boolean, sig
                                     markContact={false}
                                     friendly={order.target}
                                     avatarColor={avatarColor}
+                                    forceAvatar={forceAvatar}
                                 />
                             </View>
                         </View>

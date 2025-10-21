@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useMemo } from "react";
 import { View, Text, Pressable } from "react-native";
 import { Typography } from "../../../../components/styles";
 import { AddressInputAvatar } from "../../../../components/address/AddressInputAvatar";
@@ -14,8 +14,10 @@ import { useTheme } from "../../../../engine/hooks/theme";
 import { useTypedNavigation } from "../../../../utils/useTypedNavigation";
 import { useSolanaToken } from "../../../../engine/hooks";
 import { TRANSACTION_AVATAR_SIZE } from "../../../../utils/constants";
+import { useTransactionsHistoryContext } from "../../../../engine/TransactionsHistoryContext";
 
 export const SolanaTokenTransferView = memo(({ transfer, owner, accountData, item }: { transfer: SolanaTokenTransfer, owner: string, accountData: SolanaAccountData, item: SolanaTransaction }) => {
+  const { checkIsHoldersTarget } = useTransactionsHistoryContext();
   const { fromUserAccount, toTokenAccount, tokenAmount, mint } = transfer;
   const kind: 'in' | 'out' = fromUserAccount === owner ? 'out' : 'in';
   const theme = useTheme();
@@ -30,6 +32,7 @@ export const SolanaTokenTransferView = memo(({ transfer, owner, accountData, ite
   const tokenInfo = useSolanaToken(owner, mint);
   const symbol = tokenInfo?.symbol;
   const decimals = tokenInfo?.decimals;
+  const forceAvatar = useMemo(() => checkIsHoldersTarget(address) ? 'holders' : undefined, [checkIsHoldersTarget, address]);
 
   const navigate = () => {
     navigation.navigateSolanaTransaction({
@@ -60,6 +63,7 @@ export const SolanaTokenTransferView = memo(({ transfer, owner, accountData, ite
           knownWallets={{}}
           hash={null}
           disableFade
+          forceAvatar={forceAvatar}
         />
       </View>
       <View style={{ flex: 1, marginRight: 4 }}>

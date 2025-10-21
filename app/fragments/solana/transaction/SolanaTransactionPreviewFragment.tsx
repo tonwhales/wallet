@@ -17,12 +17,13 @@ import { avatarColors } from "../../../components/avatar/Avatar";
 import { avatarHash } from "../../../utils/avatarHash";
 import { ToastDuration, useToaster } from "../../../components/toast/ToastProvider";
 import { copyText } from "../../../utils/copyText";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { SolanaWalletAddress } from "../../../components/address/SolanaWalletAddress";
 import { useParams } from "../../../utils/useParams";
 import { solanaPreviewToTransferParams } from "../../../utils/solana/solanaPreviewToTransferParams";
 import { RoundButton } from "../../../components/RoundButton";
-import { useSolanaTransferInfo } from "../../../engine/hooks";
+import { useCurrentAddress, useHoldersAccounts, useSolanaTransferInfo } from "../../../engine/hooks";
+import { useTransactionsHistoryContext } from "../../../engine/TransactionsHistoryContext";
 
 export type SolanaTransactionPreviewParams = {
     owner: string;
@@ -35,6 +36,7 @@ const SolanaTransactionPreview = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const toaster = useToaster();
+    const { checkIsHoldersTarget } = useTransactionsHistoryContext();
     const { owner, transaction, transfer } = useParams<SolanaTransactionPreviewParams>();
     const { data, type } = transfer;
     const transferInfo = useSolanaTransferInfo({ type, transfer: data, transaction, owner });
@@ -43,6 +45,7 @@ const SolanaTransactionPreview = fragment(() => {
 
     const amountColor = (kind === 'in') ? theme.accentGreen : theme.textPrimary;
     const avatarColor = avatarColors[avatarHash(address ?? '', avatarColors.length)];
+    const forceAvatar = useMemo(() => checkIsHoldersTarget(address ?? '') ? 'holders' : undefined, [checkIsHoldersTarget, address]);
 
     const onCopyAddress = useCallback((address: string) => {
         copyText(address);
@@ -110,6 +113,7 @@ const SolanaTransactionPreview = fragment(() => {
                             avatarColor={avatarColor}
                             knownWallets={{}}
                             hash={null}
+                            forceAvatar={forceAvatar}
                         />
                     </View>
                     <PerfText

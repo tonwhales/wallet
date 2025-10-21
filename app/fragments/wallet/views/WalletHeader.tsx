@@ -22,8 +22,8 @@ export const WalletHeader = memo(({ address, height, walletCardHeight, scrollOff
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const [isWalletMode] = useAppMode(address);
-    const { rates } = useRates(['ton'], ['usd']);
-    const diff = rates?.TON?.diff24h?.USD;
+    const { data: rates } = useRates(['ton'], ['usd']);
+    const diff = rates?.rates?.TON?.diff24h?.USD;
     const isNegative = diff?.startsWith('−');
     const diffPercent = diff?.replace(/^[+−]/, '');
     const diffTextColor = isNegative ? theme.accentRed : theme.accentGreen;
@@ -99,28 +99,30 @@ export const WalletHeader = memo(({ address, height, walletCardHeight, scrollOff
                                 <PriceComponent
                                     showSign
                                     amount={toNano(1)}
-                                    style={{ backgroundColor: 'transparent' , paddingHorizontal: 6}}
+                                    style={{ backgroundColor: 'transparent', paddingHorizontal: 6 }}
                                     textStyle={{ color: theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary }}
                                     theme={theme}
                                 />
 
                             </Pressable>
-                            <View
-                                style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: diffBackgroundColor, paddingHorizontal: 6, borderRadius: 20 }}
-                            >
-                                <IcRateChevron
-                                    width={12}
-                                    height={12}
-                                    color={diffTextColor}
-                                    style={{ 
-                                        transform: [{ rotate: isNegative ? '180deg' : '0deg' }],
-                                        marginRight: 4
-                                    }}
-                                />
-                                <Text style={[Typography.medium15_20, { color: diffTextColor }]}>
-                                    {diffPercent}
-                                </Text>
-                            </View>
+                            {!!diff && (
+                                <View
+                                    style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: diffBackgroundColor, paddingHorizontal: 6, borderRadius: 20 }}
+                                >
+                                    <IcRateChevron
+                                        width={12}
+                                        height={12}
+                                        color={diffTextColor}
+                                        style={{
+                                            transform: [{ rotate: isNegative ? '180deg' : '0deg' }],
+                                            marginRight: 4
+                                        }}
+                                    />
+                                    <Text style={[Typography.medium15_20, { color: diffTextColor }]}>
+                                        {diffPercent}
+                                    </Text>
+                                </View>
+                            )}
                         </Animated.View>
                     )}
                 </View>

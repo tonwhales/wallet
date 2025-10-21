@@ -12,5 +12,5 @@ export function useRates(tokens: string[], currencies: string[]) {
         refetchOnWindowFocus: true,
         refetchOnMount: true,
         staleTime: 1000 * 60
-    }).data;
+    });
 }

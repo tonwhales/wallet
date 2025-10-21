@@ -76,13 +76,13 @@ export const LedgerProductsComponent = memo(({ wallet, testOnly }: { wallet: Led
         });
 
     }, [wallet.address, testOnly]);
-    
+
     return (
         <View>
             <View style={{ backgroundColor: theme.backgroundPrimary }}>
                 {isWalletMode && <OrdersList />}
                 <PendingTransactions address={address.toString({ testOnly })} isLedger={true} />
-                <StakingWithdrawReady address={address} isLedger={true} />
+                {isWalletMode && <StakingWithdrawReady address={address} isLedger={true} />}
                 {!isWalletMode && (
                     <IbanBanner isLedger={true} />
                 )}

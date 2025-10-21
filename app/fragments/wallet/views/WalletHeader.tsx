@@ -105,22 +105,24 @@ export const WalletHeader = memo(({ address, height, walletCardHeight, scrollOff
                                 />
 
                             </Pressable>
-                            <View
-                                style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: diffBackgroundColor, paddingHorizontal: 6, borderRadius: 20 }}
-                            >
-                                <IcRateChevron
-                                    width={12}
-                                    height={12}
-                                    color={diffTextColor}
-                                    style={{
-                                        transform: [{ rotate: isNegative ? '180deg' : '0deg' }],
-                                        marginRight: 4
-                                    }}
-                                />
-                                <Text style={[Typography.medium15_20, { color: diffTextColor }]}>
-                                    {diffPercent}
-                                </Text>
-                            </View>
+                            {!!diff && (
+                                <View
+                                    style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: diffBackgroundColor, paddingHorizontal: 6, borderRadius: 20 }}
+                                >
+                                    <IcRateChevron
+                                        width={12}
+                                        height={12}
+                                        color={diffTextColor}
+                                        style={{
+                                            transform: [{ rotate: isNegative ? '180deg' : '0deg' }],
+                                            marginRight: 4
+                                        }}
+                                    />
+                                    <Text style={[Typography.medium15_20, { color: diffTextColor }]}>
+                                        {diffPercent}
+                                    </Text>
+                                </View>
+                            )}
                         </Animated.View>
                     )}
                 </View>

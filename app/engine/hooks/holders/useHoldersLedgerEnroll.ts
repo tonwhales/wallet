@@ -147,7 +147,9 @@ export function useHoldersLedgerEnroll({ inviteId, invitationId, setConfirming }
                             },
                             walletStateInit,
                             appsflyerId,
-                            isTestnet
+                            isTestnet,
+                            inviteId,
+                            invitationId ?? storedInvitationId
                         )
 
                         await saveAppConnection({

@@ -1,6 +1,6 @@
 import React from "react";
 import { memo, useCallback } from "react";
-import { Pressable, View, Image, Platform, ScrollView } from "react-native";
+import { Pressable, View, Platform, ScrollView, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useTheme } from "../../../engine/hooks";
@@ -10,6 +10,10 @@ import { SelectedWallet } from "../../../components/wallet/SelectedWallet";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { SharedValue, useAnimatedStyle, withTiming } from "react-native-reanimated";
 import { PriceComponent } from "../../../components/PriceComponent";
+import { Typography } from "../../../components/styles";
+import { useRates } from "../../../engine/hooks/currency/useRates";
+
+import IcRateChevron from '@assets/ic_rate_chevron.svg';
 
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
@@ -18,6 +22,12 @@ export const WalletHeader = memo(({ address, height, walletCardHeight, scrollOff
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const [isWalletMode] = useAppMode(address);
+    const { rates } = useRates(['ton'], ['usd']);
+    const diff = rates?.TON?.diff24h?.USD;
+    const isNegative = diff?.startsWith('−');
+    const diffPercent = diff?.replace(/^[+−]/, '');
+    const diffTextColor = isNegative ? theme.accentRed : theme.accentGreen;
+    const diffBackgroundColor = isNegative ? theme.accentRed + '30' : theme.accentGreen + '30';
 
     const animatedStyle = useAnimatedStyle(() => ({
         transform: [
@@ -39,6 +49,7 @@ export const WalletHeader = memo(({ address, height, walletCardHeight, scrollOff
         const showToggle = scrollOffsetSv.value > 0;
         return {
             opacity: withTiming(showToggle ? 0 : 1, { duration: 200 }),
+            flexDirection: 'row',
         };
     });
 
@@ -88,11 +99,28 @@ export const WalletHeader = memo(({ address, height, walletCardHeight, scrollOff
                                 <PriceComponent
                                     showSign
                                     amount={toNano(1)}
-                                    style={{ backgroundColor: 'transparent' }}
+                                    style={{ backgroundColor: 'transparent' , paddingHorizontal: 6}}
                                     textStyle={{ color: theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary }}
                                     theme={theme}
                                 />
+
                             </Pressable>
+                            <View
+                                style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: diffBackgroundColor, paddingHorizontal: 6, borderRadius: 20 }}
+                            >
+                                <IcRateChevron
+                                    width={12}
+                                    height={12}
+                                    color={diffTextColor}
+                                    style={{ 
+                                        transform: [{ rotate: isNegative ? '180deg' : '0deg' }],
+                                        marginRight: 4
+                                    }}
+                                />
+                                <Text style={[Typography.medium15_20, { color: diffTextColor }]}>
+                                    {diffPercent}
+                                </Text>
+                            </View>
                         </Animated.View>
                     )}
                 </View>

@@ -15,7 +15,7 @@ import { ForcedAvatar } from "../../../components/avatar/ForcedAvatar";
 import { InstructionName } from "../../../utils/solana/parseInstructions";
 import { ASSET_ITEM_HEIGHT, TRANSACTION_AVATAR_SIZE, TRANSACTION_PROCESSING_TIMEOUT } from "../../../utils/constants";
 import { TransactionType } from "../../../engine/types";
-import { useTransactionsHistoryContext } from "../../../engine/TransactionsHistoryContext";
+import { useTransactionsUtilsContext } from "../../../engine/TransactionsUtilsContext";
 
 const PendingInstructionsView = memo(({
     transaction,
@@ -150,7 +150,7 @@ const PendingTxView = memo((
         verified: boolean
     }
 ) => {
-    const { checkIsHoldersTarget } = useTransactionsHistoryContext();
+    const { checkIsHoldersTarget } = useTransactionsUtilsContext();
     const { target, amount, token } = transaction.tx;
     const theme = useTheme();
     const tokenData = useSolanaToken(address, token?.mint);

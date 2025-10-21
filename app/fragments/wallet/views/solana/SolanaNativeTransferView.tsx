@@ -11,10 +11,10 @@ import { ValueComponent } from "../../../../components/ValueComponent";
 import { AddressInputAvatar } from "../../../../components/address/AddressInputAvatar";
 import { Typography } from "../../../../components/styles";
 import { TRANSACTION_AVATAR_SIZE } from "../../../../utils/constants";
-import { useTransactionsHistoryContext } from "../../../../engine/TransactionsHistoryContext";
+import { useTransactionsUtilsContext } from "../../../../engine/TransactionsUtilsContext";
 
 export const SolanaNativeTransferView = memo(({ transfer, owner, item }: { transfer: SolanaNativeTransfer, owner: string, item: SolanaTransaction }) => {
-    const { checkIsHoldersTarget } = useTransactionsHistoryContext();
+    const { checkIsHoldersTarget } = useTransactionsUtilsContext();
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const { fromUserAccount, toUserAccount, amount } = transfer;

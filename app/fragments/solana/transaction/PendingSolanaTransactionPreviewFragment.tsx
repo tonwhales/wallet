@@ -25,7 +25,7 @@ import { SolanaTransactionPreview } from "../../../engine/hooks/solana/useSolana
 import { formatTime } from "../../../utils/dates";
 import { formatDate } from "../../../utils/dates";
 import { TransferInstructionView } from "../transfer/components/TransferInstructionView";
-import { useTransactionsHistoryContext } from "../../../engine/TransactionsHistoryContext";
+import { useTransactionsUtilsContext } from "../../../engine/TransactionsUtilsContext";
 
 export type PendingSolanaTransactionPreviewParams = {
     owner: string;
@@ -39,7 +39,7 @@ const SolanaTxPreview = ({ transfer, statusText }: { transfer: SolanaTransaction
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const toaster = useToaster();
-    const { checkIsHoldersTarget } = useTransactionsHistoryContext();
+    const { checkIsHoldersTarget } = useTransactionsUtilsContext();
     
     const amountColor = (kind === 'in') ? theme.accentGreen : theme.textPrimary;
     const avatarColor = avatarColors[avatarHash(address ?? '', avatarColors.length)];//

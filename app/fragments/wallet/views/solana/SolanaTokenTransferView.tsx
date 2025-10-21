@@ -14,10 +14,10 @@ import { useTheme } from "../../../../engine/hooks/theme";
 import { useTypedNavigation } from "../../../../utils/useTypedNavigation";
 import { useSolanaToken } from "../../../../engine/hooks";
 import { TRANSACTION_AVATAR_SIZE } from "../../../../utils/constants";
-import { useTransactionsHistoryContext } from "../../../../engine/TransactionsHistoryContext";
+import { useTransactionsUtilsContext } from "../../../../engine/TransactionsUtilsContext";
 
 export const SolanaTokenTransferView = memo(({ transfer, owner, accountData, item }: { transfer: SolanaTokenTransfer, owner: string, accountData: SolanaAccountData, item: SolanaTransaction }) => {
-  const { checkIsHoldersTarget } = useTransactionsHistoryContext();
+  const { checkIsHoldersTarget } = useTransactionsUtilsContext();
   const { fromUserAccount, toTokenAccount, tokenAmount, mint } = transfer;
   const kind: 'in' | 'out' = fromUserAccount === owner ? 'out' : 'in';
   const theme = useTheme();

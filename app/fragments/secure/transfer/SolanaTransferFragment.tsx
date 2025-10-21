@@ -27,7 +27,7 @@ import { parseTransactionInstructions } from "../../../utils/solana/parseInstruc
 import { TransferInstructions } from "../components/TransferInstructions";
 import { SolanaTransactionAppHeader } from "./SolanaTransactionAppHeader";
 import { SolanaTransferFees } from "../../solana/transfer/components/SolanaTransferFees";
-import { useTransactionsHistoryContext } from "../../../engine/TransactionsHistoryContext";
+import { useTransactionsUtilsContext } from "../../../engine/TransactionsUtilsContext";
 
 type SolanaOrderTransferParams = {
     type: 'order';
@@ -101,7 +101,7 @@ const TransferOrder = (props: { order: SolanaOrder, callback?: (ok: boolean, sig
     const authContext = useKeysAuth();
     const solanaAddress = useSolanaSelectedAccount()!;
     const navigation = useTypedNavigation();
-    const { checkIsHoldersTarget } = useTransactionsHistoryContext();
+    const { checkIsHoldersTarget } = useTransactionsUtilsContext();
     const token = useSolanaToken(solanaAddress, order.token?.mint);
     const registerPending = useRegisterPendingSolana(solanaAddress);
     const transaction = useSolanaTransactionFromOrder(order, solanaAddress, solanaClients);

@@ -22,7 +22,7 @@ import { devKey } from './analytics/mixpanel';
 import { WebViewPreloaderProvider } from './components/WebViewPreloaderContext';
 import { ToastProvider } from './components/toast/ToastProvider';
 import { runMigrations } from './migrations/runMigrations';
-import { TransactionsHistoryProvider } from './engine/TransactionsHistoryContext';
+import { TransactionsUtilsProvider } from './engine/TransactionsUtilsContext';
 
 const PERSISTANCE_VERSION = '27';
 // set default value for spam comments
@@ -76,9 +76,9 @@ export const Root = memo(() => {
                                                 <LedgerTransportProvider>
                                                     <AppBlurContextProvider>
                                                         <ToastProvider>
-                                                            <TransactionsHistoryProvider>
+                                                            <TransactionsUtilsProvider>
                                                                 <Navigation />
-                                                            </TransactionsHistoryProvider>
+                                                            </TransactionsUtilsProvider>
                                                         </ToastProvider>
                                                     </AppBlurContextProvider>
                                                 </LedgerTransportProvider>

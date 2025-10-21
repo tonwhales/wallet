@@ -23,7 +23,7 @@ import { useParams } from "../../../utils/useParams";
 import { solanaPreviewToTransferParams } from "../../../utils/solana/solanaPreviewToTransferParams";
 import { RoundButton } from "../../../components/RoundButton";
 import { useCurrentAddress, useHoldersAccounts, useSolanaTransferInfo } from "../../../engine/hooks";
-import { useTransactionsHistoryContext } from "../../../engine/TransactionsHistoryContext";
+import { useTransactionsUtilsContext } from "../../../engine/TransactionsUtilsContext";
 
 export type SolanaTransactionPreviewParams = {
     owner: string;
@@ -36,7 +36,7 @@ const SolanaTransactionPreview = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const toaster = useToaster();
-    const { checkIsHoldersTarget } = useTransactionsHistoryContext();
+    const { checkIsHoldersTarget } = useTransactionsUtilsContext();
     const { owner, transaction, transfer } = useParams<SolanaTransactionPreviewParams>();
     const { data, type } = transfer;
     const transferInfo = useSolanaTransferInfo({ type, transfer: data, transaction, owner });

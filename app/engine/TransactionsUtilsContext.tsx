@@ -2,13 +2,13 @@ import React, { createContext, useContext, useMemo, ReactNode } from 'react';
 import { useCurrentAddress } from './hooks/appstate/useCurrentAddress';
 import { useHoldersAccounts } from './hooks/holders/useHoldersAccounts';
 
-interface TransactionsHistoryContextValue {
+interface TransactionsUtilsContextValue {
     checkIsHoldersTarget: (address: string) => boolean;
 }
 
-const TransactionsHistoryContext = createContext<TransactionsHistoryContextValue | undefined>(undefined);
+const TransactionsUtilsContext = createContext<TransactionsUtilsContextValue | undefined>(undefined);
 
-export function TransactionsHistoryProvider({ children }: { children: ReactNode }) {
+export function TransactionsUtilsProvider({ children }: { children: ReactNode }) {
     const { tonAddress, solanaAddress } = useCurrentAddress();
     const holdersAccounts = useHoldersAccounts(tonAddress, solanaAddress).data?.accounts ?? [];
 
@@ -23,16 +23,16 @@ export function TransactionsHistoryProvider({ children }: { children: ReactNode 
     }), [checkIsHoldersTarget]);
 
     return (
-        <TransactionsHistoryContext.Provider value={value}>
+        <TransactionsUtilsContext.Provider value={value}>
             {children}
-        </TransactionsHistoryContext.Provider>
+        </TransactionsUtilsContext.Provider>
     );
 }
 
-export function useTransactionsHistoryContext() {
-    const context = useContext(TransactionsHistoryContext);
+export function useTransactionsUtilsContext() {
+    const context = useContext(TransactionsUtilsContext);
     if (!context) {
-        throw new Error('useTransactionsHistoryContext must be used within TransactionsHistoryProvider');
+        throw new Error('useTransactionsUtilsContext must be used within TransactionsUtilsProvider');
     }
     return context;
 }

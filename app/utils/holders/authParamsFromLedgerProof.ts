@@ -12,7 +12,9 @@ export function authParamsFromLedgerProof(
     },
     walletStateInit: string | null | undefined,
     appsflyerId?: string,
-    isTestnet?: boolean
+    isTestnet?: boolean,
+    inviteId?: string,
+    invitationId?: string
 ): TonAuthRequest {
     return {
         stack: 'ton',
@@ -32,6 +34,8 @@ export function authParamsFromLedgerProof(
                 }
             }
         },
-        appsflyerId
+        appsflyerId,
+        inviteId,
+        invitationId
     }
 }

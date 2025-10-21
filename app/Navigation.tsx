@@ -49,7 +49,7 @@ import { HoldersLandingFragment } from './fragments/holders/HoldersLandingFragme
 import { HoldersAppFragment } from './fragments/holders/HoldersAppFragment';
 import { BiometricsSetupFragment } from './fragments/BiometricsSetupFragment';
 import { KeyStoreMigrationFragment } from './fragments/secure/KeyStoreMigrationFragment';
-import { useNetwork, useTheme } from './engine/hooks';
+import { useNetwork, useSupportAuth, useTheme } from './engine/hooks';
 import { useNavigationTheme } from './engine/hooks';
 import { useRecoilValue } from 'recoil';
 import { appStateAtom } from './engine/state/appState';
@@ -538,6 +538,9 @@ export const Navigation = memo(() => {
 
     // Watch for solana account updates
     useSolanaAccountWatcher();
+
+    // Watch for support auth state
+	useSupportAuth();
 
     return (
         <View style={{ flexGrow: 1, alignItems: 'stretch', backgroundColor: navigationTheme.colors.background }}>

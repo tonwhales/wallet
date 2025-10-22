@@ -1,5 +1,5 @@
 import { memo, useCallback } from 'react';
-import { View, Image, Text, Alert, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import { View, Image, Text, Alert, NativeSyntheticEvent, NativeScrollEvent, useWindowDimensions } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { ConnectionButton } from '../ConnectionButton';
 import {
@@ -16,7 +16,6 @@ import { getDomainKey } from '../../engine/state/domainKeys';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-import { useDimensions } from '@react-native-community/hooks';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { holdersUrl as resolveHoldersUrl } from '../../engine/api/holders/fetchUserState';
 import { ConnectedApp } from '../../engine/hooks/dapps/useTonConnectExtenstions';
@@ -32,7 +31,7 @@ export const BrowserExtensions = memo(({ onScroll }: { onScroll?: (event: Native
   const safeArea = useSafeAreaInsets();
   const { isTestnet } = useNetwork();
   const bottomBarHeight = useBottomTabBarHeight();
-  const dimensions = useDimensions();
+  const dimensions = useWindowDimensions();
   const navigation = useTypedNavigation();
   const [installedExtensions] = useExtensions();
   const [inastalledConnectApps] = useTonConnectExtensions();
@@ -114,8 +113,8 @@ export const BrowserExtensions = memo(({ onScroll }: { onScroll?: (event: Native
       <Image
         resizeMode={'center'}
         style={{
-          height: dimensions.screen.width - 32,
-          width: dimensions.screen.width - 32,
+          height: dimensions.width - 32,
+          width: dimensions.width - 32,
           marginTop: -20,
         }}
         source={EmptyIllustrations[theme.style]}

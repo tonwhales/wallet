@@ -1,12 +1,11 @@
 import React from "react";
 import { memo, useCallback } from "react";
-import { View, Text, Image } from "react-native";
+import { View, Text, Image, useWindowDimensions } from "react-native";
 import { t } from "../../../i18n/t";
 import { RoundButton } from "../../../components/RoundButton";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useNetwork, useTheme } from "../../../engine/hooks";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
-import { useDimensions } from "@react-native-community/hooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Typography } from "../../../components/styles";
 import { isNeocryptoAvailable } from "../../../utils/isNeocryptoAvailable";
@@ -42,7 +41,7 @@ export const TransactionsEmptyState = memo((params: TransactionsEmptyParams) => 
     const network = useNetwork();
     const navigation = useTypedNavigation();
     const ledgerContext = useLedgerTransport();
-    const dimensions = useDimensions();
+    const dimensions = useWindowDimensions();
     const safeArea = useSafeAreaInsets();
     const showBuy = isNeocryptoAvailable();
 
@@ -62,22 +61,22 @@ export const TransactionsEmptyState = memo((params: TransactionsEmptyParams) => 
     }, [ledgerContext?.addr, params]);
 
     const minHeight = params.isWalletTab
-        ? dimensions.window.height - safeArea.bottom - 112
+        ? dimensions.height - safeArea.bottom - 112
         : undefined;
 
     const illContainerHeight = params.isWalletTab
-        ? (dimensions.screen.width - 32) * 0.91
-        : (dimensions.screen.width - 32) * 0.6;
+        ? (dimensions.width - 32) * 0.91
+        : (dimensions.width - 32) * 0.6;
 
-    const illContainerWidth = dimensions.screen.width - 32;
+    const illContainerWidth = dimensions.width - 32;
 
     const illHeight = params.isWalletTab
-        ? dimensions.window.height - safeArea.bottom - 112
-        : (dimensions.window.height * 0.8) - safeArea.bottom - 112;
+        ? dimensions.height - safeArea.bottom - 112
+        : (dimensions.height * 0.8) - safeArea.bottom - 112;
 
     const illWidth = params.isWalletTab
-        ? dimensions.screen.width - 32
-        : (dimensions.screen.width * 0.8) - 32;
+        ? dimensions.width - 32
+        : (dimensions.width * 0.8) - 32;
 
     return (
         <View style={{

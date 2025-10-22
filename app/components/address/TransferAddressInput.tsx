@@ -1,5 +1,5 @@
 import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useMemo, useState } from "react";
-import { Platform, Pressable, View } from "react-native";
+import { Platform, Pressable, View, useWindowDimensions } from "react-native";
 import { Address } from "@ton/core";
 import { avatarColors } from "../avatar/Avatar";
 import { AddressDomainInput, AddressDomainInputRef, AddressInputState, InputAction } from "./AddressDomainInput";
@@ -12,7 +12,6 @@ import { PerfText } from "../basic/PerfText";
 import { avatarHash } from "../../utils/avatarHash";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 import { AddressInputAvatar } from "./AddressInputAvatar";
-import { useDimensions } from "@react-native-community/hooks";
 import { TypedNavigation } from "../../utils/useTypedNavigation";
 import { useAddressBookContext } from "../../engine/AddressBookContext";
 import { Typography } from "../styles";
@@ -77,8 +76,8 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     const addressBookContext = useAddressBookContext();
     const contact = addressBookContext.asContact(initTarget);
     const appState = useAppState();
-    const dimentions = useDimensions();
-    const screenWidth = dimentions.screen.width;
+    const dimentions = useWindowDimensions();
+    const screenWidth = dimentions.width;
     const addressType = state.addressType || 'ton';
     const validTonAddressFriendly = validTonAddress?.toString({ testOnly: isTestnet });
     const [walletSettings] = useWalletSettings(validTonAddressFriendly);

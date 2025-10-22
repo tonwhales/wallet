@@ -1,5 +1,5 @@
 import React, { memo, useLayoutEffect, useReducer, useState } from "react";
-import { View } from "react-native";
+import { View, useWindowDimensions } from "react-native";
 import Animated, { SlideInRight, SlideOutLeft } from "react-native-reanimated";
 import { PasscodeInput } from "../passcode/PasscodeInput";
 import { t } from "../../i18n/t";
@@ -7,10 +7,9 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { PasscodeSuccess } from "../passcode/PasscodeSuccess";
 import { getCurrentAddress } from "../../storage/appState";
 import { loadWalletKeys } from "../../storage/walletKeys";
-import { PasscodeState, passcodeLengthKey, updatePasscode } from "../../storage/secureStorage";
+import { passcodeLengthKey, updatePasscode } from "../../storage/secureStorage";
 import { storage } from "../../storage/storage";
 import { ToastDuration, useToaster } from "../toast/ToastProvider";
-import { useDimensions } from "@react-native-community/hooks";
 import { useSetPasscodeState } from "../../engine/hooks";
 
 type Action =
@@ -76,7 +75,7 @@ function reduceSteps() {
 
 export const PasscodeChange = memo(() => {
     const acc = getCurrentAddress();
-    const dimentions = useDimensions();
+    const dimentions = useWindowDimensions();
     const [isFirstRender, setFirstRender] = useState(true);
     const passcodeLength = storage.getNumber(passcodeLengthKey) ?? 6;
     const [state, dispatch] = useReducer(reduceSteps(), { step: 'auth', input: '', passcodeLength });
@@ -94,7 +93,7 @@ export const PasscodeChange = memo(() => {
                 <Animated.View
                     exiting={SlideOutLeft}
                     entering={isFirstRender ? undefined : SlideInRight}
-                    style={{ height: dimentions.window.height - 156 }}
+                    style={{ height: dimentions.height - 156 }}
                 >
                     <PasscodeInput
                         passcodeLength={passcodeLength}
@@ -114,7 +113,7 @@ export const PasscodeChange = memo(() => {
                 <Animated.View
                     exiting={SlideOutLeft}
                     entering={SlideInRight}
-                    style={{ height: dimentions.window.height - 156 }}
+                    style={{ height: dimentions.height - 156 }}
                 >
                     <PasscodeInput
                         title={t('security.passcodeSettings.enterNew')}
@@ -134,7 +133,7 @@ export const PasscodeChange = memo(() => {
                 <Animated.View
                     exiting={SlideOutLeft}
                     entering={SlideInRight}
-                    style={{ height: dimentions.window.height - 156 }}
+                    style={{ height: dimentions.height - 156 }}
                 >
                     <PasscodeInput
                         title={t('security.passcodeSettings.confirmNew')}

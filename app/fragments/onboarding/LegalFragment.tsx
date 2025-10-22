@@ -1,6 +1,6 @@
 import { useRoute } from "@react-navigation/native";
 import React, { useCallback, useEffect, useState } from "react";
-import { Platform, ScrollView, Text, View, Image, Pressable } from "react-native";
+import { Platform, ScrollView, Text, View, Image, Pressable, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RoundButton } from "../../components/RoundButton";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
@@ -8,7 +8,6 @@ import { t } from "../../i18n/t";
 import { systemFragment } from "../../systemFragment";
 import { useTheme } from '../../engine/hooks';
 import { isTermsAccepted, markAsTermsAccepted, markAsTermsNotAccepted } from '../../storage/terms';
-import { useDimensions } from "@react-native-community/hooks";
 import { mnemonicNew } from "@ton/crypto";
 import { ScreenHeader } from "../../components/ScreenHeader";
 
@@ -17,7 +16,7 @@ import { useParams } from "../../utils/useParams";
 
 export const LegalFragment = systemFragment(() => {
     const theme = useTheme();
-    const dimensions = useDimensions();
+    const dimensions = useWindowDimensions();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const route = useRoute();
@@ -105,11 +104,11 @@ export const LegalFragment = systemFragment(() => {
                     <View style={{
                         justifyContent: 'center', alignItems: 'center',
                         aspectRatio: 0.92,
-                        width: dimensions.screen.width - 32,
+                        width: dimensions.width - 32,
                     }}>
                         <Image
                             resizeMode={'contain'}
-                            style={{ width: dimensions.screen.width - 32 }}
+                            style={{ width: dimensions.width - 32 }}
                             source={theme.style === 'dark' ? require('@assets/banner_backup_dark.webp') : require('@assets/banner_backup.webp')}
                         />
                     </View>

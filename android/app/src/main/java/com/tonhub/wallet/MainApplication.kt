@@ -8,10 +8,13 @@ import android.os.Bundle
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
 import com.facebook.react.ReactInstanceManager
+import com.facebook.react.ReactHost
 import com.facebook.react.ReactNativeHost
 import com.facebook.react.ReactPackage
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint
 import com.facebook.react.defaults.DefaultReactNativeHost
+import com.facebook.react.defaults.DefaultReactHost
+import com.facebook.react.soloader.OpenSourceMergedSoMapping
 import com.facebook.soloader.SoLoader
 import com.intercom.reactnative.IntercomModule
 import com.shopify.reactnativeperformance.ReactNativePerformance
@@ -25,40 +28,36 @@ import expo.modules.ApplicationLifecycleDispatcher
 import expo.modules.ReactNativeHostWrapper
 
 class MainApplication : Application(), ReactApplication {
-    private val mReactNativeHost: ReactNativeHost = ReactNativeHostWrapper(
-        this,
-        ReactNativeHostWrapper(
-            this,
-            object : DefaultReactNativeHost(this) {
-                override fun getUseDeveloperSupport(): Boolean = BuildConfig.DEBUG
+    override val reactNativeHost: ReactNativeHost =
+        ReactNativeHostWrapper(this, object : DefaultReactNativeHost(this) {
+            override fun getUseDeveloperSupport(): Boolean = BuildConfig.DEBUG
 
-                override fun getPackages(): List<ReactPackage> {
-                    @Suppress("UnnecessaryVariable")
-                    val packages = PackageList(this).packages.toMutableList()
-                    packages.add(KeyStorePackage())
-                    packages.add(NavigationBarColorPackage())
-                    packages.add(AppearancePackage())
-                    packages.add(WebViewCachePackage())
-                    packages.add(FlagSecurePackage())
-                    packages.add(WalletPackage())
-                    return packages
-                }
-
-                override fun getJSMainModuleName(): String = "index"
-
-                override fun isNewArchEnabled(): Boolean = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
-
-                override fun isHermesEnabled(): Boolean = BuildConfig.IS_HERMES_ENABLED
+            override fun getPackages(): List<ReactPackage> {
+                @Suppress("UnnecessaryVariable")
+                val packages = PackageList(this).packages.toMutableList()
+                packages.add(KeyStorePackage())
+                packages.add(NavigationBarColorPackage())
+                packages.add(AppearancePackage())
+                packages.add(WebViewCachePackage())
+                packages.add(FlagSecurePackage())
+                packages.add(WalletPackage())
+                return packages
             }
-        )
-    )
 
-    override fun getReactNativeHost(): ReactNativeHost = mReactNativeHost
+            override fun getJSMainModuleName(): String = "index"
+
+            override val isNewArchEnabled: Boolean = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
+
+            override val isHermesEnabled: Boolean = BuildConfig.IS_HERMES_ENABLED
+        })
+
+    override val reactHost: ReactHost
+        get() = DefaultReactHost.getDefaultReactHost(applicationContext, reactNativeHost)
 
     override fun onCreate() {
         ReactNativePerformance.onAppStarted()
         super.onCreate()
-        SoLoader.init(this, /* native exopackage */ false)
+        SoLoader.init(this, OpenSourceMergedSoMapping)
 
         IntercomModule.initialize(this, BuildConfig.INTERCOM_ANDROID_API, BuildConfig.INTERCOM_APP)
 
@@ -133,7 +132,3 @@ class MainApplication : Application(), ReactApplication {
         }
     }
 }
-
-
-
-

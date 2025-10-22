@@ -78,7 +78,7 @@ export const LegalFragment = systemFragment(() => {
                 style={[{ paddingLeft: 16 }, Platform.select({ ios: { paddingTop: 16 } })]}
                 onBackPressed={navigation.goBack}
             />
-            <ScrollView style={{ width: '100%', height: dimensions.window.height - (Platform.OS === 'android' ? safeArea.top : 32) - 224 }}>
+            <ScrollView style={{ width: '100%', height: dimensions.height - (Platform.OS === 'android' ? safeArea.top : 32) - 224 }}>
                 <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
                     <Text style={{
                         fontSize: 32, lineHeight: 38,

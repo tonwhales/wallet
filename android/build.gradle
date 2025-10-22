@@ -4,7 +4,7 @@ buildscript {
         minSdkVersion = 26
         compileSdkVersion = 35
         targetSdkVersion = 35
-        kotlinVersion = "1.9.24"
+        kotlinVersion = "1.9.25"
         ndkVersion = "26.1.10909125"
     }
     repositories {
@@ -22,11 +22,6 @@ buildscript {
     }
 
     allprojects {
-        configurations.configureEach {
-            resolutionStrategy {
-                force "com.facebook.soloader:soloader:0.10.4"
-            }
-        }
         repositories {
             google()
             mavenCentral()

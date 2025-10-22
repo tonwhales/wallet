@@ -34,7 +34,7 @@ class MainActivity : ReactActivity() {
     /**
      * Processes intent and handles Maestra push tracking for onCreate
      */
-    private fun processIntent(intent: Intent?) {
+    private fun processIntent(intent: Intent) {
         // Always process notification intent for our push manager
         mPushNotificationManager.processNotificationIntent(intent)
 
@@ -65,10 +65,8 @@ class MainActivity : ReactActivity() {
                 is Float -> sanitized.putDouble(key, value.toDouble())
                 is Long -> sanitized.putDouble(key, value.toDouble())
                 is Array<*> -> {
-                    if (value is Array<String>) {
-                        @Suppress("UNCHECKED_CAST")
-                        sanitized.putStringArray(key, value as Array<String>)
-                    }
+                    @Suppress("UNCHECKED_CAST")
+                    sanitized.putStringArray(key, value as Array<String>)
                 }
                 is ArrayList<*> -> {
                     when {
@@ -117,7 +115,7 @@ class MainActivity : ReactActivity() {
         }
 
         mPushNotificationManager = PushNotificationManager.getInstance(application as ReactApplication)
-        processIntent(intent)
+        intent?.let { processIntent(it) }
     }
 
     override fun onStart() {
@@ -134,12 +132,14 @@ class MainActivity : ReactActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
 
-        // Track Maestra push clicks only
-        if (isMaestraPush(intent)) {
-            Mindbox.onPushClicked(this, intent)
-        }
+        if (intent != null) {
+            // Track Maestra push clicks only
+            if (isMaestraPush(intent)) {
+                Mindbox.onPushClicked(this, intent)
+            }
 
-        mPushNotificationManager.onNewIntent(intent)
+            mPushNotificationManager.onNewIntent(intent)
+        }
     }
 
     /**
@@ -180,10 +180,10 @@ class MainActivity : ReactActivity() {
                 this,
                 mainComponentName,
                 // If you opted-in for the New Architecture, we enable the Fabric Renderer.
-                DefaultNewArchitectureEntryPoint.getFabricEnabled(), // fabricEnabled
+                DefaultNewArchitectureEntryPoint.fabricEnabled,
                 // If you opted-in for the New Architecture, we enable Concurrent React (i.e.
                 // React 18).
-                DefaultNewArchitectureEntryPoint.getConcurrentReactEnabled() // concurrentRootEnabled
+                DefaultNewArchitectureEntryPoint.concurrentReactEnabled
             ) {
                 override fun getLaunchOptions(): Bundle? {
                     val intent = intent
@@ -204,4 +204,3 @@ class MainActivity : ReactActivity() {
         )
     }
 }
-

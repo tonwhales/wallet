@@ -13,7 +13,7 @@ import { ScreenHeader } from "../../components/ScreenHeader";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { DAppWebView, DAppWebViewProps } from "../../components/webview/DAppWebView";
 import { getCurrentAddress } from "../../storage/appState";
-import { usePermissions } from "expo-notifications";
+import { usePermissions } from "../../utils/expo/usePermissions";
 import i18n from 'i18next';
 import { useInjectEngine } from "../apps/components/inject/useInjectEngine";
 import { injectSourceFromDomain } from "../../engine/utils/injectSourceFromDomain";
@@ -95,7 +95,7 @@ export const DAppWebViewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const isTestnet = useNetwork().isTestnet;
     const navigation = useTypedNavigation();
-    const [pushPemissions] = usePermissions();
+    const pushPermissionsGranted = usePermissions();
     const [, currency] = usePrice();
     const routeName = useRoute().name;
     const isModal = routeName === 'DAppWebViewModal';
@@ -104,7 +104,6 @@ export const DAppWebViewFragment = fragment(() => {
     const endpoint = useMemo(() => {
         try {
             const selected = getCurrentAddress();
-            const pushNotifications = pushPemissions?.granted && pushPemissions?.status === 'granted';
 
             const source = new URL(url);
 
@@ -117,7 +116,7 @@ export const DAppWebViewFragment = fragment(() => {
             source.searchParams.set('themeStyle', theme.style === 'dark' ? 'dark' : 'light');
             source.searchParams.set('theme-style', theme.style === 'dark' ? 'dark' : 'light');
             source.searchParams.set('theme', 'holders');
-            source.searchParams.set('pushNotifications', pushNotifications ? 'true' : 'false');
+            source.searchParams.set('pushNotifications', pushPermissionsGranted ? 'true' : 'false');
 
             if (refId) {
                 source.searchParams.set('refId', encodeURIComponent(refId));
@@ -127,7 +126,7 @@ export const DAppWebViewFragment = fragment(() => {
         } catch {
             return url;
         }
-    }, [url, pushPemissions, currency, theme.style]);
+    }, [url, pushPermissionsGranted, currency, theme.style]);
 
     const [currentUrl, setCurrentUrl] = useState(endpoint);
 

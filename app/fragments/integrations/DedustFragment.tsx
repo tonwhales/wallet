@@ -7,7 +7,7 @@ import { getPlatform } from "../../engine/tonconnect/config";
 import { tonhubBridgeSource } from "../apps/components/inject/createInjectSource";
 import { getCurrentAddress } from "../../storage/appState";
 import { useTonhubBridgeEngine } from "../apps/components/inject/useInjectEngine";
-import { usePermissions } from "expo-notifications";
+import { usePermissions } from "../../utils/expo/usePermissions";
 import i18n from 'i18next';
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { useLinkNavigator } from "../../utils/link-navigator/useLinkNavigator";
@@ -34,7 +34,7 @@ export const DedustFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const { isTestnet } = useNetwork();
     const [bounceableFormat,] = useBounceableWalletFormat();
-    const [pushPemissions,] = usePermissions();
+    const pushPemissionsGranted = usePermissions();
     const [, currency] = usePrice();
     const [accepted, setAccepted] = useState(sharedStoragePersistence.getBoolean(skipLegalDeDust));
 
@@ -44,7 +44,6 @@ export const DedustFragment = fragment(() => {
     const endpoint = useMemo(() => {
         try {
             const selected = getCurrentAddress();
-            const pushNotifications = pushPemissions?.granted && pushPemissions?.status === 'granted';
 
             const source = new URL(deDustUrl);
 
@@ -55,13 +54,13 @@ export const DedustFragment = fragment(() => {
             source.searchParams.set('lang', i18n.language);
             source.searchParams.set('currency', currency);
             source.searchParams.set('themeStyle', theme.style === 'dark' ? 'dark' : 'light');
-            source.searchParams.set('pushNotifications', pushNotifications ? 'true' : 'false');
+            source.searchParams.set('pushNotifications', pushPemissionsGranted ? 'true' : 'false');
 
             return source.toString();
         } catch {
             return deDustUrl;
         }
-    }, [pushPemissions, currency, theme.style]);
+    }, [pushPemissionsGranted, currency, theme.style]);
 
     const bridgeEngine = useTonhubBridgeEngine(domain, 'DeDust.io', isTestnet, endpoint);
     const linkNavigator = useLinkNavigator(isTestnet);

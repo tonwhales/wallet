@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ImageSourcePropType, Pressable, Text, View, Image, Platform, StyleProp, TextStyle } from 'react-native';
+import { ImageSourcePropType, Pressable, Text, View, Image, Platform, StyleProp, TextStyle, ViewStyle } from 'react-native';
 import { Switch } from 'react-native-gesture-handler';
 import { useTheme } from '../engine/hooks';
 import { memo } from 'react';
@@ -44,7 +44,7 @@ export const ItemSwitch = memo((props: {
     leftIcon?: ImageSourcePropType,
     leftIconComponent?: any,
     titleStyle?: StyleProp<TextStyle>,
-    style?: StyleProp<TextStyle>,
+    style?: StyleProp<ViewStyle>,
     disabled?: boolean,
 }) => {
     const theme = useTheme();

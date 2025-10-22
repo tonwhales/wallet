@@ -177,8 +177,6 @@ PODS:
     - React-Core
   - MultiplatformBleAdapter (0.1.9)
   - OpenSSL-Universal (3.3.3001)
-  - Permission-Camera (3.10.1):
-    - RNPermissions
   - RCT-Folly (2024.01.01.00):
     - boost
     - DoubleConversion
@@ -1495,7 +1493,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-safe-area-context (4.10.5):
+  - react-native-safe-area-context (4.12.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1508,8 +1506,8 @@ PODS:
     - React-featureflags
     - React-graphics
     - React-ImageManager
-    - react-native-safe-area-context/common (= 4.10.5)
-    - react-native-safe-area-context/fabric (= 4.10.5)
+    - react-native-safe-area-context/common (= 4.12.0)
+    - react-native-safe-area-context/fabric (= 4.12.0)
     - React-NativeModulesApple
     - React-RCTFabric
     - React-rendererdebug
@@ -1518,7 +1516,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-safe-area-context/common (4.10.5):
+  - react-native-safe-area-context/common (4.12.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1539,7 +1537,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-safe-area-context/fabric (4.10.5):
+  - react-native-safe-area-context/fabric (4.12.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1951,7 +1949,7 @@ PODS:
     - React-Core
   - RNLocalize (2.2.6):
     - React-Core
-  - RNPermissions (3.10.1):
+  - RNPermissions (5.4.2):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2227,7 +2225,6 @@ DEPENDENCIES:
   - Mindbox
   - MindboxSdk (from `../node_modules/mindbox-sdk`)
   - MixpanelReactNative (from `../node_modules/mixpanel-react-native`)
-  - Permission-Camera (from `../node_modules/react-native-permissions/ios/Camera`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCT-Folly/Fabric (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTDeprecation (from `../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation`)
@@ -2417,8 +2414,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/mindbox-sdk"
   MixpanelReactNative:
     :path: "../node_modules/mixpanel-react-native"
-  Permission-Camera:
-    :path: "../node_modules/react-native-permissions/ios/Camera"
   RCT-Folly:
     :podspec: "../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
   RCTDeprecation:
@@ -2644,7 +2639,6 @@ SPEC CHECKSUMS:
   MixpanelReactNative: b523d54778e31e396c55df6f732173f3819e58ee
   MultiplatformBleAdapter: 5a6a897b006764392f9cef785e4360f54fb9477d
   OpenSSL-Universal: 6082b0bf950e5636fe0d78def171184e2b3899c2
-  Permission-Camera: 9b70902f34a83c10e198d2d01f0e453e58842776
   RCT-Folly: bf5c0376ffe4dd2cf438dcf86db385df9fdce648
   RCTDeprecation: 4c2c4a088b6f0ccfcbd53c9d5614b0238ad57909
   RCTRequired: 2d8a683a7848bc0baf5883f0792c1ac43f6267b5
@@ -2684,7 +2678,7 @@ SPEC CHECKSUMS:
   react-native-pager-view: 3be0f5320e5954c99ceeeccb5338e6fe4ce8eeca
   react-native-quick-base64: d87272898345e0fc3c3afb8e5dff335d51214f3e
   react-native-quick-crypto: 0e79f9e06b0d4ac77dab13183a4a8c7bcc0da302
-  react-native-safe-area-context: 86e77f7c51f80b6bc0afe78c4fba30d0c3736c21
+  react-native-safe-area-context: 458f6b948437afcb59198016b26bbd02ff9c3b47
   react-native-segmented-control: b92809e9111013dfa266e1168ba366d62898d9a4
   react-native-skia: 0b4c0ad88a36102a7ac870524c8782e1644014fa
   react-native-view-shot: 6b7ed61d77d88580fed10954d45fad0eb2d47688
@@ -2725,7 +2719,7 @@ SPEC CHECKSUMS:
   RNInAppBrowser: e36d6935517101ccba0e875bac8ad7b0cb655364
   RNKeychain: bfe3d12bf4620fe488771c414530bf16e88f3678
   RNLocalize: d4b8af4e442d4bcca54e68fc687a2129b4d71a81
-  RNPermissions: bab59da50ddc84babf8067c802ffd1d2352ae8f4
+  RNPermissions: f0642fbfc833495dcfcad46a07a2a5a71c63425d
   RNReanimated: 77242c6d67416988a2fd9f5cf574bb3e60016362
   RNScreens: e389d6a6a66a4f0d3662924ecae803073ccce8ec
   RNShare: 2be50f720de05d61f9fe8fa3c6912995c79cbf7a
@@ -2738,6 +2732,6 @@ SPEC CHECKSUMS:
   Yoga: f8ec45ce98bba1bc93dd28f2ee37215180e6d2b6
   ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 
-PODFILE CHECKSUM: 6b072235f6de1651373a5e2773eab5e0fb5e132c
+PODFILE CHECKSUM: 96f9eadc53af4eefcba099991bb325af9e88cca1
 
 COCOAPODS: 1.16.2

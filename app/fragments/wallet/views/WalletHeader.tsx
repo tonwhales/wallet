@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { memo, useCallback } from "react";
 import { Pressable, View, Platform, ScrollView, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { useTheme } from "../../../engine/hooks";
+import { useSupport, useTheme } from "../../../engine/hooks";
 import { Address, toNano } from "@ton/core";
 import { useAppMode } from "../../../engine/hooks/appstate/useAppMode";
 import { SelectedWallet } from "../../../components/wallet/SelectedWallet";
@@ -12,8 +12,10 @@ import Animated, { SharedValue, useAnimatedStyle, withTiming } from "react-nativ
 import { PriceComponent } from "../../../components/PriceComponent";
 import { Typography } from "../../../components/styles";
 import { useRates } from "../../../engine/hooks/currency/useRates";
+import { t } from "../../../i18n/t";
+import { IcSupportMain } from "@assets";
 
-import IcRateChevron from '@assets/ic_rate_chevron.svg';
+import ArrowIcon from '@assets/order/arrow-without-background.svg';
 
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
@@ -25,9 +27,8 @@ export const WalletHeader = memo(({ address, height, walletCardHeight, scrollOff
     const rates = useRates(['ton'], ['usd'])?.rates;
     const diff = rates?.TON?.diff24h?.USD;
     const isNegative = diff?.startsWith('−');
-    const diffPercent = diff?.replace(/^[+−]/, '');
+    const { onHelpCenter, notifications } = useSupport();
     const diffTextColor = isNegative ? theme.accentRed : theme.accentGreen;
-    const diffBackgroundColor = isNegative ? theme.accentRed + '30' : theme.accentGreen + '30';
 
     const animatedStyle = useAnimatedStyle(() => ({
         transform: [
@@ -50,8 +51,20 @@ export const WalletHeader = memo(({ address, height, walletCardHeight, scrollOff
         return {
             opacity: withTiming(showToggle ? 0 : 1, { duration: 200 }),
             flexDirection: 'row',
+            alignItems: 'center'
         };
     });
+
+    const supportIcon = useMemo(() => {
+        return (
+            <View style={{ height: 36, width: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' }}>
+                <IcSupportMain width={34} height={34} />
+                {((notifications ?? 0) > 0) && (
+                    <View style={{ position: 'absolute', top: 2, right: 2, backgroundColor: theme.accentRed, borderRadius: 10, width: 10, height: 10 }} />
+                )}
+            </View>
+        )
+    }, [])
 
     return (
         <Animated.View
@@ -90,7 +103,7 @@ export const WalletHeader = memo(({ address, height, walletCardHeight, scrollOff
             }}>
                 <SelectedWallet headerContentAnimatedStyle={headerContentAnimatedStyle} />
                 <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'flex-end' }}>
-                    {isWalletMode && (
+                    {isWalletMode ? (
                         <Animated.View style={headerContentAnimatedStyle}>
                             <Pressable
                                 style={{ flexDirection: 'row', alignItems: 'center' }}
@@ -99,7 +112,7 @@ export const WalletHeader = memo(({ address, height, walletCardHeight, scrollOff
                                 <PriceComponent
                                     showSign
                                     amount={toNano(1)}
-                                    style={{ backgroundColor: 'transparent', paddingHorizontal: 6 }}
+                                    style={{ backgroundColor: 'transparent', paddingLeft: 6, paddingRight: 0 }}
                                     textStyle={{ color: theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary }}
                                     theme={theme}
                                 />
@@ -107,22 +120,52 @@ export const WalletHeader = memo(({ address, height, walletCardHeight, scrollOff
                             </Pressable>
                             {!!diff && (
                                 <View
-                                    style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: diffBackgroundColor, paddingHorizontal: 6, borderRadius: 20 }}
+                                    style={{ flexDirection: 'row', alignItems: 'center' }}
                                 >
-                                    <IcRateChevron
-                                        width={12}
-                                        height={12}
+                                    <ArrowIcon
+                                        width={15}
+                                        height={15}
                                         color={diffTextColor}
                                         style={{
                                             transform: [{ rotate: isNegative ? '180deg' : '0deg' }],
                                             marginRight: 4
                                         }}
                                     />
-                                    <Text style={[Typography.medium15_20, { color: diffTextColor }]}>
-                                        {diffPercent}
-                                    </Text>
+                                    <Pressable
+                                        style={({ pressed }) => [
+                                            { flexDirection: 'row', alignItems: 'center', gap: 8 },
+                                            { opacity: pressed ? 0.8 : 1 }
+                                        ]}
+                                        onPress={onHelpCenter}
+                                    >
+                                        {supportIcon}
+                                    </Pressable>
                                 </View>
                             )}
+                        </Animated.View>
+                    ) : (
+                        <Animated.View style={headerContentAnimatedStyle}>
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    width: '100%',
+                                    justifyContent: 'flex-end'
+                                }}
+                            >
+                                <Pressable
+                                    style={({ pressed }) => [
+                                        { flexDirection: 'row', alignItems: 'center', gap: 8 },
+                                        { opacity: pressed ? 0.8 : 1 }
+                                    ]}
+                                    onPress={onHelpCenter}
+                                >
+                                    <Text style={[{ color: theme.textUnchangeable }, Typography.medium15_20]}>
+                                        {t('settings.support.title')}
+                                    </Text>
+                                    {supportIcon}
+                                </Pressable>
+                            </View>
                         </Animated.View>
                     )}
                 </View>

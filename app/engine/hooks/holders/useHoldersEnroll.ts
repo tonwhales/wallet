@@ -210,7 +210,7 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId, invita
                                 }
                             },
                             inviteId,
-                            invitationId,
+                            invitationId: invitationId ?? storedInvitationId,
                             appsflyerId
                         },
                         {

@@ -8,6 +8,7 @@ import { keys } from "../Root";
 export enum MixpanelEvent {
     Reset = 'reset',
     Screen = 'screen',
+    ButtonPress = 'button_press',
     AppOpen = 'app_open',
     AppClose = 'app_close',
     Holders = 'holders',

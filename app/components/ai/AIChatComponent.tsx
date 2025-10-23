@@ -16,6 +16,7 @@ export interface AIChatComponentProps extends UseAIChatSocketOptions {
     maxHeight?: number;
     showConnectionStatus?: boolean;
     onError?: (error: string) => void;
+    isTab?: boolean;
 }
 
 const MessageBubble = memo(({ message, theme }: { message: AIChatMessage; theme: any }) => {
@@ -255,6 +256,9 @@ export const AIChatComponent = memo((props: AIChatComponentProps) => {
 
     const canSend = inputText.trim().length > 0 && isConnected && !isStreaming;
     const maxInputHeight = props.maxHeight ? props.maxHeight * 0.3 : 120;
+    const keyboardVerticalOffset = props.isTab
+        ? Platform.OS === 'ios' ? safeArea.bottom + 74 : 0
+        : Platform.OS === 'ios' ? safeArea.top + 86 : 16;
 
     return (
         <KeyboardAvoidingView
@@ -266,7 +270,7 @@ export const AIChatComponent = memo((props: AIChatComponentProps) => {
                 props.style
             ]}
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? safeArea.top + 86 : 16}
+            keyboardVerticalOffset={keyboardVerticalOffset}
         >
             <View
                 style={{
@@ -293,7 +297,7 @@ export const AIChatComponent = memo((props: AIChatComponentProps) => {
                     </View>
                 )}
 
-                <View style={{ flexDirection: 'row', gap: 8 }}>
+                <View style={{ flexDirection: 'row', gap: 8, alignSelf: 'flex-end' }}>
                     {messages.length > 0 && (
                         <Pressable
                             onPress={handleClearHistory}

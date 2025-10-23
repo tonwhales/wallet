@@ -89,6 +89,7 @@ export const Queries = {
         Rates: (masterAddress: string) => ['jettons', 'rates', masterAddress],
     }),
     TonPrice: () => ['tonPrice'],
+    Rates: (tokens: string, currencies: string) => ['rates', tokens, currencies],
     Apps: (url: string) => ({
         Manifest: () => ['apps', url, 'manifest'],
         AppData: () => ['apps', url, 'appData'],

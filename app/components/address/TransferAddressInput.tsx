@@ -102,11 +102,18 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
         );
     }
     const targetContract = useContractInfo(validTonAddressFriendly || '');
-    const isTargetHolders = addressType === 'ton' ? (
-        holdersAccounts.find((acc) => !!acc.address && acc.cryptoCurrency.ticker !== 'USDC' && validTonAddress?.equals(Address.parse(acc.address))) ||
-        targetContract?.kind === 'card' ||
-        targetContract?.kind === 'jetton-card'
-    ) : false;
+    const isTargetHolders = addressType === 'ton'
+        ? (
+            holdersAccounts.find((acc) => !!acc.address && acc.cryptoCurrency.ticker !== 'USDC' && validTonAddress?.equals(Address.parse(acc.address))) ||
+            targetContract?.kind === 'card' ||
+            targetContract?.kind === 'jetton-card'
+        ) : addressType === 'solana'
+            ? (
+                holdersAccounts.find((acc) =>
+                    !!acc.address &&
+                    acc.address === validSolanaAddress
+                )
+            ) : false;
 
     const displayAddress = validSolanaAddress || validTonAddressFriendly;
     const avatarColorHash = walletSettings?.color ?? avatarHash(displayAddress ?? '', avatarColors.length);

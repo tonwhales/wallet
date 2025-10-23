@@ -25,6 +25,8 @@ import { HoldersSettings } from './holders/components/HoldersSettings';
 import { HoldersTransactionsFragment } from './wallet/HoldersTransactionsFragment';
 import { useLedgerTransport } from './ledger/components/TransportContext';
 import { useAccountTransactionsV3 } from '../engine/hooks/transactions/useAccountTransactionsV3';
+import { HoldersAIChatFragment } from './holders/HoldersAIChatFragment';
+import { HoldersAIChatTab } from './holders/HoldersAIChatTab';
 
 const Tab = createBottomTabNavigator();
 
@@ -152,30 +154,31 @@ export const HomeFragment = fragment(() => {
                         tabBarIcon: ({ focused }) => {
                             let source = require('@assets/ic-home.png');
 
-                            if (route.name === 'Wallet-Stack') {
-                                if (tonconnectRequests.length > 0) {
-                                    source = focused
-                                        ? require('@assets/ic-home-active-badge.png')
-                                        : require('@assets/ic-home-badge.png');
-                                    return (
-                                        <Image
-                                            source={source}
-                                            style={{ height: 24, width: 24 }}
-                                        />
-                                    )
-                                }
-                            }
-
-                            if (route.name === 'Transactions') {
-                                source = require('@assets/ic-history.png');
-                            }
-
-                            if (route.name === 'Browser') {
-                                source = require('@assets/ic-services.png');
-                            }
-
-                            if (route.name === 'More') {
-                                source = require('@assets/ic-settings.png');
+                            switch (route.name) {
+                                case 'Wallet-Stack':
+                                    if (tonconnectRequests.length > 0) {
+                                        source = focused
+                                            ? require('@assets/ic-home-active-badge.png')
+                                            : require('@assets/ic-home-badge.png');
+                                        return (
+                                            <Image
+                                                source={source}
+                                                style={{ height: 24, width: 24 }}
+                                            />
+                                        )
+                                    }
+                                case 'Transactions':
+                                    source = require('@assets/ic-history.png');
+                                    break;
+                                case 'Browser':
+                                    source = require('@assets/ic-services.png');
+                                    break;
+                                case 'More':
+                                    source = require('@assets/ic-settings.png');
+                                    break;
+                                case 'AIChatTab':
+                                    source = require('@assets/ic-ai-agent.png');
+                                    break;
                             }
 
                             return (
@@ -205,6 +208,13 @@ export const HomeFragment = fragment(() => {
                             options={{ title: t('home.browser') }}
                             name={'Browser'}
                             component={BrowserFragment}
+                        />
+                    )}
+                    {!isWalletMode && (
+                        <Tab.Screen
+                            options={{ title: t('aiChat.title') }}
+                            name={'AIChatTab'}
+                            component={HoldersAIChatTab}
                         />
                     )}
                     <Tab.Screen

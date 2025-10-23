@@ -115,7 +115,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                     viewType="main"
                     mint={solanaTokenMint}
                 />
-                <StakingWithdrawReady address={selected.address} />
+                {isWalletMode && <StakingWithdrawReady address={selected.address} />}
                 <PaymentOtpBanner address={selected.address} />
                 {isWalletMode ? (
                     <>

@@ -7,12 +7,6 @@ module.exports = function (api) {
     ["@babel/plugin-proposal-class-properties", { "loose": true }],
     ["@babel/plugin-proposal-private-methods", { "loose": true }],
     [
-      'react-native-reanimated/plugin',
-      {
-        globals: ['__scanCodes'],
-      },
-    ],
-    [
       'module-resolver',
       {
         alias: {
@@ -22,6 +16,7 @@ module.exports = function (api) {
         },
       },
     ],
+    'react-native-worklets/plugin',
   ];
 
   if (babelEnv !== 'development') {

@@ -1,4 +1,4 @@
-const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
+const { getDefaultConfig } = require('expo/metro-config');
 
 const defaultConfig = getDefaultConfig(__dirname);
 const {
@@ -10,14 +10,18 @@ const {
  * Metro configuration
  * https://reactnative.dev/docs/metro
  *
- * @type {import('metro-config').MetroConfig}
+ * @type {import('@react-native/metro-config').MetroConfig}
  */
 const config = {
+  ...defaultConfig,
   transformer: {
-    babelTransformerPath: require.resolve('react-native-svg-transformer')
+    // Preserve defaults (e.g., assetRegistryPath) and only override transformer path
+    ...defaultConfig.transformer,
+    babelTransformerPath: require.resolve('react-native-svg-transformer/react-native'),
   },
 
   resolver: {
+    ...defaultConfig.resolver,
     assetExts: assetExts.filter((ext) => ext !== 'svg'),
     sourceExts: [...sourceExts, 'svg'],
     extraNodeModules: {
@@ -26,4 +30,6 @@ const config = {
   },
 };
 
-module.exports = mergeConfig(defaultConfig, config);
+config.resolver.unstable_enablePackageExports = false;
+
+module.exports = config;

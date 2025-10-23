@@ -68,6 +68,8 @@
 	<string>Allow microphone access for uploading videos to continue the verification process</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Allow photo library access for uploading images to continue the verification process</string>
+	<key>RCTNewArchEnabled</key>
+	<true/>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

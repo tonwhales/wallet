@@ -128,15 +128,13 @@ class MainActivity : ReactActivity() {
         mPushNotificationManager.onResume()
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
 
-        if (intent != null) {
-            // Track Maestra push clicks only
-            if (isMaestraPush(intent)) {
-                Mindbox.onPushClicked(this, intent)
-            }
+        // Track Maestra push clicks only
+        if (isMaestraPush(intent)) {
+            Mindbox.onPushClicked(this, intent)
 
             mPushNotificationManager.onNewIntent(intent)
         }

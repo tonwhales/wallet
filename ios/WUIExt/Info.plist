@@ -21,8 +21,10 @@
 		</dict>
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.PassKit.issuer-provisioning.authorization</string>
-    <key>NSExtensionPrincipalClass</key>
-    <string>$(PRODUCT_MODULE_NAME).WUIExtHandler</string>
+		<key>NSExtensionPrincipalClass</key>
+		<string>$(PRODUCT_MODULE_NAME).WUIExtHandler</string>
 	</dict>
+	<key>RCTNewArchEnabled</key>
+	<true/>
 </dict>
 </plist>

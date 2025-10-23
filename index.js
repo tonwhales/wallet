@@ -1,4 +1,4 @@
-// polyfills
+polyfills
 global.Buffer = global.Buffer || require('@craftzdog/react-native-buffer').Buffer;
 import 'react-native-url-polyfill/auto';
 import 'text-encoding-polyfill';
@@ -19,4 +19,5 @@ import './app/i18n/i18n';
 // Load app
 import { registerRootComponent } from 'expo';
 import 'react-native-reanimated'
-registerRootComponent(require('./App').default);
+import App from './App';
+registerRootComponent(App);

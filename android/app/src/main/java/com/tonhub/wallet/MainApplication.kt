@@ -9,6 +9,7 @@ import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
 import com.facebook.react.ReactInstanceManager
 import com.facebook.react.ReactHost
+import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
 import com.facebook.react.ReactNativeHost
 import com.facebook.react.ReactPackage
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint
@@ -57,15 +58,10 @@ class MainApplication : Application(), ReactApplication {
     override fun onCreate() {
         ReactNativePerformance.onAppStarted()
         super.onCreate()
-        SoLoader.init(this, OpenSourceMergedSoMapping)
+        loadReactNative(this)
 
         IntercomModule.initialize(this, BuildConfig.INTERCOM_ANDROID_API, BuildConfig.INTERCOM_APP)
 
-        if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
-            // If you opted-in for the New Architecture, we load the native entry point for
-            // this app.
-            DefaultNewArchitectureEntryPoint.load()
-        }
         ApplicationLifecycleDispatcher.onApplicationCreate(this)
 
         // @TODO: uncomment this when we start using Maestra

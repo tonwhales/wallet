@@ -2,7 +2,7 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import { Queries } from '../../queries';
 import { Address } from '@ton/core';
 import { StoredTransaction, TonTransaction, TransactionType, CommonTx } from '../../types';
-import { useClient4, useCurrentAddress, useNetwork } from '..';
+import { useClient4, useCurrentAddress, useNetwork, useUsdcMintAddress } from '..';
 import { getLastBlock } from '../../accountWatcher';
 import { queryClient } from '../../clients';
 import { AccountTransactionsV3Cursor, fetchAccountTransactionsV3 } from '../../api/fetchAccountTransactionsV3';
@@ -18,7 +18,6 @@ import { JettonFull } from '../../api/fetchHintsFull';
 import { SolanaTransaction } from '../../api/solana/fetchSolanaTransactions';
 import { PublicKey } from "@solana/web3.js";
 import { getAssociatedTokenAddress } from '@solana/spl-token';
-import { SOLANA_USDC_MINT_DEVNET, SOLANA_USDC_MINT_MAINNET } from '../../../utils/solana/address';
 import { isUSDCTransaction } from '../../../utils/solana/isUSDCTransaction';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -300,8 +299,7 @@ export function useAccountTransactionsV3(
     const { isTestnet } = useNetwork();
     const client = useClient4(isTestnet);
     const { tonAddress, tonAddressString, solanaAddress } = useCurrentAddress();
-    const usdcMint = isTestnet ? SOLANA_USDC_MINT_DEVNET : SOLANA_USDC_MINT_MAINNET;
-
+    const usdcMintAddress = useUsdcMintAddress();
     const [isRefreshing, setIsRefreshing] = useState(false);
     const refreshTimeoutRef = useRef<NodeJS.Timeout>();
     const isFetchingRef = useRef(false);
@@ -317,7 +315,7 @@ export function useAccountTransactionsV3(
 
             const lastTransactions = getLastTransactionFromPages(allPages);
             if (lastTransactions.ton || lastTransactions.solana || lastTransactions.solanaToken) {
-                return createNextPageParam(lastTransactions, usdcMint);
+                return createNextPageParam(lastTransactions, usdcMintAddress);
             }
 
             return undefined;
@@ -328,12 +326,12 @@ export function useAccountTransactionsV3(
             let cursor: AccountTransactionsV3Cursor;
 
             if (isFirstPage) {
-                cursor = await getInitialCursor(client, tonAddressString, usdcMint);
+                cursor = await getInitialCursor(client, tonAddressString, usdcMintAddress);
             } else {
                 cursor = ctx.pageParam!;
             }
 
-            const solanaATAaddress = await getAssociatedTokenAddress(new PublicKey(usdcMint), new PublicKey(solanaAddress!));
+            const solanaATAaddress = await getAssociatedTokenAddress(new PublicKey(usdcMintAddress), new PublicKey(solanaAddress!));
 
             const account = {
                 tonAddress: tonAddressString,

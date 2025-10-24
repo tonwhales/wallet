@@ -363,7 +363,11 @@ export const AssetsFragment = fragment(() => {
 
     const onSolanaAssetSelected = useCallback((token?: SolanaToken) => {
         if (simpleTransferAssetCallback) {
-            onJettonCallback();
+            if (token?.address) {
+                onJettonCallback({ type: 'solana-token', address: token?.address });
+            } else {
+                onJettonCallback({ type: 'solana' });
+            }
             return;
         } else if (assetCallback) {
             onAssetCallback(null);
@@ -371,11 +375,7 @@ export const AssetsFragment = fragment(() => {
         }
 
         navigation.navigateSolanaSimpleTransfer({
-            amount: null,
-            target: target,
-            comment: null,
-            token: token?.address,
-            callback: undefined
+            target: target
         });
     }, [simpleTransferAssetCallback, assetCallback, isLedger, target]);
 
@@ -468,7 +468,7 @@ export const AssetsFragment = fragment(() => {
                         balance={solanaAccount?.balance ?? 0n}
                         onSelected={onSolanaAssetSelected}
                         selectable={!!simpleTransferAssetCallback || !!assetCallback}
-                        isSelected={!selectedAsset}
+                        isSelected={selectedAsset?.type === 'solana'}
                         viewType={viewType}
                         symbol="SOL"
                     />
@@ -481,6 +481,7 @@ export const AssetsFragment = fragment(() => {
                         address={solanaAccountAddress}
                         onSelect={() => onSolanaAssetSelected(item.token)}
                         viewType={viewType}
+                        isSelected={selectedAsset?.type === 'solana-token'}
                     />
                 );
             default:

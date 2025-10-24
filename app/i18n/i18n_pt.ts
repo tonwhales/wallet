@@ -1480,6 +1480,29 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "declined": "Solicitação rejeitada",
         "expired": "Solicitação expirada",
         "pending": "Aguardando confirmação...",
+    },
+    "aiChat": {
+        "title": "Assistente IA",
+        "sessionId": "Sessão",
+        "connecting": "Conectando...",
+        "noConnection": "Sem conexão",
+        "welcomeTitle": "Bem-vindo ao chat IA!",
+        "welcomeSubtitle": "Pergunte sobre seus gastos ou peça conselhos",
+        "placeholder": "Digite uma mensagem...",
+        "characterCount": "{{count}}/1000",
+        "recoveringRequest": "Recuperando solicitação...",
+        "clearHistory": "Limpar histórico",
+        "reconnect": "Reconectar",
+        "messageTooLong": "Mensagem muito longa. Máximo de 1000 caracteres permitidos.",
+        "notConnected": "Não conectado ao servidor de chat",
+        "loadingProfile": "Carregando perfil...",
+        "profileNotAvailable": "Perfil não disponível. Verifique sua conta Holders.",
+        "errors": {
+            "certificateError": "Falha na validação do certificado. Verifique a configuração SSL do servidor.",
+            "connectionError": "Erro de conexão WebSocket",
+            "sessionNotFound": "Sessão não encontrada",
+            "invalidUserId": "Formato de ID de usuário inválido"
+        }
     }
 };
 

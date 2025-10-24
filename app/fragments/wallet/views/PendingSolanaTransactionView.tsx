@@ -15,6 +15,7 @@ import { ForcedAvatar } from "../../../components/avatar/ForcedAvatar";
 import { InstructionName } from "../../../utils/solana/parseInstructions";
 import { ASSET_ITEM_HEIGHT, TRANSACTION_AVATAR_SIZE, TRANSACTION_PROCESSING_TIMEOUT } from "../../../utils/constants";
 import { TransactionType } from "../../../engine/types";
+import { useTransactionsUtilsContext } from "../../../engine/TransactionsUtilsContext";
 
 const PendingInstructionsView = memo(({
     transaction,
@@ -149,12 +150,14 @@ const PendingTxView = memo((
         verified: boolean
     }
 ) => {
+    const { checkIsHoldersTarget } = useTransactionsUtilsContext();
     const { target, amount, token } = transaction.tx;
     const theme = useTheme();
     const tokenData = useSolanaToken(address, token?.mint);
 
     const symbol = token?.symbol ?? tokenData?.symbol ?? 'SOL';
     const decimals = token?.decimals ?? tokenData?.decimals ?? 9;
+    const forceAvatar = useMemo(() => checkIsHoldersTarget(target) ? 'holders' : undefined, [checkIsHoldersTarget, address]);
 
     return (
         <Animated.View
@@ -189,6 +192,7 @@ const PendingTxView = memo((
                             avatarId={target ?? ''}
                             style={{ backgroundColor: viewType === 'main' ? theme.surfaceOnBg : theme.backgroundPrimary }}
                             knownWallets={{}}
+                            forceAvatar={forceAvatar}
                         />
                     ) : (
                         <Avatar
@@ -202,6 +206,7 @@ const PendingTxView = memo((
                             backgroundColor={viewType === 'main' ? theme.surfaceOnBg : theme.backgroundPrimary}
                             hashColor
                             icProps={{ backgroundColor: viewType === 'main' ? theme.surfaceOnBg : theme.backgroundPrimary }}
+                            forcedAvatar={forceAvatar}
                         />
                     )}
                 </View>

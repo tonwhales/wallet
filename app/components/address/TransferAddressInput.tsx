@@ -6,7 +6,7 @@ import { AddressDomainInput, AddressDomainInputRef, AddressInputState, InputActi
 import { ATextInputRef } from "../ATextInput";
 import { KnownWallet } from "../../secure/KnownWallets";
 import { useAppState, useBounceableWalletFormat, useContractInfo, useHoldersAccounts, useTheme, useWalletSettings } from "../../engine/hooks";
-import { AddressSearchItem } from "./AddressSearch";
+import { AddressSearchItem, SolanaAddressSearchItem } from "./AddressSearch";
 import { t } from "../../i18n/t";
 import { PerfText } from "../basic/PerfText";
 import { avatarHash } from "../../utils/avatarHash";
@@ -35,7 +35,7 @@ type TransferAddressInputProps = {
     onQRCodeRead: (value: string) => void,
     isSelected?: boolean,
     onNext?: () => void,
-    onSearchItemSelected: (item: AddressSearchItem) => void,
+    onSearchItemSelected: (item: AddressSearchItem | SolanaAddressSearchItem) => void,
     knownWallets: { [key: string]: KnownWallet },
     navigation: TypedNavigation,
     setAddressDomainInputState: (state: AddressInputState) => void,
@@ -84,14 +84,36 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     const [walletSettings] = useWalletSettings(validTonAddressFriendly);
     const [bounceableFormat] = useBounceableWalletFormat();
     const ledgerTransport = useLedgerTransport();
-    const holdersAccounts = useHoldersAccounts(account, isLedger ? undefined : solanaAddress).data?.accounts
-        ?.filter(acc => hasDirectTonDeposit(acc) && acc.network !== 'solana') ?? [];
+    const allHoldersAccounts = useHoldersAccounts(
+        account,
+        isLedger ? undefined : solanaAddress
+    ).data?.accounts ?? [];
+    
+    // filtration depends on the wallet from which this screen was opened
+    // for example: if we open simple transfer from usdc wallet, we show only solana chain holders accounts
+    let holdersAccounts: typeof allHoldersAccounts = [];
+    if (initialBlockchain === 'ton') {
+        holdersAccounts = allHoldersAccounts.filter(acc => hasDirectTonDeposit(acc) && acc.network !== 'solana');
+    } else if (initialBlockchain === 'solana') {
+        holdersAccounts = allHoldersAccounts.filter(acc => acc.network === 'solana');
+    } else {
+        holdersAccounts = allHoldersAccounts.filter(
+            acc => hasDirectTonDeposit(acc) || acc.network === 'solana'
+        );
+    }
     const targetContract = useContractInfo(validTonAddressFriendly || '');
-    const isTargetHolders = addressType === 'ton' ? (
-        holdersAccounts.find((acc) => !!acc.address && validTonAddress?.equals(Address.parse(acc.address))) ||
-        targetContract?.kind === 'card' ||
-        targetContract?.kind === 'jetton-card'
-    ) : false;
+    const isTargetHolders = addressType === 'ton'
+        ? (
+            holdersAccounts.find((acc) => !!acc.address && acc.cryptoCurrency.ticker !== 'USDC' && validTonAddress?.equals(Address.parse(acc.address))) ||
+            targetContract?.kind === 'card' ||
+            targetContract?.kind === 'jetton-card'
+        ) : addressType === 'solana'
+            ? (
+                holdersAccounts.find((acc) =>
+                    !!acc.address &&
+                    acc.address === validSolanaAddress
+                )
+            ) : false;
 
     const displayAddress = validSolanaAddress || validTonAddressFriendly;
     const avatarColorHash = walletSettings?.color ?? avatarHash(displayAddress ?? '', avatarColors.length);
@@ -180,7 +202,26 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
             type: InputAction.InputTarget,
             input: name.trim(),
             target: friendly,
-            suffix: suff
+            suffix: suff,
+            addressType: 'ton'
+        });
+
+        if (onSearchItemSelected) {
+            onSearchItemSelected(item);
+        }
+    }, [onSearchItemSelected]);
+
+    const onSolanaAddressSearchItemSelected = useCallback((item: SolanaAddressSearchItem) => {
+        const friendly = item.address;
+        const name = item.title;
+        const suff = friendly.slice(0, 4) + '...' + friendly.slice(-4);
+
+        (ref as RefObject<AddressDomainInputRef> | undefined)?.current?.inputAction({
+            type: InputAction.InputTarget,
+            input: name.trim(),
+            target: friendly,
+            suffix: suff,
+            addressType: 'solana'
         });
 
         if (onSearchItemSelected) {
@@ -265,16 +306,15 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                 {__DEV__ && addressType === 'ton' && ( // TODO: return when wallet confirmation design is refined
                     <AddressConfirmationRequest address={validTonAddress ? state.target : undefined} />
                 )}
-                {initialBlockchain === 'ton' &&
-                    <HoldersAccountsSearch
-                        theme={theme}
-                        onSelect={onAddressSearchItemSelected}
-                        query={query}
-                        holdersAccounts={holdersAccounts}
-                        owner={account}
-                        isLedger={isLedger}
-                    />
-                }
+                <HoldersAccountsSearch
+                    theme={theme}
+                    onSelect={onAddressSearchItemSelected}
+                    onSolanaSelect={onSolanaAddressSearchItemSelected}
+                    query={query}
+                    holdersAccounts={holdersAccounts}
+                    owner={account}
+                    isLedger={isLedger}
+                />
             </View>
         </View>
     );

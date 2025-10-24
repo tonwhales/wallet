@@ -40,6 +40,11 @@ export type SimpleTransferAsset = {
 } | {
     type: 'address';
     address: Address;
+} | {
+    type: 'solana';
+} | {
+    type: 'solana-token';
+    address: string;
 }
 
 type Options = {
@@ -297,7 +302,7 @@ export const useSimpleTransfer = ({ params }: Options) => {
             return;
         }
 
-        if (selected && selected.wallet) {
+        if (selected?.type === 'jetton' && selected && selected.wallet) {
             setSelectedAsset({ type: 'jetton', master: selected.master, wallet: selected.wallet });
             return;
         }
@@ -306,6 +311,7 @@ export const useSimpleTransfer = ({ params }: Options) => {
     }, []);
 
     const holdersTarget = holdersAccounts?.find((a) => targetAddressValid?.address.equals(a.address));
+    const holdersTargetSymbol = holdersTarget?.symbol;
     const holdersTargetJetton = holdersTarget?.jettonMaster ? Address.parse(holdersTarget.jettonMaster) : null;
     const jettonMaster = jetton?.master;
     const shouldAddMemo = holdersTarget?.memo ? (holdersTarget.memo !== commentString) : false;
@@ -524,7 +530,7 @@ export const useSimpleTransfer = ({ params }: Options) => {
         domain,
         estimation,
         estimationPrice,
-        holdersTarget,
+        holdersTargetSymbol,
         isLedger,
         isSCAM,
         jetton,

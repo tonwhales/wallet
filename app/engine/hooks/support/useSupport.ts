@@ -1,47 +1,85 @@
-import { useCallback } from "react";
-import { useLanguage } from "../appstate";
-import Intercom, { Space } from "@intercom/intercom-react-native";
-import { useCurrentAddress } from "../appstate";
-import { useHoldersProfile } from "../holders/useHoldersProfile";
-import { getUserLegalName } from "../../../utils/holders/getUserLegalName";
+import Intercom, { type Article, ContentType, IntercomEvents, Space } from '@intercom/intercom-react-native';
+import { Address } from '@ton/core';
+import { useCallback, useEffect, useState } from 'react';
+import { useIsLedgerRoute, useNetwork, useSupportAuthState } from '..';
+import { MixpanelEvent, trackEvent } from '../../../analytics/mixpanel';
+import { getLedgerSelected } from '../../../storage/appState';
+import { useSelectedAccount } from '../appstate';
 
 export const useSupport = () => {
-    const [language] = useLanguage();
-    const { tonAddressString } = useCurrentAddress();
-    const { data: profile } = useHoldersProfile(tonAddressString);
+	const network = useNetwork();
+	const isLedger = useIsLedgerRoute();
+	const selected = useSelectedAccount();
+	const ledgerSelected = getLedgerSelected();
+	const _address = isLedger && ledgerSelected ? Address.parse(ledgerSelected) : selected?.address;
+	const address = _address?.toString({ testOnly: network.isTestnet });
+	const [notifications, setNotifications] = useState(0);
+	const isLoggedIn = useSupportAuthState();
 
-    const authorizeIntercom = useCallback(async () => {
-        if (!!tonAddressString) {
-            await Intercom.logout()
-            await Intercom.loginUserWithUserAttributes({
-                userId: tonAddressString,
-                languageOverride: language,
-            });
-            if (profile) {
-                await Intercom.updateUser({
-                    email: profile.email,
-                    name: getUserLegalName(profile) + ' (' + profile.userId + ')',
-                    phone: profile.phone,
-                })
-            }
-        } else {
-            await Intercom.logout()
-            await Intercom.loginUnidentifiedUser();
-        }
-    }, [tonAddressString, language, profile])
+	useEffect(() => {
+		Intercom.getUnreadConversationCount().then((count) => {
+			setNotifications(count);
+		});
 
-    const onSupport = useCallback(async (options?: { space?: Space }) => {
-        await authorizeIntercom();
-        await Intercom.presentSpace(options?.space || Space.home)
-    }, [authorizeIntercom])
+		Intercom.addEventListener(IntercomEvents.IntercomUnreadCountDidChange, (event) => {
+			setNotifications(event.count ?? 0);
+		});
+	}, []);
+
+	const onSupport = useCallback(async () => {
+		trackEvent(MixpanelEvent.ButtonPress, { button: 'support', isLoggedIn });
+		if (!isLoggedIn) {
+			return;
+		}
+		Intercom.presentSpace(Space.messages);
+	}, [isLoggedIn]);
+
+	const onSupportNew = useCallback(async () => {
+		trackEvent(MixpanelEvent.ButtonPress, { button: 'support_new', isLoggedIn });
+		if (!isLoggedIn) {
+			return;
+		}
+		await Intercom.presentMessageComposer();
+	}, [isLoggedIn]);
 
     const onSupportWithMessage = useCallback(async (options?: { message?: string }) => {
-        await authorizeIntercom();
+        trackEvent(MixpanelEvent.ButtonPress, { button: 'support_with_message', isLoggedIn });
+        if (!isLoggedIn) {
+            return;
+        }
         await Intercom.presentMessageComposer(options?.message);
-    }, [authorizeIntercom])
+    }, [isLoggedIn])
 
-    return {
-        onSupport,
-        onSupportWithMessage
-    }
-}
+	const onHelpCenter = useCallback(async () => {
+		trackEvent(MixpanelEvent.ButtonPress, { button: 'help_center', isLoggedIn });
+		Intercom.presentSpace(Space.home);
+	}, [isLoggedIn]);
+
+	const onAboutSeed = useCallback(async () => {
+		trackEvent(MixpanelEvent.ButtonPress, { button: 'about_seed', isLoggedIn });
+		await Intercom.presentContent({
+			type: ContentType.Article,
+			id: '12257180'
+		} as Article);
+	}, []);
+
+	if (!address) {
+		return {
+			onSupport: async () => { },
+			onSupportNew: async () => { },
+			onAboutSeed,
+			onHelpCenter,
+			notifications: 0,
+			onSupportWithMessage: async () => { }
+		};
+	}
+
+	return {
+		onSupport,
+		onAboutSeed,
+		onSupportNew,
+		onHelpCenter,
+		notifications,
+		onSupportWithMessage
+	};
+};

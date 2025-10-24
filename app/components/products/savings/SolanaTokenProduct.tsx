@@ -12,13 +12,15 @@ export const SolanaTokenProduct = memo(({
     token,
     address,
     onSelect,
-    viewType
+    viewType,
+    isSelected
 }: {
     theme: ThemeType,
     token: SolanaToken,
     address: string,
     onSelect?: () => void,
-    viewType?: AssetViewType
+    viewType?: AssetViewType,
+    isSelected?: boolean
 }) => {
     const navigation = useTypedNavigation();
 
@@ -51,6 +53,7 @@ export const SolanaTokenProduct = memo(({
             blockchain="solana"
             imageUrl={token.logoURI}
             viewType={viewType}
+            isSelected={isSelected}
         />
     );
 });

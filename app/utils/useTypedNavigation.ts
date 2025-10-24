@@ -150,7 +150,7 @@ export class TypedNavigation {
         this.navigate('LiquidWithdrawAction');
     }
 
-    navigateSimpleTransfer(tx: SimpleTransferParams, options?: { ledger?: boolean, replace?: boolean }) {
+    navigateSimpleTransfer(tx: SimpleTransferParams, options?: { ledger?: boolean, replace?: boolean, fromHomeScreen?: boolean }) {
         const action = options?.replace ? this.replace : this.navigate;
 
         if (options?.ledger) {
@@ -158,7 +158,7 @@ export class TypedNavigation {
             return;
         }
 
-        action('SimpleTransfer', { ...tx, blockchain: 'ton' });
+        action('SimpleTransfer', { ...tx, blockchain: options?.fromHomeScreen ? undefined : 'ton' });
     }
 
     navigateSign(tx: {

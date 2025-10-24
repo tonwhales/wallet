@@ -5,7 +5,7 @@ import { TransferAddressInput } from '../../../../components/address/TransferAdd
 import { Address } from '@ton/core';
 import { SimpleTransferParams } from '../SimpleTransferFragment';
 import { AddressInputState } from '../../../../components/address/AddressDomainInput';
-import { AddressSearchItem } from '../../../../components/address/AddressSearch';
+import { AddressSearchItem, SolanaAddressSearchItem } from '../../../../components/address/AddressSearch';
 import { KnownWallet } from '../../../../secure/KnownWallets';
 
 type Props = {
@@ -17,7 +17,7 @@ type Props = {
     onInputSubmit: () => void
     onQRCodeRead: (src: string) => void;
     isActive: boolean;
-    onSearchItemSelected: (item: AddressSearchItem) => void
+    onSearchItemSelected: (item: AddressSearchItem | SolanaAddressSearchItem) => void
     knownWallets: {
         [key: string]: KnownWallet;
     };

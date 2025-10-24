@@ -9,6 +9,8 @@ export { useSolanaTransactionStatus } from './useSolanaTransactionStatus';
 export { useSolanaTransferInfo } from './useSolanaTransferInfo';
 export { useSolanaTransferInstruction } from './useSolanaTransferInstruction';
 export { useSolanaTransactionFees } from './useSolanaTransactionFees';
+export { useSolanaTransactionFromOrder } from './useSolanaTransactionFromOrder';
 export { useSolanaSavingsBalance } from './useSolanaSavingsBalance';
 export { usePendingSolanaTransferInfo } from './usePendingSolanaTransferInfo';
 export { useIsSolanaRoute } from './useIsSolanaRoute';
+export { useUsdcMintAddress } from './useUsdcMintAddress';

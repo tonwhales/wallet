@@ -8,7 +8,7 @@ import { ATextInputRef } from '../../../components/ATextInput';
 import { fragment } from '../../../fragment';
 import { useParams } from '../../../utils/useParams';
 import { useCurrentAddress, useNetwork, useTheme } from '../../../engine/hooks';
-import { AddressSearchItem } from '../../../components/address/AddressSearch';
+import { AddressSearchItem, SolanaAddressSearchItem } from '../../../components/address/AddressSearch';
 import { AddressDomainInputRef, AddressInputState } from '../../../components/address/AddressDomainInput';
 import { SimpleTransferLayout, SimpleTransferAmount, SimpleTransferAddress, SimpleTransferComment, SimpleTransferFees, SimpleTransferHeader, SimpleTransferFooter } from './components';
 import { SelectedInput, SimpleTransferAsset, useSimpleTransfer } from './hooks/useSimpleTransfer';
@@ -98,6 +98,7 @@ const SimpleTransferComponent = () => {
         doSend,
         selectedInput,
         setSelectedInput,
+        selectedAsset
     } = activeTransfer;
 
     const [isScrolling, setIsScrolling] = useState(false);
@@ -142,12 +143,12 @@ const SimpleTransferComponent = () => {
         }));
     });
 
-    const onSearchItemSelected = useCallback((item: AddressSearchItem) => {
+    const onSearchItemSelected = useCallback((item: AddressSearchItem | SolanaAddressSearchItem) => {
         scrollRef.current?.scrollTo({ y: 0 });
         if (item.memo) {
             setComment(item.memo);
         }
-    }, []);
+    }, [setComment]);
 
     const backHandler = useCallback(() => {
         if (selectedInput !== null) {
@@ -288,9 +289,9 @@ const SimpleTransferComponent = () => {
                         amountError={amountError}
                         priceText={tonTransfer.priceText}
                         shouldChangeJetton={tonTransfer.shouldChangeJetton}
-                        holdersTarget={tonTransfer.holdersTarget}
+                        holdersTargetSymbol={tonTransfer.holdersTargetSymbol}
                         onChangeJetton={tonTransfer.onChangeJetton}
-                        selectedAsset={tonTransfer.selectedAsset}
+                        selectedAsset={selectedAsset}
                         extraCurrency={tonTransfer.extraCurrency}
                         decimals={decimals}
                     />
@@ -307,6 +308,11 @@ const SimpleTransferComponent = () => {
                         amountError={amountError}
                         logoURI={solanaTransfer.logoURI}
                         isSolana={true}
+                        shouldChangeJetton={solanaTransfer.shouldChangeToken}
+                        holdersTargetSymbol={solanaTransfer.holdersTargetSymbol}
+                        onChangeJetton={solanaTransfer.onChangeToken}
+                        onAssetSelected={solanaTransfer.onAssetSelected}
+                        selectedAsset={selectedAsset}
                     />
                 )
             ) : null

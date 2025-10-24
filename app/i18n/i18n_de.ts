@@ -1480,6 +1480,29 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "declined": "Bestätigung abgelehnt",
         "expired": "Bestätigung abgelaufen",
         "pending": "Warten auf Bestätigung...",
+    },
+    "aiChat": {
+        "title": "KI-Assistent",
+        "sessionId": "Sitzung",
+        "connecting": "Verbinde...",
+        "noConnection": "Keine Verbindung",
+        "welcomeTitle": "Willkommen im KI-Chat!",
+        "welcomeSubtitle": "Fragen Sie nach Ihren Ausgaben oder bitten Sie um Rat",
+        "placeholder": "Nachricht eingeben...",
+        "characterCount": "{{count}}/1000",
+        "recoveringRequest": "Anfrage wird wiederhergestellt...",
+        "clearHistory": "Verlauf löschen",
+        "reconnect": "Neu verbinden",
+        "messageTooLong": "Nachricht zu lang. Maximal 1000 Zeichen erlaubt.",
+        "notConnected": "Nicht mit Chat-Server verbunden",
+        "loadingProfile": "Profil wird geladen...",
+        "profileNotAvailable": "Profil nicht verfügbar. Überprüfen Sie Ihr Holders-Konto.",
+        "errors": {
+            "certificateError": "Zertifikatvalidierung fehlgeschlagen. Überprüfen Sie die SSL-Konfiguration des Servers.",
+            "connectionError": "WebSocket-Verbindungsfehler",
+            "sessionNotFound": "Sitzung nicht gefunden",
+            "invalidUserId": "Ungültiges Benutzer-ID-Format"
+        }
     }
 };
 

@@ -1480,6 +1480,29 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "declined": "Запрос отклонен",
         "expired": "Запрос просрочен",
         "pending": "Ожидание подтверждения...",
+    },
+    "aiChat": {
+        "title": "AI Ассистент",
+        "sessionId": "Сессия",
+        "connecting": "Подключение...",
+        "noConnection": "Нет соединения",
+        "welcomeTitle": "Добро пожаловать в AI чат!",
+        "welcomeSubtitle": "Задайте вопрос о ваших тратах или попросите совет",
+        "placeholder": "Напишите сообщение...",
+        "characterCount": "{{count}}/1000",
+        "recoveringRequest": "Восстанавливаем запрос...",
+        "clearHistory": "Очистить историю",
+        "reconnect": "Переподключиться",
+        "messageTooLong": "Сообщение слишком длинное. Максимум 1000 символов.",
+        "notConnected": "Нет соединения с сервером чата",
+        "loadingProfile": "Загрузка профиля...",
+        "profileNotAvailable": "Профиль недоступен. Проверьте ваш аккаунт Holders.",
+        "errors": {
+            "certificateError": "Ошибка проверки сертификата. Проверьте SSL конфигурацию сервера.",
+            "connectionError": "Ошибка WebSocket соединения",
+            "sessionNotFound": "Сессия не найдена",
+            "invalidUserId": "Неверный формат ID пользователя"
+        }
     }
 };
 

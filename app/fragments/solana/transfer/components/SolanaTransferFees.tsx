@@ -6,15 +6,12 @@ import { Typography } from "../../../../components/styles";
 import { t } from "../../../../i18n/t";
 import { fromNano } from "@ton/core";
 import { PriceComponent } from "../../../../components/PriceComponent";
+import { AnimatedSkeleton } from "../../../../components/skeletons/AnimatedSkeleton";
 
-export const SolanaTransferFees = ({ tx }: { tx: Transaction }) => {
+export const SolanaTransferFees = ({ tx }: { tx?: Transaction }) => {
     const fees = useSolanaTransactionFees(tx);
     const theme = useTheme();
     const [, , solPrice] = usePrice();
-
-    if (!fees) {
-        return null;
-    }
 
     return (
         <ItemGroup>
@@ -23,10 +20,10 @@ export const SolanaTransferFees = ({ tx }: { tx: Transaction }) => {
                     {t('txPreview.blockchainFee')}
                 </Text>
                 <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
+                    {fees ? <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
                         {fromNano(BigInt(fees)) + ' SOL'}
-                    </Text>
-                    <PriceComponent
+                    </Text> : <AnimatedSkeleton style={{ maxWidth: 100, backgroundColor: theme.divider, marginVertical: 4}} duration={3000} />}
+                    {fees ? <PriceComponent
                         amount={BigInt(fees)}
                         style={{
                             backgroundColor: theme.transparent,
@@ -36,7 +33,7 @@ export const SolanaTransferFees = ({ tx }: { tx: Transaction }) => {
                         textStyle={[{ color: theme.textPrimary, fontSize: 17, fontWeight: '400' }]}
                         priceUSD={solPrice.price.usd}
                         theme={theme}
-                    />
+                    /> : <AnimatedSkeleton style={{ maxWidth: 60, backgroundColor: theme.divider, marginVertical: 4 }} duration={3000} />}
                 </View>
             </View>
         </ItemGroup>

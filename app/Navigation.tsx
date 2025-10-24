@@ -49,7 +49,7 @@ import { HoldersLandingFragment } from './fragments/holders/HoldersLandingFragme
 import { HoldersAppFragment } from './fragments/holders/HoldersAppFragment';
 import { BiometricsSetupFragment } from './fragments/BiometricsSetupFragment';
 import { KeyStoreMigrationFragment } from './fragments/secure/KeyStoreMigrationFragment';
-import { useNetwork, useTheme } from './engine/hooks';
+import { useNetwork, useSupportAuth, useTheme } from './engine/hooks';
 import { useNavigationTheme } from './engine/hooks';
 import { useRecoilValue } from 'recoil';
 import { appStateAtom } from './engine/state/appState';
@@ -126,6 +126,7 @@ import { ChangellyCalculationFragment } from './fragments/integrations/Changelly
 import { ChangellyOrderFragment } from './fragments/integrations/ChangellyOrderFragment';
 import { SwapFragment } from './fragments/wallet/SwapFragment';
 import { isLatestIos } from './utils/isLatestIos';
+import { HoldersAIChatFragment } from './fragments/holders/HoldersAIChatFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -386,6 +387,7 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('Holders', HoldersAppFragment, safeArea, true, 0),
     modalScreen('Exchanges', ExchangesFragment, safeArea),
     modalScreen('SelectHoldersMainAccount', SelectHoldersMainAccountFragment, safeArea),
+    modalScreen('HoldersAIChat', HoldersAIChatFragment, safeArea),
 
     // Utils
     genericScreen('Privacy', PrivacyFragment, safeArea, true),
@@ -536,6 +538,9 @@ export const Navigation = memo(() => {
 
     // Watch for solana account updates
     useSolanaAccountWatcher();
+
+    // Watch for support auth state
+	useSupportAuth();
 
     return (
         <View style={{ flexGrow: 1, alignItems: 'stretch', backgroundColor: navigationTheme.colors.background }}>

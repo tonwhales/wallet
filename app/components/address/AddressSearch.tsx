@@ -108,7 +108,7 @@ export const AddressSearch = memo(({
     const searchItems = useMemo(() => {
         return {
             holders: (holdersAccounts || []).map((acc) => {
-                const title = getAccountName(acc.accountIndex, acc.name);
+                const title = getAccountName(acc.accountType, acc.accountIndex, acc.name);
                 const searchable = `${title.toLowerCase()} ${acc.address.toString({ testOnly: network.isTestnet }).toLowerCase()}`;
 
                 return {

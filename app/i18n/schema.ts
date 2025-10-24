@@ -628,6 +628,8 @@ export type LocalizationSchema = {
                 hiddenCards: string,
                 primaryName: string,
                 paymentName: string,
+                vestingName: string,
+                vestingPrimaryName: string,
                 topUp: string,
                 addNew: string,
                 network: string,

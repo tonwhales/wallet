@@ -154,7 +154,7 @@ export const HoldersAccountItem = memo((props: {
     const navigation = useTypedNavigation();
     const url = holdersUrl(isTestnet);
     const isHoldersReady = useIsConnectAppReady(url, owner.toString({ testOnly: isTestnet }));
-    const name = getAccountName(account.accountIndex, account.name);
+    const name = getAccountName(account.type, account.accountIndex, account.name);
     const ledgerContext = useLedgerTransport();
     const hasDirectDeposit = hasDirectTonDeposit(account) || hasDirectSolanaDeposit(account);
 
@@ -253,7 +253,7 @@ export const HoldersAccountItem = memo((props: {
     }, [checkEnrollmentAndPrepareNavigation, isTestnet, isLedger, navigation, account.id]);
 
     const showAddCardButton = useMemo(() => {
-        if (account.cards.length === 0) return true;
+        if (!account.cards || account.cards.length === 0) return true;
         if (account.cards.some((card) => card.provider !== 'elysphere-kauri')) return true;
         return false;
     }, [account.cards]);
@@ -346,7 +346,7 @@ export const HoldersAccountItem = memo((props: {
                         paddingRight: 20
                     }}
                 >
-                    {account.cards.map((card) => (
+                    {account.cards?.length > 0 && account.cards?.map((card) => (
                         <CardItem
                             key={card.id}
                             card={card as GeneralHoldersCard}

@@ -384,7 +384,7 @@ export const AssetsFragment = fragment(() => {
             return;
         }
         if (assetCallback) {
-            const name = getAccountName(target.accountIndex, target.name);
+            const name = getAccountName(target.type, target.accountIndex, target.name);
 
             onAssetCallback({
                 address: Address.parse(target.address),

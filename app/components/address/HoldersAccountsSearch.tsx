@@ -11,7 +11,7 @@ import { AddressSearchItem, SolanaAddressSearchItem } from "./AddressSearch";
 import { HoldersAccountItem } from "../products/HoldersAccountItem";
 import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
 import { Address } from "@ton/core";
-import { hasDirectSolanaDeposit, hasDirectTonDeposit } from "../../utils/holders/hasDirectDeposit";
+import { hasDirectSolanaDeposit } from "../../utils/holders/hasDirectDeposit";
 
 type TonHoldersSearchItem = AddressSearchItem & { acc: GeneralHoldersAccount };
 type SolanaHoldersSearchItem = { acc: GeneralHoldersAccount, type: 'solana', searchable: string };
@@ -42,7 +42,7 @@ export const HoldersAccountsSearch = memo(({
         return (holdersAccounts || [])
             .filter((a) => !!a.address)
             .map((acc): HoldersSearchItem => {
-                const title = getAccountName(acc.accountIndex, acc.name);
+                const title = getAccountName(acc.type, acc.accountIndex, acc.name);
                 const searchable = `${title.toLowerCase()} ${acc.address!.toLowerCase()}`;
 
                 // Check if it's a Solana account
@@ -102,7 +102,7 @@ export const HoldersAccountsSearch = memo(({
                                     onSelect?.(item);
                                 } else if (item.type === 'solana' && item.acc.address) {
                                     // Solana holders account - pass to onSolanaSelect
-                                    const title = getAccountName(item.acc.accountIndex, item.acc.name);
+                                    const title = getAccountName(item.acc.type, item.acc.accountIndex, item.acc.name);
                                     onSolanaSelect?.({
                                         address: item.acc.address,
                                         title,

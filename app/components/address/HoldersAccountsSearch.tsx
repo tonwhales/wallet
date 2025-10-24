@@ -41,6 +41,7 @@ export const HoldersAccountsSearch = memo(({
     const searchItems: HoldersSearchItem[] = useMemo(() => {
         return (holdersAccounts || [])
             .filter((a) => !!a.address)
+            .filter((a) => a.type !== 'vesting')
             .map((acc): HoldersSearchItem => {
                 const title = getAccountName(acc.type, acc.accountIndex, acc.name);
                 const searchable = `${title.toLowerCase()} ${acc.address!.toLowerCase()}`;

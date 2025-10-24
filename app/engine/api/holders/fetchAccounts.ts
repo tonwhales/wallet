@@ -303,7 +303,7 @@ export const accountsListResCodec = z.discriminatedUnion('ok', [
   }),
 ]);
 
-export const generalAccountSchema = z.intersection(cryptoAccountSchema, accountPublicSchema);
+export const generalAccountSchema = z.intersection(accountSchema, accountPublicSchema);
 export const generalCardSchema = z.intersection(cardSchema, cardPublicSchema);
 
 export type GeneralHoldersAccount = z.infer<typeof generalAccountSchema>;

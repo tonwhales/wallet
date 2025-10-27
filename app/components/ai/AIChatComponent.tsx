@@ -1,14 +1,15 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react';
 import { View, Text, ScrollView, TextInput, Pressable, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
-import Animated, { FadeIn, FadeInUp, FadeOutDown, LinearTransition } from 'react-native-reanimated';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { useTheme } from '../../engine/hooks';
 import { Typography } from '../styles';
-import { useAIChatSocket, UseAIChatSocketOptions, AIChatMessage } from '../../engine/hooks/useAIChatSocket';
+import { useAIChatSocket, UseAIChatSocketOptions } from '../../engine/hooks/useAIChatSocket';
 import { t } from '../../i18n/t';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import Clear from '@assets/ic-clear.svg';
+import { AIChatMessageBubble } from './AIChatMessageBubble';
+import { AIChatWelcome } from './AIChatWelcome';
+import { PulsingDot } from './PulsingDot';
 
 export interface AIChatComponentProps extends UseAIChatSocketOptions {
     style?: any;
@@ -19,77 +20,10 @@ export interface AIChatComponentProps extends UseAIChatSocketOptions {
     isTab?: boolean;
 }
 
-const MessageBubble = memo(({ message, theme }: { message: AIChatMessage; theme: any }) => {
-    const isBot = message.isBot;
-    const isStreaming = message.streaming;
-
-    return (
-        <Animated.View
-            entering={FadeInUp}
-            exiting={FadeOutDown}
-            layout={LinearTransition}
-            style={{
-                alignSelf: isBot ? 'flex-start' : 'flex-end',
-                maxWidth: '80%',
-                marginVertical: 4,
-                marginHorizontal: 16,
-            }}
-        >
-            <View
-                style={{
-                    backgroundColor: isBot ? theme.surfaceOnElevation : theme.accent,
-                    borderRadius: 16,
-                    borderBottomLeftRadius: isBot ? 4 : 16,
-                    borderBottomRightRadius: isBot ? 16 : 4,
-                    paddingHorizontal: 12,
-                    paddingVertical: 8,
-                    minHeight: 36,
-                    justifyContent: 'center',
-                }}
-            >
-                <Text
-                    style={[
-                        Typography.regular15_20,
-                        {
-                            color: isBot ? theme.textPrimary : theme.white,
-                        }
-                    ]}
-                >
-                    {message.text}
-                </Text>
-                {isStreaming && (
-                    <View style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        marginTop: 4,
-                        justifyContent: 'flex-end'
-                    }}>
-                        <ActivityIndicator
-                            size="small"
-                            color={isBot ? theme.textSecondary : theme.white}
-                        />
-                    </View>
-                )}
-            </View>
-            <Text
-                style={[
-                    Typography.regular13_18,
-                    {
-                        color: theme.textSecondary,
-                        textAlign: isBot ? 'left' : 'right',
-                        marginTop: 2,
-                        marginHorizontal: 4,
-                    }
-                ]}
-            >
-                {new Date(message.timestamp).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                })}
-            </Text>
-        </Animated.View>
-    );
-});
+export interface AIChatComponentRef {
+    clearHistory: () => void;
+    reconnect: () => void;
+}
 
 const ConnectionStatus = memo(({ isConnected, isConnecting, theme }: {
     isConnected: boolean;
@@ -125,7 +59,7 @@ const ConnectionStatus = memo(({ isConnected, isConnecting, theme }: {
     );
 });
 
-export const AIChatComponent = memo((props: AIChatComponentProps) => {
+export const AIChatComponent = memo(forwardRef<AIChatComponentRef, AIChatComponentProps>((props, ref) => {
     const theme = useTheme();
     const scrollViewRef = useRef<ScrollView>(null);
     const textInputRef = useRef<TextInput>(null);
@@ -245,6 +179,12 @@ export const AIChatComponent = memo((props: AIChatComponentProps) => {
         connect();
     }, [connect]);
 
+    // Expose methods through ref
+    useImperativeHandle(ref, () => ({
+        clearHistory: handleClearHistory,
+        reconnect: handleReconnect,
+    }), [handleClearHistory, handleReconnect]);
+
     const handleInputFocus = useCallback(() => {
         // Scroll to bottom when input is focused
         // This ensures user sees the input area and latest messages
@@ -260,6 +200,8 @@ export const AIChatComponent = memo((props: AIChatComponentProps) => {
         ? Platform.OS === 'ios' ? safeArea.bottom + 74 : 0
         : Platform.OS === 'ios' ? safeArea.top + 86 : 16;
 
+    const shouldShowPulsingDot = messages.length > 0 && !messages[messages.length - 1].isBot;
+
     return (
         <KeyboardAvoidingView
             style={[
@@ -272,74 +214,6 @@ export const AIChatComponent = memo((props: AIChatComponentProps) => {
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             keyboardVerticalOffset={keyboardVerticalOffset}
         >
-            <View
-                style={{
-                    backgroundColor: theme.surfaceOnElevation,
-                    paddingHorizontal: 16,
-                    paddingVertical: 12,
-                    borderBottomWidth: 1,
-                    borderBottomColor: theme.border,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                }}
-            >
-                {__DEV__ && (
-                    <View style={{ flex: 1 }}>
-                        <Text style={[Typography.semiBold17_24, { color: theme.textPrimary }]}>
-                            {t('aiChat.title')}
-                        </Text>
-                        {sessionId && (
-                            <Text style={[Typography.regular13_18, { color: theme.textSecondary }]}>
-                                {t('aiChat.sessionId')}: {sessionId.slice(0, 8)}...
-                            </Text>
-                        )}
-                    </View>
-                )}
-
-                <View style={{ flexDirection: 'row', gap: 8, alignSelf: 'flex-end' }}>
-                    {messages.length > 0 && (
-                        <Pressable
-                            onPress={handleClearHistory}
-                            style={({ pressed }) => ({
-                                padding: 8,
-                                borderRadius: 8,
-                                backgroundColor: pressed ? theme.border : 'transparent',
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                gap: 4,
-                            })}
-                        >
-                            <Text style={[Typography.regular13_18, { color: theme.textSecondary }]}>
-                                {t('aiChat.clearHistory')}
-                            </Text>
-                            <Clear width={20} height={20} color={theme.textSecondary} />
-                        </Pressable>
-                    )}
-
-                    {!isConnected && (
-                        <Pressable
-                            onPress={handleReconnect}
-                            style={({ pressed }) => ({
-                                padding: 8,
-                                borderRadius: 8,
-                                backgroundColor: pressed ? theme.border : 'transparent',
-                            })}
-                        >
-                            <View
-                                style={{
-                                    backgroundColor: theme.accent,
-                                    width: 20, height: 20,
-                                    borderRadius: 10,
-                                    alignItems: 'center', justifyContent: 'center'
-                                }}>
-                                <Image style={{ width: 16, height: 16, tintColor: theme.white }} source={require('@assets/ic-refresh.png')} />
-                            </View>
-                        </Pressable>
-                    )}
-                </View>
-            </View>
-
             {props.showConnectionStatus && (
                 <ConnectionStatus
                     isConnected={isConnected}
@@ -361,48 +235,31 @@ export const AIChatComponent = memo((props: AIChatComponentProps) => {
                 onScrollEndDrag={handleScrollEndDrag}
                 scrollEventThrottle={16}
             >
-                {messages.length === 0 && isConnected && (
-                    <View
-                        style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            paddingHorizontal: 32,
-                        }}
-                    >
-                        <Text
-                            style={[
-                                Typography.medium15_20,
-                                {
-                                    color: theme.textSecondary,
-                                    textAlign: 'center',
-                                    marginBottom: 8,
-                                }
-                            ]}
-                        >
-                            {t('aiChat.welcomeTitle')}
-                        </Text>
-                        <Text
-                            style={[
-                                Typography.regular13_18,
-                                {
-                                    color: theme.textThird,
-                                    textAlign: 'center',
-                                }
-                            ]}
-                        >
-                            {t('aiChat.welcomeSubtitle')}
-                        </Text>
-                    </View>
+                {isConnected && (
+                    <AIChatWelcome />
                 )}
 
                 {messages.map((message, index) => (
-                    <MessageBubble
+                    <AIChatMessageBubble
                         key={message.id || `${message.timestamp}-${index}`}
                         message={message}
-                        theme={theme}
+                        isTab={props.isTab}
                     />
                 ))}
+
+                {shouldShowPulsingDot && (
+                    <View
+                        style={{
+                            alignSelf: 'flex-start',
+                            marginVertical: 4,
+                            marginHorizontal: 16,
+                            paddingHorizontal: 12,
+                            paddingVertical: 8,
+                        }}
+                    >
+                        <PulsingDot color={theme.accent} size={8} />
+                    </View>
+                )}
 
                 {hasPendingRequest && (
                     <View
@@ -470,79 +327,77 @@ export const AIChatComponent = memo((props: AIChatComponentProps) => {
 
             <View
                 style={{
-                    backgroundColor: theme.surfaceOnElevation,
-                    borderTopWidth: 1,
-                    borderTopColor: theme.border,
+                    backgroundColor: theme.backgroundPrimary,
                     paddingHorizontal: 16,
                     paddingVertical: 12,
                 }}
             >
-                <View
-                    style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        backgroundColor: theme.backgroundPrimary,
-                        borderRadius: 20,
-                        borderWidth: 1,
-                        borderColor: theme.border,
-                        paddingHorizontal: 16,
-                        paddingVertical: 8,
-                        minHeight: 44,
-                    }}
-                >
-                    <TextInput
-                        ref={textInputRef}
-                        style={[
-                            Typography.regular15_20,
-                            {
-                                flex: 1,
-                                color: theme.textPrimary,
-                                maxHeight: maxInputHeight,
-                                minHeight: 28,
-                                textAlignVertical: 'center',
-                                paddingVertical: 0
-                            }
-                        ]}
-                        placeholder={props.placeholder || t('aiChat.placeholder')}
-                        placeholderTextColor={theme.textSecondary}
-                        value={inputText}
-                        onChangeText={setInputText}
-                        multiline
-                        maxLength={1000}
-                        selectionColor={theme.accent}
-                        cursorColor={theme.textPrimary}
-                        editable={isConnected && !isStreaming}
-                        onContentSizeChange={(event) => {
-                            setInputHeight(Math.min(event.nativeEvent.contentSize.height, maxInputHeight));
+                <View style={{ flexDirection: 'row' }}>
+                    <View
+                        style={{
+                            flexGrow: 1,
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            backgroundColor: theme.surfaceOnElevation,
+                            borderRadius: 20,
+                            borderWidth: 1,
+                            borderColor: theme.border,
+                            paddingHorizontal: 16,
+                            paddingVertical: 8,
+                            minHeight: 44,
                         }}
-                        onSubmitEditing={handleSendMessage}
-                        onFocus={handleInputFocus}
-                        blurOnSubmit={false}
-                    />
-
+                    >
+                        <TextInput
+                            ref={textInputRef}
+                            style={[
+                                Typography.regular15_20,
+                                {
+                                    flex: 1,
+                                    color: theme.textPrimary,
+                                    maxHeight: maxInputHeight,
+                                    minHeight: 28,
+                                    textAlignVertical: 'center',
+                                    paddingVertical: 0
+                                }
+                            ]}
+                            placeholder={props.placeholder || t('aiChat.placeholder')}
+                            placeholderTextColor={theme.textSecondary}
+                            value={inputText}
+                            onChangeText={setInputText}
+                            multiline
+                            maxLength={1000}
+                            selectionColor={theme.accent}
+                            cursorColor={theme.textPrimary}
+                            editable={isConnected && !isStreaming}
+                            onContentSizeChange={(event) => {
+                                setInputHeight(Math.min(event.nativeEvent.contentSize.height, maxInputHeight));
+                            }}
+                            onSubmitEditing={handleSendMessage}
+                            onFocus={handleInputFocus}
+                            blurOnSubmit={false}
+                        />
+                    </View>
                     <Pressable
                         onPress={handleSendMessage}
                         disabled={!canSend}
                         style={({ pressed }) => ({
                             marginLeft: 8,
                             padding: 8,
-                            borderRadius: 16,
-                            backgroundColor: canSend
-                                ? (pressed ? theme.accentDisabled : theme.accent)
-                                : theme.border,
+                            borderRadius: 50,
+                            marginBottom: 4,
+                            backgroundColor: (!canSend || pressed) ? theme.accentDisabled : theme.accent,
                             opacity: canSend ? 1 : 0.5,
-                            alignSelf: 'flex-start',
+                            alignSelf: 'flex-end',
                         })}
                     >
                         <View
                             style={{
-                                backgroundColor: theme.accent,
                                 width: 24, height: 24,
                                 borderRadius: 16,
                                 alignItems: 'center', justifyContent: 'center'
                             }}>
                             <Image
-                                style={[{ width: 16, height: 16 }, { transform: [{ rotate: '90 deg' }] }]}
+                                style={[{ width: 20, height: 20 }, { transform: [{ rotate: '90 deg' }] }]}
                                 source={require('@assets/ic_send.png')}
                             />
                         </View>
@@ -566,4 +421,4 @@ export const AIChatComponent = memo((props: AIChatComponentProps) => {
             </View>
         </KeyboardAvoidingView>
     );
-});
+}));

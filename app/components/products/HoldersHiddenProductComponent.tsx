@@ -84,7 +84,7 @@ export const HoldersHiddenProductComponent = memo(({ holdersAccStatus, isLedger 
                         collapsed={collapsedAccounts}
                         // re-map to add height correction for accounts with no cards
                         items={hiddenAccountsList.map((item) => {
-                            return { ...item, height: 126 }
+                            return { ...item, height: item.type === 'vesting' ? 86 : 126 }
                         })}
                         itemHeight={126}
                         style={{ gap: 16, paddingHorizontal: 16 }}

@@ -167,6 +167,7 @@ export const HomeFragment = fragment(() => {
                                             />
                                         )
                                     }
+                                    break;
                                 case 'Transactions':
                                     source = require('@assets/ic-history.png');
                                     break;

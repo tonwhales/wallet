@@ -15,9 +15,12 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { PerfText } from "../../components/basic/PerfText";
 import { useRef } from "react";
 import { Image } from 'expo-image';
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { BackButton } from "../../components/navigation/BackButton";
 
 export const HoldersAIChatTab = fragment(() => {
     const theme = useTheme();
+    const navigation = useTypedNavigation();
     const { userId } = useParams<{ userId?: string | null }>();
     const routeName = useRoute().name;
     const isTab = routeName === 'AIChatTab';
@@ -42,11 +45,19 @@ export const HoldersAIChatTab = fragment(() => {
             <ScreenHeader
                 titleComponent={
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <BackButton onPress={navigation.goBack} />
+                        <View style={{ flexGrow: 1 }} />
+                        <PerfText style={[{ color: theme.textPrimary, maxWidth: '60%' }, Typography.semiBold17_24]}
+                            ellipsizeMode={'tail'}
+                            numberOfLines={1}
+                        >
+                            {t('aiChat.title')}
+                        </PerfText>
+                        <View style={{ flexGrow: 1 }} />
                         <Pressable
                             onPress={() => chatRef.current?.clearHistory()}
                             style={({ pressed }) => ({
                                 opacity: pressed ? 0.5 : 1,
-                                marginRight: 16,
                                 backgroundColor: theme.surfaceOnElevation,
                                 borderRadius: 32,
                                 height: 32, width: 32,
@@ -62,20 +73,6 @@ export const HoldersAIChatTab = fragment(() => {
                                 tintColor={theme.iconNav}
                             />
                         </Pressable>
-                        <View style={{ flexGrow: 1 }} />
-                        <PerfText style={[{ color: theme.textPrimary, maxWidth: '60%' }, Typography.semiBold17_24]}
-                            ellipsizeMode={'tail'}
-                            numberOfLines={1}
-                        >
-                            {t('aiChat.title')}
-                        </PerfText>
-                        <View style={{ flexGrow: 1 }} />
-                        <View
-                            style={{
-                                marginRight: 16,
-                                height: 32, width: 32,
-                            }}
-                        />
                     </View>
                 }
                 style={[

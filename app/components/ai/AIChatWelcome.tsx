@@ -21,6 +21,13 @@ export const AIChatWelcome = memo(() => {
                 marginHorizontal: 16,
             }}
         >
+            <LottieAnimView
+                source={require('@assets/animations/whales_hello.json')}
+                autoPlay={true}
+                loop={true}
+                style={{ width: 128, height: 128, marginBottom: 8 }}
+                autoPlayIos={true}
+            />
             <View
                 style={{
                     backgroundColor: theme.surfaceOnElevation,
@@ -33,16 +40,9 @@ export const AIChatWelcome = memo(() => {
                     justifyContent: 'center',
                 }}
             >
-                <LottieAnimView
-                    source={require('@assets/animations/whales_hello.json')}
-                    autoPlay={true}
-                    loop={true}
-                    style={{ width: 140, height: 140 }}
-                    autoPlayIos={true}
-                />
                 <Text
                     style={[
-                        Typography.medium15_20,
+                        Typography.medium17_24,
                         {
                             color: theme.textPrimary,
                         }
@@ -52,7 +52,7 @@ export const AIChatWelcome = memo(() => {
                 </Text>
                 <Text
                     style={[
-                        Typography.regular15_20,
+                        Typography.regular17_24,
                         {
                             color: theme.textPrimary,
                         }

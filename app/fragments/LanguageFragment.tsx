@@ -11,6 +11,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import { useReboot } from "../utils/RebootContext";
 
 import IcCheck from "@assets/ic-check.svg";
+import { Typography } from "../components/styles";
 
 export const LanguageFragment = fragment(() => {
     const theme = useTheme();
@@ -61,11 +62,7 @@ export const LanguageFragment = fragment(() => {
                                     },
                                 ]}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                    <Text style={{
-                                        fontWeight: '600',
-                                        fontSize: 17,
-                                        color: theme.textPrimary
-                                    }}>
+                                    <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                                         {lagnTitles[key] || key}
                                     </Text>
                                 </View>

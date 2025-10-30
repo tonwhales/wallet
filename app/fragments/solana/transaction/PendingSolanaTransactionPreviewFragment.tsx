@@ -42,7 +42,7 @@ const SolanaTxPreview = ({ transfer, statusText }: { transfer: SolanaTransaction
     const { checkIsHoldersTarget } = useTransactionsUtilsContext();
     
     const amountColor = (kind === 'in') ? theme.accentGreen : theme.textPrimary;
-    const avatarColor = avatarColors[avatarHash(address ?? '', avatarColors.length)];//
+    const avatarColor = avatarColors[avatarHash(address ?? '', avatarColors.length)];
     const forceAvatar = useMemo(() => checkIsHoldersTarget(address ?? '') ? 'holders' : undefined, [checkIsHoldersTarget, address]);
 
     const onCopyAddress = useCallback((address: string) => {

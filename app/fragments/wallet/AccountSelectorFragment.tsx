@@ -141,14 +141,14 @@ export const AccountSelectorFragment = fragment(() => {
                     )}
                 </View>
             ) : (
-                <View style={{
+                <View style={[{
                     height: Platform.OS === 'ios' ? (Math.floor(dimentions.height * heightMultiplier)) : undefined,
                     flexGrow: Platform.OS === 'ios' ? 0 : 1,
                     backgroundColor: Platform.OS === 'android' ? theme.backgroundPrimary : theme.elevation,
                     borderTopEndRadius: Platform.OS === 'android' ? 0 : 20,
                     borderTopStartRadius: Platform.OS === 'android' ? 0 : 20,
                     paddingBottom: isLatestIos ? 16 : safeArea.bottom + 16
-                }}>
+                }, Platform.select({ android: { paddingBottom: safeArea.bottom } })]}>
                     {Platform.OS === 'ios' && (
                         <Text style={[{
                             marginHorizontal: 16,

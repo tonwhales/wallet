@@ -158,7 +158,7 @@ export const LegalFragment = systemFragment(() => {
                     </Text>
                 </Text>
             </Pressable>
-            <View style={[{ paddingHorizontal: 16, width: '100%' }, Platform.select({ android: { paddingBottom: 16 } })]}>
+            <View style={[{ paddingHorizontal: 16, width: '100%' }, Platform.select({ android: { paddingBottom: safeArea.bottom + 16 } })]}>
                 <RoundButton
                     disabled={!accepted}
                     loading={loading}

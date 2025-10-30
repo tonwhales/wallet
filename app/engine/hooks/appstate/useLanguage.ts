@@ -1,4 +1,4 @@
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState } from "recoil";
 import { languageState } from "../../state/language";
 
 export function useLanguage(): [string, (value: string) => void] {

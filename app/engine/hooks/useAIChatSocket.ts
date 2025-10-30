@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { createAIChatSocket, AIChatSocket } from '../ai/socket';
 import { storage } from '../../storage/storage';
 import { t } from '../../i18n/t';
+import { useLanguage } from '.';
 
 export interface AIChatMessage {
     text: string;
@@ -49,6 +50,7 @@ const STORAGE_KEY_PREFIX = 'ai_chat_';
 
 export function useAIChatSocket(options: UseAIChatSocketOptions): UseAIChatSocketResult {
     const { userId, autoConnect = true, persistHistory = true } = options;
+    const [language] = useLanguage();
 
     const socketRef = useRef<AIChatSocket | null>(null);
     const [isConnected, setIsConnected] = useState(false);
@@ -114,9 +116,9 @@ export function useAIChatSocket(options: UseAIChatSocketOptions): UseAIChatSocke
 
             // Create or join session after connection
             if (sessionId) {
-                socket.emit('join_session', { sessionId });
+                socket.emit('join_session', { sessionId, language });
             } else {
-                socket.emit('new_session', { userId });
+                socket.emit('new_session', { userId, language });
             }
         }
 
@@ -259,7 +261,7 @@ export function useAIChatSocket(options: UseAIChatSocketOptions): UseAIChatSocke
             socket.off('stream_end', onStreamEnd);
             socket.off('error', onError);
         };
-    }, [sessionId, messages.length, saveToStorage, sessionStorageKey, historyStorageKey, pendingMessageKey]);
+    }, [sessionId, messages.length, saveToStorage, sessionStorageKey, historyStorageKey, pendingMessageKey, language]);
 
     // Auto-connect on mount
     useEffect(() => {

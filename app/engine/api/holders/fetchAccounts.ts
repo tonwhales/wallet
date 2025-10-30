@@ -20,8 +20,16 @@ const cardPublicSchema = z.object({
   kind: z.string(),
 });
 
+const accountTypeSchema = z.union([
+  z.literal('crypto'),
+  z.literal('vesting'),
+]);
+
+export type AccountType = z.infer<typeof accountTypeSchema>;
+
 const accountPublicSchema = z.object({
   id: z.string(),
+  type: accountTypeSchema.optional(),
   accountIndex: z.number(),
   address: z.nullable(z.string()),
   state: z.string(),
@@ -222,6 +230,7 @@ export const invoiceSchema = z.object({
 });
 
 export const cryptoAccountStatusSchema = z.enum([
+  'PENDING',
   'PENDING_CONTRACT',
   'ACTIVE',
   'SUSPENDED',
@@ -229,31 +238,58 @@ export const cryptoAccountStatusSchema = z.enum([
   'CLOSED',
 ]);
 
-const accountSchema = z.object({
+const baseAccountSchema = z.object({
   id: z.string(),
+  type: accountTypeSchema.optional(),
   createdAt: z.string().nullish(),
   address: z.string().nullish(),
   name: z.string().nullish(),
   accountIndex: z.number(),
-  contractSeed: z.string().nullish(),
   seed: z.string().nullable(),
   state: cryptoAccountStatusSchema,
   balance: z.string(),
-  tzOffset: z.number(),
   contract: z.string(),
+  network: networksSchema,
+  ownerAddress: z.string(),
+  contractAddress: z.string().nullish(),
+  cryptoCurrency: cryptoCurrencySchema,
+  hasBeenDepositedOnce: z.boolean().nullish(),
+});
+
+const vestingAccountSchema = baseAccountSchema.extend({
+  type: z.literal('vesting'),
+  beneficiaryAddress: z.string(),
+  beneficiaryCryptoAccountId: z.string(),
+  beneficiaryName: z.string(),
+  creatorAccountId: z.string(),
+  estimatedPayoutsRemaining: z.number(),
+  nextPayoutAt: z.string().nullable(),
+  startPaymentsAt: z.number(),
+  totalDeposited: z.string(),
+  totalPaidOut: z.string(),
+  unlockAmountPerPeriod: z.string(),
+  unlockPeriodSeconds: z.string(),
+});
+
+const cryptoAccountSchema = baseAccountSchema.extend({
+  type: z.literal('crypto').optional(),
+  contractSeed: z.string().nullish(),
+  tzOffset: z.number(),
   prepaidOnly: z.boolean(),
   partner: z.string(),
-  network: networksSchema,
   brand: brandSchema,
   isLatestContract: z.boolean(),
-  ownerAddress: z.string(),
-  cryptoCurrency: cryptoCurrencySchema,
   limits: accountLimitsSchema,
   invoices: invoiceSchema.array(),
   totalDebtCryptoAmountNano: z.string(),
-  hasBeenDepositedOnce: z.boolean().nullish(),
   cards: z.array(cardDebit),
+  vestingAccounts: z.array(z.any()).optional(),
 });
+
+const accountSchema = z.union([
+  vestingAccountSchema,
+  cryptoAccountSchema,
+]);
 
 export const accountsListResCodec = z.discriminatedUnion('ok', [
   z.object({
@@ -290,6 +326,8 @@ export async function fetchAccountsList(token: string, isTestnet: boolean) {
       }
     }
   );
+
+  console.log('res', JSON.stringify(res.data, null, 2));
 
   if (res.status === 401) {
     return null;

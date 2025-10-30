@@ -264,7 +264,7 @@ const vestingAccountSchema = baseAccountSchema.extend({
   creatorAccountId: z.string(),
   estimatedPayoutsRemaining: z.number(),
   nextPayoutAt: z.string().nullable(),
-  startPaymentsAt: z.union([z.number(), z.string()]),
+  startPaymentsAt: z.union([z.number(), z.string()]).nullish(),
   totalDeposited: z.string(),
   totalPaidOut: z.string(),
   unlockAmountPerPeriod: z.string(),

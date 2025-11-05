@@ -825,3 +825,6 @@ export const KnownJettonTickers = [
     'GLINT',
     'GRAM',
 ]
+
+
+export const usdyMintAddress = 'A1KLoBrKBde8Ty9qtNQUtq3C2ortoC3u7twggz7sEto6';

@@ -1,5 +1,5 @@
 import { fragment } from "../../fragment";
-import { usePrimaryCurrency, useSolanaToken, useTheme } from "../../engine/hooks";
+import { usePrice, usePrimaryCurrency, useSolanaToken, useTheme } from "../../engine/hooks";
 import { useUnifiedSolanaTransactions } from "../../engine/hooks/transactions/useUnifiedSolanaTransactions";
 import { setStatusBarStyle } from "expo-status-bar";
 import { Platform, View, Text } from "react-native";
@@ -25,6 +25,7 @@ import { Image } from "expo-image";
 import { PendingSolanaTransaction } from "../../engine/state/pending";
 
 import SolanaIcon from '@assets/ic-solana.svg';
+import { usdyMintAddress } from "../../secure/KnownWallets";
 
 export type SolanaTokenWalletFragmentProps = {
     owner: string,
@@ -57,15 +58,18 @@ const SolanaTokenHeader = memo(({ mint, owner }: { mint: string, owner: string }
     const navigation = useTypedNavigation();
     const token = useSolanaToken(owner, mint);
     const bottomBarHeight = useBottomTabBarHeight();
+    const [, , , usdyPriceData] = usePrice();
+    const usdyPrice = usdyPriceData.price.usd;
 
     if (!token) {
         return null;
     }
 
+    const rate = mint === usdyMintAddress ? usdyPrice : 1;
     const balance = token.amount ?? 0n;
     const symbol = token.symbol ?? "?";
     const decimals = token.decimals ?? 6;
-    const price = toNano(token.uiAmount ?? 0);
+    const price = toNano((token.uiAmount ?? 0) * rate);
     const logoURI = token.logoURI ?? '';
 
     return (

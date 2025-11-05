@@ -5,6 +5,7 @@ export type PriceState = {
     price: { usd: number },
     rates: { [key: string]: number },
     solanaPrice?: { usd: number }
+    usdyPrice?: { usd: number }
 }
 
 export async function fetchPrice(): Promise<PriceState> {

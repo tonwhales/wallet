@@ -1,7 +1,12 @@
 import { createContext, useContext } from 'react';
 import { Price, usePriceQuery } from './hooks/currency/usePriceQuery';
 
-export const PriceContext = createContext<[Price, string, Price]>([{ price: { usd: 0, rates: {} } }, 'USD', { price: { usd: 0, rates: {} } }]);
+export const PriceContext = createContext<[Price, string, Price, Price]>([
+    { price: { usd: 0, rates: {} } },
+    'USD',
+    { price: { usd: 0, rates: {} } },
+    { price: { usd: 0, rates: {} } }
+]);
 
 export const PriceLoader = (props: React.PropsWithChildren) => {
     const price = usePriceQuery();

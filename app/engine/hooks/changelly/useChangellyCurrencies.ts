@@ -13,12 +13,12 @@ export function useChangellyCurrencies(currencyTo: Currency) {
         queryKey: Queries.Changelly(tonAddressString!).Currencies(currencyTo),
         queryFn: async () => {
             const result = await fetchChangellyCurrencies(currencyTo);
-            return result?.filter(item => item.enabled);
+            return result?.filter(item => item.enabled) ?? [];
         },
         enabled: !!tonAddressString && !!currencyTo,
         refetchOnWindowFocus: false,
         refetchOnMount: true,
         staleTime: CACHE_TIME,
-        cacheTime: CACHE_TIME,
+        cacheTime: CACHE_TIME
     });
 }

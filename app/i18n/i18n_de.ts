@@ -1325,6 +1325,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "bannerDescription": "Tron, Solana, Ethereum, Polygon verfügbar!",
         "tonhubBannerTitle": "Changelly in Tonhub!",
         "tonhubBannerDescription": "Einzahlung von anderen Blockchains",
+        "minimumAmount": "Minimale Menge: {{amount}}",
+        "maximumAmount": "Maximale Menge: {{amount}}",
     },
     "order": {
         "enterAmount": "Übertragungsbetrag eingeben",

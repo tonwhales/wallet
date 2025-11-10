@@ -22,7 +22,7 @@ export const usePushNotificationsInit = (initialPushData?: PushNotificationData)
               url = payloadData.url;
             }
           } catch (e) {
-            console.log('Error parsing Maestra push_payload:', e);
+            console.error('Error parsing Maestra push_payload:', e);
           }
         }
       } else if (isExpoPushData(data)) {
@@ -33,7 +33,7 @@ export const usePushNotificationsInit = (initialPushData?: PushNotificationData)
               url = bodyData.url;
             }
           } catch (e) {
-            console.log('Error parsing Expo body:', e);
+            console.error('Error parsing Expo body:', e);
           }
         }
       }
@@ -70,21 +70,21 @@ export const usePushNotificationsInit = (initialPushData?: PushNotificationData)
       pushNotificationListener?.remove();
     };
   }, [handleAndroidPushNotification]);
-  // @TODO: uncomment this when we start using Maestra
-  // const appInitializationCallback = useCallback(async () => {
-  //   const configuration = {
-  //     domain: 'api.maestra.io',
-  //     endpointId:
-  //       Platform.OS === 'ios'
-  //         ? 'tonhub.IosApp'
-  //         : 'tonhub.AndroidApp',
-  //     subscribeCustomerIfCreated: true,
-  //     shouldCreateCustomer: true,
-  //   };
-  //   await MindboxSdk.initialize(configuration);
-  // }, []);
 
-  // useEffect(() => {
-  //   appInitializationCallback();
-  // }, [appInitializationCallback]);
+  const appInitializationCallback = useCallback(async () => {
+    const configuration = {
+      domain: 'api.maestra.io',
+      endpointId:
+        Platform.OS === 'ios'
+          ? 'tonhub.IosApp'
+          : 'tonhub.AndroidApp',
+      subscribeCustomerIfCreated: true,
+      shouldCreateCustomer: true,
+    };
+    await MindboxSdk.initialize(configuration);
+  }, []);
+
+  useEffect(() => {
+    appInitializationCallback();
+  }, [appInitializationCallback]);
 }

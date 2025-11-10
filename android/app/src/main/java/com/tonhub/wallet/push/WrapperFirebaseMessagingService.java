@@ -27,8 +27,7 @@ public class WrapperFirebaseMessagingService extends FirebaseMessagingService {
 
     public WrapperFirebaseMessagingService() {
         // Add all the FirebaseMessagingServices you need here
-        // @TODO: uncomment this when we start using Maestra
-        // messagingServices.add(new com.tonhub.wallet.push.MaestraFirebaseMessagingService());
+        messagingServices.add(new com.tonhub.wallet.push.MaestraFirebaseMessagingService());
         messagingServices.add(new com.tonhub.wallet.push.ExpoFirebaseMessagingService());
     }
 

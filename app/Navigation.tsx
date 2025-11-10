@@ -127,6 +127,8 @@ import { ChangellyOrderFragment } from './fragments/integrations/ChangellyOrderF
 import { SwapFragment } from './fragments/wallet/SwapFragment';
 import { isLatestIos } from './utils/isLatestIos';
 import { HoldersAIChatFragment } from './fragments/holders/HoldersAIChatFragment';
+import MindboxSdk from 'mindbox-sdk';
+import { MaestraEvent } from './analytics/maestra';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -438,24 +440,40 @@ export const Navigation = memo(() => {
     }, [mounted]);
     const hideSplash = mounted && !isRestoring;
 
-    // @TODO: uncomment this when we start using Maestra
-    // useEffect(() => {
-    //     const apnsSubscription = setupAPNsTokenHandler();
+    useEffect(() => {
+        const selectedAddress = appState.addresses[appState.selected];
+        
+        if (selectedAddress) {
+            const tonhubID = selectedAddress.address.toString({ testOnly: isTestnet });
+            MindboxSdk.executeAsyncOperation({
+                operationSystemName: MaestraEvent.SessionStart,
+                operationBody: {
+                    customer: {
+                        ids: {
+                            tonhubID
+                        }
+                    }
+                },
+            })
+        }
+    }, [appState.addresses.length, appState.selected]);
 
-    //     return () => {
-    //         apnsSubscription?.remove();
-    //     };
-    // }, []);
+    useEffect(() => {
+        const apnsSubscription = setupAPNsTokenHandler();
+
+        return () => {
+            apnsSubscription?.remove();
+        };
+    }, []);
 
     // Register token
     useEffect(() => {
         let ended = false;
         (async () => {
             const { status: existingStatus } = await Notifications.getPermissionsAsync();
-            // @TODO: uncomment this when we start using Maestra
-            // if (Platform.OS === 'ios' && MaestraModule) {
-            //     MaestraModule.updateNotificationPermissions(existingStatus === PermissionStatus.GRANTED);
-            // }
+            if (Platform.OS === 'ios' && MaestraModule) {
+                MaestraModule.updateNotificationPermissions(existingStatus === PermissionStatus.GRANTED);
+            }
             if (existingStatus === PermissionStatus.GRANTED || appState.addresses.length > 0) {
                 const token = await backoff('navigation', async () => {
                     try {

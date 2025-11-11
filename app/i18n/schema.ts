@@ -1327,6 +1327,8 @@ export type LocalizationSchema = {
         bannerDescription: string,
         tonhubBannerTitle: string,
         tonhubBannerDescription: string,
+        minimumAmount: string,
+        maximumAmount: string,
     },
     order: {
         enterAmount: string,

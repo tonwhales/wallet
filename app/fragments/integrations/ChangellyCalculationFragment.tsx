@@ -21,8 +21,10 @@ import { Currency } from "../../engine/types/deposit";
 import { ChangellyCurrency } from "../../engine/api/changelly";
 import { useParams } from "../../utils/useParams";
 import { useChangellyEstimate } from "../../engine/hooks/changelly/useChangellyEstimate";
+import { ChangellyLimitError, ChangellyLimitType } from "../../engine/api/changelly/fetchChangellyEstimate";
 import { debounce } from "../../utils/debounce";
 import { useKeyboard } from "@react-native-community/hooks";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 import ExchangeRateIcon from '@assets/order/exchange-rate.svg';
 import NetworkFeeIcon from '@assets/order/network-fee.svg';
@@ -41,7 +43,7 @@ export const ChangellyCalculationFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const theme = useTheme();
-    const keyboard = useKeyboard()
+    const keyboard = useKeyboard();
     const [amount, setAmount] = useState('');
     const [previousAmount, setPreviousAmount] = useState('');
     const [maxValue, setMaxValue] = useState(INITIAL_MAX_VALUE);
@@ -49,9 +51,10 @@ export const ChangellyCalculationFragment = fragment(() => {
     const [resultFontSize, setResultFontSize] = useState(17);
     const [inputWidth, setInputWidth] = useState(0);
     const [resultWidth, setResultWidth] = useState(0);
+    const [limitError, setLimitError] = useState<{ type: ChangellyLimitType; value: string } | null>(null);
     const { currencyTo, currencyFrom } = useParams<ChangellyCalculationFragmentParams>();
     const { mutate: createChangellyTransaction, data: changellyTransaction, isSuccess: isTransactionCreated, isLoading: isCreatingTransaction } = useCreateChangellyTransaction();
-    const { mutate: estimate, data: estimation, isLoading: isFetchingEstimate, reset: resetEstimate } = useChangellyEstimate();
+    const { mutate: estimate, data: estimation, isLoading: isFetchingEstimate, reset: resetEstimate, error: estimateError } = useChangellyEstimate();
     const estimateDebounced = useMemo(() => debounce(estimate, 500), []);
     const { blockchain: blockchainTo, name: nameTo } = getCoinInfoByCurrency(currencyTo);
     const [resultAmount, setResultAmount] = useState('0')
@@ -64,7 +67,7 @@ export const ChangellyCalculationFragment = fragment(() => {
     const originCoinName = originKnownCurrency ? getCoinInfoByCurrency(originKnownCurrency).name : currencyFrom.name;
     const originTicker = currencyFrom.ticker;
     const originImage = currencyFrom.image;
-    
+
     const resultFullName = `${nameTo} (${getChainShortNameByChain(blockchainTo)})`
     const originFullName = `${originCoinName} (${originBlockchainTag})`
     const networkFee = Number(estimation?.networkFee ?? 0)
@@ -75,21 +78,22 @@ export const ChangellyCalculationFragment = fragment(() => {
     const changellyFeeDisplayValue = estimation?.fee && !isInitial ? `${humanizeNumberAdaptive(changellyFee)} ${resultFullName}` : '';
     const isContinueButtonDisabled = isInitial || isCreatingTransaction || !estimation?.amountTo;
 
+
     const calculateFontSize = useCallback((text: string, availableWidth: number, baseFontSize: number = 17, minFontSize: number = 8) => {
         if (!text || !availableWidth || availableWidth < 80) return baseFontSize;
-        
+
         // Approximate character width based on font size (semibold font is slightly wider)
         const charWidth = baseFontSize * 0.6;
         const estimatedWidth = text.length * charWidth;
-        
+
         if (estimatedWidth <= availableWidth) {
             return baseFontSize;
         }
-        
+
         // Calculate the scaling factor needed
         const scale = availableWidth / estimatedWidth;
         const newFontSize = Math.max(baseFontSize * scale, minFontSize);
-        
+
         return Math.floor(newFontSize);
     }, []);
 
@@ -110,14 +114,51 @@ export const ChangellyCalculationFragment = fragment(() => {
         }
         setResultAmount(humanizeNumberAdaptive(newResultAmount))
     }, [estimation]);
-    
+
     useEffect(() => {
         if (isTransactionCreated && changellyTransaction) {
             navigation.popToTop();
             navigation.navigateChangellyOrder({ changellyTransaction, isAfterCreation: true });
         }
     }, [isTransactionCreated, changellyTransaction]);
-    
+
+    const adjustLimitValue = useCallback((value: string, type: ChangellyLimitType): string => {
+        // Changelly has a bug with limits, so we need to adjust the value
+        const parts = value.split('.');
+        const decimals = parts[1]?.length || 0;
+
+        // Minimum fraction of change
+        const minFraction = decimals > 0 ? Math.pow(10, -decimals) : 0.01;
+
+        const numValue = parseFloat(value);
+
+        const adjusted = type === 'min'
+            ? numValue + minFraction
+            : numValue - minFraction;
+
+        // Format with appropriate precision, removing trailing zeros
+        let formatted = adjusted.toFixed(decimals > 0 ? decimals : 2);
+
+        // Remove trailing zeros after decimal point
+        if (formatted.includes('.')) {
+            formatted = formatted.replace(/\.?0+$/, '');
+        }
+
+        return formatted;
+    }, []);
+
+    useEffect(() => {
+        if (estimateError && estimateError instanceof ChangellyLimitError) {
+            const limitType = estimateError.limitType;
+            const limitValue = limitType === 'min'
+                ? estimateError.limits.min.from
+                : estimateError.limits.max.from;
+
+            const adjustedValue = adjustLimitValue(limitValue, limitType);
+            setLimitError({ type: limitType, value: adjustedValue });
+        }
+    }, [estimateError, adjustLimitValue]);
+
     const contentInset = useMemo(() => {
         return {
             bottom: keyboard.keyboardShown ? keyboard.keyboardHeight - 32 : 0
@@ -141,6 +182,7 @@ export const ChangellyCalculationFragment = fragment(() => {
         const formatted = formatAmountInput(value, previousAmount);
         setPreviousAmount(amount);
         setAmount(formatted);
+        setLimitError(null);
 
         if (formatted !== '' && formatted !== '0') {
             estimateDebounced({ toCurrency: currencyTo, fromCurrency: originTicker, amount: parseAmountToNumber(formatted).toString() });
@@ -200,8 +242,8 @@ export const ChangellyCalculationFragment = fragment(() => {
                         <TextInput
                             value={amount}
                             onChangeText={handleAmountChange}
-                            style={[Typography.semiBold17_24, { 
-                                color: theme.textPrimary, 
+                            style={[Typography.semiBold17_24, {
+                                color: theme.textPrimary,
                                 textAlign: 'right',
                                 fontSize: inputFontSize,
                                 lineHeight: inputFontSize * 1.4,
@@ -213,6 +255,20 @@ export const ChangellyCalculationFragment = fragment(() => {
                             onLayout={(e) => setInputWidth(e.nativeEvent.layout.width)}
                         />
                     </View>
+                    {limitError && (
+                        <Animated.View
+                            entering={FadeIn}
+                            exiting={FadeOut}
+                            style={{ position: 'absolute', left: 0, right: 0, bottom: 16 }}
+                        >
+                            <Text style={[Typography.regular13_18, { color: theme.accentRed, paddingHorizontal: 16 }]}>
+                                {limitError.type === 'min'
+                                    ? t('changelly.minimumAmount', { amount: limitError.value })
+                                    : t('changelly.maximumAmount', { amount: limitError.value })
+                                }
+                            </Text>
+                        </Animated.View>
+                    )}
                 </View>
                 <View style={{ backgroundColor: theme.surfaceOnElevation, borderRadius: 20, paddingVertical: 16 }}>
                     <Text style={[Typography.medium15_20, { color: theme.textSecondary, paddingHorizontal: 16 }]}>
@@ -230,8 +286,8 @@ export const ChangellyCalculationFragment = fragment(() => {
                         />
                         <TextInput
                             value={resultAmount}
-                            style={[Typography.semiBold17_24, { 
-                                color: theme.textPrimary, 
+                            style={[Typography.semiBold17_24, {
+                                color: theme.textPrimary,
                                 textAlign: 'right',
                                 fontSize: resultFontSize,
                                 lineHeight: resultFontSize * 1.4,

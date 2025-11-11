@@ -27,21 +27,40 @@ const accountTypeSchema = z.union([
 
 export type AccountType = z.infer<typeof accountTypeSchema>;
 
-const accountPublicSchema = z.object({
+const baseAccountPublicSchema = z.object({
   id: z.string(),
-  type: accountTypeSchema.optional(),
   accountIndex: z.number(),
   address: z.nullable(z.string()),
   state: z.string(),
   name: z.string().nullish(),
   balance: z.string(),
-  partner: z.string(),
-  tzOffset: z.number(),
-  cards: z.array(cardPublicSchema),
   contract: z.string(),
   network: networksSchema,
   createdAt: z.string().nullish()
 });
+
+const cryptoAccountPublicSchema = baseAccountPublicSchema.extend({
+  type: z.literal('crypto').optional(),
+  partner: z.string(),
+  tzOffset: z.number(),
+  cards: z.array(cardPublicSchema),
+});
+
+const vestingAccountPublicSchema = baseAccountPublicSchema.extend({
+  type: z.literal('vesting'),
+  ownerAddress: z.string(),
+  cryptoCurrency: z.object({
+    decimals: z.number(),
+    ticker: z.string(),
+    tokenContract: z.string().optional(),
+  }),
+  seed: z.string().nullish(),
+});
+
+const accountPublicSchema = z.union([
+  vestingAccountPublicSchema,
+  cryptoAccountPublicSchema,
+]);
 
 export const accountsListPublicSchema = z.union([
   z.object({
@@ -57,6 +76,7 @@ export const accountsListPublicSchema = z.union([
 export async function fetchAccountsPublic({ address, solanaAddress, isTestnet }: { address: string | Address, isTestnet: boolean, solanaAddress?: string }) {
   const endpoint = holdersEndpoint(isTestnet);
   const addressString = (address instanceof Address) ? address.toString({ testOnly: isTestnet }) : address;
+
   const body = solanaAddress ? {
     walletKind: 'tonhub',
     wallets: [
@@ -94,7 +114,6 @@ export async function fetchAccountsPublic({ address, solanaAddress, isTestnet }:
 
   const parseResult = accountsListPublicSchema.safeParse(res.data);
   if (!parseResult.success) {
-    console.warn(JSON.stringify(parseResult.error.format()));
     throw Error("Invalid public card list response");
   }
 
@@ -264,7 +283,7 @@ const vestingAccountSchema = baseAccountSchema.extend({
   creatorAccountId: z.string(),
   estimatedPayoutsRemaining: z.number(),
   nextPayoutAt: z.string().nullable(),
-  startPaymentsAt: z.number(),
+  startPaymentsAt: z.union([z.number(), z.string()]).nullish(),
   totalDeposited: z.string(),
   totalPaidOut: z.string(),
   unlockAmountPerPeriod: z.string(),
@@ -303,7 +322,13 @@ export const accountsListResCodec = z.discriminatedUnion('ok', [
   }),
 ]);
 
-export const generalAccountSchema = z.intersection(accountSchema, accountPublicSchema);
+// General account schema that supports both public and private API responses
+export const generalAccountSchema = z.union([
+  vestingAccountPublicSchema,
+  cryptoAccountPublicSchema,
+  vestingAccountSchema,
+  cryptoAccountSchema,
+]);
 export const generalCardSchema = z.intersection(cardSchema, cardPublicSchema);
 
 export type GeneralHoldersAccount = z.infer<typeof generalAccountSchema>;
@@ -326,8 +351,6 @@ export async function fetchAccountsList(token: string, isTestnet: boolean) {
       }
     }
   );
-
-  console.log('res', JSON.stringify(res.data, null, 2));
 
   if (res.status === 401) {
     return null;

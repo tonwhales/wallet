@@ -27,7 +27,7 @@ export const ChangellyListFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const theme = useTheme();
-    const { data } = useChangellyCurrencies(currencyTo);
+    const currencies = useChangellyCurrencies(currencyTo)?.data;
 
     const onCoinPress = useCallback((item: ChangellyCurrency) => {
         navigation.navigateChangellyCalculation({
@@ -84,7 +84,7 @@ export const ChangellyListFragment = fragment(() => {
                 onClosePressed={navigation.goBack}
             />
             <FlatList
-                data={data}
+                data={currencies}
                 renderItem={renderItem}
                 removeClippedSubviews={true}
                 ItemSeparatorComponent={() => <View style={{ height: 16 }} />}

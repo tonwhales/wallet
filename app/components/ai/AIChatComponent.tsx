@@ -171,6 +171,17 @@ export const AIChatComponent = memo(forwardRef<AIChatComponentRef, AIChatCompone
         setIsUserScrolling(false);
     }, [inputText, isConnected, isStreaming, sendMessage]);
 
+    const handleChipPress = useCallback((value: string, title: string) => {
+        if (!isConnected || isStreaming) {
+            return;
+        }
+
+        sendMessage(title);
+
+        // Reset user scrolling state
+        setIsUserScrolling(false);
+    }, [isConnected, isStreaming, sendMessage]);
+
     const handleClearHistory = useCallback(() => {
         clearHistory();
     }, [clearHistory]);
@@ -244,6 +255,7 @@ export const AIChatComponent = memo(forwardRef<AIChatComponentRef, AIChatCompone
                         key={message.id || `${message.timestamp}-${index}`}
                         message={message}
                         isTab={props.isTab}
+                        onChipPress={handleChipPress}
                     />
                 ))}
 

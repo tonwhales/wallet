@@ -308,6 +308,9 @@ export const DeveloperToolsFragment = fragment(() => {
                             padding: 4
                         }}>
                             <ItemButton title={"Holders AI Chat"} onPress={() => navigation.navigate('HoldersAIChat')} />
+                            <ItemButton title={"Holders AI Chat"} onPress={() => {
+                                navigation.navigate('HoldersAIChat', { initMessage: { type: 'message', message: 'Hello, how are you?' } })
+                            }} />
                         </View>
                     )}
                     <WebView webviewDebuggingEnabled={isTestnet} ref={webViewRef} source={{ uri: holdersUrl(isTestnet) }} style={{ width: 0, height: 0 }} />

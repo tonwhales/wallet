@@ -1506,6 +1506,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "connectionError": "Помилка WebSocket з'єднання",
             "sessionNotFound": "Сесію не знайдено",
             "invalidUserId": "Неправильний формат ID користувача"
+        },
+        "initMessage": {
+            "holdersTx": "Розкажіть мені більше про цю транзакцію: {{tx}}"
         }
     }
 };

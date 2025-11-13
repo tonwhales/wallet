@@ -7,7 +7,7 @@ import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { t } from "../../i18n/t";
 import { useHoldersProfile } from "../../engine/hooks/holders/useHoldersProfile";
-import { AIChatComponent, AIChatComponentRef } from "../../components/ai/AIChatComponent";
+import { AIChatComponent, AIChatComponentRef, AIChatInitMessage } from "../../components/ai/AIChatComponent";
 import { Text } from "react-native";
 import { Typography } from "../../components/styles";
 import { useParams } from "../../utils/useParams";
@@ -18,7 +18,7 @@ import { CloseButton } from "../../components/navigation/CloseButton";
 
 export const HoldersAIChatFragment = fragment(() => {
     const theme = useTheme();
-    const { userId } = useParams<{ userId?: string | null }>();
+    const { userId, initMessage } = useParams<{ userId?: string | null, initMessage?: AIChatInitMessage }>();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const { tonAddressString } = useCurrentAddress();
@@ -86,6 +86,7 @@ export const HoldersAIChatFragment = fragment(() => {
                         onError={(error) => {
                             console.warn('AI Chat Error:', error);
                         }}
+                        initMessage={initMessage}
                     />
                 ) : (
                     <View style={{

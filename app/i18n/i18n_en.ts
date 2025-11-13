@@ -1510,6 +1510,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         },
         "initMessage": {
             "holdersTx": "Tell me more about this transaction: {{tx}}"
+        },
+        "banner": {
+            "title": "Intelligent Finance",
+            "description": "Smarter ways to understand your spendings"
         }
     }
 };

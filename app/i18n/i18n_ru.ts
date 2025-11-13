@@ -1509,6 +1509,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         },
         "initMessage": {
             "holdersTx": "Расскажи мне больше об этой транзакции: {{tx}}"
+        },
+        "banner": {
+            "title": "Финансы с ИИ",
+            "description": "Более умные способы оценить ваши расходы"
         }
     }
 };

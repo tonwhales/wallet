@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { View, Text, SectionList } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
@@ -19,6 +19,8 @@ import { ConfirmLegal } from "../../components/ConfirmLegal";
 import { sharedStoragePersistence } from "../../storage/storage";
 import ChangellyLogo from '../../../assets/changelly.svg';
 import { CHANGELLY_PRIVACY_URL, CHANGELLY_TERMS_URL } from "../../utils/constants";
+import MindboxSdk from "mindbox-sdk";
+import { MaestraEvent } from "../../analytics/maestra";
 
 type ListItem = { type: AssetType.TON }
     | { type: AssetType.SPECIAL }
@@ -110,6 +112,22 @@ export const SwapFragment = fragment(() => {
     }
 
     const itemsList = [defaultSection];
+
+    useEffect(() => {
+        if (tonAddress) {
+            const tonhubID = tonAddress.toString({ testOnly: isTestnet });
+            MindboxSdk.executeAsyncOperation({
+                operationSystemName: MaestraEvent.ViewSwapPage,
+                operationBody: {
+                    customer: {
+                        ids: {
+                            tonhubID
+                        }
+                    }
+                },
+            });
+        }
+    }, [tonAddress, isTestnet]);
 
     return (
         <View style={{ flexGrow: 1 }}>

@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo } from "react";
+import React, { ReactElement, useEffect, useMemo } from "react";
 import { View, ActivityIndicator, Platform, SectionList, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
@@ -21,6 +21,8 @@ import { LiquidStakingPool } from "../../components/staking/LiquidStakingPool";
 import { LiquidUSDeStakingPool } from "../../components/staking/LiquidUSDeStakingPool";
 import { useAppConfig } from "../../engine/hooks/useAppConfig";
 import { Typography } from "../../components/styles";
+import MindboxSdk from "mindbox-sdk";
+import { MaestraEvent } from "../../analytics/maestra";
 
 export type StakingPoolType = 'club' | 'team' | 'nominators' | 'lockup' | 'tonkeeper' | 'liquid' | 'usde';
 
@@ -93,6 +95,22 @@ export const StakingPoolsFragment = fragment(() => {
     };
 
     const onJoinTeam = () => openWithInApp('https://whalescorp.notion.site/TonWhales-job-offers-235c45dc85af44718b28e79fb334eff1');
+
+    useEffect(() => {
+        if (memberAddress) {
+            const tonhubID = memberAddress.toString({ testOnly: isTestnet });
+            MindboxSdk.executeAsyncOperation({
+                operationSystemName: MaestraEvent.SessionStart,
+                operationBody: {
+                    customer: {
+                        ids: {
+                            tonhubID
+                        }
+                    }
+                },
+            });
+        }
+    }, [memberAddress, isTestnet]);
 
     // Await config
     if (!config) {
@@ -348,11 +366,11 @@ export const StakingPoolsFragment = fragment(() => {
     });
 
     const sections = useMemo(() => {
-        const tonStakingItems = items.filter(item => 
+        const tonStakingItems = items.filter(item =>
             item.key !== 'usde-staking'
         );
-        
-        const usdeStakingItems = items.filter(item => 
+
+        const usdeStakingItems = items.filter(item =>
             item.key === 'usde-staking'
         );
 
@@ -387,8 +405,8 @@ export const StakingPoolsFragment = fragment(() => {
                 keyExtractor={(item, index) => item.key || index.toString()}
                 renderItem={({ item }) => item}
                 renderSectionHeader={({ section: { title } }) => (
-                    <View style={{ 
-                        paddingVertical: 16, 
+                    <View style={{
+                        paddingVertical: 16,
                         paddingHorizontal: 16,
                         backgroundColor: theme.backgroundPrimary
                     }}>

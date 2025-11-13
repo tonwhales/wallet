@@ -15,7 +15,7 @@ import { Canvas, rrect, rect, DiffRect } from '@shopify/react-native-skia';
 import * as RNImagePicker from 'expo-image-picker';
 import { BarCodeScanner, BarCodeScannerResult } from 'expo-barcode-scanner';
 import { Camera, FlashMode } from 'expo-camera';
-import { useTheme } from '../../engine/hooks';
+import { useCurrentAddress, useNetwork, useTheme } from '../../engine/hooks';
 import { Typography } from '../../components/styles';
 import { useCameraAspectRatio } from '../../utils/useCameraAspectRatio';
 import { changeNavBarColor } from '../../modules/NavBar';
@@ -24,6 +24,8 @@ import { openGalleryPermissionAlert } from '../../utils/permissions';
 import FlashOn from '../../../assets/ic-flash-on.svg';
 import FlashOff from '../../../assets/ic-flash-off.svg';
 import Photo from '../../../assets/ic-photo.svg';
+import MindboxSdk from 'mindbox-sdk';
+import { MaestraEvent } from '../../analytics/maestra';
 
 const EmptyIllustrations = {
     dark: require('@assets/empty-cam-dark.webp'),
@@ -36,6 +38,8 @@ export const ScannerFragment = systemFragment(() => {
     const route = useRoute().params;
     const dimensions = useDimensions();
     const navigation = useNavigation();
+    const { isTestnet } = useNetwork();
+    const { tonAddress } = useCurrentAddress();
 
     const [hasPermission, setHasPermission] = useState<null | boolean>(null);
     const [isActive, setActive] = useState(true);
@@ -160,6 +164,22 @@ export const ScannerFragment = systemFragment(() => {
             }
         }
     }, [hasPermission, theme]);
+
+    useEffect(() => {
+        if (tonAddress) {
+            const tonhubID = tonAddress.toString({ testOnly: isTestnet });
+            MindboxSdk.executeAsyncOperation({
+                operationSystemName: MaestraEvent.ViewScanPage,
+                operationBody: {
+                    customer: {
+                        ids: {
+                            tonhubID
+                        }
+                    }
+                },
+            });
+        }
+    }, [tonAddress, isTestnet]);
 
     return (
         <>

@@ -18,6 +18,8 @@ import { SolanaTransferHeader } from '../../../components/transfer/SolanaTransfe
 import { useSolanaSimpleTransfer } from '../../solana/simpleTransfer/hooks/useSolanaSimpleTransfer';
 import { isSolanaAddress } from '../../../utils/solana/address';
 import { isTonAddress } from '../../../utils/ton/address';
+import MindboxSdk from 'mindbox-sdk';
+import { MaestraEvent } from '../../../analytics/maestra';
 
 export type TonTransferParams = {
     blockchain?: 'ton';
@@ -54,7 +56,7 @@ export type SolanaSimpleTransferParams = {
 export type SimpleTransferParams = TonTransferParams | SolanaSimpleTransferParams
 
 const SimpleTransferComponent = () => {
-    const { isLedger } = useCurrentAddress()
+    const { isLedger, tonAddress } = useCurrentAddress()
     const theme = useTheme();
     const params = useParams<SimpleTransferParams>();
     const network = useNetwork();
@@ -318,6 +320,22 @@ const SimpleTransferComponent = () => {
             ) : null
         );
     }, [amount, amountError, balance, decimals, onAddAll, onInputFocus, solanaTransfer.logoURI, symbol, addressType, tonTransfer, solanaTransfer]);
+
+    useEffect(() => {
+        if (tonAddress) {
+            const tonhubID = tonAddress.toString({ testOnly: network.isTestnet });
+            MindboxSdk.executeAsyncOperation({
+                operationSystemName: MaestraEvent.ViewSendPage,
+                operationBody: {
+                    customer: {
+                        ids: {
+                            tonhubID
+                        }
+                    }
+                },
+            });
+        }
+    }, [tonAddress, network.isTestnet]);
 
     return (
         <SimpleTransferLayout

@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { View, Text, Pressable, SectionList } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
@@ -26,6 +26,8 @@ import { SolanaToken } from "../../engine/api/solana/fetchSolanaTokens";
 import { ChangellyBanner } from "../../components/products/ChangellyBanner";
 import { AssetType } from "../../engine/types/deposit";
 import { TonProductComponent } from "../../components/products/savings/TonWalletProduct";
+import { MaestraEvent } from "../../analytics/maestra";
+import MindboxSdk from "mindbox-sdk";
 
 type ListItem = { type: AssetType.OTHERCOINS }
     | { type: AssetType.SPECIAL }
@@ -69,6 +71,22 @@ export const ReceiveAssetsFragment = fragment(() => {
             navigation.navigateReceive({ addr: tonAddress.toString({ testOnly: isTestnet, bounceable: isLedger ? false : bounceableFormat }), asset: asset || undefined }, isLedger);
         }
     }, [assetCallback, isLedger, tonAddress, isTestnet, bounceableFormat]);
+
+    useEffect(() => {
+        if (tonAddress) {
+            const tonhubID = tonAddress.toString({ testOnly: isTestnet });
+            MindboxSdk.executeAsyncOperation({
+                operationSystemName: MaestraEvent.ViewReceivePage,
+                operationBody: {
+                    customer: {
+                        ids: {
+                            tonhubID
+                        }
+                    }
+                },
+            });
+        }
+    }, [tonAddress, isTestnet]);
 
     const onHoldersSelected = useCallback((target: GeneralHoldersAccount) => {
         let path = `/account/${target.id}?deposit-open=true`;

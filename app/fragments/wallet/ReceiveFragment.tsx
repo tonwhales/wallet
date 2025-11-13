@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { View, Text, Pressable, ScrollView, Platform, Alert, useWindowDimensions } from "react-native";
@@ -26,6 +26,8 @@ import { encodeURL } from "@solana/pay";
 import { PublicKey } from "@solana/web3.js";
 import CopyIcon from '@assets/ic-copy.svg';
 import { RoundButton } from "../../components/RoundButton";
+import MindboxSdk from "mindbox-sdk";
+import { MaestraEvent } from "../../analytics/maestra";
 
 type ReceiveableAssetContent = {
     icon: string | null | undefined;
@@ -109,6 +111,22 @@ export const ReceiveFragment = fragment(() => {
         ? (tonAsset?.content?.icon || jettonAssetcontent?.icon)
         : solanaAsset?.content?.icon;
     const name = asset?.content?.name;
+
+    useEffect(() => {
+        if (tonAddress) {
+            const tonhubID = tonAddress.toString({ testOnly: network.isTestnet });
+            MindboxSdk.executeAsyncOperation({
+                operationSystemName: MaestraEvent.ViewReceivePage,
+                operationBody: {
+                    customer: {
+                        ids: {
+                            tonhubID
+                        }
+                    }
+                },
+            });
+        }
+    }, [tonAddress, network.isTestnet]);
 
     const friendly = useMemo(() => {
         if (!isTon) {

@@ -12,6 +12,8 @@ import { onHoldersInvalidate } from '../../engine/effects/onHoldersInvalidate';
 import { useFocusEffect } from '@react-navigation/native';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
 import { Address } from '@ton/core';
+import MindboxSdk from 'mindbox-sdk';
+import { MaestraEvent } from '../../analytics/maestra';
 
 export enum HoldersAppParamsType {
     Account = 'account',
@@ -63,6 +65,22 @@ export const HoldersAppFragment = fragment(({ initialParams }: { initialParams?:
             }
         }
     }, [acc, isTestnet]);
+
+    useEffect(() => {
+        if (address && initialParams?.type === HoldersAppParamsType.CreateCard) {
+            const tonhubID = address.toString({ testOnly: isTestnet });
+            MindboxSdk.executeAsyncOperation({
+                operationSystemName: MaestraEvent.ViewCardIssuePage,
+                operationBody: {
+                    customer: {
+                        ids: {
+                            tonhubID
+                        }
+                    }
+                },
+            });
+        }
+    }, [address, isTestnet]);
 
     // to account for wierd statusbar bug with navigating withing the bottom bar stack
     useFocusEffect(() => setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark'));

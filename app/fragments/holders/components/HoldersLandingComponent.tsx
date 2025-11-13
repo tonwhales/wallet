@@ -22,6 +22,8 @@ import { MixpanelEvent, trackEvent } from "../../../analytics/mixpanel";
 import { Typography } from "../../../components/styles";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
 import { Address } from "@ton/core";
+import { MaestraEvent } from "../../../analytics/maestra";
+import MindboxSdk from "mindbox-sdk";
 
 export type HoldersLandingComponentProps = {
     endpoint: string,
@@ -61,6 +63,22 @@ export const HoldersLandingComponent = memo(({ endpoint, onEnrollType, inviteId,
             isComponentMounted.current = false;
         };
     }, []);
+
+    useEffect(() => {
+        if (address) {
+            const tonhubID = address.toString({ testOnly: isTestnet });
+            MindboxSdk.executeAsyncOperation({
+                operationSystemName: MaestraEvent.ViewCardIssuePage,
+                operationBody: {
+                    customer: {
+                        ids: {
+                            tonhubID
+                        }
+                    }
+                },
+            });
+        }
+    }, [address, isTestnet]);
 
     // Anim
     const isAuthenticating = useRef(false);

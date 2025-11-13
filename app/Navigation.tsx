@@ -454,7 +454,7 @@ export const Navigation = memo(() => {
                         }
                     }
                 },
-            })
+            });
         }
     }, [appState.addresses.length, appState.selected]);
 

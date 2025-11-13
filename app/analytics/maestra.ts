@@ -6,4 +6,5 @@ export enum MaestraEvent {
     ViewSwapPage = 'ViewSwapPage',
     ViewScanPage = 'ViewScanPage',
     ViewSendPage = 'ViewSendPage',
+    ViewCardIssuePage = 'ViewCardIssuePage',
 }

@@ -37,6 +37,7 @@ import { WalletRequests } from "../requests/WalletRequests"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 import { StakingWithdrawReady } from "./earnings/StakingWithdrawReady"
+import { AiChatBanner } from "./AiChatBanner"
 
 export type HoldersBannerType = { type: 'built-in' } | { type: 'custom', banner: HoldersCustomBanner };
 
@@ -179,6 +180,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                 ) : (
                     <>
                         <HoldersChangellyBanner address={selected.address} solanaAddress={selected.solanaAddress} />
+                        <AiChatBanner address={selected.address} />
                         <HoldersProductComponent holdersAccStatus={holdersAccStatus} key={'holders'} />
                         <HoldersHiddenProductComponent holdersAccStatus={holdersAccStatus} key={'holders-hidden'} />
                     </>

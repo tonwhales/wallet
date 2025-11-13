@@ -1511,6 +1511,10 @@ export type LocalizationSchema = {
         },
         initMessage: {
             holdersTx: string,
+        },
+        banner: {
+            title: string,
+            description: string
         }
     }
 };

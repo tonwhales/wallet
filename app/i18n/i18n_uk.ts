@@ -1509,6 +1509,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         },
         "initMessage": {
             "holdersTx": "Розкажіть мені більше про цю транзакцію: {{tx}}"
+        },
+        "banner": {
+            "title": "Фінанси з ІІ",
+            "description": "Розумніші способи оцінити ваші витрати"
         }
     }
 };

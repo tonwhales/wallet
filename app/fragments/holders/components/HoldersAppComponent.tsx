@@ -272,6 +272,9 @@ export const HoldersAppComponent = memo((
             case HoldersAppParamsType.Settings:
                 route = '/user/settings';
                 break;
+            case HoldersAppParamsType.Transaction:
+                route = `/transaction/${variant.id}`;
+                break;
         }
 
         const uri = `${endpoint}${route}`;

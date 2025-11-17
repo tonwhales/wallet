@@ -41,12 +41,16 @@ export const MessageTx = memo(({ element }: { element: TxElement }) => {
                 case 'solana':
                     // TODO: добавить навигацию для Solana транзакций
                     break;
-                case 'holders':
+                case 'holders': {
+                    if (!id) return;
                     const holdersNavParams: HoldersAppParams = {
-                        type: HoldersAppParamsType.Transactions,
-                        query: { transactionId: id }
+                        type: HoldersAppParamsType.Transaction,
+                        id: id
                     }
                     navigation.navigateHolders(holdersNavParams, isTestnet);
+                    break;
+                }
+                default:
                     break;
             }
         } catch (error) {

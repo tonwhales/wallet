@@ -9,11 +9,15 @@ import { fetchChangellyTransactionDetails } from "../../api/changelly/fetchChang
 import { ChangellyTransactionModel } from "../../api/changelly";
 import { Queries } from "../../queries";
 import { queryClient } from "../../clients";
+import { useNetwork } from "../network";
+import { useHoldersProfile } from "../holders/useHoldersProfile";
 
 export function useCreateChangellyTransaction() {
-    const { tonAddressString, solanaAddress } = useCurrentAddress();
+    const { tonAddressString, tonAddress, solanaAddress } = useCurrentAddress();
     const toaster = useToaster();
     const insets = useSafeAreaInsets();
+    const { isTestnet } = useNetwork();
+    const profile = useHoldersProfile(tonAddress.toString({ testOnly: isTestnet})).data;
     
     return useMutation<
         ChangellyTransactionModel,
@@ -28,7 +32,8 @@ export function useCreateChangellyTransaction() {
                 ...data,
                 idempotencyKey: getRandomQueryId().toString(),
                 wallet: walletAddress!,
-                tonhubID: tonAddress?.toString({ testOnly: isTestnet }) ?? ''
+                tonhubID: profile?.userId,
+                isTestnet: isTestnet
             });
             return await fetchChangellyTransactionDetails({
                 transactionId: transaction.id

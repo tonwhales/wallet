@@ -28,7 +28,8 @@ import { TransferInstructions } from "../components/TransferInstructions";
 import { SolanaTransactionAppHeader } from "./SolanaTransactionAppHeader";
 import { SolanaTransferFees } from "../../solana/transfer/components/SolanaTransferFees";
 import { useTransactionsUtilsContext } from "../../../engine/TransactionsUtilsContext";
-import { trackSent } from "../../../analytics/maestra";
+import { trackMaestraSent } from "../../../analytics/maestra";
+import { useHoldersProfile } from "../../../engine/hooks/holders/useHoldersProfile";
 
 type SolanaOrderTransferParams = {
     type: 'order';
@@ -108,6 +109,7 @@ const TransferOrder = (props: { order: SolanaOrder, callback?: (ok: boolean, sig
     const token = useSolanaToken(solanaAddress, order.token?.mint);
     const registerPending = useRegisterPendingSolana(solanaAddress);
     const transaction = useSolanaTransactionFromOrder(order, solanaAddress, solanaClients);
+    const profile = useHoldersProfile(tonAddress!.toString({ testOnly: isTestnet })).data;
 
     const forceAvatar = useMemo(() => checkIsHoldersTarget(order.target) ? 'holders' : undefined, [checkIsHoldersTarget, order.target]);
 
@@ -135,15 +137,15 @@ const TransferOrder = (props: { order: SolanaOrder, callback?: (ok: boolean, sig
                 sender: solanaAddress
             });
 
-            const tonhubID = tonAddress?.toString({ testOnly: isTestnet }) ?? '';
-
-            trackSent({
-                amount: amount,
-                currency: token?.symbol ?? 'SOL',
-                walletID: solanaAddress,
-                tonhubID: tonhubID,
-                transactionID: pending.id
-            });
+            if (!isTestnet) {
+                trackMaestraSent({
+                    amount: amount,
+                    currency: token?.symbol ?? 'SOL',
+                    walletID: solanaAddress,
+                    tonhubID: profile?.userId,
+                    transactionID: pending.id
+                });
+            }
 
             registerPending(pending);
             callback?.(true, pending.id);

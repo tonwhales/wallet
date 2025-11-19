@@ -20,12 +20,12 @@ import { Typography } from '../../components/styles';
 import { useCameraAspectRatio } from '../../utils/useCameraAspectRatio';
 import { changeNavBarColor } from '../../modules/NavBar';
 import { openGalleryPermissionAlert } from '../../utils/permissions';
+import { MaestraEvent, trackMaestraEvent } from '../../analytics/maestra';
+import { useHoldersProfile } from '../../engine/hooks/holders/useHoldersProfile';
 
 import FlashOn from '../../../assets/ic-flash-on.svg';
 import FlashOff from '../../../assets/ic-flash-off.svg';
 import Photo from '../../../assets/ic-photo.svg';
-import MindboxSdk from 'mindbox-sdk';
-import { MaestraEvent } from '../../analytics/maestra';
 
 const EmptyIllustrations = {
     dark: require('@assets/empty-cam-dark.webp'),
@@ -40,6 +40,7 @@ export const ScannerFragment = systemFragment(() => {
     const navigation = useNavigation();
     const { isTestnet } = useNetwork();
     const { tonAddress } = useCurrentAddress();
+    const profile = useHoldersProfile(tonAddress!.toString({ testOnly: isTestnet })).data;
 
     const [hasPermission, setHasPermission] = useState<null | boolean>(null);
     const [isActive, setActive] = useState(true);
@@ -166,20 +167,11 @@ export const ScannerFragment = systemFragment(() => {
     }, [hasPermission, theme]);
 
     useEffect(() => {
-        if (tonAddress) {
-            const tonhubID = tonAddress.toString({ testOnly: isTestnet });
-            MindboxSdk.executeAsyncOperation({
-                operationSystemName: MaestraEvent.ViewScanPage,
-                operationBody: {
-                    customer: {
-                        ids: {
-                            tonhubID
-                        }
-                    }
-                },
-            });
+        if (isTestnet) {
+            return;
         }
-    }, [tonAddress, isTestnet]);
+        trackMaestraEvent(MaestraEvent.ViewScanPage, { walletID: tonAddress!.toString(), tonhubID: profile?.userId });
+    }, []);
 
     return (
         <>

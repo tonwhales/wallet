@@ -61,7 +61,6 @@ import * as Notifications from 'expo-notifications';
 import { PermissionStatus } from 'expo-modules-core';
 import { warn } from './utils/log';
 import { NativeModules } from 'react-native';
-
 const { MaestraModule } = NativeModules;
 import { useIsRestoring } from '@tanstack/react-query';
 import { ThemeFragment } from './fragments/ThemeFragment';
@@ -127,8 +126,7 @@ import { ChangellyOrderFragment } from './fragments/integrations/ChangellyOrderF
 import { SwapFragment } from './fragments/wallet/SwapFragment';
 import { isLatestIos } from './utils/isLatestIos';
 import { HoldersAIChatFragment } from './fragments/holders/HoldersAIChatFragment';
-import MindboxSdk from 'mindbox-sdk';
-import { MaestraEvent } from './analytics/maestra';
+import { MaestraEvent, trackMaestraEvent } from './analytics/maestra';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -441,22 +439,15 @@ export const Navigation = memo(() => {
     const hideSplash = mounted && !isRestoring;
 
     useEffect(() => {
-        const selectedAddress = appState.addresses[appState.selected];
-        
-        if (selectedAddress) {
-            const tonhubID = selectedAddress.address.toString({ testOnly: isTestnet });
-            MindboxSdk.executeAsyncOperation({
-                operationSystemName: MaestraEvent.SessionStart,
-                operationBody: {
-                    customer: {
-                        ids: {
-                            tonhubID
-                        }
-                    }
-                },
-            });
+        if (isTestnet) {
+            return;
         }
-    }, [appState.addresses.length, appState.selected]);
+        const selectedAddress = appState.addresses[appState.selected];
+
+        if (selectedAddress) {
+            trackMaestraEvent(MaestraEvent.SessionStart, { walletID: selectedAddress.address.toString() });
+        }
+    }, [appState.addresses.length, appState.selected, isTestnet]);
 
     useEffect(() => {
         const apnsSubscription = setupAPNsTokenHandler();
@@ -558,7 +549,7 @@ export const Navigation = memo(() => {
     useSolanaAccountWatcher();
 
     // Watch for support auth state
-	useSupportAuth();
+    useSupportAuth();
 
     return (
         <View style={{ flexGrow: 1, alignItems: 'stretch', backgroundColor: navigationTheme.colors.background }}>

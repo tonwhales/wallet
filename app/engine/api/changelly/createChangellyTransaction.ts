@@ -2,7 +2,7 @@ import axios from "axios";
 import { whalesConnectEndpoint } from "../../clients";
 import { z } from "zod";
 import { changellyTransactionStatusCodec } from "./fetchChangellyUserTransactions";
-import { trackSwapped } from "../../../analytics/maestra";
+import { trackMaestraSwapped } from "../../../analytics/maestra";
 
 export const changellyCreateTransactionCodec = z.object({
     _id: z.string(),
@@ -51,25 +51,27 @@ export type CreateChangellyTransactionBody = {
     wallet: string
 }
 
-export async function createChangellyTransaction(data: CreateChangellyTransactionBody & { tonhubID: string }): Promise<ChangellyCreateTransaction> {
+export async function createChangellyTransaction(data: CreateChangellyTransactionBody & { tonhubID?: string, isTestnet: boolean }): Promise<ChangellyCreateTransaction> {
     const url = `${whalesConnectEndpoint}/changelly/transaction/create`;
-    
+
     try {
         const res = await axios.post(url, data);
-        
+
         if (res.status !== 200) {
             throw new Error('Request failed');
         }
 
-        trackSwapped({
-            amountFrom: data.amount,
-            currencyFrom: data.fromCurrency,
-            amountTo: res.data.amountTo,
-            currencyTo: data.toCurrency,
-            walletID: data.wallet,
-            tonhubID: data.tonhubID,
-            transactionID: res.data.id
-        });
+        if (!data.isTestnet) {
+            trackMaestraSwapped({
+                amountFrom: data.amount,
+                currencyFrom: data.fromCurrency,
+                amountTo: res.data.amountTo,
+                currencyTo: data.toCurrency,
+                walletID: data.wallet,
+                tonhubID: data.tonhubID,
+                transactionID: res.data.id
+            });
+        }
 
         const validatedData = changellyCreateTransactionCodec.safeParse(res.data);
         if (!validatedData.success) {
@@ -81,11 +83,11 @@ export async function createChangellyTransaction(data: CreateChangellyTransactio
         if (error.response?.data?.error) {
             throw new Error(error.response.data.error);
         }
-        
+
         if (error.message) {
             throw new Error(error.message);
         }
-        
+
         throw new Error('Unknown error occurred');
     }
 }

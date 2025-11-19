@@ -26,8 +26,9 @@ import { SolanaToken } from "../../engine/api/solana/fetchSolanaTokens";
 import { ChangellyBanner } from "../../components/products/ChangellyBanner";
 import { AssetType } from "../../engine/types/deposit";
 import { TonProductComponent } from "../../components/products/savings/TonWalletProduct";
-import { MaestraEvent } from "../../analytics/maestra";
+import { MaestraEvent, trackMaestraEvent } from "../../analytics/maestra";
 import MindboxSdk from "mindbox-sdk";
+import { useHoldersProfile } from "../../engine/hooks/holders/useHoldersProfile";
 
 type ListItem = { type: AssetType.OTHERCOINS }
     | { type: AssetType.SPECIAL }
@@ -60,6 +61,7 @@ export const ReceiveAssetsFragment = fragment(() => {
     const isHoldersReady = useIsConnectAppReady(url);
     const needsEnrollment = holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
     const [isWalletMode] = useAppMode(tonAddress);
+    const profile = useHoldersProfile(tonAddress!.toString({ testOnly: isTestnet })).data;
 
     const onAssetCallback = useCallback((asset: ReceiveableTonAsset | null) => {
         if (assetCallback) {
@@ -73,20 +75,11 @@ export const ReceiveAssetsFragment = fragment(() => {
     }, [assetCallback, isLedger, tonAddress, isTestnet, bounceableFormat]);
 
     useEffect(() => {
-        if (tonAddress) {
-            const tonhubID = tonAddress.toString({ testOnly: isTestnet });
-            MindboxSdk.executeAsyncOperation({
-                operationSystemName: MaestraEvent.ViewReceivePage,
-                operationBody: {
-                    customer: {
-                        ids: {
-                            tonhubID
-                        }
-                    }
-                },
-            });
+        if (isTestnet) {
+            return;
         }
-    }, [tonAddress, isTestnet]);
+        trackMaestraEvent(MaestraEvent.ViewReceivePage, { walletID: tonAddress!.toString(), tonhubID: profile?.userId });
+    }, []);
 
     const onHoldersSelected = useCallback((target: GeneralHoldersAccount) => {
         let path = `/account/${target.id}?deposit-open=true`;

@@ -13,7 +13,26 @@ export enum MaestraEvent {
     SwappedCurrency = 'SwappedCurrency',
 }
 
-export function trackSent({
+export function trackMaestraEvent(event: MaestraEvent, customer: {
+    walletID: string,
+    tonhubID?: string,
+}) {
+    MindboxSdk.executeAsyncOperation({
+        operationSystemName: event,
+        operationBody: {
+            customer: {
+                ids: customer.tonhubID ? {
+                    tonhubID: customer.tonhubID,
+                    cryptoAccountId: customer.walletID
+                } : {
+                    cryptoAccountId: customer.walletID
+                }
+            }
+        }
+    });
+}
+
+export function trackMaestraSent({
     amount,
     currency,
     walletID,
@@ -23,7 +42,7 @@ export function trackSent({
     amount: string;
     currency: string;
     walletID: string;
-    tonhubID: string;
+    tonhubID?: string;
     transactionID: string;
 }) {
     MindboxSdk.executeAsyncOperation({
@@ -51,15 +70,18 @@ export function trackSent({
                 ]
             },
             customer: {
-                ids: {
-                    tonhubID
+                ids: tonhubID ? {
+                    tonhubID,
+                    cryptoAccountId: walletID
+                } : {
+                    cryptoAccountId: walletID
                 }
             }
         },
     });
 }
 
-export function trackSwapped({
+export function trackMaestraSwapped({
     amountFrom,
     amountTo,
     currencyFrom,
@@ -73,7 +95,7 @@ export function trackSwapped({
     currencyFrom: string;
     currencyTo: string;
     walletID: string;
-    tonhubID: string;
+    tonhubID?: string;
     transactionID: string;
 }) {
     MindboxSdk.executeAsyncOperation({
@@ -101,8 +123,11 @@ export function trackSwapped({
                 ]
             },
             customer: {
-                ids: {
-                    tonhubID
+                ids: tonhubID ? {
+                    tonhubID,
+                    cryptoAccountId: walletID
+                } : {
+                    cryptoAccountId: walletID
                 }
             }
         }

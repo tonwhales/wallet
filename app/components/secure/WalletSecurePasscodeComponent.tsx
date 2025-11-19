@@ -25,8 +25,7 @@ import { WalletVersions } from '../../engine/types';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 import { RegistrationMethod, trackAppsFlyerEvent } from '../../analytics/appsflyer';
 import { AppsFlyerEvent } from '../../analytics/appsflyer';
-import MindboxSdk from 'mindbox-sdk';
-import { MaestraEvent } from '../../analytics/maestra';
+import { MaestraEvent, trackMaestraEvent } from '../../analytics/maestra';
 
 export const WalletSecurePasscodeComponent = systemFragment((props: {
     mnemonics: string,
@@ -63,17 +62,10 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
         trackEvent(event, { isTestnet, additionalWallet }, isTestnet, true);
 
         if (isImport) {
-            const tonhubID = address.address.toString({ testOnly: isTestnet });
-            MindboxSdk.executeAsyncOperation({
-                operationSystemName: MaestraEvent.WalletSeedImported,
-                operationBody: {
-                    customer: {
-                        ids: {
-                            tonhubID
-                        }
-                    }
-                },
-            });
+            if (isTestnet) {
+                return;
+            }
+            trackMaestraEvent(MaestraEvent.WalletSeedImported, { walletID: address.address.toString() });
         }
 
         if (!additionalWallet) {

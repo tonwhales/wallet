@@ -20,7 +20,8 @@ import { sharedStoragePersistence } from "../../storage/storage";
 import ChangellyLogo from '../../../assets/changelly.svg';
 import { CHANGELLY_PRIVACY_URL, CHANGELLY_TERMS_URL } from "../../utils/constants";
 import MindboxSdk from "mindbox-sdk";
-import { MaestraEvent } from "../../analytics/maestra";
+import { MaestraEvent, trackMaestraEvent } from "../../analytics/maestra";
+import { useHoldersProfile } from "../../engine/hooks/holders/useHoldersProfile";
 
 type ListItem = { type: AssetType.TON }
     | { type: AssetType.SPECIAL }
@@ -37,6 +38,7 @@ export const SwapFragment = fragment(() => {
     const { tonAddress, solanaAddress, isLedger } = useCurrentAddress();
     const tokens = useSolanaTokens(solanaAddress!, isLedger);
     const [accepted, setAccepted] = useState(sharedStoragePersistence.getBoolean(skipLegalChangelly));
+    const profile = useHoldersProfile(tonAddress!.toString({ testOnly: isTestnet })).data;
 
     const solanaTokens: SolanaToken[] = tokens?.data ?? [];
 
@@ -114,20 +116,11 @@ export const SwapFragment = fragment(() => {
     const itemsList = [defaultSection];
 
     useEffect(() => {
-        if (tonAddress) {
-            const tonhubID = tonAddress.toString({ testOnly: isTestnet });
-            MindboxSdk.executeAsyncOperation({
-                operationSystemName: MaestraEvent.ViewSwapPage,
-                operationBody: {
-                    customer: {
-                        ids: {
-                            tonhubID
-                        }
-                    }
-                },
-            });
+        if (isTestnet) {
+            return;
         }
-    }, [tonAddress, isTestnet]);
+        trackMaestraEvent(MaestraEvent.ViewSwapPage, { walletID: tonAddress.toString(), tonhubID: profile?.userId });
+    }, []);
 
     return (
         <View style={{ flexGrow: 1 }}>

@@ -27,7 +27,8 @@ export function useCreateChangellyTransaction() {
             const transaction = await createChangellyTransaction({
                 ...data,
                 idempotencyKey: getRandomQueryId().toString(),
-                wallet: walletAddress!
+                wallet: walletAddress!,
+                tonhubID: tonAddress?.toString({ testOnly: isTestnet }) ?? ''
             });
             return await fetchChangellyTransactionDetails({
                 transactionId: transaction.id

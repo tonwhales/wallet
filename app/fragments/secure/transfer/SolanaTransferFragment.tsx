@@ -4,7 +4,7 @@ import { useParams } from "../../../utils/useParams";
 import { SolanaOrder, SolanaOrderApp } from "../ops/Order"
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../../../components/ScreenHeader";
-import { useSolanaClients, useSolanaSelectedAccount, useSolanaToken, useTheme, useRegisterPendingSolana, useSolanaTransactionFromOrder, useHoldersAccounts, useCurrentAddress } from "../../../engine/hooks";
+import { useSolanaClients, useSolanaSelectedAccount, useSolanaToken, useTheme, useRegisterPendingSolana, useSolanaTransactionFromOrder, useCurrentAddress, useNetwork } from "../../../engine/hooks";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ItemGroup } from "../../../components/ItemGroup";
@@ -28,6 +28,7 @@ import { TransferInstructions } from "../components/TransferInstructions";
 import { SolanaTransactionAppHeader } from "./SolanaTransactionAppHeader";
 import { SolanaTransferFees } from "../../solana/transfer/components/SolanaTransferFees";
 import { useTransactionsUtilsContext } from "../../../engine/TransactionsUtilsContext";
+import { trackSent } from "../../../analytics/maestra";
 
 type SolanaOrderTransferParams = {
     type: 'order';
@@ -100,12 +101,14 @@ const TransferOrder = (props: { order: SolanaOrder, callback?: (ok: boolean, sig
     const solanaClients = useSolanaClients();
     const authContext = useKeysAuth();
     const solanaAddress = useSolanaSelectedAccount()!;
+    const { tonAddress } = useCurrentAddress();
+    const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const { checkIsHoldersTarget } = useTransactionsUtilsContext();
     const token = useSolanaToken(solanaAddress, order.token?.mint);
     const registerPending = useRegisterPendingSolana(solanaAddress);
     const transaction = useSolanaTransactionFromOrder(order, solanaAddress, solanaClients);
-   
+
     const forceAvatar = useMemo(() => checkIsHoldersTarget(order.target) ? 'holders' : undefined, [checkIsHoldersTarget, order.target]);
 
     const onCopyAddress = useCallback((address: string) => {
@@ -117,6 +120,11 @@ const TransferOrder = (props: { order: SolanaOrder, callback?: (ok: boolean, sig
         });
     }, []);
 
+    const avatarColorHash = avatarHash(order.target, avatarColors.length);
+    const avatarColor = avatarColors[avatarColorHash];
+    const amount = token ? fromBnWithDecimals(order.amount, token.decimals) : fromNano(order.amount);
+    const amountText = amount + ' ' + (token?.symbol ?? 'SOL');
+
     const doSend = useCallback(async () => {
         try {
             const pending = await signAndSendSolanaOrder({
@@ -126,6 +134,17 @@ const TransferOrder = (props: { order: SolanaOrder, callback?: (ok: boolean, sig
                 order,
                 sender: solanaAddress
             });
+
+            const tonhubID = tonAddress?.toString({ testOnly: isTestnet }) ?? '';
+
+            trackSent({
+                amount: amount,
+                currency: token?.symbol ?? 'SOL',
+                walletID: solanaAddress,
+                tonhubID: tonhubID,
+                transactionID: pending.id
+            });
+
             registerPending(pending);
             callback?.(true, pending.id);
         } catch (error) {
@@ -146,11 +165,6 @@ const TransferOrder = (props: { order: SolanaOrder, callback?: (ok: boolean, sig
         // Reset stack to root
         navigation.popToTop();
     }, [theme, authContext, order, solanaAddress, navigation, registerPending, callback]);
-
-    const avatarColorHash = avatarHash(order.target, avatarColors.length);
-    const avatarColor = avatarColors[avatarColorHash];
-    const amount = token ? fromBnWithDecimals(order.amount, token.decimals) : fromNano(order.amount);
-    const amountText = amount + ' ' + (token?.symbol ?? 'SOL');
 
     return (
         <View style={{ flexGrow: 1 }}>

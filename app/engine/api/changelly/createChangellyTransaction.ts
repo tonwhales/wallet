@@ -2,6 +2,7 @@ import axios from "axios";
 import { whalesConnectEndpoint } from "../../clients";
 import { z } from "zod";
 import { changellyTransactionStatusCodec } from "./fetchChangellyUserTransactions";
+import { trackSwapped } from "../../../analytics/maestra";
 
 export const changellyCreateTransactionCodec = z.object({
     _id: z.string(),
@@ -50,7 +51,7 @@ export type CreateChangellyTransactionBody = {
     wallet: string
 }
 
-export async function createChangellyTransaction(data: CreateChangellyTransactionBody): Promise<ChangellyCreateTransaction> {
+export async function createChangellyTransaction(data: CreateChangellyTransactionBody & { tonhubID: string }): Promise<ChangellyCreateTransaction> {
     const url = `${whalesConnectEndpoint}/changelly/transaction/create`;
     
     try {
@@ -59,6 +60,16 @@ export async function createChangellyTransaction(data: CreateChangellyTransactio
         if (res.status !== 200) {
             throw new Error('Request failed');
         }
+
+        trackSwapped({
+            amountFrom: data.amount,
+            currencyFrom: data.fromCurrency,
+            amountTo: res.data.amountTo,
+            currencyTo: data.toCurrency,
+            walletID: data.wallet,
+            tonhubID: data.tonhubID,
+            transactionID: res.data.id
+        });
 
         const validatedData = changellyCreateTransactionCodec.safeParse(res.data);
         if (!validatedData.success) {

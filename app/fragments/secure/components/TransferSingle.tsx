@@ -32,6 +32,7 @@ import { AppsFlyerEvent, trackAppsFlyerEvent } from "../../../analytics/appsflye
 import { useAddressBookContext } from "../../../engine/AddressBookContext";
 import { useAddressFormatsHistory } from "../../../engine/hooks";
 import { clearLastReturnStrategy } from "../../../engine/tonconnect";
+import { trackSent } from "../../../analytics/maestra";
 
 export const failableTransferBackoff = createBackoffFailaible({
     logErrors: true,
@@ -365,6 +366,18 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                     onGaslessSendFailed(gaslessTransferRes.error);
                     return;
                 }
+
+                const tonhubID = selected?.address.toString({ testOnly: isTestnet }) ?? '';
+                const amount = jettonAmountString ?? fromNano(order.messages[0].amount);
+
+                trackSent({
+                    amount: amount,
+                    currency: jetton?.symbol ?? 'TON',
+                    walletID: tonhubID,
+                    tonhubID: tonhubID,
+                    transactionID: tetherTransferForSend.hash().toString('hex')
+                });
+
                 // Notify callback
                 try {
                     callback?.(true, tetherTransferForSend);
@@ -375,8 +388,6 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                 onGaslessSendFailed((error as Error)?.message);
                 return;
             }
-
-
         } else {
             // Create transfer
             let transfer: Cell;
@@ -457,6 +468,16 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                 af_revenue: value.toString()
             });
         }
+
+        const tonhubID = selected?.address.toString({ testOnly: isTestnet }) ?? '';
+
+        trackSent({
+            amount: jettonAmountString ?? fromNano(order.messages[0].amount),
+            currency: jetton?.symbol ?? 'TON',
+            walletID: tonhubID,
+            tonhubID: tonhubID,
+            transactionID: msg.hash().toString('hex')
+        });
 
         let body: PendingTransactionBody | null = null;
 

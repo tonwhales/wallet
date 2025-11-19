@@ -352,8 +352,6 @@ export async function fetchAccountsList(token: string, isTestnet: boolean) {
     }
   );
 
-  console.log('res', JSON.stringify(res.data, null, 2));
-
   if (res.status === 401) {
     return null;
   }

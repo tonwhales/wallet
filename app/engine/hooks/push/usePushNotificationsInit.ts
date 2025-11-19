@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react';
-import MindboxSdk from 'mindbox-sdk';
+import MindboxSdk, { LogLevel } from 'mindbox-sdk';
 import { PushNotificationData, isExpoPushData, isMaestraPushDataAndroid } from '../../types';
 import { handleLinkReceived } from '../../../utils/CachedLinking';
 import { Platform, DeviceEventEmitter, EmitterSubscription } from 'react-native';
@@ -11,7 +11,7 @@ export const usePushNotificationsInit = (initialPushData?: PushNotificationData)
     // and ensure the app is fully initialized before handling the deeplink
     setTimeout(() => {
       let url: string | undefined;
-  
+
       if (isMaestraPushDataAndroid(data)) {
         if (data.push_url && typeof data.push_url === 'string') {
           url = data.push_url;
@@ -82,6 +82,7 @@ export const usePushNotificationsInit = (initialPushData?: PushNotificationData)
       shouldCreateCustomer: true,
     };
     await MindboxSdk.initialize(configuration);
+    MindboxSdk.setLogLevel(LogLevel.DEBUG);
   }, []);
 
   useEffect(() => {

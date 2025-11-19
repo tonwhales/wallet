@@ -335,7 +335,7 @@ const SimpleTransferComponent = () => {
                 },
             });
         }
-    }, [tonAddress, network.isTestnet]);
+    }, []);
 
     return (
         <SimpleTransferLayout

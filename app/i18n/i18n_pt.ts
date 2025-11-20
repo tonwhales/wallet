@@ -1461,7 +1461,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "systemTransfer": "Transferência de SOL",
             "createAccount": "Criar conta",
             "tokenTransfer": "Transferência de token",
-            "depositCard": "Depósito no cartão",
+            "depositCard": "Depósito no conta",
             "closeCard": "Fechar cartão",
             "updateCardLimits": "Atualizar limites do cartão"
         },

@@ -88,7 +88,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
         account,
         isLedger ? undefined : solanaAddress
     ).data?.accounts ?? [];
-    
+
     // filtration depends on the wallet from which this screen was opened
     // for example: if we open simple transfer from usdc wallet, we show only solana chain holders accounts
     let holdersAccounts: typeof allHoldersAccounts = [];
@@ -101,19 +101,22 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
             acc => hasDirectTonDeposit(acc) || acc.network === 'solana'
         );
     }
+
     const targetContract = useContractInfo(validTonAddressFriendly || '');
     const isTargetHolders = addressType === 'ton'
         ? (
-            holdersAccounts.find((acc) => !!acc.address && acc.cryptoCurrency.ticker !== 'USDC' && validTonAddress?.equals(Address.parse(acc.address))) ||
+            holdersAccounts.find((acc) => !!acc.address && (acc.network === 'ton-mainnet' || acc.network === 'ton-testnet') && validTonAddress?.equals(Address.parse(acc.address))) ||
             targetContract?.kind === 'card' ||
             targetContract?.kind === 'jetton-card'
-        ) : addressType === 'solana'
+        )
+        : addressType === 'solana'
             ? (
                 holdersAccounts.find((acc) =>
                     !!acc.address &&
                     acc.address === validSolanaAddress
                 )
-            ) : false;
+            )
+            : false;
 
     const displayAddress = validSolanaAddress || validTonAddressFriendly;
     const avatarColorHash = walletSettings?.color ?? avatarHash(displayAddress ?? '', avatarColors.length);

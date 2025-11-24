@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { View, Text, Pressable, SectionList } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
@@ -26,6 +26,9 @@ import { SolanaToken } from "../../engine/api/solana/fetchSolanaTokens";
 import { ChangellyBanner } from "../../components/products/ChangellyBanner";
 import { AssetType } from "../../engine/types/deposit";
 import { TonProductComponent } from "../../components/products/savings/TonWalletProduct";
+import { MaestraEvent, trackMaestraEvent } from "../../analytics/maestra";
+import MindboxSdk from "mindbox-sdk";
+import { useHoldersProfile } from "../../engine/hooks/holders/useHoldersProfile";
 
 type ListItem = { type: AssetType.OTHERCOINS }
     | { type: AssetType.SPECIAL }
@@ -58,6 +61,7 @@ export const ReceiveAssetsFragment = fragment(() => {
     const isHoldersReady = useIsConnectAppReady(url);
     const needsEnrollment = holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
     const [isWalletMode] = useAppMode(tonAddress);
+    const profile = useHoldersProfile(tonAddress!.toString({ testOnly: isTestnet })).data;
 
     const onAssetCallback = useCallback((asset: ReceiveableTonAsset | null) => {
         if (assetCallback) {
@@ -69,6 +73,13 @@ export const ReceiveAssetsFragment = fragment(() => {
             navigation.navigateReceive({ addr: tonAddress.toString({ testOnly: isTestnet, bounceable: isLedger ? false : bounceableFormat }), asset: asset || undefined }, isLedger);
         }
     }, [assetCallback, isLedger, tonAddress, isTestnet, bounceableFormat]);
+
+    useEffect(() => {
+        if (isTestnet) {
+            return;
+        }
+        trackMaestraEvent(MaestraEvent.ViewReceivePage, { walletID: tonAddress!.toString(), tonhubID: profile?.userId });
+    }, []);
 
     const onHoldersSelected = useCallback((target: GeneralHoldersAccount) => {
         let path = `/account/${target.id}?deposit-open=true`;

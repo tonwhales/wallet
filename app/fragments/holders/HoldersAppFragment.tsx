@@ -12,6 +12,8 @@ import { onHoldersInvalidate } from '../../engine/effects/onHoldersInvalidate';
 import { useFocusEffect } from '@react-navigation/native';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
 import { Address } from '@ton/core';
+import { MaestraEvent, trackMaestraEvent } from '../../analytics/maestra';
+import { useHoldersProfile } from '../../engine/hooks/holders/useHoldersProfile';
 
 export enum HoldersAppParamsType {
     Account = 'account',
@@ -55,6 +57,7 @@ export const HoldersAppFragment = fragment(({ initialParams }: { initialParams?:
     const address = isLedger ? ledgerAddress : acc?.address;
     const solanaAddress = useSolanaSelectedAccount()!;
     const status = useHoldersAccountStatus(address!.toString({ testOnly: isTestnet })).data;
+    const profile = useHoldersProfile(address!.toString({ testOnly: isTestnet })).data;
     const accounts = useHoldersAccounts(address!.toString({ testOnly: isTestnet }), isLedger ? undefined : solanaAddress).data;
     const url = holdersUrl(isTestnet);
 
@@ -65,6 +68,15 @@ export const HoldersAppFragment = fragment(({ initialParams }: { initialParams?:
             }
         }
     }, [acc, isTestnet]);
+
+    useEffect(() => {
+        if (isTestnet) {
+            return;
+        }
+        if (initialParams?.type === HoldersAppParamsType.CreateCard) {
+            trackMaestraEvent(MaestraEvent.ViewCardIssuePage, { walletID: address!.toString(), tonhubID: profile?.userId });
+        }
+    }, []);
 
     // to account for wierd statusbar bug with navigating withing the bottom bar stack
     useFocusEffect(() => setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark'));

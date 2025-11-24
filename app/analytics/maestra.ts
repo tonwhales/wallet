@@ -16,6 +16,7 @@ export enum MaestraEvent {
 export function trackMaestraEvent(event: MaestraEvent, customer: {
     walletID: string,
     tonhubID?: string,
+    customFields?: any,
 }) {
     MindboxSdk.executeAsyncOperation({
         operationSystemName: event,
@@ -26,7 +27,8 @@ export function trackMaestraEvent(event: MaestraEvent, customer: {
                     cryptoAccountId: customer.walletID
                 } : {
                     cryptoAccountId: customer.walletID
-                }
+                },
+                customFields: customer.customFields
             }
         }
     });

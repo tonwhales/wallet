@@ -49,7 +49,7 @@ import { HoldersLandingFragment } from './fragments/holders/HoldersLandingFragme
 import { HoldersAppFragment } from './fragments/holders/HoldersAppFragment';
 import { BiometricsSetupFragment } from './fragments/BiometricsSetupFragment';
 import { KeyStoreMigrationFragment } from './fragments/secure/KeyStoreMigrationFragment';
-import { useNetwork, useSupportAuth, useTheme } from './engine/hooks';
+import { useLanguage, useNetwork, useSupportAuth, useTheme } from './engine/hooks';
 import { useNavigationTheme } from './engine/hooks';
 import { useRecoilValue } from 'recoil';
 import { appStateAtom } from './engine/state/appState';
@@ -418,6 +418,7 @@ export const Navigation = memo(() => {
     const navigationTheme = useNavigationTheme();
     const appState = useRecoilValue(appStateAtom);
     const { isTestnet } = useNetwork();
+    const [lang] = useLanguage();
 
     const initial = useMemo(() => {
         const lastLink = CachedLinking.getLastLink();
@@ -445,9 +446,14 @@ export const Navigation = memo(() => {
         const selectedAddress = appState.addresses[appState.selected];
 
         if (selectedAddress) {
-            trackMaestraEvent(MaestraEvent.SessionStart, { walletID: selectedAddress.address.toString() });
+            trackMaestraEvent(MaestraEvent.SessionStart, {
+                walletID: selectedAddress.address.toString(),
+                customFields: {
+                    language: lang ?? 'en'
+                }
+            });
         }
-    }, [appState.addresses.length, appState.selected, isTestnet]);
+    }, [appState.addresses.length, appState.selected, isTestnet, lang]);
 
     useEffect(() => {
         const apnsSubscription = setupAPNsTokenHandler();

@@ -1325,6 +1325,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "bannerDescription": "Доступны Tron, Solana, Ethereum, Polygon!",
         "tonhubBannerTitle": "Changelly в Tonhub!",
         "tonhubBannerDescription": "Пополняйте из других блокчейнов",
+        "minimumAmount": "Минимальная сумма: {{amount}}",
+        "maximumAmount": "Максимальная сумма: {{amount}}",
     },
     "order": {
         "enterAmount": "Введите сумму перевода",
@@ -1459,7 +1461,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "systemTransfer": "Перевод SOL",
             "createAccount": "Создание аккаунта",
             "tokenTransfer": "Перевод токена",
-            "depositCard": "Пополнение карты",
+            "depositCard": "Пополнение счета",
             "closeCard": "Закрыть карту",
             "updateCardLimits": "Обновить лимиты карты"
         },
@@ -1504,6 +1506,13 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "connectionError": "Ошибка WebSocket соединения",
             "sessionNotFound": "Сессия не найдена",
             "invalidUserId": "Неверный формат ID пользователя"
+        },
+        "initMessage": {
+            "holdersTx": "Расскажи мне больше об этой транзакции: {{tx}}"
+        },
+        "banner": {
+            "title": "Финансы с ИИ",
+            "description": "Более умные способы оценить ваши расходы"
         }
     }
 };

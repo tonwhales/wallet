@@ -24,8 +24,6 @@ import { useAppMode } from '../engine/hooks/appstate/useAppMode';
 import { HoldersSettings } from './holders/components/HoldersSettings';
 import { HoldersTransactionsFragment } from './wallet/HoldersTransactionsFragment';
 import { useLedgerTransport } from './ledger/components/TransportContext';
-import { useAccountTransactionsV3 } from '../engine/hooks/transactions/useAccountTransactionsV3';
-import { HoldersAIChatFragment } from './holders/HoldersAIChatFragment';
 import { HoldersAIChatTab } from './holders/HoldersAIChatTab';
 
 const Tab = createBottomTabNavigator();

@@ -1325,6 +1325,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "bannerDescription": "Tron, Solana, Ethereum, Polygon verfügbar!",
         "tonhubBannerTitle": "Changelly in Tonhub!",
         "tonhubBannerDescription": "Einzahlung von anderen Blockchains",
+        "minimumAmount": "Minimale Menge: {{amount}}",
+        "maximumAmount": "Maximale Menge: {{amount}}",
     },
     "order": {
         "enterAmount": "Übertragungsbetrag eingeben",
@@ -1459,7 +1461,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "systemTransfer": "SOL-Überweisung",
             "createAccount": "Konto erstellen",
             "tokenTransfer": "Token-Überweisung",
-            "depositCard": "Einzahlung auf Karte",
+            "depositCard": "Kontoeinzahlung",
             "closeCard": "Karte schließen",
             "updateCardLimits": "Kartenlimits aktualisieren"
         },
@@ -1504,6 +1506,13 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "connectionError": "WebSocket-Verbindungsfehler",
             "sessionNotFound": "Sitzung nicht gefunden",
             "invalidUserId": "Ungültiges Benutzer-ID-Format"
+        },
+        "initMessage": {
+            "holdersTx": "Erzählen Sie mir mehr über diese Transaktion: {{tx}}"
+        },
+        "banner": {
+            "title": "Intelligentes Finanzmanagement",
+            "description": "Intelligentere Wege, Ihre Ausgaben zu verstehen"
         }
     }
 };

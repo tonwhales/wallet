@@ -25,6 +25,7 @@ export enum HoldersAppParamsType {
     Invite = 'invite',
     Invitation = 'invitation',
     Transactions = 'transactions',
+    Transaction = 'transaction',
     Path = 'path',
     Topup = 'topup',
     Settings = 'settings'
@@ -41,6 +42,7 @@ export type HoldersAppParams =
     | { type: HoldersAppParamsType.Invitation }
     | { type: HoldersAppParamsType.Path, path: string, query: { [key: string]: string | undefined } }
     | { type: HoldersAppParamsType.Transactions, query: { [key: string]: string | undefined } }
+    | { type: HoldersAppParamsType.Transaction, id: string }
     | { type: HoldersAppParamsType.Topup, id: string }
     | { type: HoldersAppParamsType.Settings };
 

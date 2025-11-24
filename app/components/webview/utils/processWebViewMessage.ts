@@ -56,6 +56,8 @@ export enum DAppWebViewAPIMethod {
     showIntercomWithMessage = 'showIntercomWithMessage',
     navigate = 'navigate',
     aiChat = 'aiChat',
+    aiChatMessage = 'aiChatMessage',
+    aiChatTx = 'aiChatTx'
 }
 
 const userAttributesSchema = z.object({
@@ -343,6 +345,20 @@ export function processWebViewMessage(
                 return true;
             case DAppWebViewAPIMethod.aiChat:
                 navigation.navigate('HoldersAIChat', { userId: args?.userId });
+                return true;
+            case DAppWebViewAPIMethod.aiChatMessage:
+                if (!args.message) {
+                    navigation.navigate('HoldersAIChat', { userId: args?.userId });
+                    return true;
+                }
+                navigation.navigate('HoldersAIChat', { userId: args?.userId, initMessage: { type: 'message', message: args?.message } });
+                return true;
+            case DAppWebViewAPIMethod.aiChatTx:
+                if (!args.tx) {
+                    navigation.navigate('HoldersAIChat', { userId: args?.userId });
+                    return true;
+                }
+                navigation.navigate('HoldersAIChat', { userId: args?.userId, initMessage: { type: 'tx', tx: args?.tx } });
                 return true;
             default:
                 if (api.useMainButton && method.startsWith(DAppWebViewAPIMethod.mainButton)) {

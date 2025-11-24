@@ -11,6 +11,13 @@ import { AIChatMessageBubble } from './AIChatMessageBubble';
 import { AIChatWelcome } from './AIChatWelcome';
 import { PulsingDot } from './PulsingDot';
 
+export type AIChatInitMessage = {
+    type: 'message';
+    message: string;
+} | {
+    type: 'tx';
+    tx: string;
+}
 export interface AIChatComponentProps extends UseAIChatSocketOptions {
     style?: any;
     placeholder?: string;
@@ -18,8 +25,8 @@ export interface AIChatComponentProps extends UseAIChatSocketOptions {
     showConnectionStatus?: boolean;
     onError?: (error: string) => void;
     isTab?: boolean;
+    initMessage?: AIChatInitMessage;
 }
-
 export interface AIChatComponentRef {
     clearHistory: () => void;
     reconnect: () => void;
@@ -63,6 +70,7 @@ export const AIChatComponent = memo(forwardRef<AIChatComponentRef, AIChatCompone
     const theme = useTheme();
     const scrollViewRef = useRef<ScrollView>(null);
     const textInputRef = useRef<TextInput>(null);
+    const initMessageSent = useRef(false);
     const safeArea = useSafeAreaInsets();
     const [inputText, setInputText] = useState('');
     const [inputHeight, setInputHeight] = useState(36);
@@ -87,6 +95,17 @@ export const AIChatComponent = memo(forwardRef<AIChatComponentRef, AIChatCompone
         autoConnect: props.autoConnect,
         persistHistory: props.persistHistory,
     });
+
+    useEffect(() => {
+        if (props.initMessage && !initMessageSent.current && isConnected && sessionId) {
+            if (props.initMessage.type === 'message') {
+                sendMessage(props.initMessage.message);
+            } else if (props.initMessage.type === 'tx') {
+                sendMessage(t('aiChat.initMessage.holdersTx', { tx: props.initMessage.tx }));
+            }
+            initMessageSent.current = true;
+        }
+    }, [props.initMessage, isConnected, sessionId]);
 
     useEffect(() => {
         if (error && props.onError) {
@@ -171,6 +190,17 @@ export const AIChatComponent = memo(forwardRef<AIChatComponentRef, AIChatCompone
         setIsUserScrolling(false);
     }, [inputText, isConnected, isStreaming, sendMessage]);
 
+    const handleChipPress = useCallback((value: string, title: string) => {
+        if (!isConnected || isStreaming) {
+            return;
+        }
+
+        sendMessage(title);
+
+        // Reset user scrolling state
+        setIsUserScrolling(false);
+    }, [isConnected, isStreaming, sendMessage]);
+
     const handleClearHistory = useCallback(() => {
         clearHistory();
     }, [clearHistory]);
@@ -244,6 +274,7 @@ export const AIChatComponent = memo(forwardRef<AIChatComponentRef, AIChatCompone
                         key={message.id || `${message.timestamp}-${index}`}
                         message={message}
                         isTab={props.isTab}
+                        onChipPress={handleChipPress}
                     />
                 ))}
 

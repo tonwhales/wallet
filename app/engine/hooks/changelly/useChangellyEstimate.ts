@@ -1,10 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
-import { ChangellyEstimateResult, fetchChangellyEstimate } from "../../api/changelly/fetchChangellyEstimate";
+import { ChangellyEstimateResult, ChangellyLimitError, fetchChangellyEstimate } from "../../api/changelly/fetchChangellyEstimate";
 
 export function useChangellyEstimate() {
     return useMutation<
         ChangellyEstimateResult | undefined,
-        Error,
+        Error | ChangellyLimitError,
         { toCurrency: string; fromCurrency: string; amount: string }
     >({
         mutationFn: async ({ toCurrency, fromCurrency, amount }) => {

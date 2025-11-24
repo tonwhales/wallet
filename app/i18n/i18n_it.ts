@@ -1325,6 +1325,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "bannerDescription": "Disponibili Tron, Solana, Ethereum, Polygon!",
         "tonhubBannerTitle": "Changelly in Tonhub!",
         "tonhubBannerDescription": "Deposita da altre blockchain",
+        "minimumAmount": "Quantità minima: {{amount}}",
+        "maximumAmount": "Quantità massima: {{amount}}",
     },
     "order": {
         "enterAmount": "Inserisci l'importo del trasferimento",
@@ -1459,7 +1461,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "systemTransfer": "Trasferimento SOL",
             "createAccount": "Creare account",
             "tokenTransfer": "Trasferimento token",
-            "depositCard": "Deposito su carta",
+            "depositCard": "Deposito su conto",
             "closeCard": "Chiudere carta",
             "updateCardLimits": "Aggiornare i limiti della carta"
         },
@@ -1504,6 +1506,13 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "connectionError": "Errore connessione WebSocket",
             "sessionNotFound": "Sessione non trovata",
             "invalidUserId": "Formato ID utente non valido"
+        },
+        "initMessage": {
+            "holdersTx": "Raccontami di più su questa transazione: {{tx}}"
+        },
+        "banner": {
+            "title": "Finanze intelligenti",
+            "description": "Modi più intelligenti per capire i tuoi spes"
         }
     }
 };

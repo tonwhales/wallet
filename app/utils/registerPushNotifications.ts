@@ -44,10 +44,9 @@ export const registerForPushNotificationsAsync = async () => {
             const res = await Notifications.requestPermissionsAsync();
         }
 
-        // @TODO: uncomment this when we start using Maestra
-        // if (Platform.OS === 'ios' && MaestraModule) {
-        //     MaestraModule.updateNotificationPermissions(finalStatus === 'granted');
-        // }
+        if (Platform.OS === 'ios' && MaestraModule) {
+            MaestraModule.updateNotificationPermissions(finalStatus === 'granted');
+        }
 
         if (finalStatus !== 'granted') {
             return null;

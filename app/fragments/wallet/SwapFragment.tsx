@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { View, Text, SectionList } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
@@ -19,6 +19,9 @@ import { ConfirmLegal } from "../../components/ConfirmLegal";
 import { sharedStoragePersistence } from "../../storage/storage";
 import ChangellyLogo from '../../../assets/changelly.svg';
 import { CHANGELLY_PRIVACY_URL, CHANGELLY_TERMS_URL } from "../../utils/constants";
+import MindboxSdk from "mindbox-sdk";
+import { MaestraEvent, trackMaestraEvent } from "../../analytics/maestra";
+import { useHoldersProfile } from "../../engine/hooks/holders/useHoldersProfile";
 
 type ListItem = { type: AssetType.TON }
     | { type: AssetType.SPECIAL }
@@ -35,6 +38,7 @@ export const SwapFragment = fragment(() => {
     const { tonAddress, solanaAddress, isLedger } = useCurrentAddress();
     const tokens = useSolanaTokens(solanaAddress!, isLedger);
     const [accepted, setAccepted] = useState(sharedStoragePersistence.getBoolean(skipLegalChangelly));
+    const profile = useHoldersProfile(tonAddress!.toString({ testOnly: isTestnet })).data;
 
     const solanaTokens: SolanaToken[] = tokens?.data ?? [];
 
@@ -110,6 +114,13 @@ export const SwapFragment = fragment(() => {
     }
 
     const itemsList = [defaultSection];
+
+    useEffect(() => {
+        if (isTestnet) {
+            return;
+        }
+        trackMaestraEvent(MaestraEvent.ViewSwapPage, { walletID: tonAddress.toString(), tonhubID: profile?.userId });
+    }, []);
 
     return (
         <View style={{ flexGrow: 1 }}>

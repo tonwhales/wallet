@@ -1327,6 +1327,8 @@ export type LocalizationSchema = {
         bannerDescription: string,
         tonhubBannerTitle: string,
         tonhubBannerDescription: string,
+        minimumAmount: string,
+        maximumAmount: string,
     },
     order: {
         enterAmount: string,
@@ -1506,6 +1508,13 @@ export type LocalizationSchema = {
             connectionError: string,
             sessionNotFound: string,
             invalidUserId: string,
+        },
+        initMessage: {
+            holdersTx: string,
+        },
+        banner: {
+            title: string,
+            description: string
         }
     }
 };

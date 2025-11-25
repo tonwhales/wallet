@@ -626,8 +626,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "hiddenAccounts": "Hidden accounts",
                 "primaryName": "Main account",
                 "paymentName": "Spending account {{accountIndex}}",
-                "vestingName": "Vesting account {{accountIndex}}",
-                "vestingPrimaryName": "Main vesting account",
+                "vestingName": "Trust account {{accountIndex}}",
+                "vestingPrimaryName": "Trust account",
                 "topUp": "Top up account",
                 "addNew": "Add new account",
                 "network": "{{networkName}} network",
@@ -1325,6 +1325,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "bannerDescription": "Tron, Solana, Ethereum, Polygon available!",
         "tonhubBannerTitle": "Changelly in Tonhub!",
         "tonhubBannerDescription": "Deposit from other blockchains",
+        "minimumAmount": "Minimum amount: {{amount}}",
+        "maximumAmount": "Maximum amount: {{amount}}",
     },
     "order": {
         "enterAmount": "Enter transfer amount",
@@ -1460,7 +1462,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "systemTransfer": "SOL transfer",
             "createAccount": "Create account",
             "tokenTransfer": "Token transfer",
-            "depositCard": "Deposit to card",
+            "depositCard": "Account deposit",
             "closeCard": "Close card",
             "updateCardLimits": "Update card limits"
         },
@@ -1505,6 +1507,13 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "connectionError": "WebSocket connection error",
             "sessionNotFound": "Session not found",
             "invalidUserId": "Invalid user ID format"
+        },
+        "initMessage": {
+            "holdersTx": "Tell me more about this transaction: {{tx}}"
+        },
+        "banner": {
+            "title": "Intelligent Finance",
+            "description": "Smarter ways to understand your spendings"
         }
     }
 };

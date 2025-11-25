@@ -6,6 +6,8 @@ import { SolanaToken } from "../../../engine/api/solana/fetchSolanaTokens";
 import { CoinItem } from "./CoinItem";
 import { ThemeType } from "../../../engine/state/theme";
 import { AssetViewType } from "../../../fragments/wallet/AssetsFragment";
+import { usePrice } from "../../../engine/hooks";
+import { usdyMintAddress } from "../../../secure/KnownWallets";
 
 export const SolanaTokenProduct = memo(({
     theme,
@@ -23,10 +25,13 @@ export const SolanaTokenProduct = memo(({
     isSelected?: boolean
 }) => {
     const navigation = useTypedNavigation();
+    const [, , , usdyPriceData] = usePrice();
+    const usdyPrice = usdyPriceData.price.usd;
+    const rate = token.address === usdyMintAddress ? usdyPrice : 1;
 
     const decimals = token.decimals ?? 6;
     const balance = token.amount ?? 0n;
-    const price = toNano(token.uiAmount ?? 0);
+    const price = toNano((token.uiAmount ?? 0) * rate);
     const symbol = token.symbol ?? "?";
     const name = token.name ?? "?";
 

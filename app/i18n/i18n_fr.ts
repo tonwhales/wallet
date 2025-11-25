@@ -626,8 +626,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "hiddenAccounts": "Comptes cachés",
                 "primaryName": "Compte principal",
                 "paymentName": "Compte de paiement {{accountIndex}}",
-                "vestingName": "Compte de vesting {{accountIndex}}",
-                "vestingPrimaryName": "Compte de vesting principal",
+                "vestingName": "Compte fiduciaire {{accountIndex}}",
+                "vestingPrimaryName": "Compte fiduciaire",
                 "topUp": "Recharger le compte",
                 "addNew": "Ajouter un compte",
                 "network": "Réseau {{networkName}}",
@@ -1325,6 +1325,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "bannerDescription": "Tron, Solana, Ethereum, Polygon disponibles !",
         "tonhubBannerTitle": "Changelly dans Tonhub !",
         "tonhubBannerDescription": "Dépôt depuis d'autres blockchains",
+        "minimumAmount": "Quantité minimale: {{amount}}",
+        "maximumAmount": "Quantité maximale: {{amount}}",
     },
     "order": {
         "enterAmount": "Entrez le montant du transfert",
@@ -1459,7 +1461,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "systemTransfer": "Transfert de SOL",
             "createAccount": "Créer un compte",
             "tokenTransfer": "Transfert de jeton",
-            "depositCard": "Dépôt sur carte",
+            "depositCard": "Dépôt sur compte",
             "closeCard": "Fermer la carte",
             "updateCardLimits": "Mettre à jour les limites de carte"
         },
@@ -1504,6 +1506,13 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "connectionError": "Erreur de connexion WebSocket",
             "sessionNotFound": "Session introuvable",
             "invalidUserId": "Format d'ID utilisateur invalide"
+        },
+        "initMessage": {
+            "holdersTx": "Racontez-moi plus sur cette transaction: {{tx}}"
+        },
+        "banner": {
+            "title": "Finances intelligentes",
+            "description": "Des moyens plus intelligents pour comprendre vos dépenses"
         }
     }
 };

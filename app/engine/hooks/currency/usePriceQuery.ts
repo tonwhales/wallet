@@ -6,7 +6,7 @@ import { usePrimaryCurrency } from './usePrimaryCurrency';
 // TODO: *solana* cleanup this type and fix usage
 export type Price = { price: { usd: number, rates: { [key: string]: number } } }
 
-export function usePriceQuery(): [Price, string, Price] {
+export function usePriceQuery(): [Price, string, Price, Price] {
     let price = useQuery({
         queryKey: Queries.TonPrice(),
         queryFn: fetchPrice,
@@ -32,9 +32,17 @@ export function usePriceQuery(): [Price, string, Price] {
         }
     };
 
+    const usdyPrice = {
+        price: {
+            usd: price.data?.usdyPrice?.usd ?? 0,
+            rates: price.data?.rates ?? {}
+        }
+    };
+
     return [
         tonPrice,
         currency,
-        solanaPrice
+        solanaPrice,
+        usdyPrice
     ];
 }

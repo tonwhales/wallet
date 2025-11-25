@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react';
-import MindboxSdk from 'mindbox-sdk';
+import MindboxSdk, { LogLevel } from 'mindbox-sdk';
 import { PushNotificationData, isExpoPushData, isMaestraPushDataAndroid } from '../../types';
 import { handleLinkReceived } from '../../../utils/CachedLinking';
 import { Platform, DeviceEventEmitter, EmitterSubscription } from 'react-native';
@@ -11,7 +11,7 @@ export const usePushNotificationsInit = (initialPushData?: PushNotificationData)
     // and ensure the app is fully initialized before handling the deeplink
     setTimeout(() => {
       let url: string | undefined;
-  
+
       if (isMaestraPushDataAndroid(data)) {
         if (data.push_url && typeof data.push_url === 'string') {
           url = data.push_url;
@@ -22,7 +22,7 @@ export const usePushNotificationsInit = (initialPushData?: PushNotificationData)
               url = payloadData.url;
             }
           } catch (e) {
-            console.log('Error parsing Maestra push_payload:', e);
+            console.error('Error parsing Maestra push_payload:', e);
           }
         }
       } else if (isExpoPushData(data)) {
@@ -33,7 +33,7 @@ export const usePushNotificationsInit = (initialPushData?: PushNotificationData)
               url = bodyData.url;
             }
           } catch (e) {
-            console.log('Error parsing Expo body:', e);
+            console.error('Error parsing Expo body:', e);
           }
         }
       }
@@ -70,21 +70,22 @@ export const usePushNotificationsInit = (initialPushData?: PushNotificationData)
       pushNotificationListener?.remove();
     };
   }, [handleAndroidPushNotification]);
-  // @TODO: uncomment this when we start using Maestra
-  // const appInitializationCallback = useCallback(async () => {
-  //   const configuration = {
-  //     domain: 'api.maestra.io',
-  //     endpointId:
-  //       Platform.OS === 'ios'
-  //         ? 'tonhub.IosApp'
-  //         : 'tonhub.AndroidApp',
-  //     subscribeCustomerIfCreated: true,
-  //     shouldCreateCustomer: true,
-  //   };
-  //   await MindboxSdk.initialize(configuration);
-  // }, []);
 
-  // useEffect(() => {
-  //   appInitializationCallback();
-  // }, [appInitializationCallback]);
+  const appInitializationCallback = useCallback(async () => {
+    const configuration = {
+      domain: 'api.maestra.io',
+      endpointId:
+        Platform.OS === 'ios'
+          ? 'tonhub.IosApp'
+          : 'tonhub.AndroidApp',
+      subscribeCustomerIfCreated: true,
+      shouldCreateCustomer: true,
+    };
+    await MindboxSdk.initialize(configuration);
+    MindboxSdk.setLogLevel(LogLevel.DEBUG);
+  }, []);
+
+  useEffect(() => {
+    appInitializationCallback();
+  }, [appInitializationCallback]);
 }

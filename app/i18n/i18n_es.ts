@@ -626,8 +626,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "hiddenAccounts": "Cuentas ocultas",
                 "primaryName": "Cuenta principal",
                 "paymentName": "Cuenta de pago {{accountIndex}}",
-                "vestingName": "Cuenta de vesting {{accountIndex}}",
-                "vestingPrimaryName": "Cuenta de vesting principal",
+                "vestingName": "Cuenta fiduciaria {{accountIndex}}",
+                "vestingPrimaryName": "Cuenta fiduciaria",
                 "topUp": "Recargar cuenta",
                 "addNew": "Agregar cuenta",
                 "network": "Red {{networkName}}",
@@ -1375,6 +1375,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "bannerDescription": "¡Disponibles Tron, Solana, Ethereum, Polygon!",
         "tonhubBannerTitle": "¡Changelly en Tonhub!",
         "tonhubBannerDescription": "Depósita desde otras blockchains",
+        "minimumAmount": "Cantidad mínima: {{amount}}",
+        "maximumAmount": "Cantidad máxima: {{amount}}",
     },
     "order": {
         "enterAmount": "Ingresa la cantidad a transferir",
@@ -1459,7 +1461,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "systemTransfer": "Transferencia de SOL",
             "createAccount": "Crear cuenta",
             "tokenTransfer": "Transferencia de token",
-            "depositCard": "Depositar en tarjeta",
+            "depositCard": "Depositar en cuenta",
             "closeCard": "Cerrar tarjeta",
             "updateCardLimits": "Actualizar límites de tarjeta"
         },
@@ -1504,6 +1506,13 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "connectionError": "Error de conexión WebSocket",
             "sessionNotFound": "Sesión no encontrada",
             "invalidUserId": "Formato de ID de usuario inválido"
+        },
+        "initMessage": {
+            "holdersTx": "Cuéntame más sobre esta transacción: {{tx}}"
+        },
+        "banner": {
+            "title": "Finanzas inteligentes",
+            "description": "Maneras más inteligentes para entender tus gastos"
         }
     }
 };

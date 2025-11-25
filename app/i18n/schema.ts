@@ -1508,6 +1508,13 @@ export type LocalizationSchema = {
             connectionError: string,
             sessionNotFound: string,
             invalidUserId: string,
+        },
+        initMessage: {
+            holdersTx: string,
+        },
+        banner: {
+            title: string,
+            description: string
         }
     }
 };

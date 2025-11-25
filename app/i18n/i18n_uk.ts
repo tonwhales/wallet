@@ -1461,7 +1461,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "systemTransfer": "Переказ SOL",
             "createAccount": "Створення облікового запису",
             "tokenTransfer": "Переказ токена",
-            "depositCard": "Поповнення картки",
+            "depositCard": "Поповнення рахунку",
             "closeCard": "Закрити картку",
             "updateCardLimits": "Оновити ліміти картки"
         },
@@ -1506,6 +1506,13 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "connectionError": "Помилка WebSocket з'єднання",
             "sessionNotFound": "Сесію не знайдено",
             "invalidUserId": "Неправильний формат ID користувача"
+        },
+        "initMessage": {
+            "holdersTx": "Розкажіть мені більше про цю транзакцію: {{tx}}"
+        },
+        "banner": {
+            "title": "Фінанси з ІІ",
+            "description": "Розумніші способи оцінити ваші витрати"
         }
     }
 };

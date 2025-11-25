@@ -23,6 +23,7 @@ const styles = StyleSheet.create({
 const tonIcon = <Image source={require('@assets/ic-ton-acc.png')} style={styles.icon} />;
 const usdtIcon = <Image source={require('@assets/known/ic-usdt.png')} style={styles.icon} />;
 const usdcIcon = <Image source={require('@assets/ic-usdc.png')} style={styles.icon} />;
+const usdyIcon = <Image source={require('@assets/known/ic-usdy.webp')} style={styles.icon} />;
 
 export function resolveHoldersIcon({ image, ticker }: { image?: string | null, ticker?: string, }) {
     let content;
@@ -33,6 +34,8 @@ export function resolveHoldersIcon({ image, ticker }: { image?: string | null, t
         content = usdcIcon;
     } else if (image) {
         content = <WImage src={image} width={ICON_SIZE} height={ICON_SIZE} borderRadius={ICON_SIZE} />;
+    } else if (ticker === 'USDY') {
+        content = usdyIcon;
     } else {
         content = tonIcon;
     }

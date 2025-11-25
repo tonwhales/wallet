@@ -49,7 +49,7 @@ import { HoldersLandingFragment } from './fragments/holders/HoldersLandingFragme
 import { HoldersAppFragment } from './fragments/holders/HoldersAppFragment';
 import { BiometricsSetupFragment } from './fragments/BiometricsSetupFragment';
 import { KeyStoreMigrationFragment } from './fragments/secure/KeyStoreMigrationFragment';
-import { useNetwork, useSupportAuth, useTheme } from './engine/hooks';
+import { useLanguage, useNetwork, useSupportAuth, useTheme } from './engine/hooks';
 import { useNavigationTheme } from './engine/hooks';
 import { useRecoilValue } from 'recoil';
 import { appStateAtom } from './engine/state/appState';
@@ -61,7 +61,6 @@ import * as Notifications from 'expo-notifications';
 import { PermissionStatus } from 'expo-modules-core';
 import { warn } from './utils/log';
 import { NativeModules } from 'react-native';
-
 const { MaestraModule } = NativeModules;
 import { useIsRestoring } from '@tanstack/react-query';
 import { ThemeFragment } from './fragments/ThemeFragment';
@@ -127,6 +126,7 @@ import { ChangellyOrderFragment } from './fragments/integrations/ChangellyOrderF
 import { SwapFragment } from './fragments/wallet/SwapFragment';
 import { isLatestIos } from './utils/isLatestIos';
 import { HoldersAIChatFragment } from './fragments/holders/HoldersAIChatFragment';
+import { MaestraEvent, trackMaestraEvent } from './analytics/maestra';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -418,6 +418,7 @@ export const Navigation = memo(() => {
     const navigationTheme = useNavigationTheme();
     const appState = useRecoilValue(appStateAtom);
     const { isTestnet } = useNetwork();
+    const [lang] = useLanguage();
 
     const initial = useMemo(() => {
         const lastLink = CachedLinking.getLastLink();
@@ -438,24 +439,38 @@ export const Navigation = memo(() => {
     }, [mounted]);
     const hideSplash = mounted && !isRestoring;
 
-    // @TODO: uncomment this when we start using Maestra
-    // useEffect(() => {
-    //     const apnsSubscription = setupAPNsTokenHandler();
+    useEffect(() => {
+        if (isTestnet) {
+            return;
+        }
+        const selectedAddress = appState.addresses[appState.selected];
 
-    //     return () => {
-    //         apnsSubscription?.remove();
-    //     };
-    // }, []);
+        if (selectedAddress) {
+            trackMaestraEvent(MaestraEvent.SessionStart, {
+                walletID: selectedAddress.address.toString(),
+                customFields: {
+                    language: lang ?? 'en'
+                }
+            });
+        }
+    }, [appState.addresses.length, appState.selected, isTestnet, lang]);
+
+    useEffect(() => {
+        const apnsSubscription = setupAPNsTokenHandler();
+
+        return () => {
+            apnsSubscription?.remove();
+        };
+    }, []);
 
     // Register token
     useEffect(() => {
         let ended = false;
         (async () => {
             const { status: existingStatus } = await Notifications.getPermissionsAsync();
-            // @TODO: uncomment this when we start using Maestra
-            // if (Platform.OS === 'ios' && MaestraModule) {
-            //     MaestraModule.updateNotificationPermissions(existingStatus === PermissionStatus.GRANTED);
-            // }
+            if (Platform.OS === 'ios' && MaestraModule) {
+                MaestraModule.updateNotificationPermissions(existingStatus === PermissionStatus.GRANTED);
+            }
             if (existingStatus === PermissionStatus.GRANTED || appState.addresses.length > 0) {
                 const token = await backoff('navigation', async () => {
                     try {
@@ -540,7 +555,7 @@ export const Navigation = memo(() => {
     useSolanaAccountWatcher();
 
     // Watch for support auth state
-	useSupportAuth();
+    useSupportAuth();
 
     return (
         <View style={{ flexGrow: 1, alignItems: 'stretch', backgroundColor: navigationTheme.colors.background }}>

@@ -54,7 +54,7 @@ export type SolanaSimpleTransferParams = {
 export type SimpleTransferParams = TonTransferParams | SolanaSimpleTransferParams
 
 const SimpleTransferComponent = () => {
-    const { isLedger } = useCurrentAddress()
+    const { isLedger } = useCurrentAddress();
     const theme = useTheme();
     const params = useParams<SimpleTransferParams>();
     const network = useNetwork();

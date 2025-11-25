@@ -81,16 +81,15 @@ function handleNotificationResponse(response: Notifications.NotificationResponse
         return;
     }
 
-    // @TODO: uncomment this when we start using Maestra
-    // if (Platform.OS === 'ios' && MaestraModule) {
-    //     const payload = (response.notification.request.trigger as Notifications.PushNotificationTrigger).payload;
-    //     if (payload) {
-    //         if (isMaestraPushDataIOS(payload)) {
-    //             MaestraModule.trackPushClick(payload, response.actionIdentifier);
-    //             handleLinkReceived(payload.clickUrl);
-    //         }
-    //     }
-    // }
+    if (Platform.OS === 'ios' && MaestraModule) {
+        const payload = (response.notification.request.trigger as Notifications.PushNotificationTrigger).payload;
+        if (payload) {
+            if (isMaestraPushDataIOS(payload)) {
+                MaestraModule.trackPushClick(payload, response.actionIdentifier);
+                handleLinkReceived(payload.clickUrl);
+            }
+        }
+    }
 
     let data = response.notification.request.content.data;
     if (data && typeof data['url'] === 'string') {

@@ -1461,7 +1461,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "systemTransfer": "Transfert de SOL",
             "createAccount": "Créer un compte",
             "tokenTransfer": "Transfert de jeton",
-            "depositCard": "Dépôt sur carte",
+            "depositCard": "Dépôt sur compte",
             "closeCard": "Fermer la carte",
             "updateCardLimits": "Mettre à jour les limites de carte"
         },
@@ -1506,6 +1506,13 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "connectionError": "Erreur de connexion WebSocket",
             "sessionNotFound": "Session introuvable",
             "invalidUserId": "Format d'ID utilisateur invalide"
+        },
+        "initMessage": {
+            "holdersTx": "Racontez-moi plus sur cette transaction: {{tx}}"
+        },
+        "banner": {
+            "title": "Finances intelligentes",
+            "description": "Des moyens plus intelligents pour comprendre vos dépenses"
         }
     }
 };

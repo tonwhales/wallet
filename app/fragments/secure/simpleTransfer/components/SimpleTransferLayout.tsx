@@ -2,9 +2,12 @@ import { View, StyleSheet } from "react-native";
 import { useKeyboard } from '@react-native-community/hooks';
 import Animated, { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
 import { NativeViewGestureHandler } from 'react-native-gesture-handler';
-import { Dispatch, forwardRef, memo, ReactNode, SetStateAction, useImperativeHandle, useMemo, useRef } from "react";
+import { Dispatch, forwardRef, memo, ReactNode, SetStateAction, useEffect, useImperativeHandle, useMemo, useRef } from "react";
 import { SimpleTransferAnimatedWrapper } from "./SimpleTransferAnimatedWrapper";
 import { ASSET_ITEM_HEIGHT } from "../../../../utils/constants";
+import { useCurrentAddress, useNetwork } from "../../../../engine/hooks";
+import { MaestraEvent, trackMaestraEvent } from "../../../../analytics/maestra";
+import { useHoldersProfile } from "../../../../engine/hooks/holders/useHoldersProfile";
 
 type Props = {
     headerComponent: ReactNode;
@@ -32,6 +35,9 @@ export const SimpleTransferLayout = memo(forwardRef(({
     setIsScrolling
 }: Props, ref) => {
     const keyboard = useKeyboard();
+    const { tonAddress } = useCurrentAddress();
+    const { isTestnet } = useNetwork();
+    const profile = useHoldersProfile(tonAddress!.toString({ testOnly: isTestnet })).data;
 
     const innerRef = useRef<Animated.ScrollView>(null)
     useImperativeHandle(ref, () => innerRef.current)
@@ -39,7 +45,7 @@ export const SimpleTransferLayout = memo(forwardRef(({
     const scrollOffsetSv = useSharedValue(0)
     const scrollHandler = useAnimatedScrollHandler((event) => {
         scrollOffsetSv.value = event.contentOffset.y;
-      });
+    });
 
     const contentInset = useMemo(() => {
         return {
@@ -47,8 +53,15 @@ export const SimpleTransferLayout = memo(forwardRef(({
             bottom: keyboard.keyboardShown ? keyboard.keyboardHeight - ASSET_ITEM_HEIGHT - 32 : 0.1 /* Some weird bug on iOS */, // + 56 + 32
             top: 0.1 /* Some weird bug on iOS */
         }
-    }, [keyboard.keyboardShown, keyboard.keyboardHeight])
-    
+    }, [keyboard.keyboardShown, keyboard.keyboardHeight]);
+
+    useEffect(() => {
+        if (isTestnet) {
+            return;
+        }
+        trackMaestraEvent(MaestraEvent.ViewSendPage, { walletID: tonAddress.toString(), tonhubID: profile?.userId });
+    }, []);
+
     return (
         <View style={styles.container}>
             {headerComponent}
@@ -65,19 +78,19 @@ export const SimpleTransferLayout = memo(forwardRef(({
                     scrollEnabled={scrollEnabled}
                     nestedScrollEnabled={nestedScrollEnabled}
                     onScrollBeginDrag={() => setIsScrolling(true)}
-                    onScrollEndDrag={() => setIsScrolling(false)} 
+                    onScrollEndDrag={() => setIsScrolling(false)}
                 >
                     {[
                         { type: 'address', component: addressComponent },
                         { type: 'amount', component: amountComponent },
                         { type: 'comment', component: commentComponent },
-                    ].map(({type, component}, index) => (
+                    ].map(({ type, component }, index) => (
                         <SimpleTransferAnimatedWrapper selected={selected} key={type} delay={index * 10} isActive={selected ? selected === type : selected} scrollOffsetSv={scrollOffsetSv}>
                             {component}
                         </SimpleTransferAnimatedWrapper>
                     ))}
-                    
-                    {!!feesComponent && 
+
+                    {!!feesComponent &&
                         <SimpleTransferAnimatedWrapper selected={selected} delay={30} noAnimation isActive={selected === null ? null : false} scrollOffsetSv={scrollOffsetSv}>
                             {feesComponent}
                         </SimpleTransferAnimatedWrapper>

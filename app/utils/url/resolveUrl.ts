@@ -7,6 +7,7 @@ import { parseURL } from "@solana/pay";
 import { ConnectQrQuery, setLastReturnStrategy } from "../../engine/tonconnect";
 import { resolveTransferUrl } from "./resolveTransferUrl";
 import { ResolvedUrl, ResolveUrlError } from "./types";
+import { setDogsRef } from "../../engine/holders/dogsUtils";
 
 
 export function isUrl(str: string): boolean {
@@ -51,6 +52,7 @@ function resolveHoldersUrl(url: Url<Record<string, string | undefined>>): Resolv
     const invitationId = url.pathname.split('holders/i')[1]
 
     if (isInvitation && invitationId) {
+        setDogsRef(invitationId === 'dogs');
         return {
             type: 'holders-invitation',
             invitationId: invitationId

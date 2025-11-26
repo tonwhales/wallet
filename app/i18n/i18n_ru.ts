@@ -730,6 +730,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "emailAction": "Подтвердите почту",
                 "kycAction": "Пройдите верификацию",
                 "failedAction": "Верификация не удалась",
+                "dogsTitle": "DOGS карта теперь доступна",
+                "dogsSubtitle": "Легко пополнить карту с помощью DOGS",
             },
             "transaction": {
                 "type": {

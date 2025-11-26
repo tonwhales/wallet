@@ -731,7 +731,9 @@ export type LocalizationSchema = {
                 readyAction: string,
                 kycAction: string
                 emailAction: string,
-                failedAction: string
+                failedAction: string,
+                dogsTitle: string,
+                dogsSubtitle: string,
             },
             transaction: {
                 type: {

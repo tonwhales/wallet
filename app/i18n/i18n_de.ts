@@ -729,7 +729,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "readyAction": "Jetzt holen",
                 "emailAction": "Bestätigen Sie Ihre E-Mail",
                 "kycAction": "Verifizieren Sie sich",
-                "failedAction": "Verifizierung fehlgeschlagen"
+                "failedAction": "Verifizierung fehlgeschlagen",
+                "dogsTitle": "DOGS jetzt unterstützt",
+                "dogsSubtitle": "Einfach mit DOGS aufladen",
             },
             "transaction": {
                 "type": {

@@ -168,6 +168,9 @@ const SolanaTokenWalletComponent = memo(({ owner, mint }: SolanaTokenWalletFragm
         markAsTimedOut
     } = useUnifiedSolanaTransactions(owner, mint);
     const token = useSolanaToken(owner, mint);
+    const [, , , usdyPriceData] = usePrice();
+    const usdyPrice = usdyPriceData.price.usd;
+
     const asset: ReceiveableSolanaAsset = {
         mint: mint,
         content: {
@@ -193,7 +196,7 @@ const SolanaTokenWalletComponent = memo(({ owner, mint }: SolanaTokenWalletFragm
         setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
     });
 
-    const rate = 1;
+    const rate = mint === usdyMintAddress ? usdyPrice : 1;
 
     return (
         <View style={styles.container}>

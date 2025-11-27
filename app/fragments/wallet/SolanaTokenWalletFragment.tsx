@@ -22,10 +22,15 @@ import { PriceComponent } from "../../components/PriceComponent";
 import { WImage } from "../../components/WImage";
 import { ReceiveableSolanaAsset } from "./ReceiveFragment";
 import { Image } from "expo-image";
-import { PendingSolanaTransaction } from "../../engine/state/pending";
+import { usdyMintAddress } from "../../secure/KnownWallets";
+import { SolanaTokenInfoView } from "./views/solana/SolanaTokenInfoView";
+import { USDYRateAmination } from "./views/solana/USDYRateAmination";
 
 import SolanaIcon from '@assets/ic-solana.svg';
-import { usdyMintAddress } from "../../secure/KnownWallets";
+
+const mockUsdyRate = 3.1; // APY 
+const mockCurrentPrice = 1.1; // Price in USD
+const mockAmount = 4000; // Amount in USDY
 
 export type SolanaTokenWalletFragmentProps = {
     owner: string,
@@ -65,7 +70,9 @@ const SolanaTokenHeader = memo(({ mint, owner }: { mint: string, owner: string }
         return null;
     }
 
-    const rate = mint === usdyMintAddress ? usdyPrice : 1;
+    const isUsdy = mint === usdyMintAddress;
+
+    const rate = isUsdy ? usdyPrice : 1;
     const balance = token.amount ?? 0n;
     const symbol = token.symbol ?? "?";
     const decimals = token.decimals ?? 6;
@@ -113,28 +120,33 @@ const SolanaTokenHeader = memo(({ mint, owner }: { mint: string, owner: string }
                         disableContextMenu
                         copyToastProps={{ marginBottom: 70 + bottomBarHeight }}
                     />
+                    <View>
+                        {isUsdy ? (
+                            <USDYRateAmination usdyRate={mockUsdyRate} currentPrice={mockCurrentPrice} amount={mockAmount} />
+                        ) : (
+                            <PriceComponent
+                                amount={price}
+                                style={{
+                                    backgroundColor: 'transparent',
+                                    paddingHorizontal: 0, paddingVertical: 0,
+                                    height: undefined,
+                                }}
+                                textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                                theme={theme}
+                                priceUSD={1}
+                                hideCentsIfNull
+                            />
+                        )}
+                    </View>
                     <ValueComponent
-                        value={balance}
+                        // value={balance}
+                        value={toNano(4)}
                         decimals={decimals}
                         precision={4}
-                        fontStyle={[Typography.semiBold32_38, { color: theme.textPrimary }]}
+                        fontStyle={[Typography.regular15_20, { color: theme.textPrimary }]}
                         centFontStyle={{ color: theme.textSecondary }}
                         suffix={` ${symbol}`}
                     />
-                    <View>
-                        <PriceComponent
-                            amount={price}
-                            style={{
-                                backgroundColor: 'transparent',
-                                paddingHorizontal: 0, paddingVertical: 0,
-                                height: undefined,
-                            }}
-                            textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
-                            theme={theme}
-                            priceUSD={1}
-                            hideCentsIfNull
-                        />
-                    </View>
                 </View>
                 <SolanaWalletActions
                     theme={theme}
@@ -149,6 +161,7 @@ const SolanaTokenHeader = memo(({ mint, owner }: { mint: string, owner: string }
                     }}
                 />
                 <View style={{ marginTop: 16 }} />
+                <SolanaTokenInfoView mint={mint} />
             </View>
         </View>
     );

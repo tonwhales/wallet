@@ -135,4 +135,5 @@ export const Queries = {
                 return ['wallet-requests', address, isTestnet, 'all'];
         }
     },
+    TokenInfo: (id: string) => (['tokenInfo', id]),
 }

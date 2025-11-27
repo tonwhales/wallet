@@ -354,7 +354,7 @@ window['dapp-client'] = (() => {
         window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'aiChatTx', args: { userId, tx } } }));
     }
 
-    const obj = { openUrl, openEnrollment, showKeyboardAccessoryView, lockScroll, subscribed, closeApp, setBackPolicy, navigate, aiChat, __DAPP_CLIENT_AVAILABLE };
+    const obj = { openUrl, openEnrollment, showKeyboardAccessoryView, lockScroll, subscribed, closeApp, setBackPolicy, navigate, aiChat, aiChatMessage, aiChatTx, __DAPP_CLIENT_AVAILABLE };
     Object.freeze(obj);
     return obj;
 })();

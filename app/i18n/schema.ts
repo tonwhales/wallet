@@ -192,6 +192,7 @@ export type LocalizationSchema = {
         bounced: string,
         tokenTransfer: string,
         airdrop: string,
+        tokenMint: string,
         failed: string,
         timeout: string,
         batch: string

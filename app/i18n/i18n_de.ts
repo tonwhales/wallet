@@ -190,6 +190,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "bounced": "Abgelehnt",
         "tokenTransfer": "Token-Übertragung",
         "airdrop": "Airdrop",
+        "tokenMint": "Token-Minting",
         "failed": "Fehlgeschlagen",
         "timeout": "Zeitüberschreitung",
         "batch": "Stapel"

@@ -190,6 +190,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "bounced": "Bounced",
         "tokenTransfer": "Token transfer",
         "airdrop": "Airdrop",
+        "tokenMint": "Token mint",
         "failed": "Failed",
         "timeout": "Timed out",
         "batch": "Batch"
@@ -729,7 +730,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "readyAction": "Get it now",
                 "emailAction": "Verify your email",
                 "kycAction": "Verify your identity",
-                "failedAction": "Verification failed"
+                "failedAction": "Verification failed",
+                "dogsTitle": "DOGS now supported",
+                "dogsSubtitle": "Easily top up your card with DOGS",
             },
             "transaction": {
                 "type": {

@@ -190,6 +190,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "bounced": "Devolvido",
         "tokenTransfer": "Transferência de token",
         "airdrop": "Airdrop",
+        "tokenMint": "Cunhagem de token",
         "failed": "Falhou",
         "timeout": "Tempo esgotado",
         "batch": "Lote"
@@ -729,7 +730,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "readyAction": "Obtenha agora",
                 "emailAction": "Verifique seu e-mail",
                 "kycAction": "Complete a verificação",
-                "failedAction": "Verificação falhou"
+                "failedAction": "Verificação falhou",
+                "dogsTitle": "DOGS agora suportado",
+                "dogsSubtitle": "Carregue facilmente seu cartão com DOGS",
             },
             "transaction": {
                 "type": {

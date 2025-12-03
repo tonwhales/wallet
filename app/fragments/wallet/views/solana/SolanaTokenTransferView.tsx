@@ -19,13 +19,17 @@ import { useTransactionsUtilsContext } from "../../../../engine/TransactionsUtil
 export const SolanaTokenTransferView = memo(({ transfer, owner, accountData, item }: { transfer: SolanaTokenTransfer, owner: string, accountData: SolanaAccountData, item: SolanaTransaction }) => {
   const { checkIsHoldersTarget } = useTransactionsUtilsContext();
   const { fromUserAccount, toTokenAccount, tokenAmount, mint } = transfer;
-  const kind: 'in' | 'out' = fromUserAccount === owner ? 'out' : 'in';
+
+  const isMint = item.type === 'TOKEN_MINT';
+  const effectiveFromUserAccount = (isMint && !fromUserAccount) ? item.feePayer : fromUserAccount;
+
+  const kind: 'in' | 'out' = effectiveFromUserAccount === owner ? 'out' : 'in';
   const theme = useTheme();
-  const op = kind === 'in' ? t('tx.received') : t('tx.sent');
+  const op = kind === 'in' ? (isMint ? t('tx.tokenMint') : t('tx.received')) : t('tx.sent');
   const amountColor = (kind === 'in') ? theme.accentGreen : theme.textPrimary;
   const toAccount = accountData?.find((acc) => acc.account === toTokenAccount);
-  const toAddress = toAccount?.tokenBalanceChanges.find((change) => change.tokenAccount === toTokenAccount)?.userAccount ?? fromUserAccount;
-  const address = kind === 'in' ? fromUserAccount : toAddress;
+  const toAddress = toAccount?.tokenBalanceChanges.find((change) => change.tokenAccount === toTokenAccount)?.userAccount ?? effectiveFromUserAccount;
+  const address = kind === 'in' ? effectiveFromUserAccount : toAddress;
   const avatarColor = avatarColors[avatarHash(address, avatarColors.length)];
   const amount = fromBnWithDecimals(toNano(tokenAmount), 9);
   const navigation = useTypedNavigation();

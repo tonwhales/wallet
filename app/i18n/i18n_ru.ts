@@ -370,6 +370,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "bounced": "Возвращено",
         "tokenTransfer": "Трансфер токенов",
         "airdrop": "Airdrop",
+        "tokenMint": "Минт токена",
         "failed": "Ошибка",
         "timeout": "Время отправки истекло",
         "batch": "Несколько операций"
@@ -730,6 +731,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "emailAction": "Подтвердите почту",
                 "kycAction": "Пройдите верификацию",
                 "failedAction": "Верификация не удалась",
+                "dogsTitle": "DOGS карта теперь доступна",
+                "dogsSubtitle": "Легко пополнить карту с помощью DOGS",
             },
             "transaction": {
                 "type": {

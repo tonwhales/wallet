@@ -15,6 +15,7 @@ import { t } from "../../i18n/t";
 import { Address } from "@ton/core";
 import { HoldersUserState } from "../../engine/api/holders/fetchUserState";
 import { getFailedBannerClicked, setFailedBannerClicked } from "../../utils/holders/holdersBanner";
+import { getDogsRef } from "../../engine/holders/dogsUtils";
 
 const gradientColors = ['#3F33CC', '#B341D9'];
 
@@ -118,6 +119,7 @@ type BannerStatus = 'not-active' | 'email' | 'kyc' | 'ready' | 'error';
 const ChipActionBanner = memo(({ address, onPress, content, gradient }: { address: Address, onPress: () => void, content: HoldersBannerContent, gradient?: boolean }) => {
     const theme = useTheme();
     const holdersAccStatus = useHoldersAccountStatus(address).data;
+    const isDogs = getDogsRef();
 
     let bannerStatus: BannerStatus = 'not-active';
 
@@ -169,7 +171,7 @@ const ChipActionBanner = memo(({ address, onPress, content, gradient }: { addres
     }
 
     const lang = i18n.language === 'ru' ? 'ru' : 'en';
-    const title = content.title[lang] || content.title.en;
+    let title = content.title[lang] || content.title.en;
     let subtitle = content.subtitle[lang] || content.subtitle.en;
     let action = content.action[lang] || content.action.en;
     let actionIc: ImageSource | undefined = undefined;
@@ -179,6 +181,13 @@ const ChipActionBanner = memo(({ address, onPress, content, gradient }: { addres
         ? (theme.style === 'dark' ? theme.textPrimaryInverted : theme.textPrimary)
         : theme.textUnchangeable;
     let actionBackgroundColor = gradient ? theme.textUnchangeable : theme.accent;
+    let iconSource = require('@assets/banners/holders-banner-chip-action.png');
+
+    if (isDogs) {
+        title = t('products.holders.banner.dogsTitle');
+        subtitle = t('products.holders.banner.dogsSubtitle');
+        iconSource = require('@assets/banners/holders-banner-dogs.webp');
+    }
 
     switch (bannerStatus) {
         case 'email':
@@ -287,7 +296,7 @@ const ChipActionBanner = memo(({ address, onPress, content, gradient }: { addres
                 <Image
                     style={[styles.img_chip, { flex: 0.76 }]}
                     contentFit="contain"
-                    source={require('@assets/banners/holders-banner-chip-action.png')}
+                    source={iconSource}
                 />
             </View>
         </Pressable>
@@ -369,11 +378,13 @@ export const HoldersBanner = memo((props: { onPress?: () => void, isSettings?: b
     const wallet = selectedAccount?.addressString;
     const screen = isSettings ? 'Settings' : 'Home';
 
+    const isDogs = getDogsRef();
+
     useEffect(() => {
         if (trackViews) {
             trackEvent(
                 MixpanelEvent.HoldersBannerView,
-                { id, wallet, isTestnet, screen },
+                { id, wallet, isTestnet, screen, isDogs },
                 isTestnet,
                 true
             );
@@ -383,7 +394,7 @@ export const HoldersBanner = memo((props: { onPress?: () => void, isSettings?: b
     const onPress = () => {
         trackEvent(
             MixpanelEvent.HoldersBanner,
-            { id, wallet, isTestnet, screen },
+            { id, wallet, isTestnet, screen, isDogs },
             isTestnet,
             true
         );

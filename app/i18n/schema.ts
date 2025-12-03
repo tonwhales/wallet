@@ -192,6 +192,7 @@ export type LocalizationSchema = {
         bounced: string,
         tokenTransfer: string,
         airdrop: string,
+        tokenMint: string,
         failed: string,
         timeout: string,
         batch: string
@@ -731,7 +732,9 @@ export type LocalizationSchema = {
                 readyAction: string,
                 kycAction: string
                 emailAction: string,
-                failedAction: string
+                failedAction: string,
+                dogsTitle: string,
+                dogsSubtitle: string,
             },
             transaction: {
                 type: {

@@ -416,11 +416,7 @@ export function useAccountTransactionsV3(
         }
 
         try {
-            console.log(1111);
-
             await query.refetch({ refetchPage: (_, index) => index === 0 });
-            console.log(2222);
-
         } catch {
             // Ignore errors, isRefreshing will be reset by useEffect
         }

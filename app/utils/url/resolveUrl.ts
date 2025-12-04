@@ -49,7 +49,7 @@ function resolveHoldersUrl(url: Url<Record<string, string | undefined>>): Resolv
     }
 
     const isInvitation = url.pathname.startsWith('/holders/i');
-    const invitationId = url.pathname.split('holders/i')[1]
+    const invitationId = url.pathname.split('holders/i/')[1]
 
     if (isInvitation && invitationId) {
         setDogsRef(invitationId === 'dogs');

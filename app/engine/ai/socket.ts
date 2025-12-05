@@ -3,7 +3,8 @@ import { createLogger } from '../../utils/log';
 
 const logger = createLogger('ai-chat-socket');
 
-const SOCKET_URL = 'https://www.zilla.biz:3003';
+export const SOCKET_URL = 'https://ai.whales-api.com';
+export const SOCKET_STAGE_URL = 'https://ai-staging.whales-api.com';
 
 export interface ServerToClientEvents {
     session_created: (data: { sessionId: string }) => void;
@@ -56,10 +57,19 @@ export interface ClientToServerEvents {
 
 export type AIChatSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
 
-export function createAIChatSocket(): AIChatSocket {
-    logger.log(`Creating Socket.IO client for: ${SOCKET_URL}`);
+export function createAIChatSocket({
+    isTestnet,
+    token,
+    walletAddress,
+}: {
+    isTestnet: boolean,
+    token?: string,
+    walletAddress: string,
+}): AIChatSocket {
+    const url = isTestnet ? SOCKET_STAGE_URL : SOCKET_URL;
+    logger.log(`Creating Socket.IO client for: ${url}`);
 
-    const socket: AIChatSocket = io(SOCKET_URL, {
+    const socket: AIChatSocket = io(url, {
         transports: ['websocket', 'polling'],
         withCredentials: true,
         reconnection: true,
@@ -67,6 +77,10 @@ export function createAIChatSocket(): AIChatSocket {
         reconnectionDelay: 1000,
         timeout: 20000,
         autoConnect: false,
+        auth: {
+            walletAddress,
+            token
+        }
     });
 
     socket.on('connect', () => {

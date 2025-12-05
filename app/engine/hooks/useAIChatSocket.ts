@@ -2,7 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { createAIChatSocket, AIChatSocket } from '../ai/socket';
 import { storage } from '../../storage/storage';
 import { t } from '../../i18n/t';
-import { useLanguage } from '.';
+import { useCurrentAddress, useHoldersAccountStatus, useLanguage, useNetwork } from '.';
+import { HoldersUserState } from '../api/holders/fetchUserState';
 
 export interface AIChatMessage {
     text: string;
@@ -62,6 +63,12 @@ export function useAIChatSocket(options: UseAIChatSocketOptions): UseAIChatSocke
     const [error, setError] = useState<string | null>(null);
     const [hasPendingRequest, setHasPendingRequest] = useState(false);
     const [pendingRequestId, setPendingRequestId] = useState<string | null>(null);
+    const { tonAddress } = useCurrentAddress();
+    const { isTestnet } = useNetwork();
+    const holdersAccStatus = useHoldersAccountStatus(tonAddress).data;
+    const token = (holdersAccStatus?.state !== HoldersUserState.NeedEnrollment)
+        ? holdersAccStatus?.token
+        : undefined;
 
     // Storage keys
     const sessionStorageKey = `${STORAGE_KEY_PREFIX}session_${userId}`;
@@ -102,7 +109,11 @@ export function useAIChatSocket(options: UseAIChatSocketOptions): UseAIChatSocke
     // Initialize socket and event listeners
     useEffect(() => {
         if (!socketRef.current) {
-            socketRef.current = createAIChatSocket();
+            socketRef.current = createAIChatSocket({
+                isTestnet,
+                token,
+                walletAddress: tonAddress.toString({ testOnly: isTestnet })
+            });
         }
 
         const socket = socketRef.current;
@@ -207,11 +218,14 @@ export function useAIChatSocket(options: UseAIChatSocketOptions): UseAIChatSocke
 
         function onStreamChunk(data: { messageId: string; chunk: string }) {
             console.log('[useAIChatSocket] onStreamChunk', data);
-            setMessages(prev => prev.map(msg =>
-                msg.id === data.messageId
-                    ? { ...msg, text: (msg.text || '') + data.chunk }
-                    : msg
-            ));
+            setMessages(prev => prev.map(msg => {
+                if (msg.id === data.messageId) {
+                    const currentText = msg.text || '';
+                    const cleanedText = currentText.replace(/<loader\s*\/>/g, '');
+                    return { ...msg, text: cleanedText + data.chunk };
+                }
+                return msg;
+            }));
         }
 
         function onStreamEnd(data: { messageId: string; fullText: string }) {
@@ -220,11 +234,16 @@ export function useAIChatSocket(options: UseAIChatSocketOptions): UseAIChatSocke
             setStreamingMessageId(null);
 
             setMessages(prev => {
-                const updated = prev.map(msg =>
-                    msg.id === data.messageId
-                        ? { ...msg, text: data.fullText, streaming: false }
-                        : msg
-                );
+                const updated = prev.map(msg => {
+                    if (msg.id === data.messageId) {
+                        return {
+                            ...msg,
+                            text: data.fullText.replace(/<loader\s*\/>/g, ''),
+                            streaming: false
+                        }
+                    }
+                    return msg;
+                });
                 saveToStorage(historyStorageKey, updated);
                 return updated;
             });
@@ -261,7 +280,17 @@ export function useAIChatSocket(options: UseAIChatSocketOptions): UseAIChatSocke
             socket.off('stream_end', onStreamEnd);
             socket.off('error', onError);
         };
-    }, [sessionId, messages.length, saveToStorage, sessionStorageKey, historyStorageKey, pendingMessageKey, language]);
+    }, [
+        sessionId, messages.length,
+        saveToStorage,
+        sessionStorageKey,
+        historyStorageKey,
+        pendingMessageKey,
+        language,
+        token,
+        tonAddress,
+        isTestnet
+    ]);
 
     // Auto-connect on mount
     useEffect(() => {

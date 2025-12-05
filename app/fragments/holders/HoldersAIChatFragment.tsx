@@ -58,12 +58,26 @@ export const HoldersAIChatFragment = fragment(() => {
                             />
                         </Pressable>
                         <View style={{ flexGrow: 1 }} />
-                        <PerfText style={[{ color: theme.textPrimary, maxWidth: '60%' }, Typography.semiBold17_24]}
-                            ellipsizeMode={'tail'}
-                            numberOfLines={1}
-                        >
-                            {t('aiChat.title')}
-                        </PerfText>
+                        <View style={{ maxWidth: '60%', flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                            <PerfText style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
+                                ellipsizeMode={'tail'}
+                                numberOfLines={1}
+                            >
+                                {t('aiChat.title')}
+                            </PerfText>
+                            <View style={{
+                                backgroundColor: theme.surfaceOnElevation,
+                                borderRadius: 16,
+                                paddingHorizontal: 8, paddingVertical: 2
+                            }}>
+                                <PerfText style={[
+                                    { color: theme.accent },
+                                    Typography.semiBold15_20
+                                ]}>
+                                    {'Beta'}
+                                </PerfText>
+                            </View>
+                        </View>
                         <View style={{ flexGrow: 1 }} />
                         <CloseButton
                             onPress={navigation.goBack}

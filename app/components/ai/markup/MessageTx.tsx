@@ -115,11 +115,11 @@ export const MessageTx = memo(({ element }: { element: TxElement }) => {
         >
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                 <View style={{ flex: 1 }}>
-                    <Text style={[Typography.semiBold15_20, { color: theme.textPrimary, marginBottom: 4 }]}>
+                    <Text style={[Typography.semiBold17_24, { color: theme.textPrimary, marginBottom: 4 }]}>
                         {displayTitle}
                     </Text>
 
-                    <Text style={[Typography.regular13_18, { color: theme.textSecondary }]}>
+                    <Text style={[Typography.regular15_20, { color: theme.textSecondary }]}>
                         {displayDescription}
                     </Text>
 

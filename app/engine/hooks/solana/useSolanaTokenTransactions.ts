@@ -29,7 +29,7 @@ export function useSolanaTokenTransactions(address: string, mint?: string, enabl
 
             try {
                 const pageParam = ctx.pageParam as (string | undefined);
-                const ATAaddress = await getAssociatedTokenAddress(new PublicKey(mint), new PublicKey(address));
+                const ATAaddress = await getAssociatedTokenAddress(new PublicKey(mint), new PublicKey(address), true);
                 return await fetchSolanaTransactions(ATAaddress.toString(), isTestnet, { limit: TRANSACTIONS_LENGTH, before: pageParam, mint });
             } catch (error) {
                 console.error(error);

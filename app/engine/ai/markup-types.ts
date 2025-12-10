@@ -65,12 +65,18 @@ export interface ChipsElement extends AIMarkupElement {
     children: ChipElement[];
 }
 
+export interface LoaderElement extends AIMarkupElement {
+    type: 'loader';
+    attributes: {};
+}
+
 export type AIMarkupComponent =
     | StickerElement
     | ButtonElement
     | NavElement
     | TxElement
-    | ChipsElement;
+    | ChipsElement
+    | LoaderElement;
 
 export interface ParsedAIMessage {
     text: string;

@@ -237,7 +237,7 @@ export const AIChatComponent = memo(forwardRef<AIChatComponentRef, AIChatCompone
             style={[
                 {
                     flex: 1,
-                    backgroundColor: theme.backgroundPrimary,
+                    backgroundColor: props.isTab ? theme.backgroundPrimary : theme.elevation,
                 },
                 props.style
             ]}
@@ -358,7 +358,7 @@ export const AIChatComponent = memo(forwardRef<AIChatComponentRef, AIChatCompone
 
             <View
                 style={{
-                    backgroundColor: theme.backgroundPrimary,
+                    backgroundColor: props.isTab ? theme.backgroundPrimary : theme.elevation,
                     paddingHorizontal: 16,
                     paddingVertical: 12,
                 }}

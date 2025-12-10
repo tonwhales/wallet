@@ -402,11 +402,27 @@ export function useAIChatSocket(options: UseAIChatSocketOptions): UseAIChatSocke
     }, [sessionId, saveToStorage, historyStorageKey, pendingMessageKey]);
 
     const clearHistory = useCallback(() => {
+        console.log('[useAIChatSocket] clearHistory - clearing messages and recreating session');
         setMessages([]);
+
         if (persistHistory) {
             storage.delete(historyStorageKey);
         }
-    }, [historyStorageKey, persistHistory]);
+
+        if (sessionId) {
+            storage.delete(sessionStorageKey);
+            setSessionId(null);
+        }
+
+        if (socketRef.current?.connected) {
+            console.log('[useAIChatSocket] Creating new session after history clear');
+            socketRef.current.emit('new_session', { userId, language });
+        } else if (socketRef.current && !socketRef.current.connected) {
+            console.log('[useAIChatSocket] Socket disconnected, reconnecting to create new session');
+            setIsConnecting(true);
+            socketRef.current.connect();
+        }
+    }, [historyStorageKey, persistHistory, sessionId, sessionStorageKey, userId, language]);
 
     const connect = useCallback(() => {
         if (socketRef.current && !socketRef.current.connected) {

@@ -1,6 +1,6 @@
 export interface AIMarkupElement {
     type: string;
-    attributes: Record<string, string>;
+    attributes: Record<string, string | number>;
     children?: AIMarkupElement[];
     text?: string;
 }
@@ -39,6 +39,36 @@ export interface NavElement extends AIMarkupElement {
     };
 }
 
+export enum EventCategory {
+    PURCHASE = 'PURCHASE',
+    PURCHASE_FAILED = 'PURCHASE_FAILED',
+    PURCHASE_REVERSAL = 'PURCHASE_REVERSAL',
+    DEPOSIT = 'DEPOSIT',
+    WITHDRAWAL = 'WITHDRAWAL',
+    CARD_MANAGEMENT = 'CARD_MANAGEMENT',
+    ACCOUNT_MANAGEMENT = 'ACCOUNT_MANAGEMENT',
+    OTHER = 'OTHER',
+}
+
+export type EventMerchantCategory =
+  | 'culture'
+  | 'entertainment'
+  | 'finance'
+  | 'groceries'
+  | 'health_and_beauty'
+  | 'home_and_utilities'
+  | 'professional_services'
+  | 'public_administrations'
+  | 'restaurants'
+  | 'shopping'
+  | 'software'
+  | 'transport'
+  | 'travel'
+  | 'withdrawal'
+  | 'purchase_reversal'
+  | 'deposit'
+  | 'other';
+
 export interface TxElement extends AIMarkupElement {
     type: 'tx';
     attributes: {
@@ -49,6 +79,14 @@ export interface TxElement extends AIMarkupElement {
         id?: string;
         details?: string;
         title?: string;
+        amount?: string;
+        currency?: string;
+        category?: EventCategory;
+        merchant?: string;
+        merchantLogo?: string;
+        merchantCountry?: string;
+        merchantCategory?: EventMerchantCategory;
+        date?: number;
     };
 }
 

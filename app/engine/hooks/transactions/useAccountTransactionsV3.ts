@@ -331,7 +331,7 @@ export function useAccountTransactionsV3(
                 cursor = ctx.pageParam!;
             }
 
-            const solanaATAaddress = await getAssociatedTokenAddress(new PublicKey(usdcMintAddress), new PublicKey(solanaAddress!));
+            const solanaATAaddress = await getAssociatedTokenAddress(new PublicKey(usdcMintAddress), new PublicKey(solanaAddress!), true);
 
             const account = {
                 tonAddress: tonAddressString,

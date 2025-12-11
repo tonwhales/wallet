@@ -19,7 +19,7 @@ interface ParsedDetails {
     [key: string]: any;
 }
 
-export const MessageTx = memo(({ element }: { element: TxElement }) => {
+export const MessageTx = memo(({ element, isTab }: { element: TxElement, isTab?: boolean }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
@@ -54,8 +54,12 @@ export const MessageTx = memo(({ element }: { element: TxElement }) => {
                         type: HoldersAppParamsType.Transaction,
                         id: id
                     }
-                    navigation.navigateHolders(holdersNavParams, isTestnet);
-                    break;
+                    if (isTab) {
+                        navigation.navigateHolders(holdersNavParams, isTestnet);
+                        return;
+                    }
+                    navigation.navigateHolders(holdersNavParams, isTestnet, undefined, true);
+                    return;
                 }
                 default:
                     break;
@@ -102,7 +106,7 @@ export const MessageTx = memo(({ element }: { element: TxElement }) => {
         <Pressable
             onPress={handlePress}
             style={({ pressed }) => ({
-                backgroundColor: theme.surfaceOnBg,
+                backgroundColor: theme.elevation,
                 borderRadius: 12,
                 paddingHorizontal: 12,
                 paddingVertical: 8,
@@ -132,12 +136,16 @@ export const MessageTx = memo(({ element }: { element: TxElement }) => {
                     </View>
 
                     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <Text style={[Typography.regular15_20, { color: theme.textSecondary }]}>
+                        <Text
+                            style={[Typography.regular15_20, { color: theme.textSecondary, flexShrink: 1 }]}
+                            numberOfLines={1}
+                            ellipsizeMode="tail"
+                        >
                             {displayDescription}
                         </Text>
                         {date && (
                             <Text style={[Typography.regular15_20, { color: theme.textSecondary }]}>
-                                {formatDate(date)}
+                                {formatDate(date / 1000)}
                             </Text>
                         )}
                     </View>

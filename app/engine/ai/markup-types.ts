@@ -51,23 +51,23 @@ export enum EventCategory {
 }
 
 export type EventMerchantCategory =
-  | 'culture'
-  | 'entertainment'
-  | 'finance'
-  | 'groceries'
-  | 'health_and_beauty'
-  | 'home_and_utilities'
-  | 'professional_services'
-  | 'public_administrations'
-  | 'restaurants'
-  | 'shopping'
-  | 'software'
-  | 'transport'
-  | 'travel'
-  | 'withdrawal'
-  | 'purchase_reversal'
-  | 'deposit'
-  | 'other';
+    | 'culture'
+    | 'entertainment'
+    | 'finance'
+    | 'groceries'
+    | 'health_and_beauty'
+    | 'home_and_utilities'
+    | 'professional_services'
+    | 'public_administrations'
+    | 'restaurants'
+    | 'shopping'
+    | 'software'
+    | 'transport'
+    | 'travel'
+    | 'withdrawal'
+    | 'purchase_reversal'
+    | 'deposit'
+    | 'other';
 
 export interface TxElement extends AIMarkupElement {
     type: 'tx';

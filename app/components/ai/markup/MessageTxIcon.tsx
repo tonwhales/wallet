@@ -1,13 +1,13 @@
 import { memo } from "react";
 import { EventCategory, TxElement } from "../../../engine/ai/markup-types";
 import { Image } from "expo-image";
+import { useTheme } from "../../../engine/hooks";
+import { View } from "react-native";
 
 import IcPurchaseReversal from '@assets/ai/ic-purchase-reversal.svg';
 import IcDeposit from '@assets/ai/ic-deposit.svg';
 import IcOther from '@assets/ai/ic-other.svg';
 import IcWithdrawal from '@assets/ai/ic-withdrawal.svg';
-import { useTheme } from "../../../engine/hooks";
-import { View } from "react-native";
 
 export const MessageTxIcon = memo(({ element }: { element: TxElement }) => {
     const theme = useTheme();
@@ -50,10 +50,6 @@ export const MessageTxIcon = memo(({ element }: { element: TxElement }) => {
                 </View>
             );
         default:
-            return (
-                <View style={{ backgroundColor: theme.divider, height: 46, width: 46, alignItems: 'center', justifyContent: 'center', borderRadius: 23 }}>
-                    <IcOther />
-                </View>
-            );
+            return null;
     }
 });

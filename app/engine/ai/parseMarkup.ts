@@ -127,6 +127,8 @@ function createNavElement(attributes: Record<string, string>): NavElement {
 function createTxElement(attributes: Record<string, string>): TxElement {
     let date = undefined;
 
+    console.log({ date: new Date('2025-12-08T02:53:24') });
+
     if (attributes.date) {
         try {
             date = new Date(attributes.date).getTime();
@@ -151,7 +153,7 @@ function createTxElement(attributes: Record<string, string>): TxElement {
             merchant: attributes.merchant,
             merchantLogo: attributes.merchantLogo,
             merchantCountry: attributes.merchantCountry,
-            merchantCategory: attributes.merchantCategory as EventMerchantCategory,
+            merchantCategory: attributes.merchantCategory.toLowerCase() as EventMerchantCategory,
             date,
         },
     };

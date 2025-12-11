@@ -306,13 +306,20 @@ window['dapp-wallet'] = (() => {
 true;
 `
 
-export const dappClientAPI = `
+export type DappConfig = {
+    appVersion: number;
+    platform: string;
+    storeUrl: string;
+}
+
+export function dappClientAPI(config: DappConfig) {
+    return `
 window['dapp-client'] = (() => {
     let __DAPP_CLIENT_AVAILABLE = true;
 
     const openUrl = (url) => {
         window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'openUrl', args: { url } } }));
-    }   
+    }
 
     const openEnrollment = (payload) => {
         window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'openEnrollment', args: { payload } } }));
@@ -354,11 +361,12 @@ window['dapp-client'] = (() => {
         window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'aiChatTx', args: { userId, tx } } }));
     }
 
-    const obj = { openUrl, openEnrollment, showKeyboardAccessoryView, lockScroll, subscribed, closeApp, setBackPolicy, navigate, aiChat, aiChatMessage, aiChatTx, __DAPP_CLIENT_AVAILABLE };
+    const obj = { openUrl, openEnrollment, showKeyboardAccessoryView, lockScroll, subscribed, closeApp, setBackPolicy, navigate, aiChat, aiChatMessage, aiChatTx, __DAPP_CLIENT_AVAILABLE, config: ${JSON.stringify(config)} };
     Object.freeze(obj);
     return obj;
 })();
 `
+}
 
 export const supportAPI = `
 window['dapp-support'] = (() => {

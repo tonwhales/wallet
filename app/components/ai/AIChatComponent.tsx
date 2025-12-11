@@ -55,7 +55,7 @@ const ConnectionStatus = memo(({ isConnected, isConnecting, theme }: {
                 style={[
                     Typography.medium13_18,
                     {
-                        color: theme.white,
+                        color: isConnecting ? theme.textPrimary : theme.white,
                         textAlign: 'center',
                     }
                 ]}

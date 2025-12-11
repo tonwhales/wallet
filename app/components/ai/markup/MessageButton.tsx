@@ -4,12 +4,16 @@ import { ButtonElement } from "../../../engine/ai/markup-types";
 import { Typography } from "../../styles";
 import { useTheme } from "../../../engine/hooks";
 import { openWithInApp } from "../../../utils/openWithInApp";
+import { Image } from "expo-image";
+
 import ShareIcon from '@assets/ic-share.svg';
 import ChevronIcon from '@assets/ic_chevron_forward.svg';
 
 export const MessageButton = memo(({ element }: { element: ButtonElement }) => {
     const theme = useTheme();
     const { url, title, icon } = element.attributes;
+
+    console.log('url', url);
 
     const handlePress = () => {
         openWithInApp(url);
@@ -35,8 +39,8 @@ export const MessageButton = memo(({ element }: { element: ButtonElement }) => {
         <Pressable
             onPress={handlePress}
             style={({ pressed }) => ({
-                backgroundColor: theme.accent,
-                borderRadius: 12,
+                backgroundColor: theme.surfaceOnElevation,
+                borderRadius: 30,
                 paddingHorizontal: 16,
                 paddingVertical: 12,
                 marginVertical: 4,
@@ -47,14 +51,18 @@ export const MessageButton = memo(({ element }: { element: ButtonElement }) => {
                 opacity: pressed ? 0.7 : 1,
             })}
         >
-            {icon && (
+            <Text style={[Typography.semiBold15_20, { color: theme.accent }]}>
+                {title}
+            </Text>
+            {icon ? (
                 <View style={{ marginRight: 4 }}>
                     {renderIcon()}
                 </View>
+            ) : (
+                <View>
+                    <Image source={require('@assets/ic-arrow-up-right.png')} style={{ width: 16, height: 16 }} />
+                </View>
             )}
-            <Text style={[Typography.semiBold15_20, { color: theme.white }]}>
-                {title}
-            </Text>
         </Pressable>
     );
 });

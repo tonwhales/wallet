@@ -96,6 +96,7 @@ export type LocalizationSchema = {
         directDepositAddress: string,
         goBackTo: string,
         viewIn: string,
+        moreAbout: string
     },
     syncStatus: {
         connecting: string,
@@ -1518,6 +1519,30 @@ export type LocalizationSchema = {
         banner: {
             title: string,
             description: string
+        },
+        tx: {
+            categories: {
+                any: string,
+                culture: string,
+                entertainment: string,
+                finance: string,
+                groceries: string,
+                health_and_beauty: string,
+                home_and_utilities: string,
+                professional_services: string,
+                public_administrations: string,
+                restaurants: string,
+                shopping: string,
+                software: string,
+                transport: string,
+                travel: string,
+                withdrawal: string,
+                purchase: string,
+                general: string,
+                purchase_reversal: string,
+                deposit: string,
+                other: string,
+            },
         }
     }
 };

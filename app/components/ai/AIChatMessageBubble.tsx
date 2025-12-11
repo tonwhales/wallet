@@ -61,7 +61,7 @@ export const AIChatMessageBubble = memo(({ message, isTab, onChipPress }: {
             case 'nav':
                 return <MessageNav key={`comp-${index}`} element={component} />;
             case 'tx':
-                return <MessageTx key={`comp-${index}`} element={component} />;
+                return <MessageTx isTab={isTab} key={`comp-${index}`} element={component} />;
             case 'chips':
                 return <MessageChips key={`comp-${index}`} element={component} onChipPress={onChipPress} />;
             case 'loader':

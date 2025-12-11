@@ -153,7 +153,7 @@ function createTxElement(attributes: Record<string, string>): TxElement {
             merchant: attributes.merchant,
             merchantLogo: attributes.merchantLogo,
             merchantCountry: attributes.merchantCountry,
-            merchantCategory: attributes.merchantCategory.toLowerCase() as EventMerchantCategory,
+            merchantCategory: attributes.merchantCategory?.toLowerCase() as EventMerchantCategory | undefined,
             date,
         },
     };

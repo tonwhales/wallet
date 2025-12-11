@@ -370,6 +370,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "bounced": "Возвращено",
         "tokenTransfer": "Трансфер токенов",
         "airdrop": "Airdrop",
+        "tokenMint": "Минт токена",
         "failed": "Ошибка",
         "timeout": "Время отправки истекло",
         "batch": "Несколько операций"
@@ -1515,6 +1516,30 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "banner": {
             "title": "Финансы с ИИ",
             "description": "Более умные способы оценить ваши расходы"
+        },
+        "tx": {
+            "categories": {
+                "any": "Любая",
+                "culture": "Культура",
+                "entertainment": "Развлечения",
+                "finance": "Финансы",
+                "groceries": "Продукты",
+                "health_and_beauty": "Здоровье и красота",
+                "home_and_utilities": "Дом и коммунальные услуги",
+                "professional_services": "Профессиональные услуги",
+                "public_administrations": "Государственные администрации",
+                "restaurants": "Рестораны",
+                "shopping": "Покупки",
+                "software": "Программное обеспечение",
+                "transport": "Транспорт",
+                "travel": "Путешествие",
+                "withdrawal": "Вывод",
+                "purchase": "Покупка",
+                "general": "Общий",
+                "purchase_reversal": "Возвраты",
+                "deposit": "Пополнение",
+                "other": "Другое"
+            }
         }
     }
 };

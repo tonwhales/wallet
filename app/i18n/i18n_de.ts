@@ -190,6 +190,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "bounced": "Abgelehnt",
         "tokenTransfer": "Token-Übertragung",
         "airdrop": "Airdrop",
+        "tokenMint": "Token-Minting",
         "failed": "Fehlgeschlagen",
         "timeout": "Zeitüberschreitung",
         "batch": "Stapel"
@@ -1515,6 +1516,30 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "banner": {
             "title": "Intelligentes Finanzmanagement",
             "description": "Intelligentere Wege, Ihre Ausgaben zu verstehen"
+        },
+        "tx": {
+            "categories": {
+                "any": "Irgendein",
+                "culture": "Kultur",
+                "entertainment": "Unterhaltung",
+                "finance": "Finanzen",
+                "groceries": "Lebensmittel",
+                "health_and_beauty": "Gesundheit und Schönheit",
+                "home_and_utilities": "Zuhause und Versorgungsleistungen",
+                "professional_services": "Professionelle Dienstleistungen",
+                "public_administrations": "Öffentliche Verwaltungen",
+                "restaurants": "Restaurants",
+                "shopping": "Einkaufen",
+                "software": "Software",
+                "transport": "Transport",
+                "travel": "Reise",
+                "withdrawal": "Abhebung",
+                "purchase": "Kauf",
+                "general": "Allgemein",
+                "purchase_reversal": "Rückerstattungen",
+                "deposit": "Aufladung",
+                "other": "Andere"
+            }
         }
     }
 };

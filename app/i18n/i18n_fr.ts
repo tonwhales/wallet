@@ -190,6 +190,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "bounced": "Rebondi",
         "tokenTransfer": "Transfert de jeton",
         "airdrop": "Airdrop",
+        "tokenMint": "Frappe de jeton",
         "failed": "Échoué",
         "timeout": "Expiration",
         "batch": "Lot"
@@ -1515,6 +1516,30 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "banner": {
             "title": "Finances intelligentes",
             "description": "Des moyens plus intelligents pour comprendre vos dépenses"
+        },
+        "tx": {
+            "categories": {
+                "any": "N'importe quel",
+                "culture": "Culture",
+                "entertainment": "Divertissement",
+                "finance": "Finance",
+                "groceries": "Courses",
+                "health_and_beauty": "Santé et beauté",
+                "home_and_utilities": "Maison et services publics",
+                "professional_services": "Services professionnels",
+                "public_administrations": "Administrations publiques",
+                "restaurants": "Restaurants",
+                "shopping": "Achats",
+                "software": "Logiciel",
+                "transport": "Transport",
+                "travel": "Voyage",
+                "withdrawal": "Retrait",
+                "purchase": "Achat",
+                "general": "Général",
+                "purchase_reversal": "Remboursements",
+                "deposit": "Dépôt",
+                "other": "Autre"
+            }
         }
     }
 };

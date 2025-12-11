@@ -49,7 +49,7 @@ export async function buildSolanaTransaction({
     const recipient = new PublicKey(target);
 
     const transaction = new Transaction();
-    
+
     // Get latest blockhash with fallback to public client
     let lastBlockHash: BlockhashWithExpiryBlockHeight;
     try {
@@ -70,7 +70,7 @@ export async function buildSolanaTransaction({
     let isATA: boolean | undefined;
     let recipientAddress: PublicKey | undefined;
 
-    if (!mintAddress) { 
+    if (!mintAddress) {
         // Generic SOL transfer
         const instruction = SystemProgram.transfer({
             fromPubkey: owner,
@@ -83,7 +83,7 @@ export async function buildSolanaTransaction({
         }
 
         transaction.add(instruction);
-    } else { 
+    } else {
         // Token transfer
         let senderTokenAccount: PublicKey | Account;
 
@@ -94,7 +94,8 @@ export async function buildSolanaTransaction({
                     client,
                     keyPair,
                     mintAddress,
-                    owner
+                    owner,
+                    true // allowOwnerOffCurve for PDA/multisig support
                 ));
             } catch (error) {
                 const mappedError = mapSolanaError(error);
@@ -104,7 +105,8 @@ export async function buildSolanaTransaction({
                             publicClient,
                             keyPair,
                             mintAddress,
-                            owner
+                            owner,
+                            true // allowOwnerOffCurve for PDA/multisig support
                         ));
                     } catch (error) {
                         throw mapSolanaError(error);
@@ -118,7 +120,8 @@ export async function buildSolanaTransaction({
             try {
                 senderTokenAccount = await failableSolanaBackoff('getAssociatedTokenAddress', () => getAssociatedTokenAddress(
                     mintAddress,
-                    owner
+                    owner,
+                    true // allowOwnerOffCurve for PDA/multisig support
                 ));
             } catch (error) {
                 const mappedError = mapSolanaError(error);
@@ -126,7 +129,8 @@ export async function buildSolanaTransaction({
                     try {
                         senderTokenAccount = await failableSolanaBackoff('getAssociatedTokenAddress', () => getAssociatedTokenAddress(
                             mintAddress,
-                            owner
+                            owner,
+                            true // allowOwnerOffCurve for PDA/multisig support
                         ));
                     } catch (error) {
                         throw mapSolanaError(error);
@@ -162,7 +166,8 @@ export async function buildSolanaTransaction({
                         client,
                         keyPair,
                         mintAddress,
-                        recipient
+                        recipient,
+                        true // allowOwnerOffCurve for PDA/multisig support
                     ))).address;
                 } catch (error) {
                     const mappedError = mapSolanaError(error);
@@ -172,7 +177,8 @@ export async function buildSolanaTransaction({
                                 publicClient,
                                 keyPair,
                                 mintAddress,
-                                recipient
+                                recipient,
+                                true // allowOwnerOffCurve for PDA/multisig support
                             ))).address;
                         } catch (error) {
                             throw mapSolanaError(error);
@@ -186,7 +192,8 @@ export async function buildSolanaTransaction({
                 try {
                     recipientAddress = await failableSolanaBackoff('getAssociatedTokenAddress', () => getAssociatedTokenAddress(
                         mintAddress,
-                        recipient
+                        recipient,
+                        true // allowOwnerOffCurve for PDA/multisig support
                     ));
                 } catch (error) {
                     const mappedError = mapSolanaError(error);
@@ -194,7 +201,8 @@ export async function buildSolanaTransaction({
                         try {
                             recipientAddress = await failableSolanaBackoff('getAssociatedTokenAddress', () => getAssociatedTokenAddress(
                                 mintAddress,
-                                recipient
+                                recipient,
+                                true // allowOwnerOffCurve for PDA/multisig support
                             ));
                         } catch (error) {
                             throw mapSolanaError(error);

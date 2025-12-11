@@ -7,7 +7,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { DappMainButton, reduceMainButton } from "../DappMainButton";
 import Animated, { FadeInDown, FadeOut, FadeOutDown } from "react-native-reanimated";
-import { authAPI, dappClientAPI, dappWalletAPI, dispatchResponse, dispatchTonhubBridgeResponse, emitterAPI, mainButtonAPI, statusBarAPI, supportAPI, toasterAPI } from "../../fragments/apps/components/inject/createInjectSource";
+import { authAPI, dappClientAPI, DappConfig, dappWalletAPI, dispatchResponse, dispatchTonhubBridgeResponse, emitterAPI, mainButtonAPI, statusBarAPI, supportAPI, toasterAPI } from "../../fragments/apps/components/inject/createInjectSource";
 import { warn } from "../../utils/log";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { openWithInApp } from "../../utils/openWithInApp";
@@ -29,6 +29,8 @@ import { DAppWebViewAPI, processWebViewMessage } from "./utils/processWebViewMes
 import { SetNavigationOptionsAction, WebViewNavigationOptions, reduceNavigationOptions } from "./utils/reduceNavigationOptions";
 import { BackPolicy, QueryAPI } from "./types";
 import { Address } from "@ton/core";
+import * as Application from 'expo-application';
+import { ANDROID_STORE_URL, IOS_STORE_URL } from "../../utils/constants";
 
 export type DAppWebViewProps = WebViewProps & DAppWebViewAPI & {
     address?: Address,
@@ -337,6 +339,11 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
     }, [onContentProcessDidTerminate, ref]);
 
     const _injectedJavaScriptBeforeContentLoaded = useMemo(() => {
+        const config: DappConfig = {
+            appVersion: Number(Application.nativeBuildVersion ?? 0),
+            platform: Platform.OS === 'ios' ? 'ios' : 'android',
+            storeUrl: Platform.OS === 'ios' ? IOS_STORE_URL : ANDROID_STORE_URL
+        }
 
         const adjustedSafeArea = Platform.select({
             ios: safeArea,
@@ -353,7 +360,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
             isSecured: getLockAppWithAuthState()
         }) : ''}
         ${useWalletAPI ? dappWalletAPI : ''}
-        ${useDappClient ? dappClientAPI : ''}
+        ${useDappClient ? dappClientAPI(config) : ''}
         ${useSupportAPI ? supportAPI : ''}
         ${injectedJavaScriptBeforeContentLoaded ?? ''}
         (() => {

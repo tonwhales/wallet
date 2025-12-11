@@ -1,11 +1,11 @@
 import { View, Text, Pressable, useWindowDimensions } from "react-native";
-import { memo } from "react";
-import { useHoldersAccountStatus, useTheme } from "../../engine/hooks";
+import { memo, useMemo } from "react";
+import { useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useTheme } from "../../engine/hooks";
 import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { useHiddenBanners, useMarkBannerHidden } from "../../engine/hooks/banners";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Address } from "@ton/ton";
-import { HoldersUserState } from "../../engine/api/holders/fetchUserState";
+import { holdersUrl, HoldersUserState } from "../../engine/api/holders/fetchUserState";
 import { Canvas, LinearGradient, Rect, vec } from "@shopify/react-native-skia";
 import { Typography } from "../styles";
 import { t } from "../../i18n/t";
@@ -16,11 +16,29 @@ const bannerId = 'ai-chat-banner';
 export const AiChatBanner = memo(({ address, }: { address: Address }) => {
     const theme = useTheme();
     const dimentions = useWindowDimensions();
+    const { isTestnet } = useNetwork();
     const hiddenBanners = useHiddenBanners();
     const markBannerHidden = useMarkBannerHidden();
     const navigation = useTypedNavigation();
     const holdersAccStatus = useHoldersAccountStatus(address).data;
-    const needsEnrollment = holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
+    const url = holdersUrl(isTestnet);
+    const isHoldersReady = useIsConnectAppReady(url, address?.toString({ testOnly: isTestnet }));
+
+    const needsEnrollment = useMemo(() => {
+        if (!isHoldersReady) {
+            return true;
+        }
+
+        if (!holdersAccStatus) {
+            return true;
+        }
+
+        if (holdersAccStatus.state === HoldersUserState.NeedEnrollment) {
+            return true;
+        }
+
+        return false;
+    }, [holdersAccStatus, isHoldersReady]);
 
     const isHidden = hiddenBanners.includes(`${bannerId}`);
 

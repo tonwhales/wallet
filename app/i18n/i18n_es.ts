@@ -93,7 +93,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "exchanges": "Intercambios",
         "directDepositAddress": "Dirección de depósito directo",
         "goBackTo": "Volver a {{name}}",
-        "viewIn": "Ver en {{name}}"
+        "viewIn": "Ver en {{name}}",
+        "moreAbout": "Más sobre {{name}}"
     },
     "syncStatus": {
         "connecting": "Conectando",

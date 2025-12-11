@@ -18,7 +18,7 @@ export const SolanaTokenInfoView = memo(({ mint }: { mint: string }) => {
     const progress = useSharedValue(0);
 
     const chevronStyle = useAnimatedStyle(() => ({
-        transform: [{ rotate: `${interpolate(progress.value, [0, 1], [0, 90])}deg` }]
+        transform: [{ rotate: `${interpolate(progress.value, [0, 1], [90, 270])}deg` }]
     }));
 
     useEffect(() => {
@@ -33,23 +33,28 @@ export const SolanaTokenInfoView = memo(({ mint }: { mint: string }) => {
     }
 
     return (
-        <View style={{ backgroundColor: theme.surfaceOnBg, borderRadius: 16, padding: 20, marginHorizontal: 20 }}>
+        <View style={{ backgroundColor: theme.surfaceOnBg, borderRadius: 16, padding: 20, paddingBottom: 0, marginHorizontal: 20 }}>
             <Pressable
                 onPress={() => setCollapsed(!collapsed)}
-                style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+                style={{}}
             >
-                <Text style={[Typography.semiBold15_20, { color: theme.textPrimary }]}>
-                    {tokenInfo.data.name}
-                </Text>
+                {!!tokenInfo?.description?.description && (
+                    <Text style={[Typography.medium15_20, { color: theme.textSecondary }]}>
+                        {tokenInfo.description.description}
+                    </Text>
+                )}
                 <View style={{
-                    flexDirection: 'row', alignItems: 'center',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
                     backgroundColor: theme.surfaceOnBg,
-                    paddingVertical: 8, paddingHorizontal: 6,
                     borderRadius: 100,
-                    gap: 4
+                    gap: 4,
+                    marginBottom: 20, marginTop: 10,
+                    height: 36
                 }}>
-                    <Text style={[{ color: theme.textSecondary, marginRight: 6 }, Typography.medium13_18]}>
-                        {collapsed ? t('common.showMore') : t('common.hide')}
+                    <Text style={[Typography.semiBold17_24, { color: theme.textPrimary }]}>
+                        {t('common.moreAbout', { name: tokenInfo.data.symbol })}
                     </Text>
                     <Animated.View style={chevronStyle}>
                         <Image
@@ -62,13 +67,7 @@ export const SolanaTokenInfoView = memo(({ mint }: { mint: string }) => {
             <Collapsible collapsed={collapsed}>
                 {!!tokenInfo.description && (
                     <>
-                        <Text style={[
-                            { marginTop: 4, marginBottom: 8, color: theme.textSecondary },
-                            Typography.regular15_20
-                        ]}>
-                            {tokenInfo.description.description}
-                        </Text>
-                        <View style={{ gap: 8 }}>
+                        <View style={{ gap: 16, marginBottom: 20 }}>
                             {tokenInfo.description.items.map((item) => item.type === 'link'
                                 ? (
                                     <Pressable
@@ -76,21 +75,28 @@ export const SolanaTokenInfoView = memo(({ mint }: { mint: string }) => {
                                         style={{ marginVertical: 2, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
                                         onPress={() => openWithInApp(item.url)}
                                     >
-                                        <Text
-                                            style={[{ color: theme.accent, textDecorationLine: 'underline' }, Typography.semiBold15_20]}
-                                        >
-                                            {item.title}
-                                        </Text>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                            <Image
+                                                source={require('@assets/ic-browser-link.png')}
+                                                style={{ height: 24, width: 24, tintColor: theme.iconPrimary, marginRight: 12 }}
+                                            />
+                                            <Text
+                                                style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
+                                            >
+                                                {item.title}
+                                            </Text>
+                                        </View>
                                         <Image
                                             source={require('@assets/ic-chevron-right.png')}
-                                            style={{ height: 16, width: 16, tintColor: theme.accent }}
+                                            style={{ height: 16, width: 16, tintColor: theme.iconPrimary }}
                                         />
+
                                     </Pressable>
                                 )
                                 : (
                                     <View>
                                         <Text
-                                            style={{ color: theme.textSecondary }}
+                                            style={[{ color: theme.textSecondary }, Typography.regular15_20]}
                                             key={item.title}
                                         >
                                             {item.title}

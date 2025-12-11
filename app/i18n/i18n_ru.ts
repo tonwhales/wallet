@@ -93,7 +93,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "exchanges": "Обменники",
         "directDepositAddress": "Адрес прямого пополнения",
         "goBackTo": "Назад в {{name}}",
-        "viewIn": "Посмотреть в {{name}}"
+        "viewIn": "Посмотреть в {{name}}",
+        "moreAbout": "Подробнее о {{name}}"
     },
     "syncStatus": {
         "connecting": "Идет подключение",

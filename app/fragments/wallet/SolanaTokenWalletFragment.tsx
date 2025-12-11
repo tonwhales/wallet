@@ -28,10 +28,6 @@ import { USDYRateAmination } from "./views/solana/USDYRateAmination";
 
 import SolanaIcon from '@assets/ic-solana.svg';
 
-const mockUsdyRate = 3.1; // APY 
-const mockCurrentPrice = 1.1; // Price in USD
-const mockAmount = 4000; // Amount in USDY
-
 export type SolanaTokenWalletFragmentProps = {
     owner: string,
     mint: string
@@ -120,9 +116,21 @@ const SolanaTokenHeader = memo(({ mint, owner }: { mint: string, owner: string }
                         disableContextMenu
                         copyToastProps={{ marginBottom: 70 + bottomBarHeight }}
                     />
+                    <ValueComponent
+                        value={balance}
+                        decimals={decimals}
+                        precision={4}
+                        fontStyle={[Typography.semiBold32_38, { color: theme.textPrimary }]}
+                        centFontStyle={{ color: theme.textSecondary }}
+                        suffix={` ${symbol}`}
+                    />
                     <View>
                         {isUsdy ? (
-                            <USDYRateAmination usdyRate={mockUsdyRate} currentPrice={mockCurrentPrice} amount={mockAmount} />
+                            <USDYRateAmination
+                                usdyRate={rate}
+                                currentPrice={usdyPrice}
+                                amount={token.uiAmount ?? 0}
+                            />
                         ) : (
                             <PriceComponent
                                 amount={price}
@@ -138,15 +146,6 @@ const SolanaTokenHeader = memo(({ mint, owner }: { mint: string, owner: string }
                             />
                         )}
                     </View>
-                    <ValueComponent
-                        // value={balance}
-                        value={toNano(4)}
-                        decimals={decimals}
-                        precision={4}
-                        fontStyle={[Typography.regular15_20, { color: theme.textPrimary }]}
-                        centFontStyle={{ color: theme.textSecondary }}
-                        suffix={` ${symbol}`}
-                    />
                 </View>
                 <SolanaWalletActions
                     theme={theme}

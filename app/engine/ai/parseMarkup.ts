@@ -10,6 +10,8 @@ import {
     ChipElement,
     ChipsElement,
     LoaderElement,
+    EventCategory,
+    EventMerchantCategory,
 } from './markup-types';
 
 export function parseAIMarkup(message: string): ParsedAIMessage {
@@ -123,6 +125,18 @@ function createNavElement(attributes: Record<string, string>): NavElement {
  * Создает элемент транзакции
  */
 function createTxElement(attributes: Record<string, string>): TxElement {
+    let date = undefined;
+
+    console.log({ date: new Date('2025-12-08T02:53:24') });
+
+    if (attributes.date) {
+        try {
+            date = new Date(attributes.date).getTime();
+        } catch (error) {
+            console.warn('Failed to parse date:', error);
+        }
+    }
+
     return {
         type: 'tx',
         attributes: {
@@ -133,6 +147,14 @@ function createTxElement(attributes: Record<string, string>): TxElement {
             id: attributes.id,
             details: attributes.details,
             title: attributes.title,
+            amount: attributes.amount,
+            currency: attributes.currency,
+            category: attributes.category as EventCategory,
+            merchant: attributes.merchant,
+            merchantLogo: attributes.merchantLogo,
+            merchantCountry: attributes.merchantCountry,
+            merchantCategory: attributes.merchantCategory.toLowerCase() as EventMerchantCategory,
+            date,
         },
     };
 }

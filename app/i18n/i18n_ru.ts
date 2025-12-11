@@ -93,7 +93,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "exchanges": "Обменники",
         "directDepositAddress": "Адрес прямого пополнения",
         "goBackTo": "Назад в {{name}}",
-        "viewIn": "Посмотреть в {{name}}"
+        "viewIn": "Посмотреть в {{name}}",
+        "moreAbout": "Подробнее о {{name}}"
     },
     "syncStatus": {
         "connecting": "Идет подключение",
@@ -1516,6 +1517,30 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "banner": {
             "title": "Финансы с ИИ",
             "description": "Более умные способы оценить ваши расходы"
+        },
+        "tx": {
+            "categories": {
+                "any": "Любая",
+                "culture": "Культура",
+                "entertainment": "Развлечения",
+                "finance": "Финансы",
+                "groceries": "Продукты",
+                "health_and_beauty": "Здоровье и красота",
+                "home_and_utilities": "Дом и коммунальные услуги",
+                "professional_services": "Профессиональные услуги",
+                "public_administrations": "Государственные администрации",
+                "restaurants": "Рестораны",
+                "shopping": "Покупки",
+                "software": "Программное обеспечение",
+                "transport": "Транспорт",
+                "travel": "Путешествие",
+                "withdrawal": "Вывод",
+                "purchase": "Покупка",
+                "general": "Общий",
+                "purchase_reversal": "Возвраты",
+                "deposit": "Пополнение",
+                "other": "Другое"
+            }
         }
     }
 };

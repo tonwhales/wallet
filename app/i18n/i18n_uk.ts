@@ -93,7 +93,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "exchanges": "Біржі",
         "directDepositAddress": "Адреса прямого поповнення",
         "goBackTo": "Назад до {{name}}",
-        "viewIn": "Переглянути в {{name}}"
+        "viewIn": "Переглянути в {{name}}",
+        "moreAbout": "Більше про {{name}}"
     },
     "syncStatus": {
         "connecting": "Підключення",
@@ -1516,6 +1517,30 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "banner": {
             "title": "Фінанси з ІІ",
             "description": "Розумніші способи оцінити ваші витрати"
+        },
+        "tx": {
+            "categories": {
+                "any": "Будь-який",
+                "culture": "Культура",
+                "entertainment": "Розваги",
+                "finance": "Фінанси",
+                "groceries": "Продукти",
+                "health_and_beauty": "Здоров'я та краса",
+                "home_and_utilities": "Домашні та комунальні послуги",
+                "professional_services": "Професійні послуги",
+                "public_administrations": "Державні адміністрації",
+                "restaurants": "Ресторани",
+                "shopping": "Шопінг",
+                "software": "Програмне забезпечення",
+                "transport": "Транспорт",
+                "travel": "Подорож",
+                "withdrawal": "Виведення",
+                "purchase": "Придбати",
+                "general": "Загальний",
+                "purchase_reversal": "Повернення коштів",
+                "deposit": "Депозит",
+                "other": "Інший"
+            }
         }
     }
 };

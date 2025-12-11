@@ -93,7 +93,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "exchanges": "Échanges",
         "directDepositAddress": "Adresse de dépôt direct",
         "goBackTo": "Retour à {{name}}",
-        "viewIn": "Afficher dans {{name}}"
+        "viewIn": "Afficher dans {{name}}",
+        "moreAbout": "En savoir plus sur {{name}}"
     },
     "syncStatus": {
         "connecting": "Connexion",
@@ -1516,6 +1517,30 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "banner": {
             "title": "Finances intelligentes",
             "description": "Des moyens plus intelligents pour comprendre vos dépenses"
+        },
+        "tx": {
+            "categories": {
+                "any": "N'importe quel",
+                "culture": "Culture",
+                "entertainment": "Divertissement",
+                "finance": "Finance",
+                "groceries": "Courses",
+                "health_and_beauty": "Santé et beauté",
+                "home_and_utilities": "Maison et services publics",
+                "professional_services": "Services professionnels",
+                "public_administrations": "Administrations publiques",
+                "restaurants": "Restaurants",
+                "shopping": "Achats",
+                "software": "Logiciel",
+                "transport": "Transport",
+                "travel": "Voyage",
+                "withdrawal": "Retrait",
+                "purchase": "Achat",
+                "general": "Général",
+                "purchase_reversal": "Remboursements",
+                "deposit": "Dépôt",
+                "other": "Autre"
+            }
         }
     }
 };

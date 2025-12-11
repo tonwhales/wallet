@@ -63,6 +63,9 @@ export function useAIChatSocket(options: UseAIChatSocketOptions): UseAIChatSocke
     const [error, setError] = useState<string | null>(null);
     const [hasPendingRequest, setHasPendingRequest] = useState(false);
     const [pendingRequestId, setPendingRequestId] = useState<string | null>(null);
+    const lastUserMessageRef = useRef<string | null>(null);
+    const isRecreatingSessionRef = useRef(false);
+    const hasDisconnectedRef = useRef(false);
     const { tonAddress } = useCurrentAddress();
     const { isTestnet } = useNetwork();
     const holdersAccStatus = useHoldersAccountStatus(tonAddress).data;
@@ -120,13 +123,23 @@ export function useAIChatSocket(options: UseAIChatSocketOptions): UseAIChatSocke
 
         // Connection events
         function onConnect() {
-            console.log('[useAIChatSocket] onConnect');
+            console.log('[useAIChatSocket] onConnect', { hasDisconnected: hasDisconnectedRef.current, sessionId });
             setIsConnected(true);
             setIsConnecting(false);
             setError(null);
 
-            // Create or join session after connection
-            if (sessionId) {
+            if (hasDisconnectedRef.current && sessionId) {
+                console.log('[useAIChatSocket] Creating new session after disconnect (old sessionId will be discarded)');
+
+                storage.delete(sessionStorageKey);
+                setSessionId(null);
+
+                isRecreatingSessionRef.current = true;
+
+                socket.emit('new_session', { userId, language });
+
+                hasDisconnectedRef.current = false;
+            } else if (sessionId) {
                 socket.emit('join_session', { sessionId, language });
             } else {
                 socket.emit('new_session', { userId, language });
@@ -137,6 +150,8 @@ export function useAIChatSocket(options: UseAIChatSocketOptions): UseAIChatSocke
             console.log('[useAIChatSocket] onDisconnect');
             setIsConnected(false);
             setIsConnecting(false);
+
+            hasDisconnectedRef.current = true;
         }
 
         function onConnectError(error: Error) {
@@ -147,9 +162,23 @@ export function useAIChatSocket(options: UseAIChatSocketOptions): UseAIChatSocke
 
         // Session events
         function onSessionCreated(data: { sessionId: string }) {
-            console.log('[useAIChatSocket] onSessionCreated', data.sessionId);
+            console.log('[useAIChatSocket] onSessionCreated', data.sessionId, { isRecreating: isRecreatingSessionRef.current, hasLastMessage: !!lastUserMessageRef.current });
             setSessionId(data.sessionId);
             saveToStorage(sessionStorageKey, data.sessionId);
+
+            hasDisconnectedRef.current = false;
+
+            if (isRecreatingSessionRef.current && lastUserMessageRef.current) {
+                console.log('[useAIChatSocket] Resending last user message after session recreation');
+                socket.emit('send_message', {
+                    message: lastUserMessageRef.current,
+                    sessionId: data.sessionId
+                });
+                lastUserMessageRef.current = null;
+                isRecreatingSessionRef.current = false;
+            } else if (isRecreatingSessionRef.current) {
+                isRecreatingSessionRef.current = false;
+            }
         }
 
         function onSessionJoined(data: {
@@ -163,13 +192,14 @@ export function useAIChatSocket(options: UseAIChatSocketOptions): UseAIChatSocke
             setHasPendingRequest(data.hasPendingRequest);
             setPendingRequestId(data.pendingRequestId || null);
 
-            // Use server history if available and local history is empty
+            hasDisconnectedRef.current = false;
+
             if (data.serverHistory && data.serverHistory.length > 0 && messages.length === 0) {
                 setMessages(data.serverHistory);
                 saveToStorage(historyStorageKey, data.serverHistory);
             }
 
-            // Handle pending request recovery
+            // pending request recovery
             if (data.hasPendingRequest && data.pendingRequestId) {
                 const pendingMessage = storage.getString(pendingMessageKey);
                 if (pendingMessage) {
@@ -250,8 +280,21 @@ export function useAIChatSocket(options: UseAIChatSocketOptions): UseAIChatSocke
         }
 
         // Error handling
-        function onError(errorData: { message: string }) {
+        function onError(errorData: { error?: string; message: string }) {
             console.log('[useAIChatSocket] onError', errorData);
+
+            if (errorData.error === 'SESSION_NOT_FOUND') {
+                console.log('[useAIChatSocket] Session not found, recreating session');
+
+                setSessionId(null);
+                storage.delete(sessionStorageKey);
+
+                isRecreatingSessionRef.current = true;
+
+                socket.emit('new_session', { userId, language });
+                return;
+            }
+
             setError(errorData.message);
         }
 
@@ -289,7 +332,8 @@ export function useAIChatSocket(options: UseAIChatSocketOptions): UseAIChatSocke
         language,
         token,
         tonAddress,
-        isTestnet
+        isTestnet,
+        userId
     ]);
 
     // Auto-connect on mount
@@ -342,6 +386,8 @@ export function useAIChatSocket(options: UseAIChatSocketOptions): UseAIChatSocke
         // Save pending message for recovery
         saveToStorage(pendingMessageKey, message.trim());
 
+        lastUserMessageRef.current = message.trim();
+
         console.log('[useAIChatSocket] sendMessage, emit', { socket: !!socketRef.current, message: message.trim(), sessionId });
 
         setError(null);
@@ -356,11 +402,27 @@ export function useAIChatSocket(options: UseAIChatSocketOptions): UseAIChatSocke
     }, [sessionId, saveToStorage, historyStorageKey, pendingMessageKey]);
 
     const clearHistory = useCallback(() => {
+        console.log('[useAIChatSocket] clearHistory - clearing messages and recreating session');
         setMessages([]);
+
         if (persistHistory) {
             storage.delete(historyStorageKey);
         }
-    }, [historyStorageKey, persistHistory]);
+
+        if (sessionId) {
+            storage.delete(sessionStorageKey);
+            setSessionId(null);
+        }
+
+        if (socketRef.current?.connected) {
+            console.log('[useAIChatSocket] Creating new session after history clear');
+            socketRef.current.emit('new_session', { userId, language });
+        } else if (socketRef.current && !socketRef.current.connected) {
+            console.log('[useAIChatSocket] Socket disconnected, reconnecting to create new session');
+            setIsConnecting(true);
+            socketRef.current.connect();
+        }
+    }, [historyStorageKey, persistHistory, sessionId, sessionStorageKey, userId, language]);
 
     const connect = useCallback(() => {
         if (socketRef.current && !socketRef.current.connected) {

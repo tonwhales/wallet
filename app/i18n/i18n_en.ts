@@ -93,7 +93,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "exchanges": "Exchanges",
         "directDepositAddress": "Direct deposit address",
         "goBackTo": "Go back to {{name}}",
-        "viewIn": "View in {{name}}"
+        "viewIn": "View in {{name}}",
+        "moreAbout": "More about {{name}}"
     },
     "syncStatus": {
         "connecting": "Connecting",
@@ -1517,6 +1518,30 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "banner": {
             "title": "Intelligent Finance",
             "description": "Smarter ways to understand your spendings"
+        },
+        "tx": {
+            "categories": {
+                "any": "Any",
+                "culture": "Culture",
+                "entertainment": "Entertainment",
+                "finance": "Finance",
+                "groceries": "Groceries",
+                "health_and_beauty": "Health and beauty",
+                "home_and_utilities": "Home and utilities",
+                "professional_services": "Professional services",
+                "public_administrations": "Public administrations",
+                "restaurants": "Restaurants",
+                "shopping": "Shopping",
+                "software": "Software",
+                "transport": "Transport",
+                "travel": "Travel",
+                "withdrawal": "Withdrawal",
+                "purchase": "Purchase",
+                "general": "General",
+                "purchase_reversal": "Refunds",
+                "deposit": "Deposit",
+                "other": "System"
+            },
         }
     }
 };

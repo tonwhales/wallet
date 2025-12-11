@@ -25,7 +25,7 @@ export const USDYRateAmination = memo(({ usdyRate, currentPrice, amount }: { usd
     return (
         <View style={styles.container}>
             <View style={styles.priceContainer}>
-                <View style={{ transform: [{ rotate: '30deg' }] }}>
+                <View style={{ transform: [{ rotate: '45deg' }] }}>
                     <ArrowIcon
                         width={16}
                         height={16}

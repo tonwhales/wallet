@@ -22,10 +22,11 @@ import { PriceComponent } from "../../components/PriceComponent";
 import { WImage } from "../../components/WImage";
 import { ReceiveableSolanaAsset } from "./ReceiveFragment";
 import { Image } from "expo-image";
-import { PendingSolanaTransaction } from "../../engine/state/pending";
+import { usdyMintAddress } from "../../secure/KnownWallets";
+import { SolanaTokenInfoView } from "./views/solana/SolanaTokenInfoView";
+import { USDYRateAmination } from "./views/solana/USDYRateAmination";
 
 import SolanaIcon from '@assets/ic-solana.svg';
-import { usdyMintAddress } from "../../secure/KnownWallets";
 
 export type SolanaTokenWalletFragmentProps = {
     owner: string,
@@ -65,7 +66,9 @@ const SolanaTokenHeader = memo(({ mint, owner }: { mint: string, owner: string }
         return null;
     }
 
-    const rate = mint === usdyMintAddress ? usdyPrice : 1;
+    const isUsdy = mint === usdyMintAddress;
+
+    const rate = isUsdy ? usdyPrice : 1;
     const balance = token.amount ?? 0n;
     const symbol = token.symbol ?? "?";
     const decimals = token.decimals ?? 6;
@@ -122,18 +125,26 @@ const SolanaTokenHeader = memo(({ mint, owner }: { mint: string, owner: string }
                         suffix={` ${symbol}`}
                     />
                     <View>
-                        <PriceComponent
-                            amount={price}
-                            style={{
-                                backgroundColor: 'transparent',
-                                paddingHorizontal: 0, paddingVertical: 0,
-                                height: undefined,
-                            }}
-                            textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
-                            theme={theme}
-                            priceUSD={1}
-                            hideCentsIfNull
-                        />
+                        {isUsdy ? (
+                            <USDYRateAmination
+                                usdyRate={rate}
+                                currentPrice={usdyPrice}
+                                amount={token.uiAmount ?? 0}
+                            />
+                        ) : (
+                            <PriceComponent
+                                amount={price}
+                                style={{
+                                    backgroundColor: 'transparent',
+                                    paddingHorizontal: 0, paddingVertical: 0,
+                                    height: undefined,
+                                }}
+                                textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                                theme={theme}
+                                priceUSD={1}
+                                hideCentsIfNull
+                            />
+                        )}
                     </View>
                 </View>
                 <SolanaWalletActions
@@ -149,6 +160,7 @@ const SolanaTokenHeader = memo(({ mint, owner }: { mint: string, owner: string }
                     }}
                 />
                 <View style={{ marginTop: 16 }} />
+                <SolanaTokenInfoView mint={mint} />
             </View>
         </View>
     );
@@ -168,6 +180,9 @@ const SolanaTokenWalletComponent = memo(({ owner, mint }: SolanaTokenWalletFragm
         markAsTimedOut
     } = useUnifiedSolanaTransactions(owner, mint);
     const token = useSolanaToken(owner, mint);
+    const [, , , usdyPriceData] = usePrice();
+    const usdyPrice = usdyPriceData.price.usd;
+
     const asset: ReceiveableSolanaAsset = {
         mint: mint,
         content: {
@@ -193,7 +208,7 @@ const SolanaTokenWalletComponent = memo(({ owner, mint }: SolanaTokenWalletFragm
         setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
     });
 
-    const rate = 1;
+    const rate = mint === usdyMintAddress ? usdyPrice : 1;
 
     return (
         <View style={styles.container}>

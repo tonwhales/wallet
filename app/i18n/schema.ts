@@ -96,6 +96,7 @@ export type LocalizationSchema = {
         directDepositAddress: string,
         goBackTo: string,
         viewIn: string,
+        moreAbout: string
     },
     syncStatus: {
         connecting: string,

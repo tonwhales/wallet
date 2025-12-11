@@ -19,7 +19,7 @@ export const MessageTxIcon = memo(({ element }: { element: TxElement }) => {
     ) {
         return (
             <View style={{ backgroundColor: theme.divider, height: 46, width: 46, alignItems: 'center', justifyContent: 'center', borderRadius: 23 }}>
-                <Image source={{ uri: merchantLogo }} style={{ width: 46, height: 46 }} />;
+                <Image source={{ uri: merchantLogo }} style={{ width: 46, height: 46 }} />
             </View>
         );
     }

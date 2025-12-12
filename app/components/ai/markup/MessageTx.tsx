@@ -5,6 +5,10 @@ import { Typography } from "../../styles";
 import { useNetwork, useTheme } from "../../../engine/hooks";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { HoldersAppParams, HoldersAppParamsType } from "../../../fragments/holders/HoldersAppFragment";
+import { formatTxAmount } from "../../../engine/ai";
+import { MessageTxIcon } from ".";
+import { t } from "../../../i18n/t";
+import { formatDate } from "../../../utils/dates";
 
 interface ParsedDetails {
     merchant?: string;
@@ -15,11 +19,14 @@ interface ParsedDetails {
     [key: string]: any;
 }
 
-export const MessageTx = memo(({ element }: { element: TxElement }) => {
+export const MessageTx = memo(({ element, isTab }: { element: TxElement, isTab?: boolean }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
-    const { type, hash, lt, address, id, details, title } = element.attributes;
+    const { type, hash, id, details, title, merchant, merchantCountry, merchantCategory, date } = element.attributes;
+
+    const { isNeg, text: amountText } = formatTxAmount(element);
+    const amountTextColor = isNeg ? theme.textPrimary : theme.accentGreen;
 
     const parsedDetails = useMemo<ParsedDetails | null>(() => {
         if (!details) return null;
@@ -47,8 +54,12 @@ export const MessageTx = memo(({ element }: { element: TxElement }) => {
                         type: HoldersAppParamsType.Transaction,
                         id: id
                     }
-                    navigation.navigateHolders(holdersNavParams, isTestnet);
-                    break;
+                    if (isTab) {
+                        navigation.navigateHolders(holdersNavParams, isTestnet);
+                        return;
+                    }
+                    navigation.navigateHolders(holdersNavParams, isTestnet, undefined, true);
+                    return;
                 }
                 default:
                     break;
@@ -72,38 +83,30 @@ export const MessageTx = memo(({ element }: { element: TxElement }) => {
     };
 
     const displayTitle = useMemo(() => {
-        if (title) return title;
+        if (type === 'holders' && merchant) {
+            return merchant;
+        }
 
-        if (type === 'holders' && parsedDetails?.merchant) {
-            return parsedDetails.merchant;
+        if (title) {
+            return title;
         }
 
         return `${getTypeLabel()} Transaction`;
     }, [title, type, parsedDetails]);
 
     const displayDescription = useMemo(() => {
-        if (type === 'holders' && parsedDetails) {
-            const parts: string[] = [];
-
-            if (parsedDetails.amount && parsedDetails.currency) {
-                parts.push(`${parsedDetails.amount} ${parsedDetails.currency}`);
-            }
-
-            if (parsedDetails.category) {
-                parts.push(parsedDetails.category);
-            }
-
-            return parts.join(' • ');
+        if (type === 'holders' && merchantCategory) {
+            return t(`aiChat.tx.categories.${merchantCategory}`);
         }
 
         return `${getTypeLabel()} Transaction`;
-    }, [type, parsedDetails]);
+    }, [type, merchantCategory]);
 
     return (
         <Pressable
             onPress={handlePress}
             style={({ pressed }) => ({
-                backgroundColor: theme.surfaceOnBg,
+                backgroundColor: theme.elevation,
                 borderRadius: 12,
                 paddingHorizontal: 12,
                 paddingVertical: 8,
@@ -113,15 +116,39 @@ export const MessageTx = memo(({ element }: { element: TxElement }) => {
                 borderColor: theme.divider,
             })}
         >
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                <MessageTxIcon element={element} />
                 <View style={{ flex: 1 }}>
-                    <Text style={[Typography.semiBold15_20, { color: theme.textPrimary, marginBottom: 4 }]}>
-                        {displayTitle}
-                    </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Text
+                            style={[Typography.semiBold17_24, { color: theme.textPrimary, marginBottom: 4, flexShrink: 1 }]}
+                            numberOfLines={1}
+                            ellipsizeMode="tail"
+                        >
+                            {displayTitle}
+                        </Text>
+                        <Text
+                            style={[Typography.semiBold17_24, { color: amountTextColor, marginBottom: 4 }]}
+                            numberOfLines={1}
+                        >
+                            {amountText}
+                        </Text>
+                    </View>
 
-                    <Text style={[Typography.regular13_18, { color: theme.textSecondary }]}>
-                        {displayDescription}
-                    </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Text
+                            style={[Typography.regular15_20, { color: theme.textSecondary, flexShrink: 1 }]}
+                            numberOfLines={1}
+                            ellipsizeMode="tail"
+                        >
+                            {displayDescription}
+                        </Text>
+                        {date && (
+                            <Text style={[Typography.regular15_20, { color: theme.textSecondary }]}>
+                                {formatDate(date / 1000)}
+                            </Text>
+                        )}
+                    </View>
 
                     {hash && (
                         <Text

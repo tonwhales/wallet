@@ -38,12 +38,11 @@ export const MessageChips = memo(({
                             borderRadius: 20,
                             paddingHorizontal: 16,
                             paddingVertical: 8,
-                            borderWidth: 1,
                             borderColor: theme.divider,
                             opacity: pressed ? 0.7 : 1,
                         })}
                     >
-                        <Text style={[Typography.medium13_18, { color: theme.textPrimary }]}>
+                        <Text style={[Typography.medium17_24, { color: theme.textThird }]}>
                             {title}
                         </Text>
                     </Pressable>

@@ -9,6 +9,9 @@ import {
     TxElement,
     ChipElement,
     ChipsElement,
+    LoaderElement,
+    EventCategory,
+    EventMerchantCategory,
 } from './markup-types';
 
 export function parseAIMarkup(message: string): ParsedAIMessage {
@@ -16,7 +19,7 @@ export function parseAIMarkup(message: string): ParsedAIMessage {
     let cleanText = message;
     let hasMarkup = false;
 
-    const selfClosingTagRegex = /<(\w+)\s+([^>]*?)\/>/g;
+    const selfClosingTagRegex = /<(\w+)\s*([^>]*?)\/>/g;
     const pairedTagRegex = /<(\w+)\s*([^>]*)>(.*?)<\/\1>/gs;
 
     let match;
@@ -35,7 +38,7 @@ export function parseAIMarkup(message: string): ParsedAIMessage {
 
     while ((match = selfClosingTagRegex.exec(message)) !== null) {
         const [fullMatch, tagName, attributesStr] = match;
-        const attributes = parseAttributes(attributesStr);
+        const attributes = attributesStr ? parseAttributes(attributesStr) : {};
 
         hasMarkup = true;
 
@@ -51,6 +54,9 @@ export function parseAIMarkup(message: string): ParsedAIMessage {
                 break;
             case 'tx':
                 components.push(createTxElement(attributes));
+                break;
+            case 'loader':
+                components.push(createLoaderElement());
                 break;
         }
 
@@ -119,6 +125,16 @@ function createNavElement(attributes: Record<string, string>): NavElement {
  * Создает элемент транзакции
  */
 function createTxElement(attributes: Record<string, string>): TxElement {
+    let date = undefined;
+
+    if (attributes.date) {
+        try {
+            date = new Date(attributes.date).getTime();
+        } catch (error) {
+            console.warn('Failed to parse date:', error);
+        }
+    }
+
     return {
         type: 'tx',
         attributes: {
@@ -129,7 +145,22 @@ function createTxElement(attributes: Record<string, string>): TxElement {
             id: attributes.id,
             details: attributes.details,
             title: attributes.title,
+            amount: attributes.amount,
+            currency: attributes.currency,
+            category: attributes.category as EventCategory,
+            merchant: attributes.merchant,
+            merchantLogo: attributes.merchantLogo,
+            merchantCountry: attributes.merchantCountry,
+            merchantCategory: attributes.merchantCategory?.toLowerCase() as EventMerchantCategory | undefined,
+            date,
         },
+    };
+}
+
+function createLoaderElement(): LoaderElement {
+    return {
+        type: 'loader',
+        attributes: {},
     };
 }
 
@@ -275,12 +306,12 @@ export function parseAIMarkupWithOrder(message: string): ParsedAIMessageWithOrde
 
     const matches: TagMatch[] = [];
 
-    const selfClosingTagRegex = /<(\w+)\s+([^>]*?)\/>/g;
+    const selfClosingTagRegex = /<(\w+)\s*([^>]*?)\/>/g;
     let match;
 
     while ((match = selfClosingTagRegex.exec(message)) !== null) {
         const [fullMatch, tagName, attributesStr] = match;
-        const attributes = parseAttributes(attributesStr);
+        const attributes = attributesStr ? parseAttributes(attributesStr) : {};
 
         let component: AIMarkupComponent | null = null;
 
@@ -296,6 +327,9 @@ export function parseAIMarkupWithOrder(message: string): ParsedAIMessageWithOrde
                 break;
             case 'tx':
                 component = createTxElement(attributes);
+                break;
+            case 'loader':
+                component = createLoaderElement();
                 break;
         }
 
@@ -340,7 +374,7 @@ export function parseAIMarkupWithOrder(message: string): ParsedAIMessageWithOrde
             }
         }
 
-        if (tagMatch.type === 'tx' || tagMatch.type === 'sticker' || tagMatch.type === 'nav') {
+        if (tagMatch.type === 'tx' || tagMatch.type === 'sticker' || tagMatch.type === 'nav' || tagMatch.type === 'loader') {
             content.push({ type: 'component', component: tagMatch.component });
             inlineComponents.push(tagMatch.component);
         } else {

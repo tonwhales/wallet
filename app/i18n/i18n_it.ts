@@ -93,7 +93,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "exchanges": "Scambi",
         "directDepositAddress": "Indirizzo di deposito diretto",
         "goBackTo": "Torna a {{name}}",
-        "viewIn": "Visualizza in {{name}}"
+        "viewIn": "Visualizza in {{name}}",
+        "moreAbout": "Maggiori informazioni su {{name}}"
     },
     "syncStatus": {
         "connecting": "Connessione in corso",
@@ -190,6 +191,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "bounced": "Rimbalzato",
         "tokenTransfer": "Trasferimento token",
         "airdrop": "Airdrop",
+        "tokenMint": "Conio token",
         "failed": "Fallito",
         "timeout": "Scaduto",
         "batch": "Batch"
@@ -729,7 +731,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "readyAction": "Ottienila ora",
                 "emailAction": "Verifica la tua email",
                 "kycAction": "Completa la verifica",
-                "failedAction": "Verifica fallita"
+                "failedAction": "Verifica fallita",
+                "dogsTitle": "DOGS ora supportato",
+                "dogsSubtitle": "Carica facilmente la tua carta con DOGS",
             },
             "transaction": {
                 "type": {
@@ -1513,6 +1517,30 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "banner": {
             "title": "Finanze intelligenti",
             "description": "Modi più intelligenti per capire i tuoi spes"
+        },
+        "tx": {
+            "categories": {
+                "any": "Qualsiasi",
+                "culture": "Cultura",
+                "entertainment": "Intrattenimento",
+                "finance": "Finanza",
+                "groceries": "Generi alimentari",
+                "health_and_beauty": "Salute e bellezza",
+                "home_and_utilities": "Casa e utenze",
+                "professional_services": "Servizi professionali",
+                "public_administrations": "Amministrazioni pubbliche",
+                "restaurants": "Ristoranti",
+                "shopping": "Acquisti",
+                "software": "Software",
+                "transport": "Trasporto",
+                "travel": "Viaggio",
+                "withdrawal": "Ritiro",
+                "purchase": "Acquisto",
+                "general": "Generale",
+                "purchase_reversal": "Rimborsi",
+                "deposit": "Deposito",
+                "other": "Altro"
+            }
         }
     }
 };

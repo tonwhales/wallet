@@ -9,10 +9,10 @@ import { TransactionsFragment } from './wallet/TransactionsFragment';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { BrowserFragment } from './connections/BrowserFragment';
 import DeviceInfo from 'react-native-device-info';
-import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { getDeviceScreenCurve } from '../utils/iOSDeviceCurves';
 import { Platform } from 'react-native';
-import { useConnectPendingRequests, useLinksSubscription, useNetwork, useSelectedAccount, useTheme } from '../engine/hooks';
+import { useConnectPendingRequests, useHoldersAccountStatus, useIsConnectAppReady, useLinksSubscription, useNetwork, useSelectedAccount, useTheme } from '../engine/hooks';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '../components/styles';
@@ -25,6 +25,7 @@ import { HoldersSettings } from './holders/components/HoldersSettings';
 import { HoldersTransactionsFragment } from './wallet/HoldersTransactionsFragment';
 import { useLedgerTransport } from './ledger/components/TransportContext';
 import { HoldersAIChatTab } from './holders/HoldersAIChatTab';
+import { holdersUrl, HoldersUserState } from '../engine/api/holders/fetchUserState';
 
 const Tab = createBottomTabNavigator();
 
@@ -55,7 +56,26 @@ export const HomeFragment = fragment(() => {
     const [tonconnectRequests] = useConnectPendingRequests();
     const selected = useSelectedAccount();
     const [isWalletMode] = useAppMode(selected?.address);
+    const url = holdersUrl(isTestnet);
+    const holdersAccStatus = useHoldersAccountStatus(selected?.address).data;
     const ledgerContext = useLedgerTransport();
+    const isHoldersReady = useIsConnectAppReady(url, selected?.address?.toString({ testOnly: isTestnet }));
+
+    const needsEnrollment = useMemo(() => {
+        if (!isHoldersReady) {
+            return true;
+        }
+
+        if (!holdersAccStatus) {
+            return true;
+        }
+
+        if (holdersAccStatus.state === HoldersUserState.NeedEnrollment) {
+            return true;
+        }
+
+        return false;
+    }, [holdersAccStatus, isHoldersReady]);
 
     const [curve, setCurve] = useState<number | undefined>(undefined);
 
@@ -209,7 +229,7 @@ export const HomeFragment = fragment(() => {
                             component={BrowserFragment}
                         />
                     )}
-                    {!isWalletMode && (
+                    {!isWalletMode && !needsEnrollment && (
                         <Tab.Screen
                             options={{ title: t('aiChat.title') }}
                             name={'AIChatTab'}

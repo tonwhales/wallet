@@ -34,18 +34,21 @@ export function useSolanaTransferInfo(params: { type: 'token' | 'native', transf
 
     if (type === 'token') {
         const tokenTransfer = transfer as SolanaTokenTransfer;
-        const kind: 'in' | 'out' = tokenTransfer.fromUserAccount === owner ? 'out' : 'in';
-        const op = kind === 'in' ? t('tx.received') : t('tx.sent');
+        const isMint = transaction.type === 'TOKEN_MINT';
+        const effectiveFromUserAccount = (isMint && !tokenTransfer.fromUserAccount) ? transaction.feePayer : tokenTransfer.fromUserAccount;
+
+        const kind: 'in' | 'out' = effectiveFromUserAccount === owner ? 'out' : 'in';
+        const op = kind === 'in' ? (isMint ? t('tx.tokenMint') : t('tx.received')) : t('tx.sent');
         const toAccount = accountData?.find((acc) => acc.account === tokenTransfer.toTokenAccount);
-        const toAddress = toAccount?.tokenBalanceChanges.find((change) => change.tokenAccount === tokenTransfer.toTokenAccount)?.userAccount ?? tokenTransfer.fromUserAccount;
-        const address = kind === 'in' ? tokenTransfer.fromUserAccount : toAddress;
+        const toAddress = toAccount?.tokenBalanceChanges.find((change) => change.tokenAccount === tokenTransfer.toTokenAccount)?.userAccount ?? effectiveFromUserAccount;
+        const address = kind === 'in' ? effectiveFromUserAccount : toAddress;
         const amount = fromBnWithDecimals(toNano(tokenTransfer.tokenAmount), 9);
 
         return {
             op,
             amount,
             kind,
-            from: tokenTransfer.fromUserAccount,
+            from: effectiveFromUserAccount,
             to: toAddress!,
             dateStr,
             decimals: decimals ?? 6,

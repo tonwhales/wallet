@@ -34,10 +34,10 @@ import { PendingSolanaTransactions } from "../../fragments/wallet/views/PendingS
 import { OrdersList } from "../orders/OrdersList"
 import { TonhubChangellyBanner } from "./TonhubChangellyBanner"
 import { WalletRequests } from "../requests/WalletRequests"
-
-import OldWalletIcon from '@assets/ic_old_wallet.svg';
 import { StakingWithdrawReady } from "./earnings/StakingWithdrawReady"
 import { AiChatBanner } from "./AiChatBanner"
+
+import OldWalletIcon from '@assets/ic_old_wallet.svg';
 
 export type HoldersBannerType = { type: 'built-in' } | { type: 'custom', banner: HoldersCustomBanner };
 

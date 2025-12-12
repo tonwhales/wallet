@@ -11,7 +11,7 @@ import CopyIcon from '@assets/ic-copy.svg';
 import { useTheme } from "../../engine/hooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { parseAIMarkupWithOrder, extractPlainText, parseTextFormatting } from "../../engine/ai/parseMarkup";
-import { MessageSticker, MessageButton, MessageNav, MessageTx, MessageChips } from "./markup";
+import { MessageSticker, MessageButton, MessageNav, MessageTx, MessageChips, MessageLoader } from "./markup";
 import { AIMarkupComponent } from "../../engine/ai/markup-types";
 
 export const AIChatMessageBubble = memo(({ message, isTab, onChipPress }: {
@@ -61,9 +61,11 @@ export const AIChatMessageBubble = memo(({ message, isTab, onChipPress }: {
             case 'nav':
                 return <MessageNav key={`comp-${index}`} element={component} />;
             case 'tx':
-                return <MessageTx key={`comp-${index}`} element={component} />;
+                return <MessageTx isTab={isTab} key={`comp-${index}`} element={component} />;
             case 'chips':
                 return <MessageChips key={`comp-${index}`} element={component} onChipPress={onChipPress} />;
+            case 'loader':
+                return <MessageLoader key={`comp-${index}`} />;
             default:
                 return null;
         }
@@ -72,12 +74,12 @@ export const AIChatMessageBubble = memo(({ message, isTab, onChipPress }: {
     const renderFormattedText = (text: string, baseStyle: any) => {
         const segments = parseTextFormatting(text);
         const baseColor = isBot ? theme.textPrimary : theme.white;
-        
+
         return (
             <Text style={baseStyle}>
                 {segments.map((segment, index) => {
                     let segmentStyle: any = {};
-                    
+
                     if (segment.heading) {
                         switch (segment.heading) {
                             case 1:
@@ -99,7 +101,7 @@ export const AIChatMessageBubble = memo(({ message, isTab, onChipPress }: {
                                 ];
                                 break;
                         }
-                        
+
                         return (
                             <Text
                                 key={`segment-${index}`}
@@ -111,7 +113,7 @@ export const AIChatMessageBubble = memo(({ message, isTab, onChipPress }: {
                     } else if (segment.bold) {
                         segmentStyle = Typography.semiBold15_20;
                     }
-                    
+
                     return (
                         <Text
                             key={`segment-${index}`}
@@ -155,7 +157,7 @@ export const AIChatMessageBubble = memo(({ message, isTab, onChipPress }: {
                                 {renderFormattedText(
                                     element.content,
                                     [
-                                        Typography.regular15_20,
+                                        Typography.regular17_24,
                                         {
                                             color: isBot ? theme.textPrimary : theme.white,
                                             marginBottom: index < parsedMessage.content.length - 1 ? 8 : 0,

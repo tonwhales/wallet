@@ -10,7 +10,6 @@ import { useCallback, useEffect } from 'react';
 import { WelcomeSlider } from '../../components/slider/WelcomeSlider';
 import { StatusBar } from 'expo-status-bar';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
-import { getDogsInvShown } from '../../engine/holders/dogsUtils';
 import { CachedLinking } from '../../utils/CachedLinking';
 import { resolveUrl } from '../../utils/url/resolveUrl';
 
@@ -30,14 +29,11 @@ export const WelcomeFragment = systemFragment(() => {
     };
 
     useEffect(() => {
-        const isDogsInvShown = getDogsInvShown();
-        if (!isDogsInvShown) {
-            const lastLink = CachedLinking.getLastLink();
-            if (lastLink) {
-                const resolved = resolveUrl(lastLink, isTestnet);
-                if (resolved?.type === 'holders-invitation' && resolved.invitationId === 'dogs') {
-                    navigation.navigate('DogsInvite');
-                }
+        const lastLink = CachedLinking.getLastLink();
+        if (lastLink) {
+            const resolved = resolveUrl(lastLink, isTestnet);
+            if (resolved?.type === 'holders-invitation' && resolved.invitationId === 'dogs') {
+                navigation.navigate('DogsInvite');
             }
         }
     }, []);

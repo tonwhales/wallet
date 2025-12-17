@@ -2,7 +2,6 @@ import { canUpgradeAppState, getAppState, getCurrentAddress, getLedgerSelected, 
 import { storage } from "../storage/storage";
 import { PasscodeState, getPasscodeState, loadKeyStorageType } from "../storage/secureStorage";
 import { getLockAppWithAuthState } from "../engine/state/lockAppWithAuthState";
-import { getDogsInvShown, getDogsRef } from "../engine/holders/dogsUtils";
 
 export const wasPasscodeSetupShownKey = 'passcode-setup-shown';
 
@@ -24,9 +23,6 @@ export function resolveOnboarding(isTestnet: boolean, appStart?: boolean): Onboa
     const isKeyStore = storageType === 'key-store';
     const wasKeyStoreMigrated = isKeyStoreMigrated();
     const authOnStart = getLockAppWithAuthState() ?? false;
-
-    const isDogsInvShown = getDogsInvShown();
-    const isDogsRef = getDogsRef();
 
     if (state.selected >= 0) {
         if (authOnStart && appStart) {

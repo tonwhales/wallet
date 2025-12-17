@@ -859,6 +859,10 @@ export type LocalizationSchema = {
                 alertTitle: string,
                 alertDescription: string,
                 buttonTitle: string
+            },
+            dogsInvite: {
+                title: string,
+                subtitle: string,
             }
         }
     },

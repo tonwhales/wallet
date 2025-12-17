@@ -6,12 +6,13 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
 import { useNetwork, useTheme } from '../../engine/hooks';
-import { isTermsAccepted } from '../../storage/terms';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { WelcomeSlider } from '../../components/slider/WelcomeSlider';
-import { ScrollView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
+import { getDogsInvShown } from '../../engine/holders/dogsUtils';
+import { CachedLinking } from '../../utils/CachedLinking';
+import { resolveUrl } from '../../utils/url/resolveUrl';
 
 export const WelcomeFragment = systemFragment(() => {
     const theme = useTheme();
@@ -27,6 +28,19 @@ export const WelcomeFragment = systemFragment(() => {
         trackEvent(MixpanelEvent.WalletCreate, undefined, isTestnet, true);
         navigation.navigate('LegalCreate');
     };
+
+    useEffect(() => {
+        const isDogsInvShown = getDogsInvShown();
+        if (!isDogsInvShown) {
+            const lastLink = CachedLinking.getLastLink();
+            if (lastLink) {
+                const resolved = resolveUrl(lastLink, isTestnet);
+                if (resolved?.type === 'holders-invitation' && resolved.invitationId === 'dogs') {
+                    navigation.navigate('DogsInvite');
+                }
+            }
+        }
+    }, []);
 
     return (
         <View style={{

@@ -857,6 +857,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "alertTitle": "We updated the contract",
                 "alertDescription": "Please create a new account and transfer all your funds and cards to it. It is safer and supports direct deposits",
                 "buttonTitle": "Create a new account"
+            },
+            "dogsInvite": {
+                "title": "Start with your DOGS card",
+                "subtitle": "You can open your DOGS card here and top it up directly with DOGS. Fast setup, easy funding — all in one place."
             }
         }
     },

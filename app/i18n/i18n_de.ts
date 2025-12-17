@@ -857,8 +857,12 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "alertTitle": "Wir haben den Vertrag aktualisiert",
                 "alertDescription": "Bitte erstellen Sie ein neues Konto und übertragen Sie alle Ihre Gelder und Karten darauf. Es ist sicherer und unterstützt direkte Einzahlungen",
                 "buttonTitle": "Ein neues Konto erstellen"
+            },
+            "dogsInvite": {
+                "title": "Starten Sie mit Ihrer DOGS-Karte",
+                "subtitle": "Sie können hier Ihre DOGS-Karte eröffnen und direkt mit DOGS aufladen. Schnelle Einrichtung, einfache Finanzierung — alles an einem Ort."
             }
-        },
+        }
     },
     "welcome": {
         "title": "Tonhub",

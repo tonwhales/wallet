@@ -127,6 +127,7 @@ import { SwapFragment } from './fragments/wallet/SwapFragment';
 import { isLatestIos } from './utils/isLatestIos';
 import { HoldersAIChatFragment } from './fragments/holders/HoldersAIChatFragment';
 import { MaestraEvent, trackMaestraEvent } from './analytics/maestra';
+import { DogsInviteFragment } from './fragments/holders/DogsInviteFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -388,6 +389,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('Exchanges', ExchangesFragment, safeArea),
     modalScreen('SelectHoldersMainAccount', SelectHoldersMainAccountFragment, safeArea),
     modalScreen('HoldersAIChat', HoldersAIChatFragment, safeArea),
+    fullScreen('DogsInvite', DogsInviteFragment),
 
     // Utils
     genericScreen('Privacy', PrivacyFragment, safeArea, true),

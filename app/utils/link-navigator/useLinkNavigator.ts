@@ -24,6 +24,7 @@ import { getTimeSec } from '../getTimeSec';
 import { t } from '../../i18n/t';
 import { resolveAndNavigateToChangellyOrder } from './resolveAndNavigateToChangellyOrder';
 import { resolveHoldersInvitationLink } from './resolveHoldersInvitationLink';
+import { getDogsInvShown } from '../../engine/holders/dogsUtils';
 
 export function useLinkNavigator(
     isTestnet: boolean,
@@ -41,7 +42,7 @@ export function useLinkNavigator(
     const ledgerContext = useLedgerTransport();
     const netConfig = useConfig();
     const address = isLedger ? ledgerContext.addr!.address : selected?.addressString;
-    const {tonAddress, solanaAddress} = useCurrentAddress()
+    const { tonAddress, solanaAddress } = useCurrentAddress()
 
     const [, updatePendingReuests] = useConnectPendingRequests();
     const pendingReqsUpdaterRef = useRef(updatePendingReuests);
@@ -232,6 +233,13 @@ export function useLinkNavigator(
             }
             case 'holders-invitation': {
                 storeInvitationId(resolved.invitationId);
+
+                const isDogsShown = getDogsInvShown();
+
+                if (resolved.invitationId === 'dogs' && !isDogsShown) {
+                    navigation.navigate('DogsInvite');
+                    return;
+                }
 
                 if (!selected) {
                     return;

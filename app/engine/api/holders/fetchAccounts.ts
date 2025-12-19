@@ -193,6 +193,11 @@ const cardPaymentSchema = z.union([
   z.literal('mc'),
 ]);
 
+const cardDesignSchema = z.union([
+  z.literal('BLACK_WAVES'),
+  z.literal('DOGS'),
+]);
+
 const cardSchema = z.object({
   id: z.string(),
   status: cardStatusSchema,
@@ -207,7 +212,8 @@ const cardSchema = z.object({
   createdAt: z.string(),
   provider: z.string().nullish(),
   kind: z.string().nullish(),
-  schema: cardPaymentSchema
+  schema: cardPaymentSchema,
+  design: cardDesignSchema.nullish(),
 });
 
 const cardDebit = cardSchema.and(z.object({ type: z.literal('DEBIT') }),);

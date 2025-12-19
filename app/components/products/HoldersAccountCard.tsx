@@ -7,18 +7,22 @@ import { ImageStyle, StyleProp, TextStyle, View, ViewStyle } from "react-native"
 import { useLockAppWithAuthState } from "../../engine/hooks/settings";
 import { PerfText } from "../basic/PerfText";
 
-const cardImages = {
+type CardImageType = 'classic' | 'whales' | 'black-pro' | 'holders' | 'dogs';
+
+const cardImages: Record<'dark' | 'light', Record<CardImageType, any>> = {
     'dark': {
         'classic': require('@assets/card-violet-dark.png'),
         'whales': require('@assets/card-whales-dark.png'),
         'black-pro': require('@assets/card-black-dark.png'),
-        'holders': require('@assets/card-holders-dark.png')
+        'holders': require('@assets/card-holders-dark.png'),
+        'dogs': require('@assets/card-dogs.png')
     },
     'light': {
         'classic': require('@assets/card-violet-light.png'),
         'whales': require('@assets/card-whales-light.png'),
         'black-pro': require('@assets/card-black-light.png'),
-        'holders': require('@assets/card-holders-light.png')
+        'holders': require('@assets/card-holders-light.png'),
+        'dogs': require('@assets/card-dogs.png')
     }
 }
 
@@ -31,10 +35,14 @@ export const HoldersAccountCard = memo(({ card, theme, style, coverImageStyle, c
 }) => {
     const [lockAppWithAuth] = useLockAppWithAuthState();
     // TODO: remove this when we have the correct personalization codes
-    let imageType: 'holders' | 'classic' | 'whales' | 'black-pro' = 'black-pro';
+    let imageType: CardImageType = 'black-pro';
 
     if (card.provider === 'elysphere-kauri' || card.provider === 'decards-decards') {
         imageType = 'classic';
+    }
+
+    if (card.design === 'DOGS') {
+        imageType = 'dogs';
     }
 
     const paymentSchema = useMemo(() => {

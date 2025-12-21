@@ -15,10 +15,13 @@ class MaestraFirebaseMessagingService : FirebaseMessagingService() {
     }
     
     override fun onNewToken(token: String) {
-        Mindbox.updatePushToken(applicationContext, token, MindboxFirebase)
+        val context = applicationContext ?: return
+        Mindbox.updatePushToken(context, token, MindboxFirebase)
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
+        val context = applicationContext ?: return
+        
         val channelId = NOTIFICATION_CHANNEL_ID
         val channelName = NOTIFICATION_CHANNEL_NAME
         val channelDescription = NOTIFICATION_CHANNEL_DESCRIPTION
@@ -26,7 +29,7 @@ class MaestraFirebaseMessagingService : FirebaseMessagingService() {
         
         // Handle remote message with Mindbox SDK
         Mindbox.handleRemoteMessage(
-            context = applicationContext,
+            context = context,
             message = remoteMessage,
             activities = mapOf(),
             channelId = channelId,

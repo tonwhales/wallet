@@ -32,6 +32,11 @@ public class ExpoFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
+        // Guard against null context (can happen in wrapped service scenario)
+        if (getApplicationContext() == null) {
+            return;
+        }
+        
         Map<String, String> data = remoteMessage.getData();
         
         // Check if this is an Expo notification

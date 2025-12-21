@@ -18,13 +18,21 @@ import { extractDomain } from '../utils/extractDomain';
 import { AppManifest } from '../api/fetchManifest';
 import { normalizeUrl } from '../../utils/url/resolveUrl';
 import { PublicKey } from '@solana/web3.js';
+import { secp256k1 } from '@noble/curves/secp256k1';
+import { keccak_256 } from '@noble/hashes/sha3';
+
 export type SolanaProofItem = {
   name: 'solana_proof';
   payload: string;
 }
 
-export type ExtendedConnectItem = ConnectItem | SolanaProofItem;
-export type ExtendedConnectItemReply = TonAddressItemReply | TonProofItemReply | SolanaProofItemReply;
+export type EthereumProofItem = {
+  name: 'ethereum_proof';
+  payload: string;
+}
+
+export type ExtendedConnectItem = ConnectItem | SolanaProofItem | EthereumProofItem;
+export type ExtendedConnectItemReply = TonAddressItemReply | TonProofItemReply | SolanaProofItemReply | EthereumProofItemReply;
 
 export type ExtendedConnectRequest = {
   manifestUrl: string;
@@ -33,6 +41,19 @@ export type ExtendedConnectRequest = {
 
 export type SolanaProofItemReply = {
   name: 'solana_proof';
+  proof: {
+    timestamp: number;
+    domain: {
+      lengthBytes: number;
+      value: string;
+    };
+    signature: string;
+    payload: string;
+  };
+}
+
+export type EthereumProofItemReply = {
+  name: 'ethereum_proof';
   proof: {
     timestamp: number;
     domain: {
@@ -159,6 +180,63 @@ export class ConnectReplyBuilder {
 
     return {
       name: 'solana_proof',
+      proof: {
+        timestamp,
+        domain: {
+          lengthBytes: domainBuffer.byteLength,
+          value: domain,
+        },
+        signature,
+        payload,
+      },
+    };
+  }
+
+  createEthereumProofItem(
+    ethereumAddress: string,
+    ethereumPrivateKey: Uint8Array,
+    payload: string,
+  ): EthereumProofItemReply {
+    const timestamp = getTimeSec();
+    const timestampBuffer = new Int64LE(timestamp).toBuffer();
+    const normalizedUrl = normalizeUrl(this.manifest.url) ?? this.manifest.url;
+    const domain = extractDomain(normalizedUrl);
+    const domainBuffer = Buffer.from(domain);
+    const domainLengthBuffer = Buffer.allocUnsafe(4);
+    domainLengthBuffer.writeInt32LE(domainBuffer.byteLength);
+
+    // Remove 0x prefix if present
+    const addressBytes = Buffer.from(ethereumAddress.replace('0x', ''), 'hex');
+
+    const messageBuffer = Buffer.concat([
+      Buffer.from('ton-proof-item-v2/'),
+      addressBytes,
+      domainLengthBuffer,
+      domainBuffer,
+      timestampBuffer,
+      Buffer.from(payload),
+    ]);
+
+    const message = sha256_sync(messageBuffer);
+
+    const bufferToSign = Buffer.concat([
+      Buffer.from('ffff', 'hex'),
+      Buffer.from('ton-connect'),
+      message,
+    ]);
+
+    // For Ethereum we use keccak256 and secp256k1 ECDSA
+    const messageHash = keccak_256(bufferToSign);
+    const sig = secp256k1.sign(messageHash, ethereumPrivateKey);
+
+    // Encode signature as hex (r + s + v format)
+    const rHex = sig.r.toString(16).padStart(64, '0');
+    const sHex = sig.s.toString(16).padStart(64, '0');
+    const v = (sig.recovery ?? 0) + 27;
+    const signature = '0x' + rHex + sHex + v.toString(16).padStart(2, '0');
+
+    return {
+      name: 'ethereum_proof',
       proof: {
         timestamp,
         domain: {

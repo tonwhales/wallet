@@ -1,10 +1,10 @@
 import { Address, beginCell, storeStateInit } from "@ton/core";
 import { AuthParams, AuthWalletKeysType } from "../../../components/secure/AuthWalletKeys";
-import { fetchUserToken, TonSolanaAuthRequest } from "../../api/holders/fetchUserToken";
+import { fetchUserToken, TonSolanaEthereumAuthRequest } from "../../api/holders/fetchUserToken";
 import { contractFromPublicKey } from "../../contractFromPublicKey";
 import { onHoldersEnroll } from "../../effects/onHoldersEnroll";
 import { WalletKeys } from "../../../storage/walletKeys";
-import { ConnectReplyBuilder, ExtendedConnectItemReply, SolanaProofItemReply } from "../../tonconnect/ConnectReplyBuilder";
+import { ConnectReplyBuilder, EthereumProofItemReply, ExtendedConnectItemReply, SolanaProofItemReply } from "../../tonconnect/ConnectReplyBuilder";
 import { holdersUrl } from "../../api/holders/fetchUserState";
 import { getAppManifest } from "../../getters/getAppManifest";
 import { AppManifest } from "../../api/fetchManifest";
@@ -18,6 +18,8 @@ import { LedgerWallet } from "../../../fragments/ledger/components/TransportCont
 import { PublicKey } from "@solana/web3.js";
 import { getAppsFlyerUID } from "../../../analytics/appsflyer";
 import { getInvitationId, getInviteId } from "../../../utils/holders/storage";
+import { ethereumKeypairFromMnemonic } from "../../../utils/ethereum/address";
+import { secp256k1 } from "@noble/curves/secp256k1";
 
 export type HoldersEnrollParams = {
     acc: {
@@ -138,7 +140,8 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId, invita
                         items: [
                             { name: 'ton_addr' },
                             { name: 'ton_proof', payload: payload ?? 'ton-proof-any' },
-                            { name: 'solana_proof', payload: payload ?? 'solana-proof-any' }
+                            { name: 'solana_proof', payload: payload ?? 'solana-proof-any' },
+                            { name: 'ethereum_proof', payload: payload ?? 'ethereum-proof-any' }
                         ],
                         manifestUrl
                     },
@@ -146,6 +149,7 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId, invita
                 );
 
                 let replyItems: ExtendedConnectItemReply[];
+                let ethereumKeypair: { privateKey: Uint8Array; publicKey: Uint8Array; address: string };
                 try {
                     replyItems = replyBuilder.createReplyItems(
                         acc.address.toString({ testOnly: isTestnet, urlSafe: true, bounceable: true }),
@@ -154,6 +158,15 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId, invita
                         stateInitStr,
                         isTestnet
                     );
+
+                    ethereumKeypair = await ethereumKeypairFromMnemonic(walletKeys.mnemonics);
+
+                    const ethereumProofItem = replyBuilder.createEthereumProofItem(
+                        ethereumKeypair.address,
+                        ethereumKeypair.privateKey,
+                        payload ?? 'ethereum-proof-any'
+                    );
+                    replyItems.push(ethereumProofItem);
                 } catch {
                     return { type: 'error', error: HoldersEnrollErrorType.ReplyItemsFailed };
                 }
@@ -178,19 +191,21 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId, invita
                 try {
                     const tonProof = (replyItems.find((item) => item.name === 'ton_proof') as TonProofItemReplySuccess | undefined);
                     const solanaProof = (replyItems.find((item) => item.name === 'solana_proof') as SolanaProofItemReply | undefined);
+                    const ethereumProof = (replyItems.find((item) => item.name === 'ethereum_proof') as EthereumProofItemReply | undefined);
 
-                    if (!tonProof || !solanaProof) {
+                    if (!tonProof || !solanaProof || !ethereumProof) {
                         return { type: 'error', error: HoldersEnrollErrorType.NoProof };
                     }
 
                     const solanaPublicKey = new PublicKey(walletKeys.keyPair.publicKey);
+                    const ethereumPublicKey = secp256k1.getPublicKey(ethereumKeypair.privateKey, false).slice(1);
 
                     let appsflyerId;
                     try {
                         appsflyerId = await getAppsFlyerUID()
                     } catch { }
 
-                    const requestParams: TonSolanaAuthRequest = [
+                    const requestParams: TonSolanaEthereumAuthRequest = [
                         {
                             stack: 'ton',
                             network: isTestnet ? 'ton-testnet' : 'ton-mainnet',
@@ -227,6 +242,24 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId, invita
                                         signature: solanaProof.proof.signature,
                                         payload: solanaProof.proof.payload,
                                         publicKey: solanaPublicKey.toBase58()
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            stack: 'ethereum',
+                            network: isTestnet ? 'ethereum-sepolia' : 'ethereum-mainnet',
+                            key: {
+                                kind: 'tonconnect-v2',
+                                wallet: 'tonhub',
+                                config: {
+                                    address: ethereumKeypair.address,
+                                    proof: {
+                                        timestamp: ethereumProof.proof.timestamp,
+                                        domain: ethereumProof.proof.domain,
+                                        signature: ethereumProof.proof.signature,
+                                        payload: ethereumProof.proof.payload,
+                                        publicKey: Buffer.from(ethereumPublicKey).toString('hex')
                                     }
                                 }
                             }

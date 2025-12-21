@@ -12,7 +12,7 @@ import { warn } from '../../utils/log';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState, useEffect } from 'react';
 import { useEthena, useSelectedAccount, useSetAppState, useSolanaSelectedAccount, useTheme } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { useSetNetwork } from '../../engine/hooks';
@@ -35,6 +35,7 @@ import { useScreenProtectorState } from '../../engine/hooks/settings/useScreenPr
 import WebView from 'react-native-webview';
 import { holdersUrl } from '../../engine/api/holders/fetchUserState';
 import { useWebViewPreloader } from '../../components/WebViewPreloaderContext';
+import { ethereumAddressFromMnemonic } from '../../utils/ethereum/address';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -58,6 +59,7 @@ export const DeveloperToolsFragment = fragment(() => {
 
     const reboot = useReboot();
     const clearHolders = useClearHolders(isTestnet);
+    const [ethereumAddress, setEthereumAddress] = useState<string | null>(null);
 
     const resetCache = useCallback(async () => {
         queryClient.clear();
@@ -180,6 +182,62 @@ export const DeveloperToolsFragment = fragment(() => {
         );
     }, []);
 
+    const copySolanaSeedPhrase = useCallback(async () => {
+        try {
+            const walletKeys = await authContext.authenticate({ backgroundColor: theme.surfaceOnBg });
+            // Copy the same seed phrase that's used for all wallets
+            const seedPhrase = walletKeys.mnemonics.join(' ');
+            Clipboard.setString(seedPhrase);
+            if (Platform.OS === 'android') {
+                ToastAndroid.show(t('common.copiedAlert'), ToastAndroid.SHORT);
+            } else {
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            }
+        } catch (e) {
+            warn('Failed to load wallet keys');
+            Alert.alert(t('common.error'), t('errors.unknown'));
+        }
+    }, [authContext, theme.surfaceOnBg]);
+
+    const onExportSolanaSeedPhraseAlert = useCallback(() => {
+        Alert.alert(
+            "Copy seed phrase to clipboard",
+            "WARNING! Copying seed phrase to clipboard is not secure. This is the same seed phrase used for TON. Use for export to Phantom or other Solana wallets at your own risk.",
+            [
+                {
+                    text: t('common.cancel'),
+                    style: 'cancel',
+                },
+                {
+                    text: t('devTools.copySeedAlertAction'),
+                    onPress: copySolanaSeedPhrase,
+                }
+            ]
+        );
+    }, [copySolanaSeedPhrase]);
+
+    const loadEthereumAddress = useCallback(async () => {
+        try {
+            const walletKeys = await authContext.authenticate({ backgroundColor: theme.surfaceOnBg });
+            const ethAddress = await ethereumAddressFromMnemonic(walletKeys.mnemonics);
+            setEthereumAddress(ethAddress);
+        } catch (e) {
+            warn('Failed to load Ethereum address');
+            Alert.alert(t('common.error'), t('errors.unknown'));
+        }
+    }, [authContext, theme.surfaceOnBg]);
+
+    const copyEthereumAddress = useCallback(() => {
+        if (ethereumAddress) {
+            Clipboard.setString(ethereumAddress);
+            if (Platform.OS === 'android') {
+                ToastAndroid.show(t('common.copiedAlert'), ToastAndroid.SHORT);
+            } else {
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            }
+        }
+    }, [ethereumAddress]);
+
     return (
         <View style={{ flexGrow: 1, paddingTop: 32 }}>
             <ScreenHeader style={{ paddingHorizontal: 16 }} onBackPressed={navigation.goBack} title={'Dev Tools'} />
@@ -213,6 +271,9 @@ export const DeveloperToolsFragment = fragment(() => {
                         </View>
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ItemButton title={'Copy Solana private key'} onPress={onExportSolanaPKAlert} />
+                        </View>
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemButton title={'Copy seed phrase (Solana/ETH)'} onPress={onExportSolanaSeedPhraseAlert} />
                         </View>
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ItemButton dangerZone title={'Clean cache and reset'} onPress={resetCache} />
@@ -297,6 +358,24 @@ export const DeveloperToolsFragment = fragment(() => {
                     }}>
                         <Item title={"Store code"} hint={countryCodes.storeFrontCode ?? 'Not availible'} />
                         <Item title={"Country code"} hint={countryCodes.countryCode} />
+                    </View>
+                    <View style={{
+                        backgroundColor: theme.border,
+                        borderRadius: 14,
+                        overflow: 'hidden',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        padding: 4
+                    }}>
+                        {ethereumAddress ? (
+                            <ItemButton
+                                title={'Ethereum address'}
+                                hint={`${ethereumAddress.slice(0, 8)}...${ethereumAddress.slice(-6)}`}
+                                onPress={copyEthereumAddress}
+                            />
+                        ) : (
+                            <ItemButton title={'Load Ethereum address'} onPress={loadEthereumAddress} />
+                        )}
                     </View>
                     {__DEV__ && (
                         <View style={{

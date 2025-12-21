@@ -108,8 +108,35 @@ const solanaAuthRequestCodec = z.object({
     }),
 });
 
+export const tonconnectV2EthereumConfig = z.object({
+    address: z.string(),
+    proof: z.object({
+        timestamp: z.number(),
+        domain: z.object({
+            lengthBytes: z.number(),
+            value: z.string(),
+        }),
+        signature: z.string(),
+        payload: z.string(),
+        publicKey: z.string(),
+    }),
+});
+
+export type TonConnectV2EthereumConfig = z.infer<typeof tonconnectV2EthereumConfig>;
+
+const ethereumAuthRequestCodec = z.object({
+    stack: z.literal('ethereum'),
+    network: z.union([z.literal('ethereum-mainnet'), z.literal('ethereum-sepolia')]),
+    key: z.object({
+        kind: z.literal('tonconnect-v2'),
+        wallet: z.literal('tonhub'),
+        config: tonconnectV2EthereumConfig,
+    }),
+});
+
 export type TonAuthRequest = z.infer<typeof tonAuthRequestCodec>;
 export type SolanaAuthRequest = z.infer<typeof solanaAuthRequestCodec>;
+export type EthereumAuthRequest = z.infer<typeof ethereumAuthRequestCodec>;
 
 const tonSolanaAuthRequestCodec = z.tuple([
     tonAuthRequestCodec,
@@ -117,6 +144,14 @@ const tonSolanaAuthRequestCodec = z.tuple([
 ]);
 
 export type TonSolanaAuthRequest = z.infer<typeof tonSolanaAuthRequestCodec>;
+
+const tonSolanaEthereumAuthRequestCodec = z.tuple([
+    tonAuthRequestCodec,
+    solanaAuthRequestCodec,
+    ethereumAuthRequestCodec,
+]);
+
+export type TonSolanaEthereumAuthRequest = z.infer<typeof tonSolanaEthereumAuthRequestCodec>;
 
 const tonhubLedgerConfig = z.object({
     address: z.string(),
@@ -139,7 +174,7 @@ const keys = z.union([tonXKey, tonXLiteKey, tonconnectV2Key, tonhubLedgerKey]);
 
 export type AccountKeyParam = z.infer<typeof keys>;
 
-export async function fetchUserToken(requestParams: TonSolanaAuthRequest | TonAuthRequest, isTestnet: boolean): Promise<string> {
+export async function fetchUserToken(requestParams: TonSolanaAuthRequest | TonSolanaEthereumAuthRequest | TonAuthRequest, isTestnet: boolean): Promise<string> {
     const endpoint = holdersEndpoint(isTestnet);
 
     const url = `https://${endpoint}/v2/user/wallet/connect`;

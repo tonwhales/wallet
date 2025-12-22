@@ -12,4 +12,5 @@ export type SelectedAccount = {
     secretKeyEnc: Buffer;
     utilityKey: Buffer;
     version: WalletVersions;
+    ethereumSecretKeyEnc?: Buffer;
 }

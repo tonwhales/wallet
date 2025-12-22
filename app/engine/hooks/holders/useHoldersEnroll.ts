@@ -1,6 +1,6 @@
 import { Address, beginCell, storeStateInit } from "@ton/core";
 import { AuthParams, AuthWalletKeysType } from "../../../components/secure/AuthWalletKeys";
-import { fetchUserToken, TonSolanaEthereumAuthRequest } from "../../api/holders/fetchUserToken";
+import { fetchUserToken, TonSolanaAuthRequest, TonSolanaEthereumAuthRequest } from "../../api/holders/fetchUserToken";
 import { contractFromPublicKey } from "../../contractFromPublicKey";
 import { onHoldersEnroll } from "../../effects/onHoldersEnroll";
 import { WalletKeys } from "../../../storage/walletKeys";
@@ -18,8 +18,6 @@ import { LedgerWallet } from "../../../fragments/ledger/components/TransportCont
 import { PublicKey } from "@solana/web3.js";
 import { getAppsFlyerUID } from "../../../analytics/appsflyer";
 import { getInvitationId, getInviteId } from "../../../utils/holders/storage";
-import { ethereumKeypairFromMnemonic } from "../../../utils/ethereum/address";
-import { secp256k1 } from "@noble/curves/secp256k1";
 
 export type HoldersEnrollParams = {
     acc: {
@@ -149,24 +147,15 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId, invita
                 );
 
                 let replyItems: ExtendedConnectItemReply[];
-                let ethereumKeypair: { privateKey: Uint8Array; publicKey: Uint8Array; address: string };
                 try {
                     replyItems = replyBuilder.createReplyItems(
                         acc.address.toString({ testOnly: isTestnet, urlSafe: true, bounceable: true }),
                         Uint8Array.from(walletKeys.keyPair.secretKey),
                         Uint8Array.from(walletKeys.keyPair.publicKey),
                         stateInitStr,
-                        isTestnet
+                        isTestnet,
+                        walletKeys.ethKeyPair
                     );
-
-                    ethereumKeypair = await ethereumKeypairFromMnemonic(walletKeys.mnemonics);
-
-                    const ethereumProofItem = replyBuilder.createEthereumProofItem(
-                        ethereumKeypair.address,
-                        ethereumKeypair.privateKey,
-                        payload ?? 'ethereum-proof-any'
-                    );
-                    replyItems.push(ethereumProofItem);
                 } catch {
                     return { type: 'error', error: HoldersEnrollErrorType.ReplyItemsFailed };
                 }
@@ -193,78 +182,85 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId, invita
                     const solanaProof = (replyItems.find((item) => item.name === 'solana_proof') as SolanaProofItemReply | undefined);
                     const ethereumProof = (replyItems.find((item) => item.name === 'ethereum_proof') as EthereumProofItemReply | undefined);
 
-                    if (!tonProof || !solanaProof || !ethereumProof) {
+                    if (!tonProof || !solanaProof) {
                         return { type: 'error', error: HoldersEnrollErrorType.NoProof };
                     }
 
                     const solanaPublicKey = new PublicKey(walletKeys.keyPair.publicKey);
-                    const ethereumPublicKey = secp256k1.getPublicKey(ethereumKeypair.privateKey, false).slice(1);
 
                     let appsflyerId;
                     try {
                         appsflyerId = await getAppsFlyerUID()
                     } catch { }
 
-                    const requestParams: TonSolanaEthereumAuthRequest = [
-                        {
-                            stack: 'ton',
-                            network: isTestnet ? 'ton-testnet' : 'ton-mainnet',
-                            key: {
-                                kind: 'tonconnect-v2',
-                                wallet: 'tonhub',
-                                config: {
-                                    address: acc.address.toRawString(),
-                                    proof: {
-                                        timestamp: tonProof.proof.timestamp,
-                                        domain: tonProof.proof.domain,
-                                        signature: tonProof.proof.signature,
-                                        payload: tonProof.proof.payload,
-                                        publicKey: walletKeys.keyPair.publicKey.toString('hex'),
-                                        walletStateInit: stateInitStr
-                                    }
-                                }
-                            },
-                            inviteId,
-                            invitationId: invitationId ?? storedInvitationId,
-                            appsflyerId
-                        },
-                        {
-                            stack: 'solana',
-                            network: isTestnet ? 'solana-devnet' : 'solana-mainnet',
-                            key: {
-                                kind: 'tonconnect-v2',
-                                wallet: 'tonhub',
-                                config: {
-                                    address: solanaPublicKey.toBase58(),
-                                    proof: {
-                                        timestamp: solanaProof.proof.timestamp,
-                                        domain: solanaProof.proof.domain,
-                                        signature: solanaProof.proof.signature,
-                                        payload: solanaProof.proof.payload,
-                                        publicKey: solanaPublicKey.toBase58()
-                                    }
+                    const tonAuth = {
+                        stack: 'ton' as const,
+                        network: isTestnet ? 'ton-testnet' as const : 'ton-mainnet' as const,
+                        key: {
+                            kind: 'tonconnect-v2' as const,
+                            wallet: 'tonhub' as const,
+                            config: {
+                                address: acc.address.toRawString(),
+                                proof: {
+                                    timestamp: tonProof.proof.timestamp,
+                                    domain: tonProof.proof.domain,
+                                    signature: tonProof.proof.signature,
+                                    payload: tonProof.proof.payload,
+                                    publicKey: walletKeys.keyPair.publicKey.toString('hex'),
+                                    walletStateInit: stateInitStr
                                 }
                             }
                         },
-                        {
-                            stack: 'ethereum',
-                            network: isTestnet ? 'ethereum-sepolia' : 'ethereum-mainnet',
+                        inviteId,
+                        invitationId: invitationId ?? storedInvitationId,
+                        appsflyerId
+                    };
+
+                    const solanaAuth = {
+                        stack: 'solana' as const,
+                        network: isTestnet ? 'solana-devnet' as const : 'solana-mainnet' as const,
+                        key: {
+                            kind: 'tonconnect-v2' as const,
+                            wallet: 'tonhub' as const,
+                            config: {
+                                address: solanaPublicKey.toBase58(),
+                                proof: {
+                                    timestamp: solanaProof.proof.timestamp,
+                                    domain: solanaProof.proof.domain,
+                                    signature: solanaProof.proof.signature,
+                                    payload: solanaProof.proof.payload,
+                                    publicKey: solanaPublicKey.toBase58()
+                                }
+                            }
+                        }
+                    };
+
+                    // Build request params based on available auth methods
+                    let requestParams: TonSolanaAuthRequest | TonSolanaEthereumAuthRequest;
+
+                    if (walletKeys.ethKeyPair && ethereumProof) {
+                        const ethereumAuth = {
+                            stack: 'ethereum' as const,
+                            network: isTestnet ? 'ethereum-sepolia' as const : 'ethereum-mainnet' as const,
                             key: {
-                                kind: 'tonconnect-v2',
-                                wallet: 'tonhub',
+                                kind: 'tonconnect-v2' as const,
+                                wallet: 'tonhub' as const,
                                 config: {
-                                    address: ethereumKeypair.address,
+                                    address: walletKeys.ethKeyPair.address,
                                     proof: {
                                         timestamp: ethereumProof.proof.timestamp,
                                         domain: ethereumProof.proof.domain,
                                         signature: ethereumProof.proof.signature,
                                         payload: ethereumProof.proof.payload,
-                                        publicKey: Buffer.from(ethereumPublicKey).toString('hex')
+                                        publicKey: Buffer.from(walletKeys.ethKeyPair.publicKey).toString('hex')
                                     }
                                 }
                             }
-                        }
-                    ];
+                        };
+                        requestParams = [tonAuth, solanaAuth, ethereumAuth];
+                    } else {
+                        requestParams = [tonAuth, solanaAuth];
+                    }
 
                     const token = await fetchUserToken(requestParams, isTestnet);
 

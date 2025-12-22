@@ -31,7 +31,8 @@ const stateStorageAddress_v2 = t.intersection([
             t.literal(WalletVersions.v4R2),
             t.literal(WalletVersions.v5R1),
             t.undefined
-        ])
+        ]),
+        ethereumSecretKeyEnc: t.string
     }),
     t.type({
         address: t.string,
@@ -70,7 +71,8 @@ function serializeAppState(state: AppState, isTestnet: boolean): t.TypeOf<typeof
             publicKey: v.publicKey.toString('base64'),
             secretKeyEnc: v.secretKeyEnc.toString('base64'),
             utilityKey: v.utilityKey.toString('base64'),
-            version: v.version
+            version: v.version,
+            ethereumSecretKeyEnc: v.ethereumSecretKeyEnc?.toString('base64')
         }))
     };
 }
@@ -197,7 +199,8 @@ export function getAppState(): AppState {
             publicKey: global.Buffer.from(v.publicKey, 'base64'),
             secretKeyEnc: global.Buffer.from(v.secretKeyEnc, 'base64'),
             utilityKey: global.Buffer.from(v.utilityKey, 'base64'),
-            version: v.version || WalletVersions.v4R2
+            version: v.version || WalletVersions.v4R2,
+            ethereumSecretKeyEnc: v.ethereumSecretKeyEnc ? Buffer.from(v.ethereumSecretKeyEnc, 'base64') : undefined
         }))
     };
 }

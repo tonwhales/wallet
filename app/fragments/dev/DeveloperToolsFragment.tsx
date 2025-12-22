@@ -17,7 +17,7 @@ import { useEthena, useSelectedAccount, useSetAppState, useSolanaSelectedAccount
 import { useNetwork } from '../../engine/hooks';
 import { useSetNetwork } from '../../engine/hooks';
 import { onAccountTouched } from '../../engine/effects/onAccountTouched';
-import { AppState, getAppState } from '../../storage/appState';
+import { AppState, getAppState, setAppState } from '../../storage/appState';
 import { useClearHolders } from '../../engine/hooks';
 import { useHoldersAccounts } from '../../engine/hooks';
 import { useHoldersAccountStatus } from '../../engine/hooks';
@@ -35,7 +35,8 @@ import { useScreenProtectorState } from '../../engine/hooks/settings/useScreenPr
 import WebView from 'react-native-webview';
 import { holdersUrl } from '../../engine/api/holders/fetchUserState';
 import { useWebViewPreloader } from '../../components/WebViewPreloaderContext';
-import { ethereumAddressFromMnemonic } from '../../utils/ethereum/address';
+import { ethereumPrivateKeyFromMnemonic } from '../../utils/ethereum/address';
+import { BiometricsState, encryptData, getBiometricsState, getPasscodeState, PasscodeState } from '../../storage/secureStorage';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -182,45 +183,14 @@ export const DeveloperToolsFragment = fragment(() => {
         );
     }, []);
 
-    const copySolanaSeedPhrase = useCallback(async () => {
-        try {
-            const walletKeys = await authContext.authenticate({ backgroundColor: theme.surfaceOnBg });
-            // Copy the same seed phrase that's used for all wallets
-            const seedPhrase = walletKeys.mnemonics.join(' ');
-            Clipboard.setString(seedPhrase);
-            if (Platform.OS === 'android') {
-                ToastAndroid.show(t('common.copiedAlert'), ToastAndroid.SHORT);
-            } else {
-                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-            }
-        } catch (e) {
-            warn('Failed to load wallet keys');
-            Alert.alert(t('common.error'), t('errors.unknown'));
-        }
-    }, [authContext, theme.surfaceOnBg]);
-
-    const onExportSolanaSeedPhraseAlert = useCallback(() => {
-        Alert.alert(
-            "Copy seed phrase to clipboard",
-            "WARNING! Copying seed phrase to clipboard is not secure. This is the same seed phrase used for TON. Use for export to Phantom or other Solana wallets at your own risk.",
-            [
-                {
-                    text: t('common.cancel'),
-                    style: 'cancel',
-                },
-                {
-                    text: t('devTools.copySeedAlertAction'),
-                    onPress: copySolanaSeedPhrase,
-                }
-            ]
-        );
-    }, [copySolanaSeedPhrase]);
-
     const loadEthereumAddress = useCallback(async () => {
         try {
             const walletKeys = await authContext.authenticate({ backgroundColor: theme.surfaceOnBg });
-            const ethAddress = await ethereumAddressFromMnemonic(walletKeys.mnemonics);
-            setEthereumAddress(ethAddress);
+            if (walletKeys.ethKeyPair) {
+                setEthereumAddress(walletKeys.ethKeyPair.address);
+            } else {
+                Alert.alert(t('common.error'), 'Ethereum wallet not created');
+            }
         } catch (e) {
             warn('Failed to load Ethereum address');
             Alert.alert(t('common.error'), t('errors.unknown'));
@@ -237,6 +207,68 @@ export const DeveloperToolsFragment = fragment(() => {
             }
         }
     }, [ethereumAddress]);
+
+    const hasEthereumWallet = !!acc.ethereumSecretKeyEnc;
+
+    const createEthereumWallet = useCallback(async () => {
+        try {
+            // Check authentication method
+            const passcodeState = getPasscodeState();
+            const biometricsState = getBiometricsState();
+            const useBiometrics = biometricsState === BiometricsState.InUse;
+
+            let walletKeys: WalletKeys;
+            let ethereumSecretKeyEnc: Buffer;
+
+            // Generate Ethereum private key from mnemonic
+            if (useBiometrics) {
+                // Use biometrics authentication
+                walletKeys = await authContext.authenticate({ backgroundColor: theme.surfaceOnBg });
+                const ethereumPrivateKey = await ethereumPrivateKeyFromMnemonic(walletKeys.mnemonics);
+                ethereumSecretKeyEnc = await encryptData(Buffer.from(ethereumPrivateKey));
+            } else if (passcodeState === PasscodeState.Set) {
+                // Use passcode authentication
+                const authResult = await authContext.authenticateWithPasscode({ backgroundColor: theme.surfaceOnBg });
+                walletKeys = authResult.keys;
+                const ethereumPrivateKey = await ethereumPrivateKeyFromMnemonic(walletKeys.mnemonics);
+                ethereumSecretKeyEnc = await encryptData(Buffer.from(ethereumPrivateKey), authResult.passcode);
+            } else {
+                throw new Error('No authentication method available');
+            }
+
+            // Update appState with the new Ethereum key
+            const appState = getAppState();
+            const updatedAddresses = appState.addresses.map((address, index) => {
+                if (index === appState.selected) {
+                    return {
+                        ...address,
+                        ethereumSecretKeyEnc
+                    };
+                }
+                return address;
+            });
+
+            setAppState({
+                ...appState,
+                addresses: updatedAddresses
+            }, isTestnet);
+
+            // Reload to get the new ethKeyPair and display address
+            const updatedWalletKeys = await authContext.authenticate({ backgroundColor: theme.surfaceOnBg });
+            if (updatedWalletKeys.ethKeyPair) {
+                setEthereumAddress(updatedWalletKeys.ethKeyPair.address);
+            }
+
+            if (Platform.OS === 'android') {
+                ToastAndroid.show('Ethereum wallet created', ToastAndroid.SHORT);
+            } else {
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            }
+        } catch (e) {
+            warn('Failed to create Ethereum wallet');
+            Alert.alert(t('common.error'), t('errors.unknown'));
+        }
+    }, [authContext, theme.surfaceOnBg, isTestnet]);
 
     return (
         <View style={{ flexGrow: 1, paddingTop: 32 }}>
@@ -271,9 +303,6 @@ export const DeveloperToolsFragment = fragment(() => {
                         </View>
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ItemButton title={'Copy Solana private key'} onPress={onExportSolanaPKAlert} />
-                        </View>
-                        <View style={{ marginHorizontal: 16, width: '100%' }}>
-                            <ItemButton title={'Copy seed phrase (Solana/ETH)'} onPress={onExportSolanaSeedPhraseAlert} />
                         </View>
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ItemButton dangerZone title={'Clean cache and reset'} onPress={resetCache} />
@@ -367,7 +396,9 @@ export const DeveloperToolsFragment = fragment(() => {
                         alignItems: 'center',
                         padding: 4
                     }}>
-                        {ethereumAddress ? (
+                        {!hasEthereumWallet ? (
+                            <ItemButton title={'Create Ethereum wallet'} onPress={createEthereumWallet} />
+                        ) : ethereumAddress ? (
                             <ItemButton
                                 title={'Ethereum address'}
                                 hint={`${ethereumAddress.slice(0, 8)}...${ethereumAddress.slice(-6)}`}

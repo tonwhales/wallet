@@ -249,7 +249,14 @@ export class ConnectReplyBuilder {
     };
   }
 
-  createReplyItems(addr: string, privateKey: Uint8Array, publicKey: Uint8Array, walletStateInit: string, isTestnet: boolean): ExtendedConnectItemReply[] {
+  createReplyItems(
+    addr: string,
+    privateKey: Uint8Array,
+    publicKey: Uint8Array,
+    walletStateInit: string,
+    isTestnet: boolean,
+    eth?: { privateKey: Uint8Array; publicKey: Uint8Array; address: string }
+  ): ExtendedConnectItemReply[] {
     const address = Address.parse(addr).toRawString();
 
     const replyItems = this.request.items.map((requestItem): ExtendedConnectItemReply => {
@@ -269,6 +276,12 @@ export class ConnectReplyBuilder {
         case 'solana_proof':
           const solanaPublicKey = new PublicKey(publicKey);
           return this.createSolanaProofItem(solanaPublicKey, privateKey, requestItem.payload);
+
+        case 'ethereum_proof':
+          if (!eth) {
+            throw new Error('Ethereum keys are required for ethereum_proof');
+          }
+          return this.createEthereumProofItem(eth.address, eth.privateKey, requestItem.payload);
 
         default:
           throw new Error('Unsupported method');

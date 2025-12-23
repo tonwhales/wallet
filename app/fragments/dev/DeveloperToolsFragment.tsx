@@ -311,6 +311,11 @@ export const DeveloperToolsFragment = fragment(() => {
                             hint={'Ethereum wallet tools'}
                             onPress={() => navigation.navigate('Ethereum')}
                         />
+                        <ItemButton
+                            title={'BIP39 Generator'}
+                            hint={'Generate BIP39 mnemonics'}
+                            onPress={() => navigation.navigate('Bip39Generator')}
+                        />
                     </View>
                     {__DEV__ && (
                         <View style={{

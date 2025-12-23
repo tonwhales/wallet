@@ -17,6 +17,7 @@ import { useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
 import { ToastDuration, useToaster } from '../../components/toast/ToastProvider';
 import { StatusBar } from 'expo-status-bar';
 import { Buffer } from 'buffer';
+import { Typography } from '../../components/styles';
 
 export const EthereumSeedFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -122,23 +123,19 @@ export const EthereumSeedFragment = fragment(() => {
                 showsVerticalScrollIndicator={false}
                 style={{ flexGrow: 1, width: '100%', paddingHorizontal: 16 }}
             >
-                <Text style={{
-                    fontSize: 32, lineHeight: 38,
-                    fontWeight: '600',
+                <Text style={[{
                     textAlign: 'center',
                     color: theme.textPrimary,
                     marginBottom: 12, marginTop: 16
-                }}>
+                }, Typography.semiBold32_38]}>
                     {'Private Key'}
                 </Text>
-                <Text style={{
+                <Text style={[{
                     textAlign: 'center',
-                    fontSize: 17, lineHeight: 24,
-                    fontWeight: '400',
                     flexShrink: 1,
                     color: theme.textSecondary,
                     marginBottom: 16
-                }}>
+                }, Typography.regular17_24]}>
                     {'Use this private key to import your wallet into MetaMask or other Ethereum wallets.'}
                 </Text>
 
@@ -149,20 +146,16 @@ export const EthereumSeedFragment = fragment(() => {
                         padding: 16,
                         marginBottom: 16
                     }}>
-                        <Text style={{
-                            fontSize: 13,
-                            fontWeight: '500',
+                        <Text style={[{
                             color: theme.textSecondary,
                             marginBottom: 4
-                        }}>
+                        }, Typography.medium13_18]}>
                             {'Address'}
                         </Text>
-                        <Text style={{
-                            fontSize: 15,
-                            fontWeight: '500',
+                        <Text style={[{
                             color: theme.textPrimary,
                             fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace'
-                        }}>
+                        }, Typography.medium15_20]}>
                             {address}
                         </Text>
                     </View>
@@ -173,21 +166,16 @@ export const EthereumSeedFragment = fragment(() => {
                     borderRadius: 14,
                     padding: 16,
                 }}>
-                    <Text style={{
-                        fontSize: 13,
-                        fontWeight: '500',
+                    <Text style={[{
                         color: theme.textSecondary,
                         marginBottom: 8
-                    }}>
+                    }, Typography.medium13_18]}>
                         {'Private Key'}
                     </Text>
-                    <Text style={{
-                        fontSize: 14,
-                        fontWeight: '500',
+                    <Text style={[{
                         color: theme.textPrimary,
                         fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
-                        lineHeight: 20
-                    }}
+                    }, Typography.medium15_20]}
                         selectable={true}
                     >
                         {privateKey}

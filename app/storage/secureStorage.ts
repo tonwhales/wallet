@@ -240,6 +240,27 @@ export async function decryptData(data: Buffer, passcode?: string) {
     return res;
 }
 
+export async function decryptDataBatch(dataArray: (Buffer | undefined)[], passcode?: string): Promise<(Buffer | null)[]> {
+    const key = await getApplicationKey(passcode);
+
+    return dataArray.map((data) => {
+        if (!data) {
+            return null;
+        }
+        try {
+            const nonce = data.slice(0, 24);
+            const cypherData = data.slice(24);
+            const res = openBox(cypherData, nonce, key);
+            if (!res) {
+                return null;
+            }
+            return res;
+        } catch {
+            return null;
+        }
+    });
+}
+
 export async function generateKeyFromPasscode(pass: string, nacl?: string) {
     if (typeof pass !== 'string') {
         throw Error('Invalid password');

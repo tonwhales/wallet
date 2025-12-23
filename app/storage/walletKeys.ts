@@ -1,5 +1,5 @@
 import { KeyPair, mnemonicToWalletKey } from "@ton/crypto";
-import { decryptData } from "./secureStorage";
+import { decryptDataBatch } from "./secureStorage";
 import { Platform } from "react-native";
 import { secp256k1 } from "@noble/curves/secp256k1";
 import { ethereumAddressFromPrivateKey } from "../utils/ethereum/address";
@@ -42,15 +42,23 @@ export async function loadWalletKeys(
     ethereumSecretKeyEnc?: Buffer
 ): Promise<WalletKeys> {
     try {
-        let plainText = await decryptData(secretKeyEnc, passcode);
-        let mnemonics = plainText.toString().split(' ');
-        let walletKey = await mnemonicToWalletKey(mnemonics);
+        // Decrypt all keys in a single batch to avoid multiple auth prompts
+        const [plainText, ethereumPrivateKey] = await decryptDataBatch(
+            [secretKeyEnc, ethereumSecretKeyEnc],
+            passcode
+        );
 
-        // Decrypt Ethereum keys if available
+        if (!plainText) {
+            throw new Error('Failed to decrypt main key');
+        }
+
+        const mnemonics = plainText.toString().split(' ');
+        const walletKey = await mnemonicToWalletKey(mnemonics);
+
+        // Process Ethereum keys if decryption succeeded
         let ethKeyPair: EthKeyPair | undefined;
-        if (ethereumSecretKeyEnc) {
+        if (ethereumPrivateKey) {
             try {
-                const ethereumPrivateKey = await decryptData(ethereumSecretKeyEnc, passcode);
                 const ethereumPrivateKeyArray = new Uint8Array(ethereumPrivateKey);
                 const ethereumPublicKey = secp256k1.getPublicKey(ethereumPrivateKeyArray, false).slice(1);
                 const ethereumAddress = ethereumAddressFromPrivateKey(ethereumPrivateKeyArray);
@@ -60,7 +68,7 @@ export async function loadWalletKeys(
                     address: ethereumAddress
                 };
             } catch {
-                // Ethereum keys decryption failed, continue without them
+                // Ethereum keys processing failed, continue without them
             }
         }
 

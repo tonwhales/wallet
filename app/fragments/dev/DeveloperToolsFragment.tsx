@@ -12,7 +12,7 @@ import { warn } from '../../utils/log';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
-import { useCallback, useRef, useState, useEffect } from 'react';
+import { useCallback, useRef } from 'react';
 import { useEthena, useSelectedAccount, useSetAppState, useSolanaSelectedAccount, useTheme } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { useSetNetwork } from '../../engine/hooks';
@@ -35,15 +35,6 @@ import { useScreenProtectorState } from '../../engine/hooks/settings/useScreenPr
 import WebView from 'react-native-webview';
 import { holdersUrl } from '../../engine/api/holders/fetchUserState';
 import { useWebViewPreloader } from '../../components/WebViewPreloaderContext';
-import { ethereumPrivateKeyFromMnemonic } from '../../utils/ethereum/address';
-import { BiometricsState, encryptData, getBiometricsState, getPasscodeState, PasscodeState } from '../../storage/secureStorage';
-import {
-    getEthBalance,
-    formatEthBalance,
-    createSelfTransferTransaction,
-    sendRawTransaction,
-    waitForTransaction
-} from '../../utils/ethereum/transactions';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -67,9 +58,6 @@ export const DeveloperToolsFragment = fragment(() => {
 
     const reboot = useReboot();
     const clearHolders = useClearHolders(isTestnet);
-    const [ethereumAddress, setEthereumAddress] = useState<string | null>(null);
-    const [ethBalance, setEthBalance] = useState<string | null>(null);
-    const [ethTxStatus, setEthTxStatus] = useState<string | null>(null);
 
     const resetCache = useCallback(async () => {
         queryClient.clear();
@@ -191,189 +179,6 @@ export const DeveloperToolsFragment = fragment(() => {
             ]
         );
     }, []);
-
-    const loadEthereumAddress = useCallback(async () => {
-        try {
-            const walletKeys = await authContext.authenticate({ backgroundColor: theme.surfaceOnBg });
-            if (walletKeys.ethKeyPair) {
-                setEthereumAddress(walletKeys.ethKeyPair.address);
-            } else {
-                Alert.alert(t('common.error'), 'Ethereum wallet not created');
-            }
-        } catch (e) {
-            warn('Failed to load Ethereum address');
-            Alert.alert(t('common.error'), t('errors.unknown'));
-        }
-    }, [authContext, theme.surfaceOnBg]);
-
-    const copyEthereumAddress = useCallback(() => {
-        if (ethereumAddress) {
-            Clipboard.setString(ethereumAddress);
-            if (Platform.OS === 'android') {
-                ToastAndroid.show(t('common.copiedAlert'), ToastAndroid.SHORT);
-            } else {
-                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-            }
-        }
-    }, [ethereumAddress]);
-
-    const hasEthereumWallet = !!acc.ethereumSecretKeyEnc;
-
-    const createEthereumWallet = useCallback(async () => {
-        try {
-            // Check authentication method
-            const passcodeState = getPasscodeState();
-            const biometricsState = getBiometricsState();
-            const useBiometrics = biometricsState === BiometricsState.InUse;
-
-            let walletKeys: WalletKeys;
-            let ethereumSecretKeyEnc: Buffer;
-
-            // Generate Ethereum private key from mnemonic
-            if (useBiometrics) {
-                // Use biometrics authentication
-                walletKeys = await authContext.authenticate({ backgroundColor: theme.surfaceOnBg });
-                const ethereumPrivateKey = await ethereumPrivateKeyFromMnemonic(walletKeys.mnemonics);
-                ethereumSecretKeyEnc = await encryptData(Buffer.from(ethereumPrivateKey));
-            } else if (passcodeState === PasscodeState.Set) {
-                // Use passcode authentication
-                const authResult = await authContext.authenticateWithPasscode({ backgroundColor: theme.surfaceOnBg });
-                walletKeys = authResult.keys;
-                const ethereumPrivateKey = await ethereumPrivateKeyFromMnemonic(walletKeys.mnemonics);
-                ethereumSecretKeyEnc = await encryptData(Buffer.from(ethereumPrivateKey), authResult.passcode);
-            } else {
-                throw new Error('No authentication method available');
-            }
-
-            // Update appState with the new Ethereum key
-            const appState = getAppState();
-            const updatedAddresses = appState.addresses.map((address, index) => {
-                if (index === appState.selected) {
-                    return {
-                        ...address,
-                        ethereumSecretKeyEnc
-                    };
-                }
-                return address;
-            });
-
-            setAppState({
-                ...appState,
-                addresses: updatedAddresses
-            }, isTestnet);
-
-            // Reload to get the new ethKeyPair and display address
-            const updatedWalletKeys = await authContext.authenticate({ backgroundColor: theme.surfaceOnBg });
-            if (updatedWalletKeys.ethKeyPair) {
-                setEthereumAddress(updatedWalletKeys.ethKeyPair.address);
-            }
-
-            if (Platform.OS === 'android') {
-                ToastAndroid.show('Ethereum wallet created', ToastAndroid.SHORT);
-            } else {
-                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-            }
-        } catch (e) {
-            warn('Failed to create Ethereum wallet');
-            Alert.alert(t('common.error'), t('errors.unknown'));
-        }
-    }, [authContext, theme.surfaceOnBg, isTestnet]);
-
-    const fetchEthBalanceAndTest = useCallback(async () => {
-        try {
-            setEthTxStatus('Authenticating...');
-            const walletKeys = await authContext.authenticate({ backgroundColor: theme.surfaceOnBg });
-
-            if (!walletKeys.ethKeyPair) {
-                Alert.alert(t('common.error'), 'Ethereum wallet not created');
-                setEthTxStatus(null);
-                return;
-            }
-
-            const { address, privateKey } = walletKeys.ethKeyPair;
-
-            // Fetch balance
-            setEthTxStatus('Fetching balance...');
-            const balance = await getEthBalance(address, isTestnet);
-            const formattedBalance = formatEthBalance(balance);
-            setEthBalance(formattedBalance);
-
-            if (balance === 0n) {
-                setEthTxStatus('Balance is 0');
-                Alert.alert(
-                    'ETH Balance',
-                    `Balance: ${formattedBalance} ETH\n\nNo funds to test transaction.${isTestnet ? '\n\nGet testnet ETH from a Sepolia faucet.' : ''}`
-                );
-                return;
-            }
-
-            // Ask if user wants to send test transaction
-            Alert.alert(
-                'ETH Balance',
-                `Balance: ${formattedBalance} ETH\n\nDo you want to send a test transaction (1 wei) to yourself?`,
-                [
-                    {
-                        text: t('common.cancel'),
-                        style: 'cancel',
-                        onPress: () => setEthTxStatus(null)
-                    },
-                    {
-                        text: 'Send Test TX',
-                        onPress: async () => {
-                            try {
-                                // Create and sign transaction
-                                setEthTxStatus('Creating transaction...');
-                                const { signedTx, tx } = await createSelfTransferTransaction(
-                                    address,
-                                    privateKey,
-                                    isTestnet
-                                );
-
-                                // Send transaction
-                                setEthTxStatus('Sending transaction...');
-                                const txHash = await sendRawTransaction(signedTx, isTestnet);
-
-                                setEthTxStatus(`TX sent: ${txHash.slice(0, 10)}...`);
-
-                                // Wait for confirmation
-                                setEthTxStatus('Waiting for confirmation...');
-                                const receipt = await waitForTransaction(txHash, isTestnet, 120000);
-
-                                const success = receipt.status === '0x1';
-                                setEthTxStatus(success ? 'TX confirmed!' : 'TX failed');
-
-                                // Refresh balance
-                                const newBalance = await getEthBalance(address, isTestnet);
-                                setEthBalance(formatEthBalance(newBalance));
-
-                                Alert.alert(
-                                    success ? 'Transaction Successful' : 'Transaction Failed',
-                                    `TX Hash: ${txHash}\n\nGas Used: ${parseInt(receipt.gasUsed, 16)}\nBlock: ${parseInt(receipt.blockNumber, 16)}`,
-                                    [
-                                        {
-                                            text: 'Copy TX Hash',
-                                            onPress: () => {
-                                                Clipboard.setString(txHash);
-                                                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-                                            }
-                                        },
-                                        { text: 'OK' }
-                                    ]
-                                );
-                            } catch (txError: any) {
-                                setEthTxStatus('TX failed');
-                                Alert.alert('Transaction Error', txError.message || 'Unknown error');
-                            }
-                        }
-                    }
-                ]
-            );
-        } catch (e: any) {
-            warn('Failed to fetch ETH balance');
-            setEthTxStatus(null);
-            Alert.alert(t('common.error'), e.message || t('errors.unknown'));
-        }
-    }, [authContext, theme.surfaceOnBg, isTestnet]);
 
     return (
         <View style={{ flexGrow: 1, paddingTop: 32 }}>
@@ -501,24 +306,11 @@ export const DeveloperToolsFragment = fragment(() => {
                         alignItems: 'center',
                         padding: 4
                     }}>
-                        {!hasEthereumWallet ? (
-                            <ItemButton title={'Create Ethereum wallet'} onPress={createEthereumWallet} />
-                        ) : ethereumAddress ? (
-                            <>
-                                <ItemButton
-                                    title={'Ethereum address'}
-                                    hint={`${ethereumAddress.slice(0, 8)}...${ethereumAddress.slice(-6)}`}
-                                    onPress={copyEthereumAddress}
-                                />
-                                <ItemButton
-                                    title={'Test ETH Transfer'}
-                                    hint={ethBalance ? `${ethBalance} ETH${ethTxStatus ? ` • ${ethTxStatus}` : ''}` : (ethTxStatus || 'Fetch balance & test')}
-                                    onPress={fetchEthBalanceAndTest}
-                                />
-                            </>
-                        ) : (
-                            <ItemButton title={'Load Ethereum address'} onPress={loadEthereumAddress} />
-                        )}
+                        <ItemButton
+                            title={'Ethereum'}
+                            hint={'Ethereum wallet tools'}
+                            onPress={() => navigation.navigate('Ethereum')}
+                        />
                     </View>
                     {__DEV__ && (
                         <View style={{

@@ -16,6 +16,8 @@ import { PrivacyFragment } from './fragments/onboarding/PrivacyFragment';
 import { TermsFragment } from './fragments/onboarding/TermsFragment';
 import { resolveOnboarding } from './fragments/resolveOnboarding';
 import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
+import { EthereumFragment } from './fragments/dev/EthereumFragment';
+import { EthereumSeedFragment } from './fragments/dev/EthereumSeedFragment';
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { getPendingGrant, getPendingRevoke, removePendingGrant, removePendingRevoke } from './storage/appState';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -272,6 +274,8 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('DeveloperTools', DeveloperToolsFragment, safeArea, true, 0),
     genericScreen('DeveloperToolsStorage', DevStorageFragment, safeArea),
     genericScreen('DevDAppWebView', DevDAppWebViewFragment, safeArea, true, 0),
+    genericScreen('Ethereum', EthereumFragment, safeArea, true, 0),
+    modalScreen('EthereumSeed', EthereumSeedFragment, safeArea),
 
     modalScreen('PasscodeSetupInit', PasscodeSetupFragment, safeArea),
     modalScreen('KeyStoreMigration', KeyStoreMigrationFragment, safeArea),

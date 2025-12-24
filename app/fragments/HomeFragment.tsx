@@ -117,7 +117,7 @@ export const HomeFragment = fragment(() => {
                     navigation.navigate('WalletCreate', { additionalWallet: true });
                     break;
                 case 'deposit':
-                    navigation.navigateReceive();
+                    navigation.navigateReceiveAssets({ title: t('wallet.actions.deposit') });
                     break;
                 case 'security':
                     navigation.navigate('Security');

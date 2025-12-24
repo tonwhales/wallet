@@ -4,6 +4,7 @@ import { SelectedAccount } from "../../engine/types";
 import { AppState, getAppState } from "../../storage/appState";
 import { TypedNavigation } from "../useTypedNavigation";
 import { solanaAddressFromPublicKey } from "../solana/address";
+import { t } from "../../i18n/t";
 
 export type DeepLinkType = 'new-wallet' | 'deposit' | 'security' | 'earnings' | 'swap' | 'send';
 
@@ -22,7 +23,7 @@ function navigateToScreen(navigation: TypedNavigation, type: DeepLinkType) {
             navigation.navigate('WalletCreate', { additionalWallet: true });
             break;
         case 'deposit':
-            navigation.navigateReceive();
+            navigation.navigateReceiveAssets({ title: t('wallet.actions.deposit') });
             break;
         case 'security':
             navigation.navigate('Security');

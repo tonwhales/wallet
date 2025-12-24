@@ -5,6 +5,12 @@ export enum WalletVersions {
     v5R1 = "v5R1",
 }
 
+export type EthereumState = {
+    secretKeyEnc: Buffer;
+    publicKey: Buffer;
+    address: string;
+}
+
 export type SelectedAccount = {
     address: Address;
     addressString: string;
@@ -12,5 +18,5 @@ export type SelectedAccount = {
     secretKeyEnc: Buffer;
     utilityKey: Buffer;
     version: WalletVersions;
-    ethereumSecretKeyEnc?: Buffer;
+    ethereum?: EthereumState;
 }

@@ -168,7 +168,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
             try {
                 setAuthInProgress(true);
                 const acc = style?.selectedAccount ?? getCurrentAddress();
-                const keys = await loadWalletKeys(acc.secretKeyEnc, undefined, acc.ethereumSecretKeyEnc);
+                const keys = await loadWalletKeys(acc.secretKeyEnc, undefined, acc.ethereum);
                 if (biometricsState === null) {
                     setBiometricsState(BiometricsState.InUse);
                 }
@@ -348,7 +348,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
         }
         try {
             const acc = getCurrentAddress();
-            let keys = await loadWalletKeys(acc.secretKeyEnc, undefined, acc.ethereumSecretKeyEnc);
+            let keys = await loadWalletKeys(acc.secretKeyEnc, undefined, acc.ethereum);
             auth.promise.resolve(keys);
             // Remove auth view
             setAuth(null);

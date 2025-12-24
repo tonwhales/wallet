@@ -30,32 +30,13 @@ export const EthereumFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const acc = useSelectedAccount()!;
 
-    const [ethereumAddress, setEthereumAddress] = useState<string | null>(null);
     const [ethBalance, setEthBalance] = useState<string | null>(null);
     const [ethTxStatus, setEthTxStatus] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
     const [isBalanceLoading, setIsBalanceLoading] = useState(false);
 
-    const hasEthereumWallet = !!acc.ethereumSecretKeyEnc;
-
-    const loadEthereumAddress = useCallback(async () => {
-        try {
-            setIsLoading(true);
-            const walletKeys = await authContext.authenticate({ backgroundColor: theme.surfaceOnBg });
-            if (walletKeys.ethKeyPair) {
-                setEthereumAddress(walletKeys.ethKeyPair.address);
-                return walletKeys.ethKeyPair.address;
-            } else {
-                Alert.alert(t('common.error'), 'Ethereum wallet not created');
-                return null;
-            }
-        } catch (e) {
-            warn('Failed to load Ethereum address');
-            return null;
-        } finally {
-            setIsLoading(false);
-        }
-    }, [authContext, theme.surfaceOnBg]);
+    // Get ethereum address directly from app state - no auth needed
+    const ethereumAddress = acc.ethereum?.address ?? null;
+    const hasEthereumWallet = !!acc.ethereum;
 
     const fetchBalance = useCallback(async (address: string) => {
         try {
@@ -71,16 +52,12 @@ export const EthereumFragment = fragment(() => {
         }
     }, [isTestnet]);
 
-    // Auto-load address and balance when wallet exists
+    // Auto-load balance when wallet exists
     useEffect(() => {
-        if (hasEthereumWallet && !ethereumAddress && !isLoading) {
-            loadEthereumAddress().then((addr) => {
-                if (addr) {
-                    fetchBalance(addr);
-                }
-            });
+        if (ethereumAddress) {
+            fetchBalance(ethereumAddress);
         }
-    }, [hasEthereumWallet]);
+    }, [ethereumAddress]);
 
     const copyEthereumAddress = useCallback(() => {
         if (ethereumAddress) {
@@ -277,7 +254,7 @@ export const EthereumFragment = fragment(() => {
                                     }}>
                                         {'Balance'}
                                     </Text>
-                                    {isLoading || isBalanceLoading ? (
+                                    {isBalanceLoading ? (
                                         <ActivityIndicator size="small" color={theme.accent} />
                                     ) : (
                                         <Pressable onPress={() => ethereumAddress && fetchBalance(ethereumAddress)}>
@@ -303,36 +280,25 @@ export const EthereumFragment = fragment(() => {
                                     }}>
                                         {'Address'}
                                     </Text>
-                                    {isLoading ? (
-                                        <ActivityIndicator size="small" color={theme.accent} />
-                                    ) : ethereumAddress ? (
-                                        <Pressable onPress={copyEthereumAddress}>
-                                            <Text style={{
-                                                color: theme.textPrimary,
-                                                fontSize: 14,
-                                                fontWeight: '500',
-                                                fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
-                                                lineHeight: 20
-                                            }}>
-                                                {ethereumAddress}
-                                            </Text>
-                                            <Text style={{
-                                                color: theme.accent,
-                                                fontSize: 12,
-                                                fontWeight: '500',
-                                                marginTop: 4
-                                            }}>
-                                                {'Tap to copy'}
-                                            </Text>
-                                        </Pressable>
-                                    ) : (
+                                    <Pressable onPress={copyEthereumAddress}>
                                         <Text style={{
-                                            color: theme.textSecondary,
+                                            color: theme.textPrimary,
                                             fontSize: 14,
+                                            fontWeight: '500',
+                                            fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+                                            lineHeight: 20
                                         }}>
-                                            {'Loading...'}
+                                            {ethereumAddress}
                                         </Text>
-                                    )}
+                                        <Text style={{
+                                            color: theme.accent,
+                                            fontSize: 12,
+                                            fontWeight: '500',
+                                            marginTop: 4
+                                        }}>
+                                            {'Tap to copy'}
+                                        </Text>
+                                    </Pressable>
                                 </View>
                             </View>
 
@@ -370,6 +336,22 @@ export const EthereumFragment = fragment(() => {
                                     title={'View Private Key'}
                                     hint={'Export for MetaMask'}
                                     onPress={navigateToPrivateKey}
+                                />
+                            </View>
+
+                            {/* Create New Wallet */}
+                            <View style={{
+                                backgroundColor: theme.border,
+                                borderRadius: 14,
+                                overflow: 'hidden',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                padding: 4
+                            }}>
+                                <ItemButton
+                                    title={'Create New Universal Wallet'}
+                                    hint={'Generate new TON + Ethereum wallet'}
+                                    onPress={navigateToCreateUniversalWallet}
                                 />
                             </View>
                         </>

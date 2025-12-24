@@ -1,8 +1,7 @@
 import { KeyPair, mnemonicToWalletKey } from "@ton/crypto";
 import { decryptDataBatch } from "./secureStorage";
 import { Platform } from "react-native";
-import { secp256k1 } from "@noble/curves/secp256k1";
-import { ethereumAddressFromPrivateKey } from "../utils/ethereum/address";
+import { EthereumState } from "../engine/types";
 
 export type EthKeyPair = {
     privateKey: Uint8Array;
@@ -39,12 +38,12 @@ export class SecureFailedLoadKeysError extends Error {
 export async function loadWalletKeys(
     secretKeyEnc: Buffer,
     passcode?: string,
-    ethereumSecretKeyEnc?: Buffer
+    ethereum?: EthereumState
 ): Promise<WalletKeys> {
     try {
         // Decrypt all keys in a single batch to avoid multiple auth prompts
         const [plainText, ethereumPrivateKey] = await decryptDataBatch(
-            [secretKeyEnc, ethereumSecretKeyEnc],
+            [secretKeyEnc, ethereum?.secretKeyEnc],
             passcode
         );
 
@@ -57,15 +56,13 @@ export async function loadWalletKeys(
 
         // Process Ethereum keys if decryption succeeded
         let ethKeyPair: EthKeyPair | undefined;
-        if (ethereumPrivateKey) {
+        if (ethereumPrivateKey && ethereum) {
             try {
                 const ethereumPrivateKeyArray = new Uint8Array(ethereumPrivateKey);
-                const ethereumPublicKey = secp256k1.getPublicKey(ethereumPrivateKeyArray, false).slice(1);
-                const ethereumAddress = ethereumAddressFromPrivateKey(ethereumPrivateKeyArray);
                 ethKeyPair = {
                     privateKey: ethereumPrivateKeyArray,
-                    publicKey: ethereumPublicKey,
-                    address: ethereumAddress
+                    publicKey: new Uint8Array(ethereum.publicKey),
+                    address: ethereum.address
                 };
             } catch {
                 // Ethereum keys processing failed, continue without them

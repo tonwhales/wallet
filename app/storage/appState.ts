@@ -25,6 +25,12 @@ const stateStorage_v1 = t.type({
     selected: t.number
 });
 
+const ethereumStateStorage = t.type({
+    secretKeyEnc: t.string,
+    publicKey: t.string,
+    address: t.string,
+});
+
 const stateStorageAddress_v2 = t.intersection([
     t.partial({
         version: t.union([
@@ -32,7 +38,7 @@ const stateStorageAddress_v2 = t.intersection([
             t.literal(WalletVersions.v5R1),
             t.undefined
         ]),
-        ethereumSecretKeyEnc: t.string
+        ethereum: ethereumStateStorage
     }),
     t.type({
         address: t.string,
@@ -72,7 +78,11 @@ function serializeAppState(state: AppState, isTestnet: boolean): t.TypeOf<typeof
             secretKeyEnc: v.secretKeyEnc.toString('base64'),
             utilityKey: v.utilityKey.toString('base64'),
             version: v.version,
-            ethereumSecretKeyEnc: v.ethereumSecretKeyEnc?.toString('base64')
+            ethereum: v.ethereum ? {
+                secretKeyEnc: v.ethereum.secretKeyEnc.toString('base64'),
+                publicKey: v.ethereum.publicKey.toString('base64'),
+                address: v.ethereum.address
+            } : undefined
         }))
     };
 }
@@ -200,7 +210,11 @@ export function getAppState(): AppState {
             secretKeyEnc: global.Buffer.from(v.secretKeyEnc, 'base64'),
             utilityKey: global.Buffer.from(v.utilityKey, 'base64'),
             version: v.version || WalletVersions.v4R2,
-            ethereumSecretKeyEnc: v.ethereumSecretKeyEnc ? Buffer.from(v.ethereumSecretKeyEnc, 'base64') : undefined
+            ethereum: v.ethereum ? {
+                secretKeyEnc: Buffer.from(v.ethereum.secretKeyEnc, 'base64'),
+                publicKey: Buffer.from(v.ethereum.publicKey, 'base64'),
+                address: v.ethereum.address
+            } : undefined
         }))
     };
 }

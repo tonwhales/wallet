@@ -21,7 +21,7 @@ import { generateUniversalMnemonic } from '../../utils/bip39';
 import { mnemonicToWalletKey } from '@ton/crypto';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { deriveUtilityKey } from '../../storage/utilityKeys';
-import { ethereumPrivateKeyFromMnemonic } from '../../utils/ethereum/address';
+import { ethereumKeypairFromMnemonic } from '../../utils/ethereum/address';
 import { getAppState, getCurrentAddress, markAddressSecured } from '../../storage/appState';
 import { BiometricsState, encryptData, getBiometricsState, getPasscodeState, PasscodeState } from '../../storage/secureStorage';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
@@ -101,17 +101,17 @@ export const UniversalWalletCreateFragment = fragment(() => {
             // Resolve utility key
             const utilityKey = await deriveUtilityKey(mnemonics);
 
-            // Resolve Ethereum private key
-            const ethereumPrivateKey = await ethereumPrivateKeyFromMnemonic(mnemonics);
+            // Resolve Ethereum keypair (privateKey, publicKey, address)
+            const ethereumKeypair = await ethereumKeypairFromMnemonic(mnemonics);
 
             // Encrypt keys based on auth method
             if (useBiometrics) {
                 secretKeyEnc = await encryptData(Buffer.from(state.mnemonic));
-                ethereumSecretKeyEnc = await encryptData(Buffer.from(ethereumPrivateKey));
+                ethereumSecretKeyEnc = await encryptData(Buffer.from(ethereumKeypair.privateKey));
             } else if (passcodeState === PasscodeState.Set) {
                 const authResult = await authContext.authenticateWithPasscode({ backgroundColor: theme.surfaceOnBg });
                 secretKeyEnc = await encryptData(Buffer.from(state.mnemonic), authResult.passcode);
-                ethereumSecretKeyEnc = await encryptData(Buffer.from(ethereumPrivateKey), authResult.passcode);
+                ethereumSecretKeyEnc = await encryptData(Buffer.from(ethereumKeypair.privateKey), authResult.passcode);
             } else {
                 throw new Error('No authentication method available');
             }
@@ -134,7 +134,11 @@ export const UniversalWalletCreateFragment = fragment(() => {
                         utilityKey,
                         addressString: contract.address.toString({ testOnly: isTestnet }),
                         version: WalletVersions.v5R1,
-                        ethereumSecretKeyEnc
+                        ethereum: {
+                            secretKeyEnc: ethereumSecretKeyEnc,
+                            publicKey: Buffer.from(ethereumKeypair.publicKey),
+                            address: ethereumKeypair.address
+                        }
                     }
                 ],
                 selected: currentAppState.addresses.length

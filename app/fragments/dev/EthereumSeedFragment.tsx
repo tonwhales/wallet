@@ -30,7 +30,7 @@ export const EthereumSeedFragment = fragment(() => {
     const authContext = useKeysAuth();
     const toaster = useToaster();
 
-    const hasEthereumWallet = !!selectedAccount?.ethereumSecretKeyEnc;
+    const hasEthereumWallet = !!selectedAccount?.ethereum;
 
     useEffect(() => {
         if (!hasEthereumWallet) {

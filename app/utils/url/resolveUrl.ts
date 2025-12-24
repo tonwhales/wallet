@@ -265,7 +265,7 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
                 }
             } else if (isTonhubHost && url.pathname.toLowerCase().startsWith('/changelly/transaction')) { // open changelly transaction
                 const transactionId = url.pathname.slice('/changelly/transaction/'.length)
-                
+
                 if (url.query && url.query.address && transactionId) {
                     return {
                         type: 'changelly-transaction',
@@ -275,6 +275,36 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
                 }
             } else if (isSupportedDomain && url.pathname.toLowerCase().startsWith('/holders')) { // holders path with address
                 return resolveHoldersUrl(url);
+            } else if (isTonhubHost && url.pathname.toLowerCase() === '/new-wallet') { // create new wallet
+                return {
+                    type: 'new-wallet',
+                    query: url.query
+                };
+            } else if (isTonhubHost && url.pathname.toLowerCase() === '/deposit') { // deposit to wallet
+                return {
+                    type: 'deposit',
+                    query: url.query
+                };
+            } else if (isTonhubHost && url.pathname.toLowerCase() === '/security') { // security section
+                return {
+                    type: 'security',
+                    query: url.query
+                };
+            } else if (isTonhubHost && url.pathname.toLowerCase() === '/earnings') { // staking pools list
+                return {
+                    type: 'earnings',
+                    query: url.query
+                };
+            } else if (isTonhubHost && url.pathname.toLowerCase() === '/swap') { // swap
+                return {
+                    type: 'swap',
+                    query: url.query
+                };
+            } else if (isTonhubHost && url.pathname.toLowerCase() === '/send') { // send/transfer
+                return {
+                    type: 'send',
+                    query: url.query
+                };
             }
         }
 

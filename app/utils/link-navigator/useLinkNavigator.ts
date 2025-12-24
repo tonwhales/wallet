@@ -25,6 +25,7 @@ import { t } from '../../i18n/t';
 import { resolveAndNavigateToChangellyOrder } from './resolveAndNavigateToChangellyOrder';
 import { resolveHoldersInvitationLink } from './resolveHoldersInvitationLink';
 import { getDogsInvShown } from '../../engine/holders/dogsUtils';
+import { resolveAndNavigateToDeepLink } from './resolveAndNavigateToDeepLink';
 
 export function useLinkNavigator(
     isTestnet: boolean,
@@ -271,6 +272,26 @@ export function useLinkNavigator(
                     transactionId: resolved.transactionId,
                     address: resolved.address,
                     ledgerContext
+                });
+                break;
+            }
+            case 'new-wallet':
+            case 'deposit':
+            case 'security':
+            case 'earnings':
+            case 'swap':
+            case 'send': {
+                if (!selected) {
+                    return;
+                }
+
+                resolveAndNavigateToDeepLink({
+                    type: resolved.type,
+                    query: resolved.query,
+                    navigation,
+                    selected,
+                    updateAppState,
+                    isTestnet
                 });
                 break;
             }

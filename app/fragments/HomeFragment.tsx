@@ -26,6 +26,7 @@ import { HoldersTransactionsFragment } from './wallet/HoldersTransactionsFragmen
 import { useLedgerTransport } from './ledger/components/TransportContext';
 import { HoldersAIChatTab } from './holders/HoldersAIChatTab';
 import { holdersUrl, HoldersUserState } from '../engine/api/holders/fetchUserState';
+import { DeepLinkType } from '../utils/link-navigator/resolveAndNavigateToDeepLink';
 
 const Tab = createBottomTabNavigator();
 
@@ -43,6 +44,9 @@ export type HomeFragmentProps = {
     } | {
         type: 'holders-app',
         params: HoldersAppParams;
+    } | {
+        type: 'deep-link',
+        deepLinkType: DeepLinkType;
     },
     ledger?: boolean
 };
@@ -107,6 +111,34 @@ export const HomeFragment = fragment(() => {
             navigation.navigateHoldersLanding({ endpoint: navigateTo.endpoint, onEnrollType: navigateTo.onEnrollType }, isTestnet);
         } else if (navigateTo?.type === 'holders-app') {
             navigation.navigateHolders(navigateTo.params, isTestnet);
+        } else if (navigateTo?.type === 'deep-link') {
+            switch (navigateTo.deepLinkType) {
+                case 'new-wallet':
+                    navigation.navigate('WalletCreate', { additionalWallet: true });
+                    break;
+                case 'deposit':
+                    navigation.navigateReceive();
+                    break;
+                case 'security':
+                    navigation.navigate('Security');
+                    break;
+                case 'earnings':
+                    navigation.navigateStakingPools();
+                    break;
+                case 'swap':
+                    navigation.navigateSwap();
+                    break;
+                case 'send':
+                    navigation.navigateSimpleTransfer({
+                        target: null,
+                        comment: null,
+                        amount: null,
+                        stateInit: null,
+                        asset: null,
+                        callback: null,
+                    });
+                    break;
+            }
         }
     }, []);
 

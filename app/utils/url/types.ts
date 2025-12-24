@@ -116,4 +116,22 @@ export type ResolvedUrl = ResolvedTxUrl
         type: 'changelly-transaction',
         transactionId: string,
         address: string
+    } | {
+        type: 'new-wallet',
+        query: { [key: string]: string | undefined }
+    } | {
+        type: 'deposit',
+        query: { [key: string]: string | undefined }
+    } | {
+        type: 'security',
+        query: { [key: string]: string | undefined }
+    } | {
+        type: 'earnings',
+        query: { [key: string]: string | undefined }
+    } | {
+        type: 'swap',
+        query: { [key: string]: string | undefined }
+    } | {
+        type: 'send',
+        query: { [key: string]: string | undefined }
     }

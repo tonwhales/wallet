@@ -5,7 +5,6 @@ import { fragment } from '../../fragment';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { t } from '../../i18n/t';
-import { WalletKeys } from '../../storage/walletKeys';
 import { warn } from '../../utils/log';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
@@ -13,11 +12,8 @@ import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useCallback, useState, useEffect } from 'react';
 import { useSelectedAccount, useTheme } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
-import { getAppState, setAppState } from '../../storage/appState';
 import { KeyboardAvoidingView } from 'react-native';
 import { ScreenHeader } from '../../components/ScreenHeader';
-import { ethereumPrivateKeyFromMnemonic } from '../../utils/ethereum/address';
-import { BiometricsState, encryptData, getBiometricsState, getPasscodeState, PasscodeState } from '../../storage/secureStorage';
 import {
     getEthBalance,
     formatEthBalance,
@@ -25,7 +21,6 @@ import {
     sendRawTransaction,
     waitForTransaction
 } from '../../utils/ethereum/transactions';
-import { useSetAppState } from '../../engine/hooks';
 
 export const EthereumFragment = fragment(() => {
     const theme = useTheme();
@@ -34,7 +29,6 @@ export const EthereumFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const acc = useSelectedAccount()!;
-    const setAppStateHook = useSetAppState();
 
     const [ethereumAddress, setEthereumAddress] = useState<string | null>(null);
     const [ethBalance, setEthBalance] = useState<string | null>(null);
@@ -99,65 +93,9 @@ export const EthereumFragment = fragment(() => {
         }
     }, [ethereumAddress]);
 
-    const createEthereumWallet = useCallback(async () => {
-        try {
-            // Check authentication method
-            const passcodeState = getPasscodeState();
-            const biometricsState = getBiometricsState();
-            const useBiometrics = biometricsState === BiometricsState.InUse;
-
-            let walletKeys: WalletKeys;
-            let ethereumSecretKeyEnc: Buffer;
-
-            // Generate Ethereum private key from mnemonic
-            if (useBiometrics) {
-                // Use biometrics authentication
-                walletKeys = await authContext.authenticate({ backgroundColor: theme.surfaceOnBg });
-                const ethereumPrivateKey = await ethereumPrivateKeyFromMnemonic(walletKeys.mnemonics);
-                ethereumSecretKeyEnc = await encryptData(Buffer.from(ethereumPrivateKey));
-            } else if (passcodeState === PasscodeState.Set) {
-                // Use passcode authentication
-                const authResult = await authContext.authenticateWithPasscode({ backgroundColor: theme.surfaceOnBg });
-                walletKeys = authResult.keys;
-                const ethereumPrivateKey = await ethereumPrivateKeyFromMnemonic(walletKeys.mnemonics);
-                ethereumSecretKeyEnc = await encryptData(Buffer.from(ethereumPrivateKey), authResult.passcode);
-            } else {
-                throw new Error('No authentication method available');
-            }
-
-            // Update appState with the new Ethereum key
-            const appState = getAppState();
-            const updatedAddresses = appState.addresses.map((address, index) => {
-                if (index === appState.selected) {
-                    return {
-                        ...address,
-                        ethereumSecretKeyEnc
-                    };
-                }
-                return address;
-            });
-
-            setAppStateHook({
-                ...appState,
-                addresses: updatedAddresses
-            }, isTestnet);
-
-            // Reload to get the new ethKeyPair and display address
-            const updatedWalletKeys = await authContext.authenticate({ backgroundColor: theme.surfaceOnBg });
-            if (updatedWalletKeys.ethKeyPair) {
-                setEthereumAddress(updatedWalletKeys.ethKeyPair.address);
-            }
-
-            if (Platform.OS === 'android') {
-                ToastAndroid.show('Ethereum wallet created', ToastAndroid.SHORT);
-            } else {
-                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-            }
-        } catch (e) {
-            warn('Failed to create Ethereum wallet');
-            Alert.alert(t('common.error'), t('errors.unknown'));
-        }
-    }, [authContext, theme.surfaceOnBg, isTestnet, setAppStateHook]);
+    const navigateToCreateUniversalWallet = useCallback(() => {
+        navigation.navigate('UniversalWalletCreate');
+    }, [navigation]);
 
     const fetchEthBalanceAndTest = useCallback(async () => {
         try {
@@ -261,10 +199,10 @@ export const EthereumFragment = fragment(() => {
 
     return (
         <View style={{ flexGrow: 1, paddingTop: 32 }}>
-            <ScreenHeader 
-                style={{ paddingHorizontal: 16 }} 
-                onBackPressed={navigation.goBack} 
-                title={'Ethereum'} 
+            <ScreenHeader
+                style={{ paddingHorizontal: 16 }}
+                onBackPressed={navigation.goBack}
+                title={'Ethereum'}
             />
             <KeyboardAvoidingView
                 style={{
@@ -292,7 +230,11 @@ export const EthereumFragment = fragment(() => {
                             alignItems: 'center',
                             padding: 4
                         }}>
-                            <ItemButton title={'Create Ethereum wallet'} onPress={createEthereumWallet} />
+                            <ItemButton
+                                title={'Create Universal Wallet'}
+                                hint={'TON + Ethereum compatible'}
+                                onPress={navigateToCreateUniversalWallet}
+                            />
                         </View>
                     ) : (
                         <>
@@ -309,7 +251,7 @@ export const EthereumFragment = fragment(() => {
                             }}>
                                 {/* Network Badge */}
                                 <View style={{
-                                    backgroundColor: isTestnet ? theme.accentOrange : theme.accent,
+                                    backgroundColor: theme.accent,
                                     paddingHorizontal: 10,
                                     paddingVertical: 4,
                                     borderRadius: 8,

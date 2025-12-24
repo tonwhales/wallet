@@ -19,6 +19,7 @@ import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
 import { EthereumFragment } from './fragments/dev/EthereumFragment';
 import { EthereumSeedFragment } from './fragments/dev/EthereumSeedFragment';
 import { Bip39GeneratorFragment } from './fragments/dev/Bip39GeneratorFragment';
+import { UniversalWalletCreateFragment } from './fragments/dev/UniversalWalletCreateFragment';
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { getPendingGrant, getPendingRevoke, removePendingGrant, removePendingRevoke } from './storage/appState';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -275,9 +276,14 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('DeveloperTools', DeveloperToolsFragment, safeArea, true, 0),
     genericScreen('DeveloperToolsStorage', DevStorageFragment, safeArea),
     genericScreen('DevDAppWebView', DevDAppWebViewFragment, safeArea, true, 0),
+
+    // Ethereum
     genericScreen('Ethereum', EthereumFragment, safeArea, true, 0),
     modalScreen('EthereumSeed', EthereumSeedFragment, safeArea),
+
+    // Bip39
     genericScreen('Bip39Generator', Bip39GeneratorFragment, safeArea, true, 0),
+    genericScreen('UniversalWalletCreate', UniversalWalletCreateFragment, safeArea, true, 0),
 
     modalScreen('PasscodeSetupInit', PasscodeSetupFragment, safeArea),
     modalScreen('KeyStoreMigration', KeyStoreMigrationFragment, safeArea),

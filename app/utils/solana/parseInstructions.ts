@@ -51,7 +51,83 @@ export type HoldersCloseCardInstruction = {
     description: string;
 }
 
-export type HoldersInstructionName = 'updateCardLimits' | 'depositCard' | 'closeCard';
+export type HoldersExecuteWithdrawalInstruction = {
+    program: 'Holders',
+    programId: string,
+    name: 'executeWithdrawal',
+    accounts: SolanaInstructionAccounts[],
+    args: {
+        name: 'withdrawalSeqno' | 'feeAmount';
+        data: string;
+    }[],
+    description: string;
+}
+
+export type HoldersCancelWithdrawalInstruction = {
+    program: 'Holders',
+    programId: string,
+    name: 'cancelWithdrawal',
+    accounts: SolanaInstructionAccounts[],
+    args: {
+        name: 'withdrawalSeqno';
+        data: string;
+    }[],
+    description: string;
+}
+
+export type HoldersAllocateWithdrawalsInstruction = {
+    program: 'Holders',
+    programId: string,
+    name: 'allocateWithdrawals',
+    accounts: SolanaInstructionAccounts[],
+    description: string;
+}
+
+export type HoldersDeleteCardInstruction = {
+    program: 'Holders',
+    programId: string,
+    name: 'deleteCard',
+    accounts: SolanaInstructionAccounts[],
+    description: string;
+}
+
+export type HoldersUpdateCardStateV2Instruction = {
+    program: 'Holders',
+    programId: string,
+    name: 'updateCardStateV2',
+    accounts: SolanaInstructionAccounts[],
+    args: {
+        name: 'state' | 'limitsSeqno';
+        data: string;
+    }[],
+    description: string;
+}
+
+export type HoldersInstructionName =
+    | 'updateCardLimits'
+    | 'depositCard'
+    | 'closeCard'
+    | 'executeWithdrawal'
+    | 'cancelWithdrawal'
+    | 'allocateWithdrawals'
+    | 'deleteCard'
+    | 'updateCardStateV2'
+    | 'createRoot'
+    | 'issueCard'
+    | 'refund'
+    | 'syncCardBalance'
+    | 'updateCardState'
+    | 'withdrawFromTreasure'
+    | 'addToWhitelist'
+    | 'removeFromWhitelist'
+    | 'resetWhitelist'
+    | 'changeController'
+    | 'changeGracefulPeriod'
+    | 'assignNewTreasureAuthority'
+    | 'setSupportAuthority'
+    | 'setWithdrawalConfig'
+    | 'fixIncorrectDeposit';
+
 export type InstructionName = HoldersInstructionName | 'systemTransfer' | 'createAccount' | 'tokenTransfer' | 'createAssociatedTokenAccount' | 'unknown';
 
 /**
@@ -296,7 +372,7 @@ export function parseAssociatedTokenInstruction(instruction: TransactionInstruct
  */
 export function parseInstruction(instruction: TransactionInstruction) {
     const programId = instruction.programId.toString();
-
+    console.log('parseInstruction', programId);
     // Check for known program IDs
     switch (programId) {
         case holdersIdl.address:

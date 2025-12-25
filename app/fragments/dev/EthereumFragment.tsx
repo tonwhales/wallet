@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Alert, Platform, ScrollView, ToastAndroid, View, Text, ActivityIndicator, Pressable } from "react-native";
-import { ItemButton } from "../../components/ItemButton";
 import { fragment } from '../../fragment';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
@@ -21,6 +20,8 @@ import {
     sendRawTransaction,
     waitForTransaction
 } from '../../utils/ethereum/transactions';
+import { RoundButton } from '../../components/RoundButton';
+import { Typography } from '../../components/styles';
 
 export const EthereumFragment = fragment(() => {
     const theme = useTheme();
@@ -174,6 +175,10 @@ export const EthereumFragment = fragment(() => {
         navigation.navigate('EthereumSeed');
     }, [navigation]);
 
+    const navigateToSend = useCallback(() => {
+        navigation.navigate('EthereumSend');
+    }, [navigation]);
+
     return (
         <View style={{ flexGrow: 1, paddingTop: 32 }}>
             <ScreenHeader
@@ -207,15 +212,13 @@ export const EthereumFragment = fragment(() => {
                             alignItems: 'center',
                             padding: 4
                         }}>
-                            <ItemButton
+                            <RoundButton
                                 title={'Create Universal Wallet'}
-                                hint={'TON + Ethereum compatible'}
                                 onPress={navigateToCreateUniversalWallet}
                             />
                         </View>
                     ) : (
                         <>
-                            {/* Wallet Card */}
                             <View style={{
                                 backgroundColor: theme.surfaceOnElevation,
                                 borderRadius: 20,
@@ -226,7 +229,6 @@ export const EthereumFragment = fragment(() => {
                                 shadowRadius: 8,
                                 elevation: 4,
                             }}>
-                                {/* Network Badge */}
                                 <View style={{
                                     backgroundColor: theme.accent,
                                     paddingHorizontal: 10,
@@ -235,125 +237,84 @@ export const EthereumFragment = fragment(() => {
                                     alignSelf: 'flex-start',
                                     marginBottom: 16
                                 }}>
-                                    <Text style={{
-                                        color: '#fff',
-                                        fontSize: 12,
-                                        fontWeight: '600'
-                                    }}>
+                                    <Text style={[{
+                                        color: '#fff'
+                                    }, Typography.medium10_12]}>
                                         {isTestnet ? 'Sepolia Testnet' : 'Ethereum Mainnet'}
                                     </Text>
                                 </View>
-
-                                {/* Balance */}
                                 <View style={{ marginBottom: 16 }}>
-                                    <Text style={{
+                                    <Text style={[{
                                         color: theme.textSecondary,
-                                        fontSize: 14,
-                                        fontWeight: '500',
                                         marginBottom: 4
-                                    }}>
+                                    }, Typography.medium13_18]}>
                                         {'Balance'}
                                     </Text>
                                     {isBalanceLoading ? (
                                         <ActivityIndicator size="small" color={theme.accent} />
                                     ) : (
                                         <Pressable onPress={() => ethereumAddress && fetchBalance(ethereumAddress)}>
-                                            <Text style={{
-                                                color: theme.textPrimary,
-                                                fontSize: 32,
-                                                fontWeight: '700',
-                                                lineHeight: 38
-                                            }}>
+                                            <Text style={[{
+                                                color: theme.textPrimary
+                                            }, Typography.semiBold32_38]}>
                                                 {ethBalance !== null ? `${ethBalance} ETH` : '—'}
                                             </Text>
                                         </Pressable>
                                     )}
                                 </View>
-
-                                {/* Address */}
                                 <View>
-                                    <Text style={{
+                                    <Text style={[{
                                         color: theme.textSecondary,
-                                        fontSize: 14,
-                                        fontWeight: '500',
                                         marginBottom: 4
-                                    }}>
+                                    }, Typography.medium13_18]}>
                                         {'Address'}
                                     </Text>
                                     <Pressable onPress={copyEthereumAddress}>
-                                        <Text style={{
+                                        <Text style={[{
                                             color: theme.textPrimary,
-                                            fontSize: 14,
-                                            fontWeight: '500',
-                                            fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
-                                            lineHeight: 20
-                                        }}>
+                                        }, Typography.medium15_20]}>
                                             {ethereumAddress}
                                         </Text>
-                                        <Text style={{
+                                        <Text style={[{
                                             color: theme.accent,
-                                            fontSize: 12,
-                                            fontWeight: '500',
                                             marginTop: 4
-                                        }}>
+                                        }, Typography.medium13_18]}>
                                             {'Tap to copy'}
                                         </Text>
                                     </Pressable>
                                 </View>
                             </View>
-
-                            {/* Actions */}
+                            <RoundButton
+                                title={'Send ETH'}
+                                onPress={navigateToSend}
+                            />
                             <View style={{
-                                backgroundColor: theme.border,
-                                borderRadius: 14,
+                                flexDirection: 'row',
+                                gap: 8,
                                 overflow: 'hidden',
                                 justifyContent: 'center',
                                 alignItems: 'center',
-                                padding: 4
                             }}>
-                                <ItemButton
+                                <RoundButton
                                     title={'Refresh Balance'}
-                                    hint={isBalanceLoading ? 'Loading...' : undefined}
+                                    display={'secondary'}
                                     onPress={() => ethereumAddress && fetchBalance(ethereumAddress)}
                                 />
-                                <ItemButton
+                                <RoundButton
                                     title={'Test ETH Transfer'}
-                                    hint={ethTxStatus || 'Send 1 wei to yourself'}
+                                    display={'secondary'}
                                     onPress={fetchEthBalanceAndTest}
                                 />
                             </View>
-
-                            {/* Export */}
-                            <View style={{
-                                backgroundColor: theme.border,
-                                borderRadius: 14,
-                                overflow: 'hidden',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                padding: 4
-                            }}>
-                                <ItemButton
-                                    title={'View Private Key'}
-                                    hint={'Export for MetaMask'}
-                                    onPress={navigateToPrivateKey}
-                                />
-                            </View>
-
-                            {/* Create New Wallet */}
-                            <View style={{
-                                backgroundColor: theme.border,
-                                borderRadius: 14,
-                                overflow: 'hidden',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                padding: 4
-                            }}>
-                                <ItemButton
-                                    title={'Create New Universal Wallet'}
-                                    hint={'Generate new TON + Ethereum wallet'}
-                                    onPress={navigateToCreateUniversalWallet}
-                                />
-                            </View>
+                            <RoundButton
+                                title={'View Private Key'}
+                                onPress={navigateToPrivateKey}
+                                display={'secondary'}
+                            />
+                            <RoundButton
+                                title={'Generate new TON + Ethereum wallet'}
+                                onPress={navigateToCreateUniversalWallet}
+                            />
                         </>
                     )}
                 </ScrollView>

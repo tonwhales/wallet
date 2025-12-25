@@ -18,6 +18,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { checkBiometricsPermissions, useKeysAuth } from './AuthWalletKeys';
 import { mnemonicToWalletKey } from '@ton/crypto';
 import { useNetwork, useBounceableWalletFormat, useSetAppState, useSetPasscodeState, useTheme } from '../../engine/hooks';
+import { validateBip39Mnemonic } from '../../utils/bip39';
+import { ethereumKeypairFromMnemonic } from '../../utils/ethereum/address';
+import { EthereumState } from '../../engine/types';
 import { useLogoutAndReset } from '../../engine/hooks/accounts/useLogoutAndReset';
 import { openSettings } from 'react-native-permissions';
 import { ScreenHeader } from '../ScreenHeader';
@@ -88,6 +91,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
             try {
                 // Encrypted token
                 let secretKeyEnc: Buffer | undefined = undefined;
+                let usedPasscode: string | undefined = undefined;
 
                 // Authenticate
                 const passcodeState = getPasscodeState();
@@ -97,6 +101,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                 const tryPasscode = async () => {
                     const authRes = await authContext.authenticateWithPasscode();
                     if (authRes) {
+                        usedPasscode = authRes.passcode;
                         secretKeyEnc = await encryptData(Buffer.from(props.mnemonics), authRes.passcode);
                     }
                 }
@@ -215,11 +220,29 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                     throw new Error('Invalid app key');
                 }
 
+                const mnemonicWords = props.mnemonics.split(' ');
+
                 // Resolve key
-                const key = await mnemonicToWalletKey(props.mnemonics.split(' '));
+                const key = await mnemonicToWalletKey(mnemonicWords);
 
                 // Resolve utility key
-                const utilityKey = await deriveUtilityKey(props.mnemonics.split(' '));
+                const utilityKey = await deriveUtilityKey(mnemonicWords);
+
+                // Check if mnemonic is BIP39 compatible and generate Ethereum keys if so
+                let ethereumState: EthereumState | undefined = undefined;
+                const isBip39 = validateBip39Mnemonic(mnemonicWords);
+                if (isBip39) {
+                    const ethereumKeypair = await ethereumKeypairFromMnemonic(mnemonicWords);
+                    // Use the same encryption method as was used for secretKeyEnc (biometrics or passcode)
+                    const ethereumSecretKeyEnc = usedPasscode
+                        ? await encryptData(Buffer.from(ethereumKeypair.privateKey), usedPasscode)
+                        : await encryptData(Buffer.from(ethereumKeypair.privateKey));
+                    ethereumState = {
+                        secretKeyEnc: ethereumSecretKeyEnc,
+                        publicKey: Buffer.from(ethereumKeypair.publicKey),
+                        address: ethereumKeypair.address
+                    };
+                }
 
                 versions.forEach(async (version) => {
                     // Resolve contract
@@ -236,7 +259,8 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                                 secretKeyEnc: secretKeyEnc as Buffer, // With passcode
                                 utilityKey,
                                 addressString: contract.address.toString({ testOnly: isTestnet }),
-                                version
+                                version,
+                                ethereum: ethereumState
                             }
                         ],
                         selected: state.addresses.length
@@ -261,11 +285,13 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
             // Encrypted token
             let secretKeyEnc: Buffer;
 
+            const mnemonicWords = props.mnemonics.split(' ');
+
             // Resolve key
-            const key = await mnemonicToWalletKey(props.mnemonics.split(' '));
+            const key = await mnemonicToWalletKey(mnemonicWords);
 
             // Resolve utility key
-            const utilityKey = await deriveUtilityKey(props.mnemonics.split(' '));
+            const utilityKey = await deriveUtilityKey(mnemonicWords);
 
             const passcodeState = storage.getString(passcodeStateKey);
             const isPasscodeSet = (passcodeState === PasscodeState.Set);
@@ -295,6 +321,19 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                 }
             }
 
+            // Check if mnemonic is BIP39 compatible and generate Ethereum keys if so
+            let ethereumState: EthereumState | undefined = undefined;
+            const isBip39 = validateBip39Mnemonic(mnemonicWords);
+            if (isBip39) {
+                const ethereumKeypair = await ethereumKeypairFromMnemonic(mnemonicWords);
+                const ethereumSecretKeyEnc = await encryptData(Buffer.from(ethereumKeypair.privateKey), passcode);
+                ethereumState = {
+                    secretKeyEnc: ethereumSecretKeyEnc,
+                    publicKey: Buffer.from(ethereumKeypair.publicKey),
+                    address: ethereumKeypair.address
+                };
+            }
+
             versions.forEach(async (version) => {
                 // Resolve contract
                 const contract = await contractFromPublicKey(key.publicKey, version, isTestnet);
@@ -313,7 +352,8 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                             secretKeyEnc, // With passcode
                             utilityKey,
                             addressString: contract.address.toString({ testOnly: isTestnet }),
-                            version
+                            version,
+                            ethereum: ethereumState
                         }
                     ],
                     selected: appState.addresses.length

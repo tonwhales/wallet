@@ -19,11 +19,11 @@ async function ethRpcCall(method: string, params: any[], isTestnet: boolean): Pr
         method,
         params
     });
-    
+
     if (response.data.error) {
         throw new Error(response.data.error.message);
     }
-    
+
     return response.data.result;
 }
 
@@ -72,7 +72,7 @@ export async function getChainId(isTestnet: boolean): Promise<number> {
  */
 function rlpEncodeItem(item: Uint8Array | number | bigint | string): Uint8Array {
     let data: Uint8Array;
-    
+
     if (typeof item === 'number' || typeof item === 'bigint') {
         if (item === 0 || item === 0n) {
             data = new Uint8Array(0);
@@ -91,34 +91,34 @@ function rlpEncodeItem(item: Uint8Array | number | bigint | string): Uint8Array 
     } else {
         data = item;
     }
-    
+
     // Remove leading zeros for numbers
     while (data.length > 0 && data[0] === 0) {
         data = data.slice(1);
     }
-    
+
     if (data.length === 0) {
         return new Uint8Array([0x80]);
     }
-    
+
     if (data.length === 1 && data[0] < 0x80) {
         return data;
     }
-    
+
     if (data.length <= 55) {
         const result = new Uint8Array(1 + data.length);
         result[0] = 0x80 + data.length;
         result.set(data, 1);
         return result;
     }
-    
+
     let lenBytes = [];
     let len = data.length;
     while (len > 0) {
         lenBytes.unshift(len & 0xff);
         len = len >> 8;
     }
-    
+
     const result = new Uint8Array(1 + lenBytes.length + data.length);
     result[0] = 0xb7 + lenBytes.length;
     result.set(lenBytes, 1);
@@ -136,21 +136,21 @@ function rlpEncodeList(items: Uint8Array[]): Uint8Array {
         combined.set(item, acc.length);
         return combined;
     }, new Uint8Array(0));
-    
+
     if (encoded.length <= 55) {
         const result = new Uint8Array(1 + encoded.length);
         result[0] = 0xc0 + encoded.length;
         result.set(encoded, 1);
         return result;
     }
-    
+
     let lenBytes = [];
     let len = encoded.length;
     while (len > 0) {
         lenBytes.unshift(len & 0xff);
         len = len >> 8;
     }
-    
+
     const result = new Uint8Array(1 + lenBytes.length + encoded.length);
     result[0] = 0xf7 + lenBytes.length;
     result.set(lenBytes, 1);
@@ -184,16 +184,16 @@ export function signTransaction(tx: EthTransaction, privateKey: Uint8Array): str
         rlpEncodeItem(0),
         rlpEncodeItem(0),
     ]);
-    
+
     // Hash and sign
     const txHash = keccak_256(txForSigning);
     const signature = secp256k1.sign(txHash, privateKey);
-    
+
     // Calculate v (EIP-155)
     const v = BigInt(tx.chainId * 2 + 35 + (signature.recovery ?? 0));
     const r = signature.r;
     const s = signature.s;
-    
+
     // Encode signed transaction
     const signedTx = rlpEncodeList([
         rlpEncodeItem(tx.nonce),
@@ -206,7 +206,7 @@ export function signTransaction(tx: EthTransaction, privateKey: Uint8Array): str
         rlpEncodeItem(r),
         rlpEncodeItem(s),
     ]);
-    
+
     return '0x' + Buffer.from(signedTx).toString('hex');
 }
 
@@ -229,7 +229,7 @@ export async function getTransactionReceipt(txHash: string, isTestnet: boolean):
  */
 export async function waitForTransaction(txHash: string, isTestnet: boolean, timeoutMs: number = 60000): Promise<any> {
     const startTime = Date.now();
-    
+
     while (Date.now() - startTime < timeoutMs) {
         const receipt = await getTransactionReceipt(txHash, isTestnet);
         if (receipt) {
@@ -237,7 +237,7 @@ export async function waitForTransaction(txHash: string, isTestnet: boolean, tim
         }
         await new Promise(resolve => setTimeout(resolve, 2000));
     }
-    
+
     throw new Error('Transaction timeout');
 }
 
@@ -254,7 +254,7 @@ export async function createSelfTransferTransaction(
         getGasPrice(isTestnet),
         getChainId(isTestnet)
     ]);
-    
+
     // Send minimal amount (1 wei) to self
     const tx: EthTransaction = {
         nonce,
@@ -265,9 +265,72 @@ export async function createSelfTransferTransaction(
         data: '0x',
         chainId
     };
-    
+
     const signedTx = signTransaction(tx, privateKey);
-    
+
     return { signedTx, tx };
+}
+
+/**
+ * Parse ETH amount string to wei
+ */
+export function parseEthToWei(ethAmount: string): bigint {
+    const parts = ethAmount.split('.');
+    const whole = parts[0] || '0';
+    let fraction = parts[1] || '';
+
+    // Pad or trim fraction to 18 decimals
+    fraction = fraction.padEnd(18, '0').slice(0, 18);
+
+    const weiString = whole + fraction;
+    return BigInt(weiString);
+}
+
+/**
+ * Validate Ethereum address
+ */
+export function isValidEthereumAddress(address: string): boolean {
+    return /^0x[a-fA-F0-9]{40}$/.test(address);
+}
+
+/**
+ * Create and sign an ETH transfer transaction
+ */
+export async function createEthTransferTransaction(
+    fromAddress: string,
+    toAddress: string,
+    valueWei: bigint,
+    privateKey: Uint8Array,
+    isTestnet: boolean
+): Promise<{ signedTx: string; tx: EthTransaction }> {
+    const [nonce, gasPrice, chainId] = await Promise.all([
+        getTransactionCount(fromAddress, isTestnet),
+        getGasPrice(isTestnet),
+        getChainId(isTestnet)
+    ]);
+
+    const tx: EthTransaction = {
+        nonce,
+        gasPrice,
+        gasLimit: 21000n, // Standard ETH transfer
+        to: toAddress,
+        value: valueWei,
+        data: '0x',
+        chainId
+    };
+
+    const signedTx = signTransaction(tx, privateKey);
+
+    return { signedTx, tx };
+}
+
+/**
+ * Estimate transaction fee in ETH
+ */
+export async function estimateTransactionFee(isTestnet: boolean): Promise<string> {
+    const gasPrice = await getGasPrice(isTestnet);
+    const gasLimit = 21000n;
+    const feeWei = gasPrice * gasLimit;
+    return formatEthBalance(feeWei);
 }
 

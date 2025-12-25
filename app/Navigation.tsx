@@ -18,6 +18,7 @@ import { resolveOnboarding } from './fragments/resolveOnboarding';
 import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
 import { EthereumFragment } from './fragments/dev/EthereumFragment';
 import { EthereumSeedFragment } from './fragments/dev/EthereumSeedFragment';
+import { EthereumSendFragment } from './fragments/dev/EthereumSendFragment';
 import { Bip39GeneratorFragment } from './fragments/dev/Bip39GeneratorFragment';
 import { UniversalWalletCreateFragment } from './fragments/dev/UniversalWalletCreateFragment';
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
@@ -280,6 +281,7 @@ const navigation = (safeArea: EdgeInsets) => [
     // Ethereum
     genericScreen('Ethereum', EthereumFragment, safeArea, true, 0),
     modalScreen('EthereumSeed', EthereumSeedFragment, safeArea),
+    modalScreen('EthereumSend', EthereumSendFragment, safeArea),
 
     // Bip39
     genericScreen('Bip39Generator', Bip39GeneratorFragment, safeArea, true, 0),

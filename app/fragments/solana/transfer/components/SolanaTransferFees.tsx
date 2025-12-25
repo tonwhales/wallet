@@ -1,14 +1,14 @@
 import { View, Text } from "react-native";
 import { ItemGroup } from "../../../../components/ItemGroup";
 import { usePrice, useSolanaTransactionFees, useTheme } from "../../../../engine/hooks";
-import { Transaction } from "@solana/web3.js";
+import { Transaction, VersionedTransaction } from "@solana/web3.js";
 import { Typography } from "../../../../components/styles";
 import { t } from "../../../../i18n/t";
 import { fromNano } from "@ton/core";
 import { PriceComponent } from "../../../../components/PriceComponent";
 import { AnimatedSkeleton } from "../../../../components/skeletons/AnimatedSkeleton";
 
-export const SolanaTransferFees = ({ tx }: { tx?: Transaction }) => {
+export const SolanaTransferFees = ({ tx }: { tx?: Transaction | VersionedTransaction }) => {
     const fees = useSolanaTransactionFees(tx);
     const theme = useTheme();
     const [, , solPrice] = usePrice();
@@ -22,7 +22,7 @@ export const SolanaTransferFees = ({ tx }: { tx?: Transaction }) => {
                 <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }}>
                     {fees ? <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
                         {fromNano(BigInt(fees)) + ' SOL'}
-                    </Text> : <AnimatedSkeleton style={{ maxWidth: 100, backgroundColor: theme.divider, marginVertical: 4}} duration={3000} />}
+                    </Text> : <AnimatedSkeleton style={{ maxWidth: 100, backgroundColor: theme.divider, marginVertical: 4 }} duration={3000} />}
                     {fees ? <PriceComponent
                         amount={BigInt(fees)}
                         style={{

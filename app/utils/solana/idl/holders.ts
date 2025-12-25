@@ -81,6 +81,167 @@ export const holdersIdl: Idl = {
       ]
     },
     {
+      "name": "allocateWithdrawals",
+      "discriminator": [
+        223,
+        55,
+        64,
+        247,
+        72,
+        82,
+        44,
+        43
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "root",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  111,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "rootSeed"
+              }
+            ]
+          }
+        },
+        {
+          "name": "card",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  114,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cardTokenAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "cardTokenAccount",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  114,
+                  100,
+                  95,
+                  116,
+                  111,
+                  107,
+                  101,
+                  110
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "cardSeed"
+              },
+              {
+                "kind": "account",
+                "path": "root"
+              }
+            ]
+          }
+        },
+        {
+          "name": "withdrawals",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  119,
+                  105,
+                  116,
+                  104,
+                  100,
+                  114,
+                  97,
+                  119,
+                  97,
+                  108,
+                  115
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "cardSeed"
+              },
+              {
+                "kind": "account",
+                "path": "root"
+              }
+            ]
+          }
+        },
+        {
+          "name": "withdrawalsTokenAccount",
+          "writable": true
+        },
+        {
+          "name": "tokenMint"
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "tokenProgram",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "associatedTokenProgram",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        }
+      ],
+      "args": [
+        {
+          "name": "rootSeed",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "cardSeed",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "assignNewTreasureAuthority",
       "discriminator": [
         165,
@@ -102,7 +263,11 @@ export const holdersIdl: Idl = {
           ]
         },
         {
+          "name": "treasureAuthority"
+        },
+        {
           "name": "root",
+          "writable": true,
           "pda": {
             "seeds": [
               {
@@ -134,6 +299,227 @@ export const holdersIdl: Idl = {
         },
         {
           "name": "treasureAuthority",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "cancelWithdrawal",
+      "discriminator": [
+        183,
+        104,
+        181,
+        250,
+        28,
+        128,
+        210,
+        70
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "root",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  111,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "rootSeed"
+              }
+            ]
+          }
+        },
+        {
+          "name": "card",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  114,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cardTokenAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "cardTokenAccount",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  114,
+                  100,
+                  95,
+                  116,
+                  111,
+                  107,
+                  101,
+                  110
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "cardSeed"
+              },
+              {
+                "kind": "account",
+                "path": "root"
+              }
+            ]
+          }
+        },
+        {
+          "name": "withdrawals",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  119,
+                  105,
+                  116,
+                  104,
+                  100,
+                  114,
+                  97,
+                  119,
+                  97,
+                  108,
+                  115
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "cardSeed"
+              },
+              {
+                "kind": "account",
+                "path": "root"
+              }
+            ]
+          }
+        },
+        {
+          "name": "withdrawalsTokenAccount",
+          "writable": true
+        },
+        {
+          "name": "tokenMint"
+        },
+        {
+          "name": "tokenProgram",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": [
+        {
+          "name": "rootSeed",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "cardSeed",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "withdrawalSeqno",
+          "type": "u32"
+        }
+      ]
+    },
+    {
+      "name": "changeController",
+      "discriminator": [
+        191,
+        5,
+        46,
+        10,
+        82,
+        189,
+        89,
+        219
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "root"
+          ]
+        },
+        {
+          "name": "controller"
+        },
+        {
+          "name": "root",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  111,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "rootSeed"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "rootSeed",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "controller",
           "type": "pubkey"
         }
       ]
@@ -355,6 +741,249 @@ export const holdersIdl: Idl = {
       ]
     },
     {
+      "name": "createRoot",
+      "discriminator": [
+        115,
+        195,
+        96,
+        208,
+        249,
+        205,
+        56,
+        27
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "controller"
+        },
+        {
+          "name": "supportAuthority"
+        },
+        {
+          "name": "root",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  111,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "rootSeed"
+              }
+            ]
+          }
+        },
+        {
+          "name": "treasureAuthority"
+        },
+        {
+          "name": "treasureTokenAccount",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  114,
+                  101,
+                  97,
+                  115,
+                  117,
+                  114,
+                  101,
+                  95,
+                  116,
+                  111,
+                  107,
+                  101,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "root"
+              }
+            ]
+          }
+        },
+        {
+          "name": "withdrawalController"
+        },
+        {
+          "name": "withdrawalTreasury"
+        },
+        {
+          "name": "tokenMint"
+        },
+        {
+          "name": "tokenProgram",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "rootSeed",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "gracefulPeriod",
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "name": "deleteCard",
+      "discriminator": [
+        199,
+        58,
+        181,
+        228,
+        23,
+        155,
+        200,
+        173
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "controller",
+          "writable": true
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "relations": [
+            "card"
+          ]
+        },
+        {
+          "name": "root",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  111,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "rootSeed"
+              }
+            ]
+          }
+        },
+        {
+          "name": "card",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  114,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cardTokenAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "cardTokenAccount",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  114,
+                  100,
+                  95,
+                  116,
+                  111,
+                  107,
+                  101,
+                  110
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "cardSeed"
+              },
+              {
+                "kind": "account",
+                "path": "root"
+              }
+            ]
+          }
+        },
+        {
+          "name": "tokenMint"
+        },
+        {
+          "name": "tokenProgram",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": [
+        {
+          "name": "rootSeed",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "cardSeed",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "depositCard",
       "discriminator": [
         221,
@@ -482,29 +1111,32 @@ export const holdersIdl: Idl = {
       ]
     },
     {
-      "name": "initialize",
+      "name": "executeWithdrawal",
       "discriminator": [
-        175,
-        175,
-        109,
-        31,
-        13,
-        152,
-        155,
-        237
+        113,
+        121,
+        203,
+        232,
+        137,
+        139,
+        248,
+        249
       ],
       "accounts": [
         {
-          "name": "signer",
+          "name": "withdrawalController",
           "writable": true,
           "signer": true
         },
         {
-          "name": "tokenMint"
+          "name": "cardAuthority",
+          "signer": true
+        },
+        {
+          "name": "cardAuthorityTokenAccount"
         },
         {
           "name": "root",
-          "writable": true,
           "pda": {
             "seeds": [
               {
@@ -524,21 +1156,36 @@ export const holdersIdl: Idl = {
           }
         },
         {
-          "name": "treasureTokenAccount",
-          "writable": true,
+          "name": "card",
           "pda": {
             "seeds": [
               {
                 "kind": "const",
                 "value": [
-                  116,
-                  114,
-                  101,
+                  99,
                   97,
-                  115,
-                  117,
                   114,
-                  101,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cardTokenAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "cardTokenAccount",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  114,
+                  100,
                   95,
                   116,
                   111,
@@ -548,6 +1195,10 @@ export const holdersIdl: Idl = {
                 ]
               },
               {
+                "kind": "arg",
+                "path": "cardSeed"
+              },
+              {
                 "kind": "account",
                 "path": "root"
               }
@@ -555,8 +1206,54 @@ export const holdersIdl: Idl = {
           }
         },
         {
-          "name": "systemProgram",
-          "address": "11111111111111111111111111111111"
+          "name": "withdrawals",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  119,
+                  105,
+                  116,
+                  104,
+                  100,
+                  114,
+                  97,
+                  119,
+                  97,
+                  108,
+                  115
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "cardSeed"
+              },
+              {
+                "kind": "account",
+                "path": "root"
+              }
+            ]
+          }
+        },
+        {
+          "name": "withdrawalsTokenAccount",
+          "writable": true
+        },
+        {
+          "name": "destinationTokenAccount",
+          "writable": true
+        },
+        {
+          "name": "withdrawalTreasury"
+        },
+        {
+          "name": "withdrawalTreasuryTokenAccount",
+          "writable": true
+        },
+        {
+          "name": "tokenMint"
         },
         {
           "name": "tokenProgram",
@@ -574,16 +1271,151 @@ export const holdersIdl: Idl = {
           }
         },
         {
+          "name": "cardSeed",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "withdrawalSeqno",
+          "type": "u32"
+        },
+        {
+          "name": "feeAmount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "fixIncorrectDeposit",
+      "discriminator": [
+        158,
+        48,
+        134,
+        50,
+        85,
+        60,
+        29,
+        32
+      ],
+      "accounts": [
+        {
+          "name": "supportAuthority",
+          "writable": true,
+          "signer": true
+        },
+        {
           "name": "controller",
-          "type": "pubkey"
+          "writable": true,
+          "relations": [
+            "root"
+          ]
         },
         {
-          "name": "treasureAuthority",
-          "type": "pubkey"
+          "name": "root",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  111,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "rootSeed"
+              }
+            ]
+          }
         },
         {
-          "name": "gracefulPeriod",
-          "type": "i64"
+          "name": "tokenMint"
+        },
+        {
+          "name": "cardTokenAccountFrom",
+          "writable": true
+        },
+        {
+          "name": "cardTokenAccountTo",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  114,
+                  100,
+                  95,
+                  116,
+                  111,
+                  107,
+                  101,
+                  110
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "cardSeed"
+              },
+              {
+                "kind": "account",
+                "path": "root"
+              }
+            ]
+          }
+        },
+        {
+          "name": "card",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  114,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cardTokenAccountTo"
+              }
+            ]
+          }
+        },
+        {
+          "name": "tokenProgram",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": [
+        {
+          "name": "rootSeed",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "cardSeed",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
         }
       ]
     },
@@ -986,6 +1818,129 @@ export const holdersIdl: Idl = {
               }
             ]
           }
+        }
+      ],
+      "args": [
+        {
+          "name": "rootSeed",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "setSupportAuthority",
+      "discriminator": [
+        180,
+        237,
+        50,
+        89,
+        95,
+        203,
+        215,
+        156
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "root"
+          ]
+        },
+        {
+          "name": "supportAuthority"
+        },
+        {
+          "name": "root",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  111,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "rootSeed"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "rootSeed",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "setWithdrawalConfig",
+      "discriminator": [
+        222,
+        0,
+        218,
+        19,
+        105,
+        74,
+        204,
+        211
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "root"
+          ]
+        },
+        {
+          "name": "withdrawalController"
+        },
+        {
+          "name": "withdrawalTreasury"
+        },
+        {
+          "name": "root",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  111,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "rootSeed"
+              }
+            ]
+          }
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
         }
       ],
       "args": [
@@ -1430,6 +2385,211 @@ export const holdersIdl: Idl = {
       ]
     },
     {
+      "name": "updateCardStateV2",
+      "discriminator": [
+        104,
+        88,
+        177,
+        106,
+        101,
+        131,
+        218,
+        212
+      ],
+      "accounts": [
+        {
+          "name": "controller",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "root"
+          ]
+        },
+        {
+          "name": "root",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  111,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "rootSeed"
+              }
+            ]
+          }
+        },
+        {
+          "name": "treasureTokenAccount",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  114,
+                  101,
+                  97,
+                  115,
+                  117,
+                  114,
+                  101,
+                  95,
+                  116,
+                  111,
+                  107,
+                  101,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "root"
+              }
+            ]
+          }
+        },
+        {
+          "name": "cardAuthority",
+          "writable": true
+        },
+        {
+          "name": "card",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  114,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cardTokenAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "cardTokenAccount",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  114,
+                  100,
+                  95,
+                  116,
+                  111,
+                  107,
+                  101,
+                  110
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "cardSeed"
+              },
+              {
+                "kind": "account",
+                "path": "root"
+              }
+            ]
+          }
+        },
+        {
+          "name": "withdrawals",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  119,
+                  105,
+                  116,
+                  104,
+                  100,
+                  114,
+                  97,
+                  119,
+                  97,
+                  108,
+                  115
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "cardSeed"
+              },
+              {
+                "kind": "account",
+                "path": "root"
+              }
+            ]
+          }
+        },
+        {
+          "name": "withdrawalsTokenAccount",
+          "writable": true
+        },
+        {
+          "name": "tokenMint"
+        },
+        {
+          "name": "tokenProgram",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": [
+        {
+          "name": "rootSeed",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "cardSeed",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "state",
+          "type": {
+            "defined": {
+              "name": "updateCardDataV2"
+            }
+          }
+        },
+        {
+          "name": "limitsSeqno",
+          "type": "u32"
+        }
+      ]
+    },
+    {
       "name": "withdrawFromTreasure",
       "discriminator": [
         223,
@@ -1556,9 +2716,48 @@ export const holdersIdl: Idl = {
         5,
         9
       ]
+    },
+    {
+      "name": "withdrawals",
+      "discriminator": [
+        180,
+        60,
+        32,
+        127,
+        107,
+        92,
+        120,
+        74
+      ]
     }
   ],
   "events": [
+    {
+      "name": "canceledWithdrawal",
+      "discriminator": [
+        213,
+        1,
+        107,
+        62,
+        62,
+        25,
+        147,
+        0
+      ]
+    },
+    {
+      "name": "executedWithdrawal",
+      "discriminator": [
+        7,
+        193,
+        241,
+        41,
+        55,
+        11,
+        106,
+        112
+      ]
+    },
     {
       "name": "refunded",
       "discriminator": [
@@ -1653,11 +2852,11 @@ export const holdersIdl: Idl = {
     },
     {
       "code": 6016,
-      "name": "inconsistenceBalanceA"
+      "name": "inconsistentBalanceA"
     },
     {
       "code": 6017,
-      "name": "inconsistenceBalanceB"
+      "name": "inconsistentBalanceB"
     },
     {
       "code": 6018,
@@ -1666,9 +2865,69 @@ export const holdersIdl: Idl = {
     {
       "code": 6019,
       "name": "alreadyWhitelisted"
+    },
+    {
+      "code": 6020,
+      "name": "depositAOverflow"
+    },
+    {
+      "code": 6021,
+      "name": "newWithdrawnAOverflow"
+    },
+    {
+      "code": 6022,
+      "name": "newWithdrawnBOverflow"
+    },
+    {
+      "code": 6023,
+      "name": "depositBOverflow"
+    },
+    {
+      "code": 6024,
+      "name": "withdrawnAOverflow"
+    },
+    {
+      "code": 6025,
+      "name": "withdrawnBOverflow"
+    },
+    {
+      "code": 6026,
+      "name": "transferredAUnderflow"
+    },
+    {
+      "code": 6027,
+      "name": "noWithdrawalBySeqno"
+    },
+    {
+      "code": 6028,
+      "name": "incorrectWithdrawalAmounts"
+    },
+    {
+      "code": 6029,
+      "name": "notAuthorized"
+    },
+    {
+      "code": 6030,
+      "name": "maxWithdrawalsExceeded"
+    },
+    {
+      "code": 6031,
+      "name": "maxWithdrawalSeqnoExceeded"
     }
   ],
   "types": [
+    {
+      "name": "canceledWithdrawal",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "seqno",
+            "type": "u32"
+          }
+        ]
+      }
+    },
     {
       "name": "card",
       "type": {
@@ -1774,6 +3033,18 @@ export const holdersIdl: Idl = {
           },
           {
             "name": "closed"
+          }
+        ]
+      }
+    },
+    {
+      "name": "executedWithdrawal",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "seqno",
+            "type": "u32"
           }
         ]
       }
@@ -1940,6 +3211,22 @@ export const holdersIdl: Idl = {
             "type": {
               "vec": "pubkey"
             }
+          },
+          {
+            "name": "supportAuthority",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "withdrawalConfig",
+            "type": {
+              "option": {
+                "defined": {
+                  "name": "withdrawalConfig"
+                }
+              }
+            }
           }
         ]
       }
@@ -1988,6 +3275,46 @@ export const holdersIdl: Idl = {
           {
             "name": "timestamp",
             "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "updateCardDataV2",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "seqno",
+            "type": "u32"
+          },
+          {
+            "name": "transferredA",
+            "type": "u64"
+          },
+          {
+            "name": "transferredB",
+            "type": "u64"
+          },
+          {
+            "name": "withdrawA",
+            "type": "u64"
+          },
+          {
+            "name": "withdrawB",
+            "type": "u64"
+          },
+          {
+            "name": "close",
+            "type": "bool"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "isMultisigWithdrawalA",
+            "type": "bool"
           }
         ]
       }
@@ -2076,7 +3403,64 @@ export const holdersIdl: Idl = {
           }
         ]
       }
+    },
+    {
+      "name": "withdrawal",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "seqno",
+            "type": "u32"
+          },
+          {
+            "name": "totalAmount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "withdrawalConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "controller",
+            "type": "pubkey"
+          },
+          {
+            "name": "treasury",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "withdrawals",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "seqno",
+            "type": "u32"
+          },
+          {
+            "name": "withdrawals",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "withdrawal"
+                }
+              }
+            }
+          }
+        ]
+      }
     }
   ]
 };
-

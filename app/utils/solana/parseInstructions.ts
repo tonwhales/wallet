@@ -396,7 +396,6 @@ export function parseAssociatedTokenInstruction(instruction: TransactionInstruct
  */
 export function parseInstruction(instruction: TransactionInstruction) {
     const programId = instruction.programId.toString();
-    console.log('parseInstruction', programId);
     // Check for known program IDs
     switch (programId) {
         case holdersIdl.address:

@@ -136,6 +136,15 @@ export function useSolanaTransferInstruction(instruction: ParsedTransactionInstr
                 isHoldersOp = true;
                 break;
             }
+            case 'createAssociatedTokenAccount': {
+                const ataInstruction = instruction as any;
+
+                from = ataInstruction.accounts?.find((account: any) => account.name === 'payer')?.pubkey ?? '';
+                to = ataInstruction.accounts?.find((account: any) => account.name === 'associatedToken')?.pubkey ?? '';
+                mint = ataInstruction.accounts?.find((account: any) => account.name === 'mint')?.pubkey ?? '';
+
+                break;
+            }
             // Generic holders operations
             case 'createRoot':
             case 'issueCard':

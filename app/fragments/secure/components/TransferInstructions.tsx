@@ -2,32 +2,37 @@ import { parseTransactionInstructions } from "../../../utils/solana/parseInstruc
 import { useRegisterPendingSolana, useSolanaClients, useSolanaSelectedAccount, useTheme } from "../../../engine/hooks";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { PublicKey, Transaction } from "@solana/web3.js";
+import { PublicKey, Transaction, VersionedTransaction } from "@solana/web3.js";
 import { Alert, ScrollView, View } from "react-native";
 import { TransferInstructionView } from "../../solana/transfer/components/TransferInstructionView";
 import { RoundButton } from "../../../components/RoundButton";
-import { signAndSendSolanaTransaction } from "../utils/signAndSendSolanaTransaction";
+import { signAndSendSolanaTransaction, signAndSendSolanaVersionedTransaction } from "../utils/signAndSendSolanaTransaction";
 import { useCallback, useEffect, useRef } from "react";
 import { t } from "../../../i18n/t";
 import { SolanaTransferFees } from "../../solana/transfer/components/SolanaTransferFees";
-import { warn } from "../../../utils/log";
 import { SolanaTransactionAppHeader } from "../transfer/SolanaTransactionAppHeader";
 import { SolanaOrderApp } from "../ops/Order";
+import { warn } from "../../../utils/log";
 
-export const TransferInstructions = (params: {
+type TransferInstructionsProps = {
     instructions: ReturnType<typeof parseTransactionInstructions>;
-    transaction: Transaction;
-    callback?: (ok: boolean, signature: string | null) => void,
-    app?: SolanaOrderApp
-}) => {
+    callback?: (ok: boolean, signature: string | null) => void;
+    app?: SolanaOrderApp;
+} & (
+        | { transaction: Transaction; isVersioned: false }
+        | { transaction: VersionedTransaction; isVersioned: true }
+    );
+
+export const TransferInstructions = (params: TransferInstructionsProps) => {
     const theme = useTheme();
     const solanaClients = useSolanaClients();
     const authContext = useKeysAuth();
     const solanaAddress = useSolanaSelectedAccount()!;
     const navigation = useTypedNavigation();
-    const { transaction, instructions, callback } = params;
+    const { transaction, instructions, callback, isVersioned } = params;
 
-    if (!transaction.feePayer) {
+    // Set fee payer for legacy transactions only
+    if (!isVersioned && !transaction.feePayer) {
         try {
             transaction.feePayer = new PublicKey(solanaAddress);
         } catch {
@@ -41,14 +46,21 @@ export const TransferInstructions = (params: {
 
     const doSend = useCallback(async () => {
         try {
-            const pending = await signAndSendSolanaTransaction({
-                solanaClients,
-                theme,
-                authContext,
-                transaction
-            });
+            const pending = isVersioned
+                ? await signAndSendSolanaVersionedTransaction({
+                    solanaClients,
+                    theme,
+                    authContext,
+                    transaction: transaction as VersionedTransaction
+                })
+                : await signAndSendSolanaTransaction({
+                    solanaClients,
+                    theme,
+                    authContext,
+                    transaction: transaction as Transaction
+                });
             ref.current = pending.id;
-            registerPending({...pending, id: pending.base58Signature });
+            registerPending({ ...pending, id: pending.base58Signature });
             callback?.(true, pending.id);
         } catch (error) {
             Alert.alert(
@@ -66,7 +78,7 @@ export const TransferInstructions = (params: {
             return;
         }
         navigation.goBack();
-    }, [theme, authContext, params, solanaAddress, navigation, registerPending, callback]);
+    }, [theme, authContext, transaction, isVersioned, solanaAddress, navigation, registerPending, callback]);
 
     useEffect(() => {
         return () => {

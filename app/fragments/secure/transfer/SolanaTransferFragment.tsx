@@ -1,7 +1,7 @@
 import { Platform, ScrollView, View, Text, Pressable, Alert } from "react-native";
 import { fragment } from "../../../fragment";
 import { useParams } from "../../../utils/useParams";
-import { SolanaOrder, SolanaOrderApp } from "../ops/Order"
+import { SolanaOrder } from "../ops/Order"
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../../../components/ScreenHeader";
 import { useSolanaClients, useSolanaSelectedAccount, useSolanaToken, useTheme, useRegisterPendingSolana, useSolanaTransactionFromOrder, useCurrentAddress, useNetwork } from "../../../engine/hooks";
@@ -22,78 +22,15 @@ import { avatarColors } from "../../../components/avatar/Avatar";
 import { SolanaWalletAddress } from "../../../components/address/SolanaWalletAddress";
 import { fromNano } from "@ton/core";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
-import { Message, Transaction } from "@solana/web3.js";
-import { parseTransactionInstructions } from "../../../utils/solana/parseInstructions";
 import { TransferInstructions } from "../components/TransferInstructions";
 import { SolanaTransactionAppHeader } from "./SolanaTransactionAppHeader";
 import { SolanaTransferFees } from "../../solana/transfer/components/SolanaTransferFees";
 import { useTransactionsUtilsContext } from "../../../engine/TransactionsUtilsContext";
 import { trackMaestraSent } from "../../../analytics/maestra";
 import { useHoldersProfile } from "../../../engine/hooks/holders/useHoldersProfile";
+import { SolanaTransferParams, paramsToTransfer } from "./solanaTransferParams";
 
-type SolanaOrderTransferParams = {
-    type: 'order';
-    order: SolanaOrder
-}
-
-type SolanaMessageTransferParams = {
-    type: 'message';
-    message: string;
-}
-
-type SolanaTransactionTransferParams = {
-    type: 'transaction';
-    transaction: string;
-    app?: SolanaOrderApp;
-}
-
-export type SolanaTransferParams = (SolanaOrderTransferParams | SolanaMessageTransferParams | SolanaTransactionTransferParams) & {
-    callback?: (ok: boolean, signature: string | null) => void
-};
-
-
-type TransferLoadedParams = {
-    type: 'order';
-    order: SolanaOrder
-} | {
-    type: 'instructions';
-    instructions: ReturnType<typeof parseTransactionInstructions>;
-    transaction: Transaction;
-    app?: SolanaOrderApp;
-}
-
-function paramsToTransfer(order: SolanaTransferParams): TransferLoadedParams | null {
-    switch (order.type) {
-        case 'order':
-            return order;
-        case 'message':
-            try {
-                const message = Message.from(Buffer.from(order.message, 'base64'));
-                const transaction = Transaction.populate(message);
-                return {
-                    type: 'instructions',
-                    instructions: parseTransactionInstructions(transaction.instructions),
-                    transaction
-                };
-            } catch {
-                return null;
-            }
-        case 'transaction':
-            try {
-                const transaction = Transaction.from(Buffer.from(order.transaction, 'base64'));
-                return {
-                    type: 'instructions',
-                    instructions: parseTransactionInstructions(transaction.instructions),
-                    transaction,
-                    app: order.app
-                };
-            } catch {
-                return null;
-            }
-        default:
-            return null;
-    }
-}
+export { SolanaTransferParams } from "./solanaTransferParams";
 
 const TransferOrder = (props: { order: SolanaOrder, callback?: (ok: boolean, signature: string | null) => void }) => {
     const { order, callback } = props;
@@ -309,12 +246,25 @@ const TransferLoaded = (params: SolanaTransferParams) => {
         return <TransferOrder order={transfer.order} callback={params.callback} />
     }
 
+    if (transfer.type === 'versioned-instructions') {
+        return (
+            <TransferInstructions
+                instructions={transfer.instructions}
+                transaction={transfer.transaction}
+                callback={params.callback}
+                app={transfer.app}
+                isVersioned={true}
+            />
+        );
+    }
+
     return (
         <TransferInstructions
             instructions={transfer.instructions}
             transaction={transfer.transaction}
             callback={params.callback}
             app={transfer.app}
+            isVersioned={false}
         />
     );
 }

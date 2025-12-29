@@ -22,6 +22,7 @@ import { checkProtocolVersionCapability, checkTonconnectSignRequest, checkToncon
 
 type SolanaInjectedBridge = {
     sendSolanaTransaction: (transaction: string) => Promise<void>;
+    sendSolanaVersionedTransaction: (transaction: string) => Promise<void>;
 }
 
 export function useDAppBridge(endpoint: string, navigation: TypedNavigation, address?: string, isLedger?: boolean): any {
@@ -294,7 +295,7 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
                     }
                 });
             },
-            
+
             sendSolanaTransaction: async (transaction: string) => {
                 return new Promise<WalletResponse<any>>((resolve) => {
                     const callback = (ok: boolean, signature: string | null) => {
@@ -315,11 +316,37 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
                         });
                     };
 
-                    // TODO: *solana* check if transaction is valid
-
                     navigation.navigateSolanaTransfer({
                         type: 'message',
                         message: transaction,
+                        callback
+                    });
+                });
+            },
+
+            sendSolanaVersionedTransaction: async (transaction: string) => {
+                return new Promise<WalletResponse<any>>((resolve) => {
+                    const callback = (ok: boolean, signature: string | null) => {
+                        if (!ok) {
+                            resolve({
+                                error: {
+                                    code: SEND_TRANSACTION_ERROR_CODES.USER_REJECTS_ERROR,
+                                    message: 'User rejected',
+                                },
+                                id: requestId.toString(),
+                            });
+                            return;
+                        }
+
+                        resolve({
+                            result: signature,
+                            id: requestId.toString(),
+                        });
+                    };
+
+                    navigation.navigateSolanaTransfer({
+                        type: 'versioned-transaction',
+                        transaction,
                         callback
                     });
                 });

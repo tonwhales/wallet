@@ -344,25 +344,49 @@ export function parseAssociatedTokenInstruction(instruction: TransactionInstruct
         return null;
     }
 
-    // This program only has one instruction
-    const payer = instruction.keys[0].pubkey.toString();
-    const associatedToken = instruction.keys[1].pubkey.toString();
-    const owner = instruction.keys[2].pubkey.toString();
-    const mint = instruction.keys[3].pubkey.toString();
+    const keys = instruction.keys;
+
+    // Ensure we have at least the minimum required accounts (4: payer, ata, owner, mint)
+    if (keys.length < 4) {
+        return {
+            program: 'Associated Token Program',
+            name: 'unknown',
+            programId: ASSOCIATED_TOKEN_PROGRAM_ID,
+            data: instruction.data,
+            description: 'Associated Token Program operation'
+        };
+    }
+
+    const payer = keys[0].pubkey.toString();
+    const associatedToken = keys[1].pubkey.toString();
+    const owner = keys[2].pubkey.toString();
+    const mint = keys[3].pubkey.toString();
+
+    // Build accounts array with available keys
+    const accounts: { name: string; pubkey: string; isSigner: boolean; isWritable: boolean }[] = [
+        { name: 'payer', pubkey: payer, isSigner: keys[0].isSigner, isWritable: keys[0].isWritable },
+        { name: 'associatedToken', pubkey: associatedToken, isSigner: keys[1].isSigner, isWritable: keys[1].isWritable },
+        { name: 'owner', pubkey: owner, isSigner: keys[2].isSigner, isWritable: keys[2].isWritable },
+        { name: 'mint', pubkey: mint, isSigner: keys[3].isSigner, isWritable: keys[3].isWritable },
+    ];
+
+    // Add optional accounts if present
+    if (keys[4]) {
+        accounts.push({ name: 'systemProgram', pubkey: keys[4].pubkey.toString(), isSigner: keys[4].isSigner, isWritable: keys[4].isWritable });
+    }
+    if (keys[5]) {
+        accounts.push({ name: 'tokenProgram', pubkey: keys[5].pubkey.toString(), isSigner: keys[5].isSigner, isWritable: keys[5].isWritable });
+    }
+    // Rent sysvar is optional in newer versions of the program
+    if (keys[6]) {
+        accounts.push({ name: 'rentSysvar', pubkey: keys[6].pubkey.toString(), isSigner: keys[6].isSigner, isWritable: keys[6].isWritable });
+    }
 
     return {
         program: 'Associated Token Program',
         name: 'createAssociatedTokenAccount',
         programId: ASSOCIATED_TOKEN_PROGRAM_ID,
-        accounts: [
-            { name: 'payer', pubkey: payer, isSigner: true, isWritable: true },
-            { name: 'associatedToken', pubkey: associatedToken, isSigner: false, isWritable: true },
-            { name: 'owner', pubkey: owner, isSigner: false, isWritable: false },
-            { name: 'mint', pubkey: mint, isSigner: false, isWritable: false },
-            { name: 'systemProgram', pubkey: instruction.keys[4].pubkey.toString(), isSigner: false, isWritable: false },
-            { name: 'tokenProgram', pubkey: instruction.keys[5].pubkey.toString(), isSigner: false, isWritable: false },
-            { name: 'rentSysvar', pubkey: instruction.keys[6].pubkey.toString(), isSigner: false, isWritable: false }
-        ],
+        accounts,
         description: `Create associated token account for mint ${shortenAddress(mint)}`
     };
 }

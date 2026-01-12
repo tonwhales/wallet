@@ -12,7 +12,7 @@ import { KnownWallet } from "../../../secure/KnownWallets";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Address, ExtraCurrency, fromNano, toNano } from "@ton/core";
 import { WalletSettings } from "../../../engine/state/walletSettings";
-import { useAppState, useNetwork, useBounceableWalletFormat, usePrice, useSelectedAccount, useTheme, useWalletsSettings, useVerifyJetton } from "../../../engine/hooks";
+import { useAppState, useNetwork, useBounceableWalletFormat, usePrice, useSelectedAccount, useTheme, useWalletsSettings, useVerifyJetton, useForcedAvatarType } from "../../../engine/hooks";
 import { AddressComponent } from "../../../components/address/AddressComponent";
 import { holdersUrl as resolveHoldersUrl } from "../../../engine/api/holders/fetchUserState";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
@@ -221,23 +221,16 @@ export const TransferSingleView = memo(({
         }
     }, [ledgerTransport.wallets, target.address]);
 
-    const forceAvatar: ForcedAvatarType | undefined = useMemo(() => {
-        if (targetContract?.kind === 'dedust-vault') {
-            return 'dedust';
-        }
+    const forceAvatar = useForcedAvatarType({
+        address: targetString,
+        contractInfo: targetContract,
+        holdersOp: operation.op?.res
+    });
 
-        if (targetContract?.kind === 'jetton-card' || targetContract?.kind === 'card') {
-            if (operation.op?.res === 'tx.tokenTransfer') {
-                operation.op.res = 'known.holders.accountJettonTopUp';
-            }
-            return 'holders';
-        }
-
-        if (operation.op?.res.startsWith('known.holders.')) {
-            return 'holders';
-        }
-
-    }, [operation.op?.res, targetContract?.kind, isTargetLedger]);
+    // Side effect: Update operation text for jetton-card top-ups
+    if ((targetContract?.kind === 'jetton-card' || targetContract?.kind === 'card') && operation.op?.res === 'tx.tokenTransfer') {
+        operation.op.res = 'known.holders.accountJettonTopUp';
+    }
 
     const name = isLedger
         ? 'Ledger'

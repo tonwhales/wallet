@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useMemo } from "react";
 import { View, Text } from "react-native";
 import { PendingSolanaTransaction, PendingSolanaTransactionInstructions, PendingSolanaTransactionTx } from "../../../engine/state/pending";
-import { useNetwork, useSolanaToken, useSolanaTransactionStatus, useTheme } from "../../../engine/hooks";
+import { useNetwork, useSolanaToken, useSolanaTransactionStatus, useTheme, useForcedAvatarType } from "../../../engine/hooks";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { t } from "../../../i18n/t";
 import Animated, { FadeInDown, FadeOutUp } from "react-native-reanimated";
@@ -15,7 +15,6 @@ import { ForcedAvatar } from "../../../components/avatar/ForcedAvatar";
 import { InstructionName } from "../../../utils/solana/parseInstructions";
 import { ASSET_ITEM_HEIGHT, TRANSACTION_AVATAR_SIZE, TRANSACTION_PROCESSING_TIMEOUT } from "../../../utils/constants";
 import { TransactionType } from "../../../engine/types";
-import { useTransactionsUtilsContext } from "../../../engine/TransactionsUtilsContext";
 
 const PendingInstructionsView = memo(({
     transaction,
@@ -150,14 +149,13 @@ const PendingTxView = memo((
         verified: boolean
     }
 ) => {
-    const { checkIsHoldersTarget } = useTransactionsUtilsContext();
     const { target, amount, token } = transaction.tx;
     const theme = useTheme();
     const tokenData = useSolanaToken(address, token?.mint);
 
     const symbol = token?.symbol ?? tokenData?.symbol ?? 'SOL';
     const decimals = token?.decimals ?? tokenData?.decimals ?? 9;
-    const forceAvatar = useMemo(() => checkIsHoldersTarget(target) ? 'holders' : undefined, [checkIsHoldersTarget, address]);
+    const forceAvatar = useForcedAvatarType({ address: target });
 
     return (
         <Animated.View

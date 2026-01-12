@@ -11,13 +11,13 @@ import { avatarHash } from '../../../utils/avatarHash';
 import { TonTransaction } from '../../../engine/types';
 import { t } from '../../../i18n/t';
 import { getLiquidStakingAddress } from '../../../utils/KnownPools';
-import { ForcedAvatarType } from '../../../components/avatar/ForcedAvatar';
 import { isTxSPAM } from '../../../utils/spam/isTxSPAM';
 import { useLedgerTransport } from '../../ledger/components/TransportContext';
 import { extraCurrencyFromTransaction } from '../../../utils/extraCurrencyFromTransaction';
 import { useExtraCurrencyMap } from '../../../engine/hooks/jettons/useExtraCurrencyMap';
 import { fromBnWithDecimals } from '../../../utils/withDecimals';
 import { TransactionItemLayout } from './TransactionItemLayout';
+import { useForcedAvatarType } from '../../../engine/hooks';
 
 export const TransactionView = memo((props: {
     own: Address,
@@ -121,22 +121,12 @@ export const TransactionView = memo((props: {
         }
     }, [operation.op, parsed, tx.message, parsedAddress])
 
-    const holdersOp = operation.op?.res?.startsWith('known.holders.')
-
-    const forcedAvatar: ForcedAvatarType | undefined = useMemo(() => {
-        if (holdersOp) {
-            return 'holders';
-        }
-        if (operation.op?.res === 'known.cashback') {
-            return 'cashback';
-        }
-        if (contractInfo?.kind === 'dedust-vault') {
-            return 'dedust';
-        }
-        if (contractInfo?.kind === 'card' || contractInfo?.kind === 'jetton-card') {
-            return 'holders';
-        }
-    }, [contractInfo, holdersOp, opAddress])
+    const forcedAvatar = useForcedAvatarType({
+        address: opAddress,
+        contractInfo,
+        holdersOp: operation.op?.res,
+        isCashbackOp: operation.op?.res === 'known.cashback'
+    });
 
     const isLedgerTarget = useMemo(() => {
         return !!ledgerAddresses?.find((addr) => {

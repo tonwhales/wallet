@@ -1,5 +1,15 @@
 import MindboxSdk from "mindbox-sdk";
 
+function roundUpTo2Decimals(value: string): string {
+    try {
+        const num = parseFloat(value);
+        if (isNaN(num)) return value;
+        return (Math.ceil(num * 100) / 100).toFixed(2);
+    } catch (error) {
+        return value;
+    }
+}
+
 export enum MaestraEvent {
     SessionStart = 'SessionStart',
     WalletSeedImported = 'Authorization',
@@ -47,17 +57,19 @@ export function trackMaestraSent({
     tonhubID?: string;
     transactionID: string;
 }) {
+    const totalPrice = roundUpTo2Decimals(amount);
+
     MindboxSdk.executeAsyncOperation({
         operationSystemName: MaestraEvent.SentCurrency,
         operationBody: {
             order: {
-                totalPrice: amount,
+                totalPrice,
                 ids: {
                     CurrencySendingID: transactionID
                 },
                 lines: [
                     {
-                        basePricePerItem: amount,
+                        basePricePerItem: totalPrice,
                         quantity: '1',
                         customFields: {
                             orderlineCurrency: currency,
@@ -100,17 +112,20 @@ export function trackMaestraSwapped({
     tonhubID?: string;
     transactionID: string;
 }) {
+    const totalPrice = roundUpTo2Decimals(amountFrom);
+    const basePricePerItem = roundUpTo2Decimals(amountTo);
+
     MindboxSdk.executeAsyncOperation({
         operationSystemName: MaestraEvent.SwappedCurrency,
         operationBody: {
             order: {
-                totalPrice: amountFrom,
+                totalPrice,
                 ids: {
                     ExchangeID: transactionID
                 },
                 lines: [
                     {
-                        basePricePerItem: amountTo,
+                        basePricePerItem,
                         quantity: '1',
                         customFields: {
                             exchangeSourceCurrency: currencyFrom,

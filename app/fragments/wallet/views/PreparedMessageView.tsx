@@ -10,9 +10,9 @@ import { avatarColors } from '../../../components/avatar/Avatar';
 import { avatarHash } from '../../../utils/avatarHash';
 import { t } from '../../../i18n/t';
 import { getLiquidStakingAddress } from '../../../utils/KnownPools';
-import { ForcedAvatarType } from '../../../components/avatar/ForcedAvatar';
 import { TransactionItemLayout } from './TransactionItemLayout';
 import { TonTransaction } from '../../../engine/types';
+import { useForcedAvatarType } from '../../../engine/hooks';
 
 export function PreparedMessageView(props: {
     tx: TonTransaction,
@@ -69,36 +69,36 @@ export function PreparedMessageView(props: {
     const contact = contacts[parsedAddressFriendly] || contacts[parsedAddressNonBounceable];
     const avatarColorHash = walletSettings?.color ?? avatarHash(parsedAddressFriendly, avatarColors.length)
     const avatarColor = avatarColors[avatarColorHash];
-    const isTargetHolders = contractInfo?.kind === 'card' || contractInfo?.kind === 'jetton-card'
-    const forcedAvatar: ForcedAvatarType | undefined = useMemo(() =>
-        isTargetHolders ? 'holders' : undefined, [contractInfo, opAddress]
-    );
+    const forcedAvatar = useForcedAvatarType({
+        address: opAddress,
+        contractInfo
+    });
     const symbolText = tx.symbolText ?? '';
 
     // Operation text
     const op = useMemo(() => {
-            if (operation.op) {
-                const isLiquid = getLiquidStakingAddress(isTestnet).equals(parsedAddress);
-                if (operation.op.res === 'known.withdraw' && isLiquid) {
-                    return t('known.withdrawLiquid');
-                }
-                // If this is tx.tokenTransfer but jettonMaster is not found (for example, swap on DEX), use standard text
-                if (operation.op.res === 'tx.tokenTransfer' && !message.jettonMaster) {
-                    if (status === 'pending') {
-                        return t('tx.sending');
-                    } else {
-                        return t('tx.sent');
-                    }
-                }
-                return t(operation.op.res, operation.op.options);
-            } else {
+        if (operation.op) {
+            const isLiquid = getLiquidStakingAddress(isTestnet).equals(parsedAddress);
+            if (operation.op.res === 'known.withdraw' && isLiquid) {
+                return t('known.withdrawLiquid');
+            }
+            // If this is tx.tokenTransfer but jettonMaster is not found (for example, swap on DEX), use standard text
+            if (operation.op.res === 'tx.tokenTransfer' && !message.jettonMaster) {
                 if (status === 'pending') {
                     return t('tx.sending');
                 } else {
                     return t('tx.sent');
                 }
             }
-        }, [operation.op, status, parsedAddress, isTestnet, message.jettonMaster]
+            return t(operation.op.res, operation.op.options);
+        } else {
+            if (status === 'pending') {
+                return t('tx.sending');
+            } else {
+                return t('tx.sent');
+            }
+        }
+    }, [operation.op, status, parsedAddress, isTestnet, message.jettonMaster]
     );
 
     // Resolve built-in known wallets

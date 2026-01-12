@@ -1,10 +1,9 @@
 import { memo, useCallback, useEffect, useMemo } from "react";
 import { PendingTransaction } from "../../../engine/state/pending";
-import { useContractInfo, useNetwork, useTheme, useTonTransactionStatus, useWalletSettings } from "../../../engine/hooks";
+import { useContractInfo, useNetwork, useTheme, useTonTransactionStatus, useWalletSettings, useForcedAvatarType } from "../../../engine/hooks";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { KnownWallet, useKnownWallets } from "../../../secure/KnownWallets";
-import { ForcedAvatar, ForcedAvatarType } from "../../../components/avatar/ForcedAvatar";
-import { parseMessageBody } from "../../../engine/transactions/parseMessageBody";
+import { ForcedAvatar } from "../../../components/avatar/ForcedAvatar";
 import { t } from "../../../i18n/t";
 import Animated, { FadeInDown, FadeOutUp } from "react-native-reanimated";
 import { Pressable } from "react-native";
@@ -85,27 +84,11 @@ export const PendingTransactionView = memo(({
         }
     }, [tx.id, markAsTimedOut, tx.status]);
     
-    const forceAvatar: ForcedAvatarType | undefined = useMemo(() => {
-        if (targetContract?.kind === 'dedust-vault') {
-            return 'dedust';
-        }
-        if (
-            (targetContract?.kind === 'jetton-card' && tx.body?.type === 'token')
-            || targetContract?.kind === 'card'
-        ) {
-            return 'holders';
-        }
-
-        if (tx.body?.type === 'payload') {
-            const body = parseMessageBody(tx.body.cell);
-            if (!!body && (
-                body.type === 'holders::account::top_up'
-                || body.type === 'holders::account::limits_change'
-            )) {
-                return 'holders';
-            }
-        }
-    }, [tx.address, tx.body, targetContract?.kind, ledgerAddresses]);
+    const forceAvatar = useForcedAvatarType({
+        address: target?.toString({ testOnly: isTestnet }),
+        contractInfo: targetContract,
+        payloadCell: tx.body?.type === 'payload' ? tx.body.cell : undefined
+    });
 
     const isLedgerTarget = useMemo(() => {
         return !!ledgerAddresses?.find((addr) => {

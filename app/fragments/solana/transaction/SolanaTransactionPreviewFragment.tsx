@@ -22,7 +22,7 @@ import { SolanaWalletAddress } from "../../../components/address/SolanaWalletAdd
 import { useParams } from "../../../utils/useParams";
 import { solanaPreviewToTransferParams } from "../../../utils/solana/solanaPreviewToTransferParams";
 import { RoundButton } from "../../../components/RoundButton";
-import { useCurrentAddress, useHoldersAccounts, useSolanaTransferInfo, useForcedAvatarType } from "../../../engine/hooks";
+import { useSolanaTransferInfo, useForcedAvatarType } from "../../../engine/hooks";
 
 export type SolanaTransactionPreviewParams = {
     owner: string;

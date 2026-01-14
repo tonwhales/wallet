@@ -1,4 +1,4 @@
-import { memo, useMemo } from "react";
+import { memo } from "react";
 import { View, Text, Pressable } from "react-native";
 import { useTypedNavigation } from "../../../../utils/useTypedNavigation";
 import { SolanaTransaction, SolanaNativeTransfer } from "../../../../engine/api/solana/fetchSolanaTransactions";
@@ -11,10 +11,9 @@ import { ValueComponent } from "../../../../components/ValueComponent";
 import { AddressInputAvatar } from "../../../../components/address/AddressInputAvatar";
 import { Typography } from "../../../../components/styles";
 import { TRANSACTION_AVATAR_SIZE } from "../../../../utils/constants";
-import { useTransactionsUtilsContext } from "../../../../engine/TransactionsUtilsContext";
+import { useForcedAvatarType } from "../../../../engine/hooks";
 
 export const SolanaNativeTransferView = memo(({ transfer, owner, item }: { transfer: SolanaNativeTransfer, owner: string, item: SolanaTransaction }) => {
-    const { checkIsHoldersTarget } = useTransactionsUtilsContext();
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const { fromUserAccount, toUserAccount, amount } = transfer;
@@ -23,8 +22,8 @@ export const SolanaNativeTransferView = memo(({ transfer, owner, item }: { trans
     const address = kind === 'in' ? fromUserAccount : toUserAccount;
     const amountColor = (kind === 'in') ? theme.accentGreen : theme.textPrimary;
     const avatarColor = avatarColors[avatarHash(address, avatarColors.length)];
-    const forceAvatar = useMemo(() => checkIsHoldersTarget(address) ? 'holders' : undefined, [checkIsHoldersTarget, address]);
-    
+    const forceAvatar = useForcedAvatarType({ address });
+
     const navigate = () => {
         navigation.navigateSolanaTransaction({
             owner,

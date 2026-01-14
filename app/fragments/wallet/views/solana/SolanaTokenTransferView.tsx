@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from "react";
+import React, { memo } from "react";
 import { View, Text, Pressable } from "react-native";
 import { Typography } from "../../../../components/styles";
 import { AddressInputAvatar } from "../../../../components/address/AddressInputAvatar";
@@ -12,12 +12,10 @@ import { fromBnWithDecimals, toBnWithDecimals } from "../../../../utils/withDeci
 import { SolanaAccountData, SolanaTokenTransfer, SolanaTransaction } from "../../../../engine/api/solana/fetchSolanaTransactions";
 import { useTheme } from "../../../../engine/hooks/theme";
 import { useTypedNavigation } from "../../../../utils/useTypedNavigation";
-import { useSolanaToken } from "../../../../engine/hooks";
+import { useSolanaToken, useForcedAvatarType } from "../../../../engine/hooks";
 import { TRANSACTION_AVATAR_SIZE } from "../../../../utils/constants";
-import { useTransactionsUtilsContext } from "../../../../engine/TransactionsUtilsContext";
 
 export const SolanaTokenTransferView = memo(({ transfer, owner, accountData, item }: { transfer: SolanaTokenTransfer, owner: string, accountData: SolanaAccountData, item: SolanaTransaction }) => {
-  const { checkIsHoldersTarget } = useTransactionsUtilsContext();
   const { fromUserAccount, toTokenAccount, tokenAmount, mint } = transfer;
 
   const isMint = item.type === 'TOKEN_MINT';
@@ -36,7 +34,7 @@ export const SolanaTokenTransferView = memo(({ transfer, owner, accountData, ite
   const tokenInfo = useSolanaToken(owner, mint);
   const symbol = tokenInfo?.symbol;
   const decimals = tokenInfo?.decimals;
-  const forceAvatar = useMemo(() => checkIsHoldersTarget(address) ? 'holders' : undefined, [checkIsHoldersTarget, address]);
+  const forceAvatar = useForcedAvatarType({ address });
 
   const navigate = () => {
     navigation.navigateSolanaTransaction({

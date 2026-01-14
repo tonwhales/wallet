@@ -27,6 +27,7 @@ import { SolanaTokenInfoView } from "./views/solana/SolanaTokenInfoView";
 import { USDYRateAmination } from "./views/solana/USDYRateAmination";
 
 import SolanaIcon from '@assets/ic-solana.svg';
+import ArrowIcon from '@assets/order/arrow-without-background.svg';
 
 export type SolanaTokenWalletFragmentProps = {
     owner: string,
@@ -116,36 +117,54 @@ const SolanaTokenHeader = memo(({ mint, owner }: { mint: string, owner: string }
                         disableContextMenu
                         copyToastProps={{ marginBottom: 70 + bottomBarHeight }}
                     />
-                    <ValueComponent
-                        value={balance}
-                        decimals={decimals}
-                        precision={4}
-                        fontStyle={[Typography.semiBold32_38, { color: theme.textPrimary }]}
-                        centFontStyle={{ color: theme.textSecondary }}
-                        suffix={` ${symbol}`}
-                    />
-                    <View>
-                        {isUsdy ? (
+                    {isUsdy ? (
+                        <>
                             <USDYRateAmination
                                 usdyRate={rate}
                                 currentPrice={usdyPrice}
                                 amount={token.uiAmount ?? 0}
+                                cacheKey={`usdy-balance-${owner}`}
+                                typography={{ fontSize: 32, lineHeight: 38, fontWeight: '600' }}
+                                showIcon={true}
+                                decimalPlaces={4}
                             />
-                        ) : (
-                            <PriceComponent
-                                amount={price}
-                                style={{
-                                    backgroundColor: 'transparent',
-                                    paddingHorizontal: 0, paddingVertical: 0,
-                                    height: undefined,
-                                }}
-                                textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
-                                theme={theme}
-                                priceUSD={1}
-                                hideCentsIfNull
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                                <ValueComponent
+                                    value={balance}
+                                    decimals={decimals}
+                                    precision={4}
+                                    fontStyle={[Typography.regular15_20, { color: theme.accentGreen }]}
+                                    centFontStyle={{ color: theme.accentGreen }}
+                                    suffix={` ${symbol}`}
+                                />
+                            </View>
+                        </>
+                    ) : (
+                        <>
+                            <ValueComponent
+                                value={balance}
+                                decimals={decimals}
+                                precision={4}
+                                fontStyle={[Typography.semiBold32_38, { color: theme.textPrimary }]}
+                                centFontStyle={{ color: theme.textSecondary }}
+                                suffix={` ${symbol}`}
                             />
-                        )}
-                    </View>
+                            <View>
+                                <PriceComponent
+                                    amount={price}
+                                    style={{
+                                        backgroundColor: 'transparent',
+                                        paddingHorizontal: 0, paddingVertical: 0,
+                                        height: undefined,
+                                    }}
+                                    textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                                    theme={theme}
+                                    priceUSD={1}
+                                    hideCentsIfNull
+                                />
+                            </View>
+                        </>
+                    )}
                 </View>
                 <SolanaWalletActions
                     theme={theme}

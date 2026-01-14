@@ -64,6 +64,7 @@ export const Queries = {
 
     ContractMetadata: (address: string) => (['contractMetadata', address]),
     ContractInfo: (address: string) => (['contractInfo', address]),
+    ServiceAddress: (address: string) => (['serviceAddress', address]),
     Config: (network: 'testnet' | 'mainnet') => ['config', network],
     ServerConfig: () => ['serverConfig'],
     AppVersionsConfig: (network: 'testnet' | 'mainnet') => ['appVersionsConfig', network],
@@ -102,7 +103,7 @@ export const Queries = {
     USDeApy: (isTestnet: boolean) => (['staking', 'usdeApy', isTestnet ? 'testnet' : 'mainnet']),
     USDeRate: (isTestnet: boolean) => (['staking', 'usdeRate', isTestnet ? 'testnet' : 'mainnet']),
     StakingLiquidUSDeMember: (pool: string, member: string) => ['staking', 'member', 'liquid', 'usde', pool, member],
-    
+
     Banners: (language: string, version: string, buildNumber: string) => (['banners', language, version, buildNumber]),
     BrowserListings: (network: 'mainnet' | 'testnet') => (['browserListings', network]),
     HoldersBrowserListings: (network: 'mainnet' | 'testnet') => (['browserListings', 'holders', network]),

@@ -4,7 +4,7 @@ import { useParams } from "../../../utils/useParams";
 import { SolanaOrder } from "../ops/Order"
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../../../components/ScreenHeader";
-import { useSolanaClients, useSolanaSelectedAccount, useSolanaToken, useTheme, useRegisterPendingSolana, useSolanaTransactionFromOrder, useCurrentAddress, useNetwork } from "../../../engine/hooks";
+import { useSolanaClients, useSolanaSelectedAccount, useSolanaToken, useTheme, useRegisterPendingSolana, useSolanaTransactionFromOrder, useCurrentAddress, useNetwork, useForcedAvatarType } from "../../../engine/hooks";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ItemGroup } from "../../../components/ItemGroup";
@@ -25,7 +25,6 @@ import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { TransferInstructions } from "../components/TransferInstructions";
 import { SolanaTransactionAppHeader } from "./SolanaTransactionAppHeader";
 import { SolanaTransferFees } from "../../solana/transfer/components/SolanaTransferFees";
-import { useTransactionsUtilsContext } from "../../../engine/TransactionsUtilsContext";
 import { trackMaestraSent } from "../../../analytics/maestra";
 import { useHoldersProfile } from "../../../engine/hooks/holders/useHoldersProfile";
 import { SolanaTransferParams, paramsToTransfer } from "./solanaTransferParams";
@@ -42,13 +41,12 @@ const TransferOrder = (props: { order: SolanaOrder, callback?: (ok: boolean, sig
     const { tonAddress } = useCurrentAddress();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
-    const { checkIsHoldersTarget } = useTransactionsUtilsContext();
     const token = useSolanaToken(solanaAddress, order.token?.mint);
     const registerPending = useRegisterPendingSolana(solanaAddress);
     const transaction = useSolanaTransactionFromOrder(order, solanaAddress, solanaClients);
     const profile = useHoldersProfile(tonAddress!.toString({ testOnly: isTestnet })).data;
 
-    const forceAvatar = useMemo(() => checkIsHoldersTarget(order.target) ? 'holders' : undefined, [checkIsHoldersTarget, order.target]);
+    const forceAvatar = useForcedAvatarType({ address: order.target });
 
     const onCopyAddress = useCallback((address: string) => {
         copyText(address);

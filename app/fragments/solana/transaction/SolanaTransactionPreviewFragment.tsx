@@ -22,8 +22,7 @@ import { SolanaWalletAddress } from "../../../components/address/SolanaWalletAdd
 import { useParams } from "../../../utils/useParams";
 import { solanaPreviewToTransferParams } from "../../../utils/solana/solanaPreviewToTransferParams";
 import { RoundButton } from "../../../components/RoundButton";
-import { useCurrentAddress, useHoldersAccounts, useSolanaTransferInfo } from "../../../engine/hooks";
-import { useTransactionsUtilsContext } from "../../../engine/TransactionsUtilsContext";
+import { useSolanaTransferInfo, useForcedAvatarType } from "../../../engine/hooks";
 
 export type SolanaTransactionPreviewParams = {
     owner: string;
@@ -36,7 +35,6 @@ const SolanaTransactionPreview = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const toaster = useToaster();
-    const { checkIsHoldersTarget } = useTransactionsUtilsContext();
     const { owner, transaction, transfer } = useParams<SolanaTransactionPreviewParams>();
     const { data, type } = transfer;
     const transferInfo = useSolanaTransferInfo({ type, transfer: data, transaction, owner });
@@ -45,7 +43,7 @@ const SolanaTransactionPreview = fragment(() => {
 
     const amountColor = (kind === 'in') ? theme.accentGreen : theme.textPrimary;
     const avatarColor = avatarColors[avatarHash(address ?? '', avatarColors.length)];
-    const forceAvatar = useMemo(() => checkIsHoldersTarget(address ?? '') ? 'holders' : undefined, [checkIsHoldersTarget, address]);
+    const forceAvatar = useForcedAvatarType({ address });
 
     const onCopyAddress = useCallback((address: string) => {
         copyText(address);

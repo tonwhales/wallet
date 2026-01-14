@@ -10,11 +10,10 @@ import { useTheme } from '../../engine/hooks';
 import { useNetwork } from "../../engine/hooks/network/useNetwork";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { StatusBar } from "expo-status-bar";
-import { trackScreen } from "../../analytics/mixpanel";
 import { ConfirmLegal } from "../../components/ConfirmLegal";
 import { sharedStoragePersistence } from "../../storage/storage";
-import ChangellyLogo from '../../../assets/changelly.svg';
 import { CHANGELLY_PRIVACY_URL, CHANGELLY_TERMS_URL, CHANGELLY_WIDGET_URL } from "../../utils/constants";
+import { ChangellyLogo } from "@assets";
 
 const skipLegalChangelly = 'skip_legal_changelly';
 

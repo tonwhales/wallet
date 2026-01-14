@@ -22,13 +22,15 @@ export type ForcedAvatarParams = {
 };
 
 /**
- * determine if a ForcedAvatar should be used for an address.
- * 
- * Priority:
- * 1. Service address check (useServiceAddressCheck) - first source of truth
- * 2. User's own holders account check
- * 3. Contract info kind (dedust-vault, card, jetton-card)
- * 4. Operation-based checks (holders ops, cashback)
+ * Selects which ForcedAvatar type (if any) should be applied to the given address based on prioritized signals.
+ *
+ * @param params.address - The target address to evaluate; may be null or undefined.
+ * @param params.contractInfo - Optional pre-fetched contract info to use instead of fetching by address. Pass `undefined` to allow internal fetching.
+ * @param params.holdersOp - Optional operation identifier (e.g., transaction op) used to infer holders-related avatars when it starts with `known.holders.`.
+ * @param params.payloadCell - Optional message payload cell to parse for holders-related actions (top-up or limits change).
+ * @param params.isCashbackOp - When true, forces the `cashback` avatar type.
+ * @param params.skipOwnHoldersCheck - When true, skip checking the current user's holders accounts for performance.
+ * @returns The chosen `ForcedAvatarType` based on priority (service check, own holders, cashback, holders ops, contract kind, payload), or `undefined` if no match is found.
  */
 export function useForcedAvatarType(params: ForcedAvatarParams): ForcedAvatarType | undefined {
     const { address, contractInfo: providedContractInfo, holdersOp, payloadCell, isCashbackOp, skipOwnHoldersCheck } = params;
@@ -82,4 +84,3 @@ export function useForcedAvatarType(params: ForcedAvatarParams): ForcedAvatarTyp
         return undefined;
     }, [serviceInfo, isOwnHoldersAccount, contractInfo, holdersOp, payloadCell, isCashbackOp]);
 }
-

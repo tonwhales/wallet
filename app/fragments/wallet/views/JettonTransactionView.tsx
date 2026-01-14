@@ -27,6 +27,27 @@ import { mapJettonToMasterState } from '../../../utils/jettons/mapJettonToMaster
 import { useLedgerTransport } from '../../ledger/components/TransportContext';
 import { useAddressFormatsHistory } from '../../../engine/hooks';
 import { SpamLabel } from '../../../components/SpamLabel';
+/**
+ * Render a single jetton transfer transaction row with avatar, operation label, address/time, amount and optional comment.
+ *
+ * @param own - The current user's address used to determine incoming vs outgoing direction
+ * @param tx - The jetton transfer transaction to display
+ * @param jetton - The jetton token metadata associated with the transaction
+ * @param theme - Theme values used for styling the row
+ * @param onPress - Called with `tx` when the row is pressed
+ * @param onLongPress - Optional callback called with `tx` on long press
+ * @param dontShowComments - If true, suppress displaying comments for transactions classified as spam
+ * @param spamMinAmount - Minimum amount threshold used when evaluating spam heuristics
+ * @param denyList - Map of denied addresses and their reasons used for spam/denial checks
+ * @param contacts - Map of address to contact info used to resolve display names
+ * @param isTestnet - When true, formats addresses for testnet display
+ * @param spamWallets - List of wallet addresses treated as spam sources
+ * @param appState - Optional app state used to detect owned addresses
+ * @param bounceableFormat - Preferred bounceable address formatting fallback
+ * @param walletsSettings - Per-address settings (name, color) used for avatar and display resolution
+ * @param knownWallets - Built-in known wallet registry used to resolve well-known names
+ * @returns A JSX element representing the transaction row
+ */
 export function JettonTransactionView(props: {
     own: Address,
     tx: JettonTransfer,

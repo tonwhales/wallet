@@ -14,6 +14,17 @@ import { TransactionItemLayout } from './TransactionItemLayout';
 import { TonTransaction } from '../../../engine/types';
 import { useForcedAvatarType } from '../../../engine/hooks';
 
+/**
+ * Render a prepared TON transaction message row with resolved address, avatar, known-wallet/contact and human-readable operation text.
+ *
+ * Resolves display metadata for the provided transaction (address formatting, avatar color/type, known wallet/contact, operation label, amounts, and other flags) and returns a TransactionItemLayout preconfigured for that transaction.
+ *
+ * @param tx - The TON transaction to display.
+ * @param onPress - Called with `tx` when the item is pressed.
+ * @param onLongPress - Called with `tx` (and an optional formatted address string) when the item is long-pressed.
+ * @param ledger - If true, mark the item as related to a Ledger device.
+ * @returns A JSX element representing the prepared transaction item row.
+ */
 export function PreparedMessageView(props: {
     tx: TonTransaction,
     own: Address,

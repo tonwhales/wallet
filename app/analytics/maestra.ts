@@ -1,5 +1,11 @@
 import MindboxSdk from "mindbox-sdk";
 
+/**
+ * Rounds a numeric string up to two decimal places and returns it formatted with exactly two decimals.
+ *
+ * @param value - The input string to parse as a number.
+ * @returns The value rounded up to two decimal places as a string with exactly two decimals, or the original `value` if it cannot be parsed as a number or an error occurs.
+ */
 function roundUpTo2Decimals(value: string): string {
     try {
         const num = parseFloat(value);
@@ -44,6 +50,17 @@ export function trackMaestraEvent(event: MaestraEvent, customer: {
     });
 }
 
+/**
+ * Track a sent-currency event in Mindbox using the provided transaction and customer details.
+ *
+ * The reported order price is rounded up to two decimal places before sending.
+ *
+ * @param amount - The amount sent, as a string (will be rounded up to 2 decimals for reporting)
+ * @param currency - The currency code for the sent amount
+ * @param walletID - The customer's crypto account identifier used as the wallet id
+ * @param tonhubID - Optional Tonhub identifier to include alongside the wallet ID
+ * @param transactionID - The unique transaction identifier used as the order id
+ */
 export function trackMaestraSent({
     amount,
     currency,
@@ -95,6 +112,19 @@ export function trackMaestraSent({
     });
 }
 
+/**
+ * Send a currency swap event to Mindbox with order and customer identifiers.
+ *
+ * The provided amounts are rounded up to two decimal places before being included in the order payload; `transactionID` is mapped to the order `ExchangeID`.
+ *
+ * @param amountFrom - Amount debited from the source currency (string; will be rounded up to 2 decimals)
+ * @param amountTo - Amount credited in the target currency (string; will be rounded up to 2 decimals)
+ * @param currencyFrom - Source currency code
+ * @param currencyTo - Target currency code
+ * @param walletID - Wallet identifier used as the customer's cryptoAccountId and product wallet id
+ * @param tonhubID - Optional Tonhub identifier; when provided it will be included alongside `cryptoAccountId`
+ * @param transactionID - External transaction identifier used as the order `ExchangeID`
+ */
 export function trackMaestraSwapped({
     amountFrom,
     amountTo,

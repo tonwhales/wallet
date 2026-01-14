@@ -25,6 +25,15 @@ export type ServiceAddressInfo = {
     found: false;
 };
 
+/**
+ * Checks whether the given address corresponds to a known service and returns its metadata.
+ *
+ * @param address - The address to check with the service-address API.
+ * @returns A `ServiceAddressInfo` object: when `found` is `true` it includes `address`, `service`, and optional `type` and `icon`; when `found` is `false` it indicates no service was found.
+ * @throws Error if the HTTP response status is not 200.
+ * @throws Error if the response payload does not match the expected schema.
+ * @throws Error if the service address check failed (`ok` is falsy in the response).
+ */
 export async function fetchServiceAddressCheck(address: string): Promise<ServiceAddressInfo> {
     const res = await axios.post(`${whalesConnectEndpoint}/service-address/check`, { address });
 
@@ -54,4 +63,3 @@ export async function fetchServiceAddressCheck(address: string): Promise<Service
         icon: parsed.data.icon,
     };
 }
-

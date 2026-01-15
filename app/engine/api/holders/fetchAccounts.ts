@@ -1,7 +1,7 @@
-import axios from "axios";
-import { Address } from "@ton/core";
-import { z } from "zod";
-import { holdersEndpoint } from "./fetchUserState";
+import { Address } from '@ton/core';
+import axios from 'axios';
+import { z } from 'zod';
+import { holdersEndpoint } from './fetchUserState';
 
 const networksSchema = z.union([
   z.literal('ton-mainnet'),
@@ -12,18 +12,22 @@ const networksSchema = z.union([
   z.literal('solana')
 ]);
 
+const cryptoCurrencySchema = z.object({
+  decimals: z.number(),
+  ticker: z.string(),
+  tokenContract: z.string().optional()
+});
+
 const cardPublicSchema = z.object({
+  id: z.string().optional(),
   lastFourDigits: z.union([z.string(), z.undefined(), z.null()]),
   productId: z.string(),
   personalizationCode: z.string(),
   provider: z.string(),
-  kind: z.string(),
+  kind: z.string()
 });
 
-const accountTypeSchema = z.union([
-  z.literal('crypto'),
-  z.literal('vesting'),
-]);
+const accountTypeSchema = z.union([z.literal('crypto'), z.literal('vesting')]);
 
 export type AccountType = z.infer<typeof accountTypeSchema>;
 
@@ -44,69 +48,67 @@ const cryptoAccountPublicSchema = baseAccountPublicSchema.extend({
   partner: z.string(),
   tzOffset: z.number(),
   cards: z.array(cardPublicSchema),
+  cryptoCurrency: cryptoCurrencySchema.optional()
 });
 
 const vestingAccountPublicSchema = baseAccountPublicSchema.extend({
   type: z.literal('vesting'),
   ownerAddress: z.string(),
-  cryptoCurrency: z.object({
-    decimals: z.number(),
-    ticker: z.string(),
-    tokenContract: z.string().optional(),
-  }),
+  cryptoCurrency: cryptoCurrencySchema,
   seed: z.string().nullish(),
+  cards: z.array(cardPublicSchema).optional()
 });
 
-const accountPublicSchema = z.union([
-  vestingAccountPublicSchema,
-  cryptoAccountPublicSchema,
-]);
+const accountPublicSchema = z.union([vestingAccountPublicSchema, cryptoAccountPublicSchema]);
 
 export const accountsListPublicSchema = z.union([
   z.object({
     ok: z.literal(true),
-    accounts: z.array(accountPublicSchema),
+    accounts: z.array(accountPublicSchema)
   }),
   z.object({
     ok: z.literal(false),
-    error: z.string(),
-  }),
+    error: z.string()
+  })
 ]);
 
-export async function fetchAccountsPublic({ address, solanaAddress, isTestnet }: { address: string | Address, isTestnet: boolean, solanaAddress?: string }) {
+export async function fetchAccountsPublic({
+  address,
+  solanaAddress,
+  isTestnet
+}: { address: string | Address; isTestnet: boolean; solanaAddress?: string }) {
   const endpoint = holdersEndpoint(isTestnet);
-  const addressString = (address instanceof Address) ? address.toString({ testOnly: isTestnet }) : address;
+  const addressString =
+    address instanceof Address ? address.toString({ testOnly: isTestnet }) : address;
 
-  const body = solanaAddress ? {
-    walletKind: 'tonhub',
-    wallets: [
-      {
-        network: isTestnet ? 'ton-testnet' : 'ton-mainnet',
-        address: addressString
-      },
-      {
-        network: 'solana',
-        address: solanaAddress
-      }
-    ]
-  } : {
-    walletKind: 'tonhub',
-    network: isTestnet ? 'ton-testnet' : 'ton-mainnet',
-    address: addressString
-  };
-
-  const res = await axios.post(
-    `https://${endpoint}/v2/public/accounts`,
-    body,
-    {
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "*",
-        "Access-Control-Allow-Credentials": "true",
-      }
+  const body = solanaAddress
+    ? {
+      walletKind: 'tonhub',
+      wallets: [
+        {
+          network: isTestnet ? 'ton-testnet' : 'ton-mainnet',
+          address: addressString
+        },
+        {
+          network: 'solana',
+          address: solanaAddress
+        }
+      ]
     }
-  );
+    : {
+      walletKind: 'tonhub',
+      network: isTestnet ? 'ton-testnet' : 'ton-mainnet',
+      address: addressString
+    };
+
+  const res = await axios.post(`https://${endpoint}/v2/public/accounts`, body, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': '*',
+      'Access-Control-Allow-Credentials': 'true'
+    }
+  });
 
   if (res.status === 401) {
     return null;
@@ -114,7 +116,7 @@ export async function fetchAccountsPublic({ address, solanaAddress, isTestnet }:
 
   const parseResult = accountsListPublicSchema.safeParse(res.data);
   if (!parseResult.success) {
-    throw Error("Invalid public card list response");
+    throw Error('Invalid public card list response');
   }
 
   if (!res.data.ok) {
@@ -129,7 +131,7 @@ export enum CardStatus {
   ORDERED = 'ORDERED',
   PERSONALIZED = 'PERSONALIZED',
   DISPATCHED = 'DISPATCHED',
-  DELIVERED = 'DELIVERED',
+  DELIVERED = 'DELIVERED'
 }
 
 export type CardDelivery = z.infer<typeof cardDeliverySchema>;
@@ -139,7 +141,7 @@ const cardDeliveryStatusSchema = z.union([
   z.literal(CardStatus.ORDERED),
   z.literal(CardStatus.PERSONALIZED),
   z.literal(CardStatus.DISPATCHED),
-  z.literal(CardStatus.DELIVERED),
+  z.literal(CardStatus.DELIVERED)
 ]);
 
 const cardDeliverySchema = z.object({
@@ -171,7 +173,7 @@ const cardPendingStatusSchema = z.union([
   z.literal('PENDING_BLOCK'),
   z.literal('PENDING_FREEZE'),
   z.literal('PENDING_UNFREEZE'),
-  z.literal('PENDING_FOR_PAYMENT'),
+  z.literal('PENDING_FOR_PAYMENT')
 ]);
 
 const cardStatusSchema = z.union([
@@ -188,15 +190,9 @@ const cardStatusSchema = z.union([
   z.literal('CARD_VERIFICATION')
 ]);
 
-const cardPaymentSchema = z.union([
-  z.literal('visa'),
-  z.literal('mc'),
-]);
+const cardPaymentSchema = z.union([z.literal('visa'), z.literal('mc')]);
 
-const cardDesignSchema = z.union([
-  z.literal('BLACK_WAVES'),
-  z.literal('DOGS'),
-]);
+const cardDesignSchema = z.union([z.literal('BLACK_WAVES'), z.literal('DOGS')]);
 
 const cardSchema = z.object({
   id: z.string(),
@@ -213,29 +209,32 @@ const cardSchema = z.object({
   provider: z.string().nullish(),
   kind: z.string().nullish(),
   schema: cardPaymentSchema,
-  design: cardDesignSchema.nullish(),
+  design: cardDesignSchema.nullish()
 });
 
-const cardDebit = cardSchema.and(z.object({ type: z.literal('DEBIT') }),);
+const cardDebit = cardSchema.and(z.object({ type: z.literal('DEBIT') }));
 const cardPrepaid = cardSchema.and(
   z.object({
     type: z.literal('PREPAID'),
-    fiatBalance: z.string(),
-  }),
+    fiatBalance: z.string()
+  })
 );
 
 const brandSchema = z.union([
   z.literal('HOLDERS'),
+  z.literal('HOLDERS_STANDALONE'),
   z.literal('TONHUB'),
   z.literal('TONKEEPER'),
-  z.literal('CARDBOT'),
+  z.literal('CARDBOT')
 ]);
 
-const cryptoCurrencySchema = z.object({
-  decimals: z.number(),
-  ticker: z.string(),
-  tokenContract: z.string().optional(),
-});
+export enum Brand {
+  HOLDERS = 'HOLDERS',
+  HOLDERS_STANDALONE = 'HOLDERS_STANDALONE',
+  TONHUB = 'TONHUB',
+  TONKEEPER = 'TONKEEPER',
+  CARDBOT = 'CARDBOT'
+}
 
 export const invoiceSchema = z.object({
   id: z.string(),
@@ -249,9 +248,9 @@ export const invoiceSchema = z.object({
     fiatAmount: z.string().nullable(),
     fiatCurrency: z.string().nullable(),
     rate: z.string().nullable(),
-    fees: z.string().optional(),
+    fees: z.string().optional()
   }),
-  purpose: z.any(),
+  purpose: z.any()
 });
 
 export const cryptoAccountStatusSchema = z.enum([
@@ -260,12 +259,11 @@ export const cryptoAccountStatusSchema = z.enum([
   'ACTIVE',
   'SUSPENDED',
   'MANUALLY_CLOSED',
-  'CLOSED',
+  'CLOSED'
 ]);
 
 const baseAccountSchema = z.object({
   id: z.string(),
-  type: accountTypeSchema.optional(),
   createdAt: z.string().nullish(),
   address: z.string().nullish(),
   name: z.string().nullish(),
@@ -278,7 +276,7 @@ const baseAccountSchema = z.object({
   ownerAddress: z.string(),
   contractAddress: z.string().nullish(),
   cryptoCurrency: cryptoCurrencySchema,
-  hasBeenDepositedOnce: z.boolean().nullish(),
+  hasBeenDepositedOnce: z.boolean().nullish()
 });
 
 const vestingAccountSchema = baseAccountSchema.extend({
@@ -294,10 +292,11 @@ const vestingAccountSchema = baseAccountSchema.extend({
   totalPaidOut: z.string(),
   unlockAmountPerPeriod: z.string(),
   unlockPeriodSeconds: z.string(),
+  cards: z.array(cardDebit).optional()
 });
 
 const cryptoAccountSchema = baseAccountSchema.extend({
-  type: z.literal('crypto').optional(),
+  type: z.literal('crypto'),
   contractSeed: z.string().nullish(),
   tzOffset: z.number(),
   prepaidOnly: z.boolean(),
@@ -308,13 +307,10 @@ const cryptoAccountSchema = baseAccountSchema.extend({
   invoices: invoiceSchema.array(),
   totalDebtCryptoAmountNano: z.string(),
   cards: z.array(cardDebit),
-  vestingAccounts: z.array(z.any()).optional(),
+  vestingAccounts: z.array(z.any()).optional()
 });
 
-const accountSchema = z.union([
-  vestingAccountSchema,
-  cryptoAccountSchema,
-]);
+const accountSchema = z.discriminatedUnion('type', [vestingAccountSchema, cryptoAccountSchema]);
 
 export const accountsListResCodec = z.discriminatedUnion('ok', [
   z.object({
@@ -324,8 +320,8 @@ export const accountsListResCodec = z.discriminatedUnion('ok', [
   }),
   z.object({
     ok: z.literal(false),
-    error: z.string(),
-  }),
+    error: z.string()
+  })
 ]);
 
 // General account schema that supports both public and private API responses
@@ -333,7 +329,7 @@ export const generalAccountSchema = z.union([
   vestingAccountPublicSchema,
   cryptoAccountPublicSchema,
   vestingAccountSchema,
-  cryptoAccountSchema,
+  cryptoAccountSchema
 ]);
 export const generalCardSchema = z.intersection(cardSchema, cardPublicSchema);
 
@@ -345,15 +341,15 @@ export type PrePaidHoldersCard = z.infer<typeof cardPrepaid>;
 
 export async function fetchAccountsList(token: string, isTestnet: boolean) {
   const endpoint = holdersEndpoint(isTestnet);
-  let res = await axios.post(
+  const res = await axios.post(
     `https://${endpoint}/v2/account/list`,
     { token },
     {
       headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "*",
-        "Access-Control-Allow-Credentials": "true",
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': '*',
+        'Access-Control-Allow-Credentials': 'true'
       }
     }
   );
@@ -364,10 +360,10 @@ export async function fetchAccountsList(token: string, isTestnet: boolean) {
 
   const data = res.data;
 
-  let parseResult = accountsListResCodec.safeParse(data);
+  const parseResult = accountsListResCodec.safeParse(data);
   if (!parseResult.success) {
     console.warn(JSON.stringify(parseResult.error.format()));
-    throw Error("Invalid card list response");
+    throw Error('Invalid card list response');
   }
 
   if (!parseResult.data.ok) {

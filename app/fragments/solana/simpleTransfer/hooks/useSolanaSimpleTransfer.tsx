@@ -115,7 +115,7 @@ export const useSolanaSimpleTransfer = ({ params }: Options) => {
     }, []);
 
     const solanaHoldersTarget: GeneralHoldersAccount | undefined = holdersAccounts.data?.accounts?.find((a) => targetAddressValid[0] === a.address);
-    const holdersTargetSymbol = solanaHoldersTarget?.cryptoCurrency.ticker;
+    const holdersTargetSymbol = solanaHoldersTarget?.cryptoCurrency?.ticker ?? '';
     const shouldChangeToken = holdersTargetSymbol
         ? holdersTargetSymbol !== accountToken?.symbol
         : false;

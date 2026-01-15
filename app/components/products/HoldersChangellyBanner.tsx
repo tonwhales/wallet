@@ -24,7 +24,7 @@ export const HoldersChangellyBanner = memo(({ address, solanaAddress }: { addres
 
     const needsEnrollment = holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
     const USDTacc = accounts
-        .filter((acc) => acc.cryptoCurrency.ticker === 'USDT')
+        .filter((acc) => acc.cryptoCurrency?.ticker === 'USDT')
         .sort((a, b) => {
             const aCreated = a.createdAt;
             const bCreated = b.createdAt;

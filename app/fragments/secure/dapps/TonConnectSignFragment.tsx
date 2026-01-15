@@ -46,7 +46,7 @@ const SignStateLoader = memo(({ data, callback }: { callback?: (response: Wallet
     const { id, from: clientSessionId, params: [payload] } = request;
     const deleteActiveRemoteRequest = useDeleteActiveRemoteRequests();
 
-    const timerRef = useRef<NodeJS.Timeout | null>(null);
+    const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     // Approve
     const active = useRef(true);
     const success = useRef(false);

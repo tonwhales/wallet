@@ -51,10 +51,10 @@ function getLastTransactionFromPages(pages: CommonTransaction[][]): { ton: TonTr
 
     const allTransactions = pages.flat();
     const lastTon = [...allTransactions].reverse().find((tx): tx is { type: TransactionType.TON; data: TonTransaction } => tx.type === TransactionType.TON)?.data || null;
-    const lastSolana = [...allTransactions].reverse().find((tx): tx is { type: TransactionType.SOLANA; data: SolanaTransaction } => 
+    const lastSolana = [...allTransactions].reverse().find((tx): tx is { type: TransactionType.SOLANA; data: SolanaTransaction } =>
         tx.type === TransactionType.SOLANA && !isUSDCTransaction(tx.data)
     )?.data || null;
-    const lastSolanaToken = [...allTransactions].reverse().find((tx): tx is { type: TransactionType.SOLANA; data: SolanaTransaction } => 
+    const lastSolanaToken = [...allTransactions].reverse().find((tx): tx is { type: TransactionType.SOLANA; data: SolanaTransaction } =>
         tx.type === TransactionType.SOLANA && isUSDCTransaction(tx.data)
     )?.data || null;
 
@@ -301,7 +301,7 @@ export function useAccountTransactionsV3(
     const { tonAddress, tonAddressString, solanaAddress } = useCurrentAddress();
     const usdcMintAddress = useUsdcMintAddress();
     const [isRefreshing, setIsRefreshing] = useState(false);
-    const refreshTimeoutRef = useRef<NodeJS.Timeout>();
+    const refreshTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
     const isFetchingRef = useRef(false);
 
     const query = useInfiniteQuery<CommonTransaction[]>({

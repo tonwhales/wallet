@@ -79,7 +79,7 @@ export function useSolanaTransactions(address: string, enabled?: boolean) {
 
     const [isRefreshing, setIsRefreshing] = useState(false);
 
-    const timerRef = useRef<NodeJS.Timeout>();
+    const timerRef = useRef<ReturnType<typeof setTimeout>>();
 
     useEffect(() => {
         if (!query.isRefetching) {

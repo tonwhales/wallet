@@ -123,7 +123,7 @@ export const useSolanaSimpleTransfer = ({ params }: Options) => {
     const onChangeToken = useCallback(() => {
         onAssetSelected({ type: 'solana-token', address: usdcMintAddress });
     }, [onAssetSelected]);
-    
+
 
     const amountError = useMemo(() => {
         if (shouldChangeToken) {
@@ -222,12 +222,12 @@ export const useSolanaSimpleTransfer = ({ params }: Options) => {
             if (error.message?.includes('Attempt to debit an account but found no record of a prior credit')) {
                 Alert.alert(
                     t('common.error'),
-                    'Account has not been initialized on chain yet. Please fund the account first.'
+                    t('transfer.solana.error.accountNotInitialized')
                 );
                 return;
             }
             // Handle other errors
-            Alert.alert(t('common.error'), error.message || 'Unknown error occurred');
+            Alert.alert(t('common.error'), error.message || t('transfer.solana.error.unknownError'));
         }
     }, [navigation, targetAddressValid, validAmount, commentString, client, publicClient, solanaAddress, token]);
 

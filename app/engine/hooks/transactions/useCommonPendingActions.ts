@@ -4,6 +4,7 @@ import { PendingTransactionStatus, PendingSolanaTransaction, PendingTransaction 
 import { TransactionType } from "../../types";
 import { useAccountTransactionsV3 } from "./useAccountTransactionsV3";
 import { usePendingTransactionEffects } from "./usePendingTransactionEffects";
+import { SolanaTransaction } from "../../api/solana/fetchSolanaTransactions";
 
 type UnifiedPendingResult = {
     tonPending: PendingTransaction[];
@@ -171,7 +172,7 @@ export function useCommonPendingActions(
 
             // Check if transaction is in blockchain
             const foundInBlockchain = solanaTxs.some((t) => {
-                return t.data.signature === tx.id;
+                return (t.data as SolanaTransaction).signature === tx.id;
             });
 
             if (foundInBlockchain) {

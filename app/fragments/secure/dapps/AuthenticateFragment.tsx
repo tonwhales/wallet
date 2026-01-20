@@ -30,7 +30,7 @@ type SignState = { type: 'loading' }
     | { type: 'expired' }
     | { type: 'initing', name: string, url: string, app?: AppData | null }
     | { type: 'completed' }
-    | { type: 'authorized' }
+    | { type: 'authorized', name: string, url: string, app?: AppData | null }
     | { type: 'failed' }
 
 const SignStateLoader = memo((props: { session: string, endpoint: string }) => {

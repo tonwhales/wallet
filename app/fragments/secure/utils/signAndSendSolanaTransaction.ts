@@ -59,12 +59,12 @@ export async function signAndSendSolanaTransaction({ solanaClients, theme, authC
     try {
         lastBlockHash = await failableSolanaBackoff('getLatestBlockhash', () => client.getLatestBlockhash());
     } catch (error) {
-        const mappedError = mapSolanaError(error);
+        const mappedError = await mapSolanaError(error, client);
         if (mappedError instanceof SendSolanaTransactionError && mappedError.isNetworkError) {
             try {
                 lastBlockHash = await failableSolanaBackoff('getLatestBlockhash', () => publicClient.getLatestBlockhash());
             } catch (error) {
-                throw mapSolanaError(error);
+                throw await mapSolanaError(error, publicClient);
             }
         } else {
             throw mappedError;
@@ -86,12 +86,12 @@ export async function signAndSendSolanaTransaction({ solanaClients, theme, authC
     try {
         signature = await failableSolanaBackoff('sendEncodedTransaction', () => client.sendEncodedTransaction(transaction.serialize().toString('base64')));
     } catch (error) {
-        const mappedError = mapSolanaError(error);
+        const mappedError = await mapSolanaError(error, client);
         if (mappedError instanceof SendSolanaTransactionError && mappedError.isNetworkError) {
             try {
                 signature = await failableSolanaBackoff('sendEncodedTransaction', () => publicClient.sendEncodedTransaction(transaction.serialize().toString('base64')));
             } catch (error) {
-                throw mapSolanaError(error);
+                throw await mapSolanaError(error, publicClient);
             }
         } else {
             throw mappedError;
@@ -130,12 +130,12 @@ export async function signAndSendSolanaVersionedTransaction({
         try {
             lastBlockHash = await failableSolanaBackoff('getLatestBlockhash', () => client.getLatestBlockhash());
         } catch (error) {
-            const mappedError = mapSolanaError(error);
+            const mappedError = await mapSolanaError(error, client);
             if (mappedError instanceof SendSolanaTransactionError && mappedError.isNetworkError) {
                 try {
                     lastBlockHash = await failableSolanaBackoff('getLatestBlockhash', () => publicClient.getLatestBlockhash());
                 } catch (error) {
-                    throw mapSolanaError(error);
+                    throw await mapSolanaError(error, publicClient);
                 }
             } else {
                 throw mappedError;
@@ -166,12 +166,12 @@ export async function signAndSendSolanaVersionedTransaction({
     try {
         signature = await failableSolanaBackoff('sendEncodedTransaction', () => client.sendEncodedTransaction(encodedTx));
     } catch (error) {
-        const mappedError = mapSolanaError(error);
+        const mappedError = await mapSolanaError(error, client);
         if (mappedError instanceof SendSolanaTransactionError && mappedError.isNetworkError) {
             try {
                 signature = await failableSolanaBackoff('sendEncodedTransaction', () => publicClient.sendEncodedTransaction(encodedTx));
             } catch (error) {
-                throw mapSolanaError(error);
+                throw await mapSolanaError(error, publicClient);
             }
         } else {
             throw mappedError;

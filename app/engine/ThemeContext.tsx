@@ -39,7 +39,7 @@ function useForegroundColorScheme() {
     const colorScheme = usePlatformColorScheme();
     const style = useRecoilValue(themeStyleState);
     const [currentColorScheme, setCurrentColorScheme] = useState(colorScheme);
-    const onColorSchemeChange = useRef<NodeJS.Timeout>();
+    const onColorSchemeChange = useRef<ReturnType<typeof setTimeout>>();
 
     // Add a 300ms delay before switching color scheme
     // Cancel if color scheme immediately switches back
@@ -48,7 +48,7 @@ function useForegroundColorScheme() {
             clearTimeout(onColorSchemeChange.current);
         }
         onColorSchemeChange.current = setTimeout(() => {
-            if(style === ThemeStyle.System) {
+            if (style === ThemeStyle.System) {
                 changeNavBarColor(colorScheme === 'dark' ? '#1C1C1E' : '#F7F8F9');
             } else {
                 changeNavBarColor(style === ThemeStyle.Dark ? '#1C1C1E' : '#F7F8F9');

@@ -41,7 +41,7 @@ export const PasscodeInput = memo((
     const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
     const [passcode, setPasscode] = useState<string>('');
     const [isWrong, setIsWrong] = useState(false);
-    const cleanupTimerIdRef = useRef<NodeJS.Timeout | undefined>(undefined);
+    const cleanupTimerIdRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
     const [isLoading, setLoading] = useState(false);
 
     const translate = useSharedValue(0);

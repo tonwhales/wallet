@@ -164,12 +164,12 @@ export const HoldersAccountItem = memo((props: {
 
             if (!account || !account.cryptoCurrency || !account.balance) return 0n;
 
-            if (cryptoCurrency.ticker === 'TON') {
+            if (cryptoCurrency?.ticker === 'TON') {
                 return BigInt(account.balance);
             }
 
-            const amount = toBnWithDecimals(account.balance, cryptoCurrency.decimals) / toNano(price?.price?.usd || 1n);
-            return toBnWithDecimals(amount, cryptoCurrency.decimals);
+            const amount = toBnWithDecimals(account.balance, cryptoCurrency?.decimals ?? 0) / toNano(price?.price?.usd || 1n);
+            return toBnWithDecimals(amount, cryptoCurrency?.decimals ?? 0);
         } catch (error) {
             return 0n;
         }
@@ -346,7 +346,7 @@ export const HoldersAccountItem = memo((props: {
                         paddingRight: 20
                     }}
                 >
-                    {account.cards?.length > 0 && account.cards?.map((card) => (
+                    {account.cards && account.cards.length > 0 && account.cards.map((card) => (
                         <CardItem
                             key={card.id}
                             card={card as GeneralHoldersCard}

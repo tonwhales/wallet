@@ -178,7 +178,7 @@ const ExchangesLoader = memo(({
         return { opacity: opacity.value };
     });
 
-    const longLoadingTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const longLoadingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const start = useMemo(() => Date.now(), []);
     const trackLoadingTime = useCallback(() => {
         trackEvent(MixpanelEvent.HoldersLoadingTime, { duration: Date.now() - start });
@@ -300,10 +300,12 @@ export const ExchangesFragment = fragment(() => {
             if (asset.holdersAccount.address) {
                 url.searchParams.append('address', asset.holdersAccount.address);
             }
-            if (asset.holdersAccount.cryptoCurrency.tokenContract) {
-                url.searchParams.append('tokenContract', asset.holdersAccount.cryptoCurrency.tokenContract);
+            if (asset.holdersAccount.cryptoCurrency?.tokenContract) {
+                url.searchParams.append('tokenContract', asset.holdersAccount.cryptoCurrency?.tokenContract);
             }
-            url.searchParams.append('ticker', asset.holdersAccount.cryptoCurrency.ticker);
+            if (asset.holdersAccount.cryptoCurrency?.ticker) {
+                url.searchParams.append('ticker', asset.holdersAccount.cryptoCurrency?.ticker);
+            }
         }
 
         if (asset.type === 'solana-wallet') {

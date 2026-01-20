@@ -34,8 +34,8 @@ export function useSolanaAccountWatcher() {
     const appStateVisible = useAppVisible();
 
     const websocketRef = useRef<WebSocket | null>(null);
-    const sessionTimeout = useRef<NodeJS.Timeout | null>(null);
-    const invalidateTimeout = useRef<NodeJS.Timeout | null>(null);
+    const sessionTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const invalidateTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const isInactive = appStateVisible !== 'active' && appStateVisible !== 'inactive';
 

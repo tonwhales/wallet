@@ -225,7 +225,7 @@ export function useAccountTransactionsV2(
     const client = useClient4(isTestnet);
 
     const [isRefreshing, setIsRefreshing] = useState(false);
-    const refreshTimeoutRef = useRef<NodeJS.Timeout>();
+    const refreshTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
     const query = useInfiniteQuery<TonTransaction[]>({
         queryKey: Queries.TransactionsV2(account, false, params),

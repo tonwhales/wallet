@@ -65,16 +65,16 @@ export async function signAndSendSolanaOrder({ solanaClients, theme, authContext
             try {
                 return await client.sendEncodedTransaction(transaction.serialize().toString('base64'));
             } catch (error) {
-                throw mapSolanaError(error, _recipientAddressString);
+                throw await mapSolanaError(error, client);
             }
         });
     } catch (error) {
-        const mappedError = mapSolanaError(error, _recipientAddressString);
+        const mappedError = await mapSolanaError(error, client);
         if (mappedError instanceof SendSolanaTransactionError && mappedError.isNetworkError) {
             try {
                 signature = await failableSolanaBackoff('sendEncodedTransactionPub', () => publicClient.sendEncodedTransaction(transaction.serialize().toString('base64')));
             } catch (error) {
-                throw mapSolanaError(error, _recipientAddressString);
+                throw await mapSolanaError(error, publicClient);
             }
         } else {
             throw mappedError;

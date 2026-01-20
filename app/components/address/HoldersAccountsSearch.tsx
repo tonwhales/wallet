@@ -59,7 +59,7 @@ export const HoldersAccountsSearch = memo(({
                 const address = Address.parse(acc.address!!);
                 let memo: string | undefined = undefined;
 
-                if (acc.cryptoCurrency.ticker === 'TON') {
+                if (acc.cryptoCurrency?.ticker === 'TON') {
                     memo = 'Top Up';
                 }
 
@@ -109,7 +109,7 @@ export const HoldersAccountsSearch = memo(({
                                         title,
                                         searchable: item.searchable,
                                         type: 'holders',
-                                        memo: item.acc.cryptoCurrency.ticker === 'USDC' ? 'Top Up' : undefined
+                                        memo: item.acc.cryptoCurrency?.ticker === 'USDC' ? 'Top Up' : undefined
                                     });
                                 }
                             };

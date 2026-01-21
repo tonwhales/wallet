@@ -1,6 +1,7 @@
 import axios from "axios";
 import { whalesConnectEndpoint } from "../../clients";
 import { z } from "zod";
+import { saveErrorLog } from "../../../storage";
 
 export const changellyTransactionStatusCodec = z.union([
     z.literal('new'),
@@ -69,7 +70,7 @@ export type FetchChangellyUserTransactionsParams = {
     };
 };
 
-export type FetchChangellyUserTransactionsResponse = 
+export type FetchChangellyUserTransactionsResponse =
     | { ok: true; data: ChangellyTransactionModel[] }
     | { ok: false; error: string; message: string };
 
@@ -77,10 +78,10 @@ export async function fetchChangellyUserTransactions(
     params: FetchChangellyUserTransactionsParams
 ): Promise<FetchChangellyUserTransactionsResponse | undefined> {
     const url = `${whalesConnectEndpoint}/changelly/transactions`;
-    
+
     try {
         const res = await axios.post(url, params);
-        
+
         if (res.status !== 200) {
             return undefined;
         }
@@ -92,6 +93,12 @@ export async function fetchChangellyUserTransactions(
 
         return validatedData.data;
     } catch (error) {
+        saveErrorLog({
+            message: error instanceof Error ? error.message : String(error),
+            stack: error instanceof Error ? error.stack : undefined,
+            url: 'fetchChangellyUserTransactions',
+            additionalData: { limit: params.limit, offset: params.offset, status: params.status }
+        });
         return undefined;
     }
 }

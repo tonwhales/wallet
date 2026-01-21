@@ -27,6 +27,7 @@ import { NeocryptoFragment } from './fragments/integrations/NeocryptoFragment';
 import { StakingTransferFragment } from './fragments/staking/StakingTransferFragment';
 import { SignFragment } from './fragments/secure/SignFragment';
 import { AppFragment } from './fragments/apps/AppFragment';
+import { DevErrorLogsFragment } from './fragments/dev/DevErrorLogsFragment';
 import { DevStorageFragment } from './fragments/dev/DevStorageFragment';
 import { WalletUpgradeFragment } from './fragments/secure/WalletUpgradeFragment';
 import { InstallFragment } from './fragments/secure/dapps/InstallFragment';
@@ -271,6 +272,7 @@ const navigation = (safeArea: EdgeInsets) => [
     // Dev
     genericScreen('DeveloperTools', DeveloperToolsFragment, safeArea, true, 0),
     genericScreen('DeveloperToolsStorage', DevStorageFragment, safeArea),
+    genericScreen('DeveloperToolsErrorLogs', DevErrorLogsFragment, safeArea),
     genericScreen('DevDAppWebView', DevDAppWebViewFragment, safeArea, true, 0),
 
     modalScreen('PasscodeSetupInit', PasscodeSetupFragment, safeArea),

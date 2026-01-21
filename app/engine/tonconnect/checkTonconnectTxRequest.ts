@@ -4,6 +4,7 @@ import { Toaster } from '../../components/toast/ToastProvider';
 import { SignRawTxParams } from './types';
 import { CHAIN, RpcMethod, SEND_TRANSACTION_ERROR_CODES, WalletResponse } from '@tonconnect/protocol';
 import { t } from '../../i18n/t';
+import { saveErrorLog } from '../../storage';
 
 export function checkTonconnectTxRequest(id: string, params: SignRawTxParams, callback: (response: WalletResponse<RpcMethod>) => void, isTestnet: boolean, toaster: Toaster) {
     let errorMessage = 'Bad request';
@@ -21,7 +22,12 @@ export function checkTonconnectTxRequest(id: string, params: SignRawTxParams, ca
             if (!!msg.address) {
                 try {
                     Address.parseFriendly(msg.address);
-                } catch {
+                } catch (e) {
+                    saveErrorLog({
+                        message: e instanceof Error ? e.message : String(e),
+                        stack: e instanceof Error ? e.stack : undefined,
+                        url: 'checkTonconnectTxRequest:parseAddress'
+                    });
                     errorMessage = 'Invalid address';
                     return false;
                 }
@@ -31,7 +37,12 @@ export function checkTonconnectTxRequest(id: string, params: SignRawTxParams, ca
             if (!!msg.payload) {
                 try {
                     Cell.fromBoc(Buffer.from(msg.payload, 'base64'))[0];
-                } catch {
+                } catch (e) {
+                    saveErrorLog({
+                        message: e instanceof Error ? e.message : String(e),
+                        stack: e instanceof Error ? e.stack : undefined,
+                        url: 'checkTonconnectTxRequest:parsePayload'
+                    });
                     errorMessage = 'Invalid payload';
                     return false;
                 }
@@ -41,7 +52,12 @@ export function checkTonconnectTxRequest(id: string, params: SignRawTxParams, ca
             if (!!msg.stateInit) {
                 try {
                     Cell.fromBoc(Buffer.from(msg.stateInit, 'base64'))[0];
-                } catch {
+                } catch (e) {
+                    saveErrorLog({
+                        message: e instanceof Error ? e.message : String(e),
+                        stack: e instanceof Error ? e.stack : undefined,
+                        url: 'checkTonconnectTxRequest:parseStateInit'
+                    });
                     errorMessage = 'Invalid state init';
                     return false;
                 }

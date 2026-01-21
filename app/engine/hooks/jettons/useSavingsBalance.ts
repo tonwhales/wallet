@@ -2,6 +2,7 @@ import { Address, fromNano, toNano } from "@ton/core";
 import { useAccountLite, useDisplayableJettons, useNetwork, usePrice } from "..";
 import { useSpecialJetton } from "./useSpecialJetton";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
+import { saveErrorLog } from "../../../storage";
 
 export function useSavingsBalance(addr: string | Address) {
     const { isTestnet } = useNetwork();
@@ -25,7 +26,12 @@ export function useSavingsBalance(addr: string | Address) {
             const price = s.price.prices?.['USD'] ?? 0;
             const priceInUSD = parseFloat(fromBnWithDecimals(balance, s.jetton.decimals ?? 6)) * price;
             return acc + priceInUSD;
-        } catch {
+        } catch (e) {
+            saveErrorLog({
+                message: e instanceof Error ? e.message : String(e),
+                stack: e instanceof Error ? e.stack : undefined,
+                url: 'useSavingsBalance:calculateSavings'
+            });
             return acc;
         }
     }, 0);
@@ -38,7 +44,13 @@ export function useSavingsBalance(addr: string | Address) {
     if (specialJetton?.balance && price?.price?.usd) {
         try {
             specialToTon = parseFloat(fromBnWithDecimals(specialJetton.balance, specialJetton.decimals ?? 6)) / (price.price.usd);
-        } catch { }
+        } catch (e) {
+            saveErrorLog({
+                message: e instanceof Error ? e.message : String(e),
+                stack: e instanceof Error ? e.stack : undefined,
+                url: 'useSavingsBalance:specialToTon'
+            });
+        }
     }
 
     // TON balance
@@ -48,20 +60,38 @@ export function useSavingsBalance(addr: string | Address) {
         try {
             tonTotal = parseFloat(fromNano(tonBalance)) * price.price.usd;
             totalBalance += tonTotal;
-        } catch { }
+        } catch (e) {
+            saveErrorLog({
+                message: e instanceof Error ? e.message : String(e),
+                stack: e instanceof Error ? e.stack : undefined,
+                url: 'useSavingsBalance:tonTotal'
+            });
+        }
     }
 
     // Special jetton balance
     const specialTotal = specialJetton?.balance ?? 0n;
     try {
         totalBalance += parseFloat(fromBnWithDecimals(specialTotal, specialJetton?.decimals ?? 6))
-    } catch { }
+    } catch (e) {
+        saveErrorLog({
+            message: e instanceof Error ? e.message : String(e),
+            stack: e instanceof Error ? e.stack : undefined,
+            url: 'useSavingsBalance:specialTotal'
+        });
+    }
 
     let savingsToTon = 0n;
 
     try {
         savingsToTon += toNano((savingTotal / price.price.usd).toFixed(9));
-    } catch { }
+    } catch (e) {
+        saveErrorLog({
+            message: e instanceof Error ? e.message : String(e),
+            stack: e instanceof Error ? e.stack : undefined,
+            url: 'useSavingsBalance:savingsToTon'
+        });
+    }
 
     return {
         totalBalance: toNano(totalBalance.toFixed(9)),

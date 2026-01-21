@@ -199,7 +199,7 @@ export function useSolanaTransferInstruction(instruction: ParsedTransactionInstr
             return null;
         }
 
-        if (!!solanaToken) {
+        if (solanaToken) {
             return BigInt(amount);
         }
 

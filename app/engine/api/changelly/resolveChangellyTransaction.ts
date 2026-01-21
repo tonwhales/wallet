@@ -1,6 +1,7 @@
 import axios from "axios";
 import { whalesConnectEndpoint } from "../../clients";
 import { z } from "zod";
+import { saveErrorLog } from "../../../storage";
 
 const successResponseSchema = z.object({
     ok: z.literal(true),
@@ -19,16 +20,16 @@ export type ResolveChangellyTransactionBody = {
     transactionId: string;
 }
 
-export type ResolveChangellyTransactionResponse = 
+export type ResolveChangellyTransactionResponse =
     | { ok: true }
     | { ok: false; error: string; message: string };
 
 export async function resolveChangellyTransaction(data: ResolveChangellyTransactionBody): Promise<void> {
     const url = `${whalesConnectEndpoint}/changelly/transaction/resolve`;
-    
+
     try {
         const res = await axios.post(url, data);
-        
+
         if (res.status !== 200) {
             throw new Error('Request failed');
         }
@@ -41,17 +42,24 @@ export async function resolveChangellyTransaction(data: ResolveChangellyTransact
         if (!validatedData.data.ok) {
             throw new Error(validatedData.data.error);
         }
-        
+
         return;
     } catch (error: any) {
+        saveErrorLog({
+            message: error instanceof Error ? error.message : String(error),
+            stack: error instanceof Error ? error.stack : undefined,
+            url: 'resolveChangellyTransaction',
+            additionalData: { transactionId: data.transactionId, statusCode: error.response?.status }
+        });
+
         if (error.response?.data?.error) {
             throw new Error(error.response.data.error);
         }
-        
+
         if (error.message) {
             throw new Error(error.message);
         }
-        
+
         throw new Error('Unknown error occurred');
     }
 }

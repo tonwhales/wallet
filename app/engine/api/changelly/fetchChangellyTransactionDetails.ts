@@ -2,6 +2,7 @@ import axios from "axios";
 import { whalesConnectEndpoint } from "../../clients";
 import { z } from "zod";
 import { changellyTransactionCodec, ChangellyTransactionModel } from "./fetchChangellyUserTransactions";
+import { saveErrorLog } from "../../../storage";
 
 
 const successResponseSchema = z.object({
@@ -48,6 +49,13 @@ export async function fetchChangellyTransactionDetails(
 
         return validatedData.data.data;
     } catch (error: any) {
+        saveErrorLog({
+            message: error instanceof Error ? error.message : String(error),
+            stack: error instanceof Error ? error.stack : undefined,
+            url: 'fetchChangellyTransactionDetails',
+            additionalData: { transactionId: params.transactionId, statusCode: error.response?.status }
+        });
+
         if (error.response?.data?.error) {
             throw new Error(error.response.data.error);
         }

@@ -15,6 +15,7 @@ import { getJettonHint } from '../jettons/useJetton';
 import { mapJettonFullToMasterState } from '../../../utils/jettons/mapJettonToMasterState';
 import { getHintFull } from '../../../utils/jettons/hintSortFilter';
 import { JettonFull } from '../../api/fetchHintsFull';
+import { saveErrorLog } from '../../../storage';
 
 const PAGE_SIZE = 16;
 const REFRESH_TIMEOUT = 35000;
@@ -156,6 +157,12 @@ export const formatTransactions = async (transactions: TonTransaction[], isTestn
     try {
         gaslessConfig = await fetchGaslessConfig(isTestnet)
     } catch (e) {
+        saveErrorLog({
+            message: e instanceof Error ? e.message : String(e),
+            stack: e instanceof Error ? e.stack : undefined,
+            url: 'formatTransactions:fetchGaslessConfig',
+            additionalData: { isTestnet }
+        });
         console.log('ERROR', e);
     }
 
@@ -209,6 +216,12 @@ export const formatTransactions = async (transactions: TonTransaction[], isTestn
                 result.push({ ...tx, contractInfo, symbolText, jettonDecimals });
 
             } catch (e) {
+                saveErrorLog({
+                    message: e instanceof Error ? e.message : String(e),
+                    stack: e instanceof Error ? e.stack : undefined,
+                    url: 'formatTransactions:singleMessage',
+                    additionalData: { txId: tx.id }
+                });
                 console.log('ERROR', e);
             }
         }
@@ -309,8 +322,12 @@ export function useAccountTransactionsV2(
 
         try {
             await query.refetch({ refetchPage: (_, index) => index === 0 });
-        } catch {
-            // Ignore errors, isRefreshing will be reset by useEffect
+        } catch (e) {
+            saveErrorLog({
+                message: e instanceof Error ? e.message : String(e),
+                stack: e instanceof Error ? e.stack : undefined,
+                url: 'useAccountTransactionsV2:refresh'
+            });
         }
 
         if (!silent) {

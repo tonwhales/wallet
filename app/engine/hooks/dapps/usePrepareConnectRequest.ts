@@ -10,6 +10,7 @@ import { ConnectedApp } from "./useTonConnectExtenstions";
 import { Toaster } from "../../../components/toast/ToastProvider";
 import { getCurrentAddress } from "../../../storage/appState";
 import { t } from "../../../i18n/t";
+import { saveErrorLog } from "../../../storage";
 
 export type OrderMessage = {
   amount: bigint,
@@ -70,7 +71,12 @@ export function usePrepareConnectTxRequest(config: { isTestnet: boolean, toaster
           sessionCrypto,
           clientSessionId: request.from
         });
-      } catch {
+      } catch (error) {
+        saveErrorLog({
+          message: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined,
+          url: 'usePrepareConnectRequest:sendTonConnectResponse'
+        });
         toaster.push({
           ...toasterErrorProps,
           message: t('products.transactionRequest.failedToReportCanceled'),
@@ -161,6 +167,11 @@ export function usePrepareConnectTxRequest(config: { isTestnet: boolean, toaster
         }
         orderMessages.push(msg);
       } catch (error) {
+        saveErrorLog({
+          message: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined,
+          url: 'usePrepareConnectRequest:parseMessage'
+        });
         warn(`usePrepareConnectRequest error: ${error}`);
       }
     }

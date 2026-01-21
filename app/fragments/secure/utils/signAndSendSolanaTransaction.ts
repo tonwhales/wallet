@@ -1,15 +1,46 @@
-import { SolanaClient } from "../../../engine/hooks/solana/useSolanaClient";
-import { AuthWalletKeysType } from "../../../components/secure/AuthWalletKeys";
-import { ThemeType } from "../../../engine/state/theme";
-import { BlockhashWithExpiryBlockHeight, Keypair, Transaction, VersionedTransaction } from "@solana/web3.js";
-import { PendingSolanaTransaction, PendingTransactionStatus } from "../../../engine/state/pending";
-import { parseTransactionInstructions } from "../../../utils/solana/parseInstructions";
-import { failableSolanaBackoff } from "./signAndSendSolanaOrder";
-import { t } from "../../../i18n/t";
-import { SendSolanaTransactionError } from "./mapSolanaError";
-import { mapSolanaError } from "./mapSolanaError";
-import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
+import { bs58 } from '@coral-xyz/anchor/dist/cjs/utils/bytes';
+import {
+    type BlockhashWithExpiryBlockHeight,
+    Keypair,
+    SendTransactionError,
+    type Transaction,
+    type VersionedTransaction
+} from '@solana/web3.js';
 import nacl from 'tweetnacl';
+import { AuthWalletKeysType } from '../../../components/secure/AuthWalletKeys';
+import { SolanaClient } from '../../../engine/hooks/solana/useSolanaClient';
+import { PendingSolanaTransaction, PendingTransactionStatus } from '../../../engine/state/pending';
+import { ThemeType } from '../../../engine/state/theme';
+import { t } from '../../../i18n/t';
+import { saveErrorLog } from '../../../storage';
+import { parseTransactionInstructions } from '../../../utils/solana/parseInstructions';
+import { SendSolanaTransactionError } from './mapSolanaError';
+import { mapSolanaError } from './mapSolanaError';
+import { failableSolanaBackoff } from './signAndSendSolanaOrder';
+
+async function logSolanaError(error: unknown, client: SolanaClient, context: string) {
+    let logs: string[] | undefined;
+    if (error instanceof SendTransactionError) {
+        try {
+            logs = await error.getLogs(client);
+        } catch {
+            // ignore getLogs errors
+        }
+    }
+
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
+
+    saveErrorLog({
+        message: errorMessage,
+        stack: errorStack,
+        url: 'signAndSendSolanaVersionedTransaction',
+        additionalData: {
+            context,
+            logs
+        }
+    });
+}
 
 type SignAndSendSolanaTransactionParams = {
     solanaClients: {
@@ -130,11 +161,13 @@ export async function signAndSendSolanaVersionedTransaction({
         try {
             lastBlockHash = await failableSolanaBackoff('getLatestBlockhash', () => client.getLatestBlockhash());
         } catch (error) {
+            await logSolanaError(error, client, 'getLatestBlockhash:primary');
             const mappedError = await mapSolanaError(error, client);
             if (mappedError instanceof SendSolanaTransactionError && mappedError.isNetworkError) {
                 try {
                     lastBlockHash = await failableSolanaBackoff('getLatestBlockhash', () => publicClient.getLatestBlockhash());
                 } catch (error) {
+                    await logSolanaError(error, publicClient, 'getLatestBlockhash:fallback');
                     throw await mapSolanaError(error, publicClient);
                 }
             } else {
@@ -154,7 +187,8 @@ export async function signAndSendSolanaVersionedTransaction({
         const messageBytes = new Uint8Array(transaction.message.serialize());
         const signature = nacl.sign.detached(messageBytes, new Uint8Array(keyPair.secretKey));
         transaction.addSignature(keyPair.publicKey, signature);
-    } catch {
+    } catch (error) {
+        await logSolanaError(error, client, 'sign');
         throw new SendSolanaTransactionError(t('transfer.solana.error.signingFailed'));
     }
 
@@ -166,11 +200,13 @@ export async function signAndSendSolanaVersionedTransaction({
     try {
         signature = await failableSolanaBackoff('sendEncodedTransaction', () => client.sendEncodedTransaction(encodedTx));
     } catch (error) {
+        await logSolanaError(error, client, 'sendEncodedTransaction:primary');
         const mappedError = await mapSolanaError(error, client);
         if (mappedError instanceof SendSolanaTransactionError && mappedError.isNetworkError) {
             try {
                 signature = await failableSolanaBackoff('sendEncodedTransaction', () => publicClient.sendEncodedTransaction(encodedTx));
             } catch (error) {
+                await logSolanaError(error, publicClient, 'sendEncodedTransaction:fallback');
                 throw await mapSolanaError(error, publicClient);
             }
         } else {

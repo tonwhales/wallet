@@ -24,6 +24,7 @@ import { t } from "../../i18n/t";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ConfirmLegal } from "../../components/ConfirmLegal";
+import { saveErrorLog } from "../../storage";
 
 const skipLegalDeDust = 'skipLegalDeDust';
 const logo = require('@assets/known/ic-dedust.png');
@@ -58,7 +59,12 @@ export const DedustFragment = fragment(() => {
             source.searchParams.set('pushNotifications', pushNotifications ? 'true' : 'false');
 
             return source.toString();
-        } catch {
+        } catch (e) {
+            saveErrorLog({
+                message: e instanceof Error ? e.message : String(e),
+                stack: e instanceof Error ? e.stack : undefined,
+                url: 'DedustFragment:buildEndpoint'
+            });
             return deDustUrl;
         }
     }, [pushPemissions, currency, theme.style]);
@@ -70,6 +76,11 @@ export const DedustFragment = fragment(() => {
             new URL(event.url);
             new URL(endpoint);
         } catch (error) {
+            saveErrorLog({
+                message: error instanceof Error ? error.message : String(error),
+                stack: error instanceof Error ? error.stack : undefined,
+                url: 'DedustFragment:loadWithRequest'
+            });
             return false;
         }
         if (extractDomain(event.url) === extractDomain(endpoint)) {

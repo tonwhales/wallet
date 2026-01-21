@@ -8,6 +8,7 @@ import { ConnectQrQuery, setLastReturnStrategy } from "../../engine/tonconnect";
 import { resolveTransferUrl } from "./resolveTransferUrl";
 import { ResolvedUrl, ResolveUrlError } from "./types";
 import { setDogsRef } from "../../engine/holders/dogsUtils";
+import { saveErrorLog } from "../../storage";
 
 
 export function isUrl(str: string): boolean {
@@ -335,7 +336,11 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
         }
 
     } catch (e) {
-        // Ignore
+        saveErrorLog({
+            message: e instanceof Error ? e.message : String(e),
+            stack: e instanceof Error ? e.stack : undefined,
+            url: 'resolveUrl:parseUrl'
+        });
         warn(`resolveUrl error: ${e}`);
     }
 
@@ -367,6 +372,11 @@ export function normalizeUrl(url: string) {
         let hash = parsedUrl.hash;
         normalizedURL = `${scheme}//${host}${pathname}${search}${hash}`;
     } catch (error) {
+        saveErrorLog({
+            message: error instanceof Error ? error.message : String(error),
+            stack: error instanceof Error ? error.stack : undefined,
+            url: 'normalizeUrl'
+        });
         console.warn('Failed to normalize URL', error);
     }
 

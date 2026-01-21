@@ -18,6 +18,7 @@ import { LedgerWallet } from "../../../fragments/ledger/components/TransportCont
 import { PublicKey } from "@solana/web3.js";
 import { getAppsFlyerUID } from "../../../analytics/appsflyer";
 import { getInvitationId, getInviteId } from "../../../utils/holders/storage";
+import { saveErrorLog } from "../../../storage";
 
 export type HoldersEnrollParams = {
     acc: {
@@ -108,6 +109,12 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId, invita
                 try {
                     manifest = await getAppManifest(manifestUrl);
                 } catch (error) {
+                    saveErrorLog({
+                        message: error instanceof Error ? error.message : String(error),
+                        stack: error instanceof Error ? error.stack : undefined,
+                        url: 'useHoldersEnroll:getAppManifest',
+                        additionalData: { manifestUrl }
+                    });
                     return { type: 'error', error: HoldersEnrollErrorType.ManifestFailed };
                 }
 
@@ -188,7 +195,13 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId, invita
                     let appsflyerId;
                     try {
                         appsflyerId = await getAppsFlyerUID()
-                    } catch { }
+                    } catch (e) {
+                        saveErrorLog({
+                            message: e instanceof Error ? e.message : String(e),
+                            stack: e instanceof Error ? e.stack : undefined,
+                            url: 'useHoldersEnroll:getAppsFlyerUID'
+                        });
+                    }
 
                     const requestParams: TonSolanaAuthRequest = [
                         {

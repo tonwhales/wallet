@@ -1,7 +1,6 @@
-import React, { memo, useEffect, useState } from "react";
-import { View, Text, TextStyle, ViewStyle, StyleProp, Platform } from "react-native"
+import React, { memo, useEffect } from "react";
+import { View, Text, TextStyle, ViewStyle, StyleProp } from "react-native"
 import { useTheme } from "../../engine/hooks";
-import * as ScreenCapture from 'expo-screen-capture';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 
 const wordStyle: TextStyle = {

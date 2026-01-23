@@ -4,43 +4,68 @@ buildscript {
     ext {
         buildToolsVersion = "35.0.0"
         minSdkVersion = 26
-        compileSdkVersion = 34
+        compileSdkVersion = 36
         targetSdkVersion = 35
-        kotlinVersion = "1.8.10"
-        ndkVersion = "24.0.8215888"
+        kotlinVersion = "1.9.25"
+        ndkVersion = "27.1.12297006"
     }
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath('com.android.tools.build:gradle:7.4.2')
+        classpath('com.android.tools.build:gradle:8.9.1')
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
-        classpath 'com.google.gms:google-services:4.3.15'
+        classpath 'com.google.gms:google-services:4.4.0'
         classpath("com.facebook.react:react-native-gradle-plugin")
-        classpath("de.undercouch:gradle-download-task:4.1.2")
+        classpath("de.undercouch:gradle-download-task:5.6.0")
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
+}
 
     allprojects {
         configurations.configureEach {
             resolutionStrategy {
-                force "com.facebook.soloader:soloader:0.10.4"
+                // force "com.facebook.soloader:soloader:0.10.4"
             }
         }
-        repositories {
-            google()
-            mavenCentral()
-            mavenLocal()
-            jcenter()
-            maven {
-                // expo-camera bundles a custom com.google.android:cameraview
-                url "$rootDir/../node_modules/expo-camera/android/maven"
-            }
-            // Remember to include the following sdk to build project
-            maven {
-                url "file:${project.rootDir}/tapandpay_sdk/"
+    repositories {
+        google()
+        mavenCentral()
+        mavenLocal()
+        jcenter()
+        maven {
+            // expo-camera bundles a custom com.google.android:cameraview
+            url "$rootDir/../node_modules/expo-camera/android/maven"
+        }
+        // Remember to include the following sdk to build project
+        maven {
+            url "file:${project.rootDir}/tapandpay_sdk/"
+        }
+    }
+
+    // Fix for Inconsistent JVM-target compatibility
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+        kotlinOptions {
+            jvmTarget = "17"
+        }
+    }
+
+    // Inject 16KB page size support flags for all modules using CMake
+    afterEvaluate { project ->
+        if (project.plugins.hasPlugin("com.android.library") || project.plugins.hasPlugin("com.android.application")) {
+            project.android {
+                defaultConfig {
+                    externalNativeBuild {
+                        cmake {
+                            arguments "-DANDROID_STL=c++_shared",
+                                      "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON",
+                                      "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=16384",
+                                      "-DCMAKE_EXE_LINKER_FLAGS=-Wl,-z,max-page-size=16384"
+                        }
+                    }
+                }
             }
         }
     }

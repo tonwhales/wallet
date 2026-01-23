@@ -1,27 +1,27 @@
-module.exports = function (api) {
+module.exports = (api) => {
   const babelEnv = api.env();
   api.cache(true);
 
   const plugins = [
-    ["@babel/plugin-transform-flow-strip-types", { "loose": true }],
-    ["@babel/plugin-proposal-class-properties", { "loose": true }],
-    ["@babel/plugin-proposal-private-methods", { "loose": true }],
+    ['@babel/plugin-transform-flow-strip-types', { loose: true }],
+    ['@babel/plugin-transform-class-properties', { loose: true }],
+    ['@babel/plugin-transform-private-methods', { loose: true }],
     [
       'react-native-reanimated/plugin',
       {
-        globals: ['__scanCodes'],
-      },
+        globals: ['__scanCodes']
+      }
     ],
     [
-      'module-resolver',
+      'babel-plugin-module-resolver',
       {
         alias: {
           '@assets': './assets',
-          'crypto': 'react-native-quick-crypto',
-          'buffer': '@craftzdog/react-native-buffer'
-        },
-      },
-    ],
+          crypto: 'react-native-quick-crypto',
+          buffer: '@craftzdog/react-native-buffer'
+        }
+      }
+    ]
   ];
 
   if (babelEnv !== 'development') {

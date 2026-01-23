@@ -1,7 +1,6 @@
-import { memo, useCallback, useEffect } from "react";
+import { memo, useCallback } from "react";
 import { Platform, Pressable, Share, Image } from "react-native";
 import { useActionSheet } from "@expo/react-native-action-sheet";
-import * as ScreenCapture from 'expo-screen-capture';
 import { useNetwork, useTheme } from "../../../../engine/hooks";
 import { ToastDuration, useToaster } from "../../../../components/toast/ToastProvider";
 import { t } from "../../../../i18n/t";
@@ -64,19 +63,6 @@ export const SolanaTxInfo = memo(({ signature }: { signature: string }) => {
             }
         });
     }, [explorerLink, signature]);
-
-    useEffect(() => {
-        let subscription: ScreenCapture.Subscription;
-        if (Platform.OS === 'ios') {
-            subscription = ScreenCapture.addScreenshotListener(() => {
-                if (!explorerLink) {
-                    return;
-                }
-                Share.share({ title: t('txActions.share.transaction'), url: explorerLink });
-            });
-        }
-        return () => subscription?.remove();
-    }, [explorerLink]);
 
     return (
         <Pressable

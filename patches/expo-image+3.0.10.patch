@@ -1,0 +1,35 @@
+diff --git a/node_modules/expo-image/android/src/main/java/expo/modules/image/ResourceIdHelper.kt b/node_modules/expo-image/android/src/main/java/expo/modules/image/ResourceIdHelper.kt
+index b1085fe..7d7bf67 100644
+--- a/node_modules/expo-image/android/src/main/java/expo/modules/image/ResourceIdHelper.kt
++++ b/node_modules/expo-image/android/src/main/java/expo/modules/image/ResourceIdHelper.kt
+@@ -3,7 +3,6 @@ package expo.modules.image
+ import android.annotation.SuppressLint
+ import android.content.Context
+ import android.net.Uri
+-import com.facebook.react.views.imagehelper.ResourceDrawableIdHelper
+ import java.util.*
+ 
+ object ResourceIdHelper {
+@@ -31,10 +30,19 @@ object ResourceIdHelper {
+     }
+   }
+ 
++  @SuppressLint("DiscouragedApi")
++  private fun getResourceDrawableId(context: Context, name: String): Int {
++    if (name.isEmpty()) {
++      return 0
++    }
++    val normalizedName = name.lowercase(Locale.ROOT).replace("-", "_")
++    return context.resources.getIdentifier(normalizedName, "drawable", context.packageName)
++  }
++
+   fun getResourceUri(context: Context, name: String): Uri? {
+-    val drawableUri = ResourceDrawableIdHelper.getResourceDrawableUri(context, name)
+-    if (drawableUri != Uri.EMPTY) {
+-      return drawableUri
++    val drawableId = getResourceDrawableId(context, name)
++    if (drawableId > 0) {
++      return Uri.Builder().scheme("res").path(drawableId.toString()).build()
+     }
+ 
+     val resId = getResourceRawId(context, name)

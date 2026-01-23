@@ -1,7 +1,7 @@
 apply plugin: "com.android.application"
+apply plugin: "kotlin-android"
 apply plugin: 'com.google.gms.google-services'
 apply plugin: "com.facebook.react"
-apply plugin: 'kotlin-android'
 
 import com.android.build.OutputFile
 import groovy.json.JsonSlurper
@@ -75,8 +75,8 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     buildFeatures {
@@ -89,11 +89,21 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode versionCodeValue
         versionName packageVersion
+        
         // Intercom configuration
         buildConfigField 'String', 'INTERCOM_ANDROID_API', "\"${keysJson.INTERCOM_ANDROID_API}\""
         buildConfigField 'String', 'INTERCOM_APP', "\"${keysJson.INTERCOM_APP}\""
         buildFeatures {
             buildConfig = true
+        }
+        externalNativeBuild {
+            cmake {
+                arguments(
+                    "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON",
+                    "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=16384",
+                    "-DCMAKE_EXE_LINKER_FLAGS=-Wl,-z,max-page-size=16384"
+                )
+            }
         }
     }
 
@@ -108,12 +118,6 @@ android {
         }
     }
 
-    buildTypes {
-        debug {
-            applicationIdSuffix ".debug"
-        }
-    }
-
     splits {
         abi {
             reset()
@@ -122,6 +126,15 @@ android {
             include (*reactNativeArchitectures())
         }
     }
+    
+    // Support for 16KB page sizes on older AGP versions
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = true
+            pickFirsts += ['**/libc++_shared.so', '**/libfbjni.so']
+        }
+    }
+    
     signingConfigs {
         debug {
             storeFile file('debug.keystore')
@@ -140,6 +153,7 @@ android {
     }
     buildTypes {
         debug {
+            applicationIdSuffix ".debug"
             signingConfig signingConfigs.debug
         }
         release {
@@ -170,7 +184,6 @@ android {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:${rootProject.ext.kotlinVersion}"
     implementation "com.google.android.gms:play-services-ads-identifier:18.0.1"
     implementation "com.android.installreferrer:installreferrer:2.2"
 
@@ -190,34 +203,30 @@ dependencies {
     def isWebpEnabled = (findProperty('expo.webp.enabled') ?: "") == "true";
     def isWebpAnimatedEnabled = (findProperty('expo.webp.animated') ?: "") == "true";
 
-    // If your app supports Android versions before Ice Cream Sandwich (API level 14)
     // All fresco packages should use the same version
+    // Fresco 3.4.0+ supports 16KB page sizes required for Android 15+
     if (isGifEnabled || isWebpEnabled) {
-        implementation 'com.facebook.fresco:fresco:2.0.0'
-        implementation 'com.facebook.fresco:imagepipeline-okhttp3:2.0.0'
+        implementation 'com.facebook.fresco:fresco:3.5.0'
+        implementation 'com.facebook.fresco:imagepipeline-okhttp3:3.5.0'
     }
 
     if (isGifEnabled) {
         // For animated gif support
-        implementation 'com.facebook.fresco:animated-gif:2.0.0'
+        implementation 'com.facebook.fresco:animated-gif:3.5.0'
     }
 
     if (isWebpEnabled) {
         // For webp support
-        implementation 'com.facebook.fresco:webpsupport:2.0.0'
+        implementation 'com.facebook.fresco:webpsupport:3.5.0'
         if (isWebpAnimatedEnabled) {
             // Animated webp support
-            implementation 'com.facebook.fresco:animated-webp:2.0.0'
+            implementation 'com.facebook.fresco:animated-webp:3.5.0'
         }
     }
     
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.0.0")
-    debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}")
-    debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {
-        exclude group:'com.facebook.flipper'
-        exclude group:'com.squareup.okhttp3', module:'okhttp'
-    }
-    debugImplementation("com.facebook.flipper:flipper-fresco-plugin:${FLIPPER_VERSION}")
+    implementation 'androidx.biometric:biometric:1.2.0-alpha05'
+
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
     } else {
@@ -235,8 +244,7 @@ dependencies {
     implementation 'cloud.mindbox:mindbox-firebase'
 }
 
-apply from: new File(["node", "--print", "require.resolve('@react-native-community/cli-platform-android/package.json')"].execute(null, rootDir).text.trim(), "../native_modules.gradle");
-applyNativeModulesAppBuildGradle(project)
+// RN 0.76+ doesn't use native_modules.gradle
 
 configurations.all {
    resolutionStrategy {
@@ -244,9 +252,20 @@ configurations.all {
       force 'androidx.browser:browser:1.8.0'
       // force an older version
        force 'io.intercom.android:intercom-sdk-base:14.0.1'
-       // Fix DEX-ing issue with lifecycle-livedata-core
-       force 'androidx.lifecycle:lifecycle-livedata-core:2.6.2'
-       force 'androidx.lifecycle:lifecycle-runtime:2.6.2'
-       force 'androidx.lifecycle:lifecycle-common:2.6.2'
+           // align fragment to a stable version to avoid dexing issues
+           force 'androidx.fragment:fragment:1.6.2'
+      // Force Fresco 3.5.0 for 16KB page size alignment (Android 15+)
+      force 'com.facebook.fresco:fresco:3.5.0'
+      force 'com.facebook.fresco:imagepipeline:3.5.0'
+      force 'com.facebook.fresco:imagepipeline-base:3.5.0'
+      force 'com.facebook.fresco:nativeimagefilters:3.5.0'
+      force 'com.facebook.fresco:nativeimagetranscoder:3.5.0'
+      force 'com.facebook.fresco:animated-gif:3.5.0'
+      force 'com.facebook.fresco:webpsupport:3.5.0'
+      force 'com.facebook.fresco:animated-webp:3.5.0'
+      force 'com.facebook.fresco:animated-base:3.5.0'
+      force 'com.facebook.fresco:ui-common:3.5.0'
+      force 'com.facebook.fresco:drawee:3.5.0'
+      force 'com.facebook.fresco:fbcore:3.5.0'
    }
 }

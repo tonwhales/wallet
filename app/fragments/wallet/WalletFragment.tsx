@@ -14,7 +14,6 @@ import { useHoldersAccountStatus, useNetwork, useSelectedAccount, useSolanaSelec
 import { ProductsComponent } from '../../components/products/ProductsComponent';
 import { SelectedAccount } from '../../engine/types';
 import { WalletSkeleton } from '../../components/skeletons/WalletSkeleton';
-import { PerformanceMeasureView } from '@shopify/react-native-performance';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { useFocusEffect } from '@react-navigation/native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
@@ -230,16 +229,11 @@ export const WalletFragment = fragment(() => {
     return (
         <>
             <StatusBar style={'light'} />
-            <PerformanceMeasureView
-                interactive={selectedAcc !== undefined}
-                screenName={'Wallet'}
-            >
-                {(!selectedAcc || !solanaAddress) ? (skeleton) : (
-                    <Suspense fallback={skeleton}>
-                        <WalletComponent selectedAcc={{ ...selectedAcc, solanaAddress }} />
-                    </Suspense>
-                )}
-            </PerformanceMeasureView>
+            {(!selectedAcc || !solanaAddress) ? (skeleton) : (
+                <Suspense fallback={skeleton}>
+                    <WalletComponent selectedAcc={{ ...selectedAcc, solanaAddress }} />
+                </Suspense>
+            )}
         </>
     );
 });

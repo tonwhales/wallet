@@ -1,4 +1,4 @@
-import { Camera } from "expo-camera";
+import { CameraView } from "expo-camera";
 import { useState } from "react";
 import { Dimensions, Platform } from "react-native";
 
@@ -13,19 +13,24 @@ export function useCameraAspectRatio() {
     const screenRatio = height / width;
 
     // set the camera ratio and padding (portrait mode)
-    const prepareRatio = async (camera: Camera) => {
+    // CameraView doesn't have getSupportedRatiosAsync like Camera did
+    // We'll use a default ratio approach
+    const prepareRatio = async (camera: CameraView) => {
         let desiredRatio = '4:3';  // Start with the system default
         // This issue only affects Android
         if (Platform.OS === 'android') {
-            const ratios = await camera.getSupportedRatiosAsync();
-
+            // CameraView in expo-camera 17+ doesn't support getSupportedRatiosAsync
+            // We'll use common ratios and pick the best one
+            const commonRatios = ['4:3', '16:9', '1:1'];
+            
             // Calculate the width/height of each of the supported camera ratios
             // These width/height are measured in landscape mode
             // find the ratio that is closest to the screen ratio without going over
             let distances: { [key: string]: number } = {};
             let realRatios: { [key: string]: number } = {};
             let minDistance: string | null = null;
-            for (const ratio of (ratios ?? [])) {
+            
+            for (const ratio of commonRatios) {
                 const parts = ratio.split(':');
                 const realRatio = parseInt(parts[0]) / parseInt(parts[1]);
                 realRatios[ratio] = realRatio;
@@ -40,6 +45,7 @@ export function useCameraAspectRatio() {
                     }
                 }
             }
+            
             // set the best match
             desiredRatio = minDistance ?? '4:3';
             //  calculate the diff between the camera width and the screen height
@@ -48,6 +54,8 @@ export function useCameraAspectRatio() {
             );
             // set padding and ratio
             setPreviewSettings({ imagePadding: remainder, ratio: desiredRatio, ready: true });
+        } else {
+            setPreviewSettings({ imagePadding: 0, ratio: desiredRatio, ready: true });
         }
     };
 

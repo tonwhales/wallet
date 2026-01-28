@@ -5,6 +5,7 @@ import { warn } from '../../../utils/log';
 import { useConnectAppByClientSessionId, useConnectPendingRequests, useDisconnectApp, useNetwork } from '../../hooks';
 import { useToaster } from '../../../components/toast/ToastProvider';
 import { checkTonconnectSignRequest, checkTonconnectTxRequest, ConnectedAppConnectionRemote, setLastEventId, SignDataPayload, SignDataRawRequest, SignRawTxParams, tonconnectRpcReqScheme } from '../../tonconnect';
+import { saveErrorLog } from '../../../storage';
 
 export function useHandleMessage(
     connections: ConnectedAppConnectionRemote[],
@@ -105,6 +106,12 @@ export function useHandleMessage(
                             return temp;
                         });
                     } catch (error) {
+                        saveErrorLog({
+                            message: error instanceof Error ? error.message : String(error),
+                            stack: error instanceof Error ? error.stack : undefined,
+                            url: 'useHandleMessage:sendTransaction',
+                            additionalData: { requestId: request.id.toString() }
+                        });
                         callback({
                             error: {
                                 code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
@@ -171,7 +178,12 @@ export function useHandleMessage(
                 default:
                     break;
             }
-        } catch {
+        } catch (error) {
+            saveErrorLog({
+                message: error instanceof Error ? error.message : String(error),
+                stack: error instanceof Error ? error.stack : undefined,
+                url: 'useHandleMessage:main'
+            });
             warn('Failed to handle message');
         }
     }

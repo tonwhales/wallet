@@ -2,6 +2,7 @@ import { createContext, memo, useContext } from "react";
 import { AddressBook, AddressContact, useAddressBook } from "./hooks/contacts/useAddressBook";
 import { Address } from "@ton/core";
 import { useNetwork } from "./hooks";
+import { saveErrorLog } from "../storage";
 
 export const AddressBookContext = createContext<
     {
@@ -33,6 +34,11 @@ export const AddressBookLoader = memo(({ children }: { children: React.ReactNode
                 return contact;
             }
         } catch (e) {
+            saveErrorLog({
+                message: e instanceof Error ? e.message : String(e),
+                stack: e instanceof Error ? e.stack : undefined,
+                url: 'AddressBookContext:asContact'
+            });
             return null;
         }
         return null;

@@ -2,6 +2,7 @@ import EventEmitter from "events";
 import { exponentialBackoffDelay } from "teslabot";
 import { createLogger } from "../utils/log";
 import { Address } from '@ton/core';
+import { saveErrorLog } from "../storage";
 
 const MESSAGE_TIMEOUT = 30000; // 30 seconds
 const CONNECTION_TIMEOUT = 5000; // 5 seconds
@@ -154,6 +155,11 @@ export class WalletRequestsWatcher extends EventEmitter {
             try {
                 parsed = JSON.parse(ev.data);
             } catch (e) {
+                saveErrorLog({
+                    message: e instanceof Error ? e.message : String(e),
+                    stack: e instanceof Error ? e.stack : undefined,
+                    url: 'WalletRequestsWatcher:parseMessage'
+                });
                 logger.warn(`Failed to parse message: ${e}`);
                 return;
             }
@@ -229,6 +235,11 @@ export class WalletRequestsWatcher extends EventEmitter {
                         originalError: error
                     });
                 } else {
+                    saveErrorLog({
+                        message: 'WebSocket connection error',
+                        url: 'WalletRequestsWatcher:onError',
+                        additionalData: { error: JSON.stringify(error) }
+                    });
                     // Emit generic error
                     this.emit('error', {
                         message: 'WebSocket connection error',
@@ -293,6 +304,11 @@ export class WalletRequestsWatcher extends EventEmitter {
                         type: 'ping'
                     }));
                 } catch (e) {
+                    saveErrorLog({
+                        message: e instanceof Error ? e.message : String(e),
+                        stack: e instanceof Error ? e.stack : undefined,
+                        url: 'WalletRequestsWatcher:sendPing'
+                    });
                     logger.warn(`Failed to send ping: ${e}`);
                     this.#start(); // Restart connection
                 }
@@ -338,6 +354,11 @@ export class WalletRequestsWatcher extends EventEmitter {
                     type: 'unsubscribe'
                 }));
             } catch (e) {
+                saveErrorLog({
+                    message: e instanceof Error ? e.message : String(e),
+                    stack: e instanceof Error ? e.stack : undefined,
+                    url: 'WalletRequestsWatcher:unsubscribe'
+                });
                 logger.warn(`Failed to send unsubscribe: ${e}`);
             }
         }

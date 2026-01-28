@@ -9,6 +9,7 @@ import { Queries } from '../../queries';
 import { StoredJettonWallet } from '../../metadata/StoredMetadata';
 import { jettonWalletQueryFn } from '../jettons/jettonsBatcher';
 import { warn } from '../../../utils/log';
+import { saveErrorLog } from '../../../storage';
 
 /**
  * Hook for repeating TON transaction
@@ -45,7 +46,12 @@ export function useRepeatTonTransaction() {
                     if (res) {
                         jetton = Address.parse(res.master);
                     }
-                } catch {
+                } catch (e) {
+                    saveErrorLog({
+                        message: e instanceof Error ? e.message : String(e),
+                        stack: e instanceof Error ? e.stack : undefined,
+                        url: 'useRepeatTonTransaction:fetchJettonWallet'
+                    });
                     warn('Failed to fetch jetton wallet');
                 }
             }

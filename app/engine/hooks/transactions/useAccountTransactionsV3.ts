@@ -20,6 +20,7 @@ import { PublicKey } from "@solana/web3.js";
 import { getAssociatedTokenAddress } from '@solana/spl-token';
 import { isUSDCTransaction } from '../../../utils/solana/isUSDCTransaction';
 import { useFocusEffect } from '@react-navigation/native';
+import { saveErrorLog } from '../../../storage';
 
 const DEFAULT_PAGE_SIZE = 32;
 const REFRESH_TIMEOUT = 35000;
@@ -138,6 +139,11 @@ async function getInitialCursor(client: TonClient4, account: string, usdcMint: s
             };
         }
     } catch (e) {
+        saveErrorLog({
+            message: e instanceof Error ? e.message : String(e),
+            stack: e instanceof Error ? e.stack : undefined,
+            url: 'getInitialCursor:ton'
+        });
         console.warn('Failed to get TON initial cursor:', e);
     }
 
@@ -219,6 +225,12 @@ export const formatTransactions = async (transactions: CommonTransaction[], isTe
     try {
         gaslessConfig = await fetchGaslessConfig(isTestnet)
     } catch (e) {
+        saveErrorLog({
+            message: e instanceof Error ? e.message : String(e),
+            stack: e instanceof Error ? e.stack : undefined,
+            url: 'formatTransactionsV3:fetchGaslessConfig',
+            additionalData: { isTestnet }
+        });
         console.log('ERROR', e);
     }
 
@@ -286,6 +298,12 @@ export const formatTransactions = async (transactions: CommonTransaction[], isTe
                 });
 
             } catch (e) {
+                saveErrorLog({
+                    message: e instanceof Error ? e.message : String(e),
+                    stack: e instanceof Error ? e.stack : undefined,
+                    url: 'formatTransactionsV3:singleMessage',
+                    additionalData: { txId: tonTx.id }
+                });
                 console.log('ERROR', e);
             }
         }
@@ -417,8 +435,12 @@ export function useAccountTransactionsV3(
 
         try {
             await query.refetch({ refetchPage: (_, index) => index === 0 });
-        } catch {
-            // Ignore errors, isRefreshing will be reset by useEffect
+        } catch (e) {
+            saveErrorLog({
+                message: e instanceof Error ? e.message : String(e),
+                stack: e instanceof Error ? e.stack : undefined,
+                url: 'useAccountTransactionsV3:refresh'
+            });
         }
 
         if (!silent) {

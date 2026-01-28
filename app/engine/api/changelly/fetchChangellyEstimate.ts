@@ -1,6 +1,7 @@
 import axios from "axios";
 import { whalesConnectEndpoint } from "../../clients";
 import { z } from "zod";
+import { saveErrorLog } from "../../../storage";
 
 const ChangellyEstimateResultSchema = z.object({
     amountFrom: z.string(),
@@ -80,6 +81,13 @@ export async function fetchChangellyEstimate(
 
         return validatedData.data.result[0];
     } catch (error: any) {
+        saveErrorLog({
+            message: error instanceof Error ? error.message : String(error),
+            stack: error instanceof Error ? error.stack : undefined,
+            url: 'fetchChangellyEstimate',
+            additionalData: { toCurrency, fromCurrency, amount, statusCode: error.response?.status }
+        });
+
         // Check if error contains limits information
         if (error.response?.data?.ok === false && error.response?.data?.limits) {
             const errorData = error.response.data;

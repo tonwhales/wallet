@@ -7,6 +7,7 @@ import { ConnectedApp } from "./useTonConnectExtenstions";
 import { Toaster } from "../../../components/toast/ToastProvider";
 import { t } from "../../../i18n/t";
 import { checkTonconnectSignRequest } from "../../tonconnect/checkTonconnectSignRequest";
+import { saveErrorLog } from "../../../storage";
 
 export type PreparedConnectSignRequest = {
   request: SignDataRequest,
@@ -48,7 +49,12 @@ export function usePrepareConnectSignRequest(config: { toaster: Toaster, toastPr
           sessionCrypto,
           clientSessionId: request.from
         });
-      } catch {
+      } catch (error) {
+        saveErrorLog({
+          message: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined,
+          url: 'usePrepareConnectSignRequest:sendTonConnectResponse'
+        });
         toaster.push({
           ...toasterErrorProps,
           message: t('products.transactionRequest.failedToReportCanceled'),

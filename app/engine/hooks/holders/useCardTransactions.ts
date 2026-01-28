@@ -5,6 +5,7 @@ import { useHoldersAccountStatus } from "./useHoldersAccountStatus";
 import { HoldersUserState } from "../../api/holders/fetchUserState";
 import axios from "axios";
 import { deleteHoldersToken } from "../../../storage/holders";
+import { saveErrorLog } from "../../../storage";
 
 export function useCardTransactions(address: string, id: string) {
     let status = useHoldersAccountStatus(address).data;
@@ -38,6 +39,12 @@ export function useCardTransactions(address: string, id: string) {
                         return cardRes;
                     }
                 } catch (error) {
+                    saveErrorLog({
+                        message: error instanceof Error ? error.message : String(error),
+                        stack: error instanceof Error ? error.stack : undefined,
+                        url: 'useCardTransactions:fetchCardsTransactions',
+                        additionalData: { cardId: id, statusCode: axios.isAxiosError(error) ? error.response?.status : undefined }
+                    });
                     if (axios.isAxiosError(error) && error.response?.status === 401) {
                         deleteHoldersToken(address);
                         throw new Error('Unauthorized');

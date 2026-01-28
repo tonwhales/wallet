@@ -3,6 +3,7 @@ import { Toaster } from '../../components/toast/ToastProvider';
 import { RpcMethod, SEND_TRANSACTION_ERROR_CODES, WalletResponse } from '@tonconnect/protocol';
 import { t } from '../../i18n/t';
 import { SignDataPayload } from './types';
+import { saveErrorLog } from '../../storage';
 
 export function checkTonconnectSignRequest(id: string, params: SignDataPayload, callback: (response: WalletResponse<RpcMethod>) => void, toaster: Toaster) {
     let errorMessage = 'Bad request';
@@ -51,7 +52,12 @@ export function checkTonconnectSignRequest(id: string, params: SignDataPayload, 
             try {
                 // Validate base64
                 Buffer.from(params.bytes, 'base64');
-            } catch {
+            } catch (e) {
+                saveErrorLog({
+                    message: e instanceof Error ? e.message : String(e),
+                    stack: e instanceof Error ? e.stack : undefined,
+                    url: 'checkTonconnectSignRequest:parseBase64Binary'
+                });
                 errorMessage = 'Invalid base64 binary content';
                 return handleError(errorMessage);
             }
@@ -69,7 +75,12 @@ export function checkTonconnectSignRequest(id: string, params: SignDataPayload, 
             try {
                 // Validate cell data
                 Cell.fromBoc(Buffer.from(params.cell, 'base64'))[0];
-            } catch {
+            } catch (e) {
+                saveErrorLog({
+                    message: e instanceof Error ? e.message : String(e),
+                    stack: e instanceof Error ? e.stack : undefined,
+                    url: 'checkTonconnectSignRequest:parseCellFormat'
+                });
                 errorMessage = 'Invalid cell format';
                 return handleError(errorMessage);
             }

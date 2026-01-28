@@ -4,6 +4,7 @@ import * as t from 'io-ts';
 import { warn } from "../../utils/log";
 import qs from 'qs';
 import { whalesConnectEndpoint } from "../clients";
+import { saveErrorLog } from "../../storage";
 
 export type ImagePreview = {
     blurhash: string,
@@ -46,6 +47,12 @@ export async function fetchAppData(link: string) {
     try {
         url = new URL(link);
     } catch (e) {
+        saveErrorLog({
+            message: e instanceof Error ? e.message : String(e),
+            stack: e instanceof Error ? e.stack : undefined,
+            url: 'fetchAppData',
+            additionalData: { link }
+        });
         warn(e)
         return null;
     }

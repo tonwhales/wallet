@@ -53,7 +53,7 @@ target 'WhalesApp' do
       installer,
       :mac_catalyst_enabled => false
     )
-    
+
     # Workaround `Cycle inside FBReactNativeSpec` error for react-native 0.64
     # Reference: https://github.com/software-mansion/react-native-screens/issues/842#issuecomment-812543933
     installer.pods_project.targets.each do |target|

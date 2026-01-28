@@ -41,40 +41,40 @@ export const Root = memo(() => {
     }, []);
 
     return (
-        <Animated.View
-            key={'session-' + sessionId}
-            style={{ flexGrow: 1, flexBasis: 0, flexDirection: 'column', alignItems: 'stretch' }}
-            exiting={FadeOut}
-            entering={FadeIn}
-        >
-            <RebootContext.Provider value={reboot}>
-                <PersistQueryClientProvider
-                    persistOptions={{ persister: clientPersister, buster: PERSISTANCE_VERSION, maxAge: Infinity }}
-                    client={queryClient}
-                >
-                    <RecoilRoot>
-                        <ThemeProvider>
-                            <ModalAlertProvider>
-                                <PriceLoader>
-                                    <AddressBookLoader>
-                                        <WebViewPreloaderProvider>
-                                            <LedgerTransportProvider>
-                                                <AppBlurContextProvider>
-                                                    <ToastProvider>
-                                                        <TransactionsUtilsProvider>
-                                                            <Navigation />
-                                                        </TransactionsUtilsProvider>
-                                                    </ToastProvider>
-                                                </AppBlurContextProvider>
-                                            </LedgerTransportProvider>
-                                        </WebViewPreloaderProvider>
-                                    </AddressBookLoader>
-                                </PriceLoader>
-                            </ModalAlertProvider>
-                        </ThemeProvider>
-                    </RecoilRoot>
-                </PersistQueryClientProvider>
-            </RebootContext.Provider>
-        </Animated.View>
+            <Animated.View
+                key={'session-' + sessionId}
+                style={{ flexGrow: 1, flexBasis: 0, flexDirection: 'column', alignItems: 'stretch' }}
+                exiting={FadeOut}
+                entering={FadeIn}
+            >
+                <RebootContext.Provider value={reboot}>
+                    <PersistQueryClientProvider
+                        persistOptions={{ persister: clientPersister, buster: PERSISTANCE_VERSION, maxAge: Infinity }}
+                        client={queryClient}
+                    >
+                        <RecoilRoot>
+                            <ThemeProvider>
+                                <ModalAlertProvider>
+                                    <PriceLoader>
+                                        <AddressBookLoader>
+                                            <WebViewPreloaderProvider>
+                                                <LedgerTransportProvider>
+                                                    <AppBlurContextProvider>
+                                                        <ToastProvider>
+                                                            <TransactionsUtilsProvider>
+                                                                <Navigation />
+                                                            </TransactionsUtilsProvider>
+                                                        </ToastProvider>
+                                                    </AppBlurContextProvider>
+                                                </LedgerTransportProvider>
+                                            </WebViewPreloaderProvider>
+                                        </AddressBookLoader>
+                                    </PriceLoader>
+                                </ModalAlertProvider>
+                            </ThemeProvider>
+                        </RecoilRoot>
+                    </PersistQueryClientProvider>
+                </RebootContext.Provider>
+            </Animated.View>
     );
 });

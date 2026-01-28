@@ -199,6 +199,42 @@ dependencies {
     implementation("com.facebook.react:react-android")
     implementation 'com.facebook.fbjni:fbjni:0.3.0'
 
+    // Manual linking of dependencies (autolinking workaround for RN 0.77)
+    implementation project(':expo')
+    implementation project(':expo-modules-core')
+    implementation project(':intercom_intercom-react-native')
+    implementation project(':ledgerhq_react-native-hid')
+    implementation project(':react-native-clipboard_clipboard')
+    implementation project(':react-native-picker_picker')
+    implementation project(':shopify_react-native-skia')
+    implementation project(':lottie-react-native')
+    implementation project(':mixpanel-react-native')
+    implementation project(':react-native-appsflyer')
+    implementation project(':react-native-ble-plx')
+    implementation project(':react-native-blurhash')
+    implementation project(':react-native-context-menu-view')
+    implementation project(':react-native-device-info')
+    implementation project(':react-native-fast-pbkdf2')
+    implementation project(':react-native-gesture-handler')
+    implementation project(':react-native-image-colors')
+    implementation project(':react-native-inappbrowser-reborn')
+    implementation project(':react-native-keychain')
+    implementation project(':react-native-localize')
+    implementation project(':react-native-minimizer')
+    implementation project(':react-native-mmkv')
+    implementation project(':react-native-pager-view')
+    implementation project(':react-native-permissions')
+    implementation project(':react-native-quick-base64')
+    implementation project(':react-native-quick-crypto')
+    implementation project(':react-native-reanimated')
+    implementation project(':react-native-safe-area-context')
+    implementation project(':react-native-screens')
+    implementation project(':react-native-share')
+    implementation project(':react-native-svg')
+    implementation project(':react-native-view-shot')
+    implementation project(':react-native-webview')
+    implementation project(':mindbox-sdk')
+
     def isGifEnabled = (findProperty('expo.gif.enabled') ?: "") == "true";
     def isWebpEnabled = (findProperty('expo.webp.enabled') ?: "") == "true";
     def isWebpAnimatedEnabled = (findProperty('expo.webp.animated') ?: "") == "true";
@@ -241,7 +277,7 @@ dependencies {
     implementation 'androidx.work:work-runtime-ktx:2.7.0'
     implementation 'com.google.android.gms:play-services-tapandpay:+'
     implementation 'com.squareup.okhttp3:okhttp:4.9.3'
-    implementation 'cloud.mindbox:mindbox-firebase'
+    implementation 'cloud.mindbox:mindbox-firebase:2.14.5'
 }
 
 // RN 0.76+ doesn't use native_modules.gradle

@@ -7719,7 +7719,7 @@ mimic-fn@^2.1.0:
   resolved "https://registry.yarnpkg.com/mimic-fn/-/mimic-fn-2.1.0.tgz#7ed2c2ccccaf84d3ffcb7a69b57711fc2083401b"
   integrity sha512-OqbOk5oEQeAZ8WXWydlu9HJjz9WVdEIvamMCcXmuqUYjTknH/sqsWvhQ3vgwKFRR1HpjvNBKQ37nbJgYzGqGcg==
 
-mindbox-sdk@^2.13.4:
+mindbox-sdk@^2.14.6:
   version "2.14.6"
   resolved "https://registry.yarnpkg.com/mindbox-sdk/-/mindbox-sdk-2.14.6.tgz#b1f50b68bde5efdf09490e4764cf6c4c21c58399"
   integrity sha512-ZRAeI5qHNeVDQg0rklDoJ7dBgwCjMPF10185cCwzda+Sa6QJI0QwS9U+3TPvO+KxinZhxJ5tn+6Y4QMXwyKldQ==

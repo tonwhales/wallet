@@ -115,15 +115,15 @@ export const ScannerFragment = systemFragment(() => {
         (scanningResult?: BarcodeScanningResult) => {
             if (!isActive) return;
             if (scanningResult?.data && scanningResult.data.length > 0) {
-                if (route && (route as any).callback) {
-                    setActive(false);
+            if (route && (route as any).callback) {
+                setActive(false);
 
-                    setTimeout(() => {
-                        navigation.goBack();
+                setTimeout(() => {
+                    navigation.goBack();
                         (route as any).callback(scanningResult.data);
-                    }, 10);
-                }
+                }, 10);
             }
+        }
         },
         [route, isActive]
     );

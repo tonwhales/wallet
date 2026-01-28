@@ -22,7 +22,7 @@ export function useCameraAspectRatio() {
             // CameraView in expo-camera 17+ doesn't support getSupportedRatiosAsync
             // We'll use common ratios and pick the best one
             const commonRatios = ['4:3', '16:9', '1:1'];
-            
+
             // Calculate the width/height of each of the supported camera ratios
             // These width/height are measured in landscape mode
             // find the ratio that is closest to the screen ratio without going over

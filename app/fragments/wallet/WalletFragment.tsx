@@ -229,11 +229,11 @@ export const WalletFragment = fragment(() => {
     return (
         <>
             <StatusBar style={'light'} />
-            {(!selectedAcc || !solanaAddress) ? (skeleton) : (
-                <Suspense fallback={skeleton}>
-                    <WalletComponent selectedAcc={{ ...selectedAcc, solanaAddress }} />
-                </Suspense>
-            )}
+                {(!selectedAcc || !solanaAddress) ? (skeleton) : (
+                    <Suspense fallback={skeleton}>
+                        <WalletComponent selectedAcc={{ ...selectedAcc, solanaAddress }} />
+                    </Suspense>
+                )}
         </>
     );
 });

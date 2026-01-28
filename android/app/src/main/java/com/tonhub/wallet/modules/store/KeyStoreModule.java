@@ -100,8 +100,7 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
                         JSONObject obj = (JSONObject) result;
                         obj.put(SCHEME_PROPERTY, AESEncrypter.NAME);
                         saveEncryptedItem(innerPromise, obj, prefs, key);
-                    }
-            );
+                    });
         } catch (IOException e) {
             Log.w(TAG, e);
             promise.reject("IO_ERROR", "There was an I/O error loading the keystore for KeyStoreModule", e);
@@ -142,7 +141,8 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
                 level = SECURITY_LEVEL_BIOMETRIC;
             }
         } else {
-            int deviceCredentialResult = biometricManager.canAuthenticate(BiometricManager.Authenticators.DEVICE_CREDENTIAL);
+            int deviceCredentialResult = biometricManager
+                    .canAuthenticate(BiometricManager.Authenticators.DEVICE_CREDENTIAL);
             if (deviceCredentialResult == BiometricManager.BIOMETRIC_SUCCESS) {
                 level = SECURITY_LEVEL_SECRET;
             }
@@ -166,7 +166,8 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
     }
 
     private void getItemImpl(String key, Promise promise) {
-        // We use a KeyStoreModule-specific shared preferences file, which lets us do things like enumerate
+        // We use a KeyStoreModule-specific shared preferences file, which lets us do
+        // things like enumerate
         // its entries or clear all of them
         SharedPreferences prefs = getSharedPreferences();
         readJSONEncodedItem(key, prefs, promise);
@@ -178,7 +179,8 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
         try {
             encryptedItem = new JSONObject(encryptedItemString);
         } catch (JSONException e) {
-            Log.e(TAG, String.format("Could not parse stored value as JSON (key = %s, value = %s)", key, encryptedItemString), e);
+            Log.e(TAG, String.format("Could not parse stored value as JSON (key = %s, value = %s)", key,
+                    encryptedItemString), e);
             promise.reject("JSON_ERROR", "Could not parse the encrypted JSON item in KeyStoreModule");
             return;
         }
@@ -188,9 +190,11 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
         try {
             if (AESEncrypter.NAME.equals(scheme)) {
                 KeyStore.SecretKeyEntry secretKeyEntry = getKeyEntry(KeyStore.SecretKeyEntry.class, mAESEncrypter);
-                mAESEncrypter.decryptItem(promise, encryptedItem, secretKeyEntry, mAuthenticationHelper.getDefaultCallback());
+                mAESEncrypter.decryptItem(promise, encryptedItem, secretKeyEntry,
+                        mAuthenticationHelper.getDefaultCallback());
             } else {
-                String message = String.format("The item for key \"%s\" in KeyStoreModule has an unknown encoding scheme (%s)", key, scheme);
+                String message = String.format(
+                        "The item for key \"%s\" in KeyStoreModule has an unknown encoding scheme (%s)", key, scheme);
                 Log.e(TAG, message);
                 promise.reject("DECODE_ERROR", message);
             }
@@ -208,7 +212,7 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     @SuppressWarnings("unused")
-    public void deleteValueWithKeyAsync(String key, expo.modules.core.arguments.ReadableArguments options, expo.modules.core.Promise promise) {
+    public void deleteValueWithKeyAsync(String key, com.facebook.react.bridge.ReadableMap options, Promise promise) {
         try {
             deleteItemImpl(key, promise);
         } catch (Exception e) {
@@ -217,7 +221,7 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
         }
     }
 
-    private void deleteItemImpl(String key, expo.modules.core.Promise promise) {
+    private void deleteItemImpl(String key, Promise promise) {
         boolean success = true;
         SharedPreferences prefs = getSharedPreferences();
         if (prefs.contains(key)) {
@@ -237,14 +241,16 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
     }
 
     /**
-     * We use a shared preferences file that's scoped to both the experience and KeyStoreModule. This
+     * We use a shared preferences file that's scoped to both the experience and
+     * KeyStoreModule. This
      * lets us easily list or remove all the entries for an experience.
      */
     protected SharedPreferences getSharedPreferences() {
         return mContext.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
     }
 
-    private KeyStore getKeyStore() throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+    private KeyStore getKeyStore()
+            throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
         if (mKeyStore == null) {
             KeyStore keyStore = KeyStore.getInstance(KEYSTORE_PROVIDER);
             keyStore.load(null);
@@ -254,7 +260,7 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
     }
 
     private <E extends KeyStore.Entry> E getKeyEntry(Class<E> keyStoreEntryClass,
-                                                     KeyBasedEncrypter<E> encrypter) throws IOException, GeneralSecurityException {
+            KeyBasedEncrypter<E> encrypter) throws IOException, GeneralSecurityException {
         KeyStore keyStore = getKeyStore();
         String keystoreAlias = encrypter.getKeyStoreAlias();
 
@@ -280,22 +286,23 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
         String getKeyStoreAlias();
 
         @SuppressWarnings("unused")
-        E initializeKeyStoreEntry(KeyStore keyStore) throws
-                GeneralSecurityException;
+        E initializeKeyStoreEntry(KeyStore keyStore) throws GeneralSecurityException;
 
         @SuppressWarnings("unused")
         void createEncryptedItem(Promise promise, String plaintextValue, KeyStore keyStore, E keyStoreEntry,
-                                 AuthenticationCallback authenticationCallback, PostEncryptionCallback postEncryptionCallback) throws
-                GeneralSecurityException, JSONException;
+                AuthenticationCallback authenticationCallback, PostEncryptionCallback postEncryptionCallback)
+                throws GeneralSecurityException, JSONException;
 
         @SuppressWarnings("unused")
-        void decryptItem(Promise promise, JSONObject encryptedItem, E keyStoreEntry, AuthenticationCallback callback) throws
-                GeneralSecurityException, JSONException;
+        void decryptItem(Promise promise, JSONObject encryptedItem, E keyStoreEntry, AuthenticationCallback callback)
+                throws GeneralSecurityException, JSONException;
     }
 
     /**
-     * An encrypter that stores a symmetric key (AES) in the Android keystore. It generates a new IV
-     * each time an item is written to prevent many-time pad attacks. The IV is stored with the
+     * An encrypter that stores a symmetric key (AES) in the Android keystore. It
+     * generates a new IV
+     * each time an item is written to prevent many-time pad attacks. The IV is
+     * stored with the
      * encrypted item.
      */
     protected static class AESEncrypter implements KeyStoreModule.KeyBasedEncrypter<KeyStore.SecretKeyEntry> {
@@ -348,7 +355,8 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
                 builder = builder.setInvalidatedByBiometricEnrollment(false);
             }
 
-            // Disable strongbox since we don't want to randomly lose data for some internal magic
+            // Disable strongbox since we don't want to randomly lose data for some internal
+            // magic
             // CPU-bound encryption is enough for our case
             // There are a lot of examples of instability and slowness
             // Some random example: https://github.com/beemdevelopment/Aegis/issues/87
@@ -358,12 +366,14 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
 
             // Enable device credential and biometric auth on new devices
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                builder = builder.setUserAuthenticationParameters(0, KeyProperties.AUTH_DEVICE_CREDENTIAL | KeyProperties.AUTH_BIOMETRIC_STRONG);
+                builder = builder.setUserAuthenticationParameters(0,
+                        KeyProperties.AUTH_DEVICE_CREDENTIAL | KeyProperties.AUTH_BIOMETRIC_STRONG);
             }
 
             // Init generator
             AlgorithmParameterSpec algorithmSpec = builder.build();
-            KeyGenerator keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, keyStore.getProvider());
+            KeyGenerator keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES,
+                    keyStore.getProvider());
             keyGenerator.init(algorithmSpec);
 
             // KeyGenParameterSpec stores the key when it is generated
@@ -391,42 +401,41 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
             Cipher cipher = Cipher.getInstance(AES_CIPHER);
             try {
                 cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-                authenticationCallback.checkAuthentication(promise, cipher, (promise1, cipher1, postEncryptionCallback1) -> {
+                authenticationCallback.checkAuthentication(promise, cipher,
+                        (promise1, cipher1, postEncryptionCallback1) -> {
                             GCMParameterSpec gcmSpec = cipher1.getParameters().getParameterSpec(GCMParameterSpec.class);
                             return createEncryptedItem(
                                     promise1,
                                     plaintextValue,
                                     cipher1,
                                     gcmSpec,
-                                    postEncryptionCallback1
-                            );
+                                    postEncryptionCallback1);
                         },
-                        postEncryptionCallback
-                );
+                        postEncryptionCallback);
             } catch (UserNotAuthenticatedException e) {
                 authenticationCallback.checkAuthNoCipher(promise, (success) -> {
                     if (success) {
                         cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-                        authenticationCallback.checkAuthentication(promise, cipher, (promise1, cipher1, postEncryptionCallback1) -> {
-                                GCMParameterSpec gcmSpec = cipher1.getParameters().getParameterSpec(GCMParameterSpec.class);
-                                return createEncryptedItem(
-                                        promise1,
-                                        plaintextValue,
-                                        cipher1,
-                                        gcmSpec,
-                                        postEncryptionCallback1
-                                );
-                            },
-                            postEncryptionCallback
-                    );
+                        authenticationCallback.checkAuthentication(promise, cipher,
+                                (promise1, cipher1, postEncryptionCallback1) -> {
+                                    GCMParameterSpec gcmSpec = cipher1.getParameters()
+                                            .getParameterSpec(GCMParameterSpec.class);
+                                    return createEncryptedItem(
+                                            promise1,
+                                            plaintextValue,
+                                            cipher1,
+                                            gcmSpec,
+                                            postEncryptionCallback1);
+                                },
+                                postEncryptionCallback);
                     }
                 });
             }
         }
 
         JSONObject createEncryptedItem(Promise promise, String plaintextValue, Cipher cipher,
-                                       GCMParameterSpec gcmSpec, PostEncryptionCallback postEncryptionCallback) throws
-                GeneralSecurityException, JSONException {
+                GCMParameterSpec gcmSpec, PostEncryptionCallback postEncryptionCallback)
+                throws GeneralSecurityException, JSONException {
 
             byte[] plaintextBytes = plaintextValue.getBytes(StandardCharsets.UTF_8);
             byte[] ciphertextBytes = cipher.doFinal(plaintextBytes);
@@ -447,8 +456,7 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
 
         @Override
         public void decryptItem(Promise promise, JSONObject encryptedItem, KeyStore.SecretKeyEntry secretKeyEntry,
-                                AuthenticationCallback callback) throws
-                GeneralSecurityException, JSONException {
+                AuthenticationCallback callback) throws GeneralSecurityException, JSONException {
 
             String ciphertext = encryptedItem.getString(CIPHERTEXT_PROPERTY);
             String ivString = encryptedItem.getString(IV_PROPERTY);
@@ -461,12 +469,11 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
             cipher.init(Cipher.DECRYPT_MODE, secretKeyEntry.getSecretKey(), gcmSpec);
 
             callback.checkAuthentication(promise, cipher, (promise1, cipher1, postEncryptionCallback) -> {
-                        String result = new String(cipher1.doFinal(ciphertextBytes), StandardCharsets.UTF_8);
-                        promise1.resolve(result);
-                        return result;
-                    },
-                    null
-            );
+                String result = new String(cipher1.doFinal(ciphertextBytes), StandardCharsets.UTF_8);
+                promise1.resolve(result);
+                return result;
+            },
+                    null);
         }
     }
 }

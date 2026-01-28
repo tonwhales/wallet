@@ -19,7 +19,6 @@ import { ConfirmLegal } from "../../components/ConfirmLegal";
 import { sharedStoragePersistence } from "../../storage/storage";
 import ChangellyLogo from '../../../assets/changelly.svg';
 import { CHANGELLY_PRIVACY_URL, CHANGELLY_TERMS_URL } from "../../utils/constants";
-import MindboxSdk from "mindbox-sdk";
 import { MaestraEvent, trackMaestraEvent } from "../../analytics/maestra";
 import { useHoldersProfile } from "../../engine/hooks/holders/useHoldersProfile";
 
@@ -131,9 +130,10 @@ export const SwapFragment = fragment(() => {
             <ScreenHeader
                 title={t('wallet.actions.swap')}
                 style={[
-                    { paddingLeft: 16 },
+                    { paddingHorizontal: 16 },
                     Platform.select({ android: { paddingTop: safeArea.top } })
                 ]}
+                closeButtonStyle={{ marginRight: 0 }}
                 onClosePressed={navigation.goBack}
             />
             {!accepted ? (

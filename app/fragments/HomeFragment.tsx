@@ -87,10 +87,10 @@ export const HomeFragment = fragment(() => {
     useLinksSubscription();
 
     const onBlur = useCallback(() => {
-        // Setting backdrop screens curve to device curve if we are navigating 
+        // Setting backdrop screens curve to device curve if we are navigating
         // to a specefic 'short' modal screen
         const status = navigation.base.getState();
-        const selectorOrLogout = status.routes.find((r: { key: string, name: string }) => {
+        const selectorOrLogout = status?.routes?.find((r: { key: string; name: string }) => {
             return r.name === 'AccountSelector' || r.name === 'StakingPoolSelector';
         });
         if (selectorOrLogout) {

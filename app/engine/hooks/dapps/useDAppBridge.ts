@@ -19,6 +19,7 @@ import { useWalletVersion } from '../useWalletVersion';
 import { useToaster } from '../../../components/toast/ToastProvider';
 import { useNetwork } from '..';
 import { checkProtocolVersionCapability, checkTonconnectSignRequest, checkTonconnectTxRequest, CURRENT_PROTOCOL_VERSION, verifyConnectRequest } from '../../tonconnect';
+import { saveErrorLog } from '../../../storage';
 
 type SolanaInjectedBridge = {
     sendSolanaTransaction: (transaction: string) => Promise<void>;
@@ -130,6 +131,13 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
                         return error;
                     }
 
+                    saveErrorLog({
+                        message: error instanceof Error ? error.message : String(error),
+                        stack: error instanceof Error ? error.stack : undefined,
+                        url: 'useDAppBridge:connect',
+                        additionalData: { endpoint: cleanEndpoint }
+                    });
+
                     return new ConnectEventError(
                         CONNECT_EVENT_ERROR_CODES.UNKNOWN_ERROR,
                         error?.message,
@@ -234,6 +242,12 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
                                 });
                                 return;
                             } catch (error) {
+                                saveErrorLog({
+                                    message: error instanceof Error ? error.message : String(error),
+                                    stack: error instanceof Error ? error.stack : undefined,
+                                    url: 'useDAppBridge:sendTransaction',
+                                    additionalData: { endpoint: cleanEndpoint, requestId: request.id.toString() }
+                                });
                                 callback({
                                     error: {
                                         code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
@@ -267,6 +281,12 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
                                     callback
                                 });
                             } catch (error) {
+                                saveErrorLog({
+                                    message: error instanceof Error ? error.message : String(error),
+                                    stack: error instanceof Error ? error.stack : undefined,
+                                    url: 'useDAppBridge:signData',
+                                    additionalData: { endpoint: cleanEndpoint, requestId: request.id.toString() }
+                                });
                                 callback({
                                     error: {
                                         code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
@@ -361,7 +381,14 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
         try {
             onDisconnect(cleanEndpoint, requestId);
             sendEvent({ event: 'disconnect', payload: {}, id: requestId });
-        } catch { }
+        } catch (error) {
+            saveErrorLog({
+                message: error instanceof Error ? error.message : String(error),
+                stack: error instanceof Error ? error.stack : undefined,
+                url: 'useDAppBridge:disconnect',
+                additionalData: { endpoint: cleanEndpoint }
+            });
+        }
     }, [cleanEndpoint, sendEvent, requestId]);
 
     return {

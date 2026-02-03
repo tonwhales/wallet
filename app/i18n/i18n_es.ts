@@ -310,7 +310,16 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "rateLimited": "Estamos experimentando una alta demanda, inténtelo de nuevo más tarde o contacte con soporte",
                 "signingFailed": "Error al firmar la transacción",
                 "insufficientFundsForRentTitle": "Cantidad de transacción por debajo del mínimo",
-                "insufficientFundsForRent": "Fondos SOL insuficientes para enviar a: {{address}}, se necesita {{amount}} más"
+                "insufficientFundsForRent": "Fondos SOL insuficientes para enviar a: {{address}}, se necesita {{amount}} más",
+                "blockhashExpired": "La transacción ha expirado, inténtelo de nuevo",
+                "accountNotFound": "Cuenta del destinatario no encontrada",
+                "accountNotInitialized": "La cuenta del destinatario aún no ha sido activada en la red",
+                "insufficientFundsForFee": "Fondos SOL insuficientes para la comisión de transacción",
+                "customProgramError": "Error del programa (código: {{code}})",
+                "transactionTooLarge": "La transacción es demasiado grande",
+                "duplicateTransaction": "Esta transacción ya ha sido procesada",
+                "simulationFailed": "La simulación de la transacción falló",
+                "unknownError": "Ha ocurrido un error desconocido"
             }
         }
     },
@@ -1464,7 +1473,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "solana": {
         "instructions": {
-            "createAssociatedTokenAccount": "Crear cuenta de token asociada",
+            "createAssociatedTokenAccount": "Crear ATA",
             "unknown": "Instrucción desconocida",
             "systemTransfer": "Transferencia de SOL",
             "createAccount": "Crear cuenta",
@@ -1491,7 +1500,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "assignNewTreasureAuthority": "Asignar nueva autoridad del tesoro",
             "setSupportAuthority": "Establecer autoridad de soporte",
             "setWithdrawalConfig": "Establecer configuración de retiro",
-            "fixIncorrectDeposit": "Corregir depósito incorrecto"
+            "fixIncorrectDeposit": "Corregir depósito incorrecto",
+            "instruction-12": "Transferencia"
         },
         "banner": {
             "title": "Solana está disponible",

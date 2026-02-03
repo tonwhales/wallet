@@ -311,8 +311,17 @@ export type LocalizationSchema = {
                 insufficientTokenFunds: string,
                 rateLimited: string,
                 signingFailed: string,
-                insufficientFundsForRent: string
-                insufficientFundsForRentTitle: string
+                insufficientFundsForRent: string,
+                insufficientFundsForRentTitle: string,
+                blockhashExpired: string,
+                accountNotFound: string,
+                accountNotInitialized: string,
+                insufficientFundsForFee: string,
+                customProgramError: string,
+                transactionTooLarge: string,
+                duplicateTransaction: string,
+                simulationFailed: string,
+                unknownError: string
             }
         }
     },
@@ -1494,6 +1503,7 @@ export type LocalizationSchema = {
             setSupportAuthority: string,
             setWithdrawalConfig: string,
             fixIncorrectDeposit: string,
+            "instruction-12": string
         },
         banner: {
             title: string,

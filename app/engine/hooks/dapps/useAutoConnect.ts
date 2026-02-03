@@ -5,6 +5,7 @@ import { useConnectApp } from "./useConnectApp";
 import { ConnectEventError, TonConnectBridgeType } from '../../tonconnect/types';
 import { tonConnectDeviceInfo } from '../../tonconnect/config';
 import { useWalletVersion } from "../useWalletVersion";
+import { saveErrorLog } from "../../../storage";
 
 export function useAutoConnect(address?: string): (endpoint: string) => Promise<ConnectEvent> {
     const getConnections = useAppConnections(address);
@@ -52,6 +53,13 @@ export function useAutoConnect(address?: string): (endpoint: string) => Promise<
             if (error instanceof ConnectEventError) {
                 return error;
             }
+
+            saveErrorLog({
+                message: error instanceof Error ? error.message : String(error),
+                stack: error instanceof Error ? error.stack : undefined,
+                url: 'useAutoConnect',
+                additionalData: { endpoint }
+            });
 
             return new ConnectEventError(
                 CONNECT_EVENT_ERROR_CODES.UNKNOWN_ERROR,

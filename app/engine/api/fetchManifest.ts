@@ -2,6 +2,7 @@ import axios from "axios";
 import { warn } from "../../utils/log";
 import * as t from "io-ts";
 import { isLeft } from "fp-ts/lib/Either";
+import { saveErrorLog } from "../../storage";
 
 export const appManifestCodec = t.type({
     name: t.string,
@@ -24,10 +25,16 @@ export async function fetchManifest(link: string) {
     try {
         url = new URL(link);
     } catch (e) {
+        saveErrorLog({
+            message: e instanceof Error ? e.message : String(e),
+            stack: e instanceof Error ? e.stack : undefined,
+            url: 'fetchManifest',
+            additionalData: { link }
+        });
         warn(`fetchManifest error: ${e}`);
         return null;
     }
-    
+
     const res = await axios.get(link);
 
     if (res.status === 200) {

@@ -1,5 +1,5 @@
-import { memo, useCallback, useState } from "react";
-import { ImageSourcePropType, Text, Image, View, ScrollView } from "react-native";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { ImageSourcePropType, Text, Image, View, ScrollView, Platform } from "react-native";
 import { useTheme } from "../engine/hooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { openWithInApp } from "../utils/openWithInApp";
@@ -34,8 +34,18 @@ export const ConfirmLegal = memo(({
 }) => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
+    const scrollRef = useRef<ScrollView>(null);
     const [accepted, setAccepted] = useState(false);
     const [doNotShow, setDoNotShow] = useState(sharedStoragePersistence.getBoolean(skipKey));
+
+    useEffect(() => {
+        if (Platform.OS === 'ios') {
+            const timer = setTimeout(() => {
+                scrollRef.current?.flashScrollIndicators();
+            }, 300);
+            return () => clearTimeout(timer);
+        }
+    }, []);
 
     const onDoNotShowToggle = useCallback((newVal: boolean) => { setDoNotShow(newVal) }, []);
     const openTerms = useCallback(() => {
@@ -56,15 +66,25 @@ export const ConfirmLegal = memo(({
         }
     }, [accepted, doNotShow, skipKey]);
 
+    const buttonAreaHeight = 64 + 16 + (safeArea.bottom === 0 ? 32 : safeArea.bottom);
+
     return (
-        <View style={{ flexGrow: 1 }}>
+        <View style={{ flex: 1 }}>
             <ScrollView
-                style={{ flexGrow: 1 }}
-                contentContainerStyle={{ flexGrow: 1, paddingBottom: safeArea.bottom }}
-                alwaysBounceVertical={false}
+                ref={scrollRef}
+                style={{ flex: 1 }}
+                contentContainerStyle={{
+                    flexGrow: 1,
+                    paddingBottom: buttonAreaHeight
+                }}
+                showsVerticalScrollIndicator={true}
             >
-                <View style={{ flexGrow: 1, paddingHorizontal: 16, justifyContent: 'center', alignItems: 'center' }}>
-                    <View style={{ flexGrow: 1 }} />
+                <View style={{
+                    flex: 1,
+                    paddingHorizontal: 16,
+                    justifyContent: 'center', alignItems: 'center'
+                }}>
+                    <View style={{ flexGrow: 1, minHeight: 12 }} />
                     {iconSvg || (!!icon && (
                         <Image
                             style={{
@@ -79,38 +99,38 @@ export const ConfirmLegal = memo(({
                         textAlign: 'center',
                         color: theme.textPrimary,
                         marginTop: 16,
-                        marginHorizontal: 24
+                        marginHorizontal: 16
                     }, Typography.semiBold24_30]}>
                         {title}
                     </Text>
                     <Text style={[
-                        { marginVertical: 24, color: theme.textSecondary, textAlign: 'center' },
-                        Typography.regular15_20
+                        { marginVertical: 16, color: theme.textSecondary, textAlign: 'center' },
+                        Typography.regular13_18
                     ]}
                     >
                         {description}
                     </Text>
-                    <View style={{ flexGrow: 1 }} />
+                    <View style={{ flexGrow: 1, minHeight: 12 }} />
                     <View style={{
-                        paddingRight: 62,
-                        marginBottom: 24,
-                        width: '100%'
+                        marginBottom: 16,
+                        width: '100%',
+                        paddingRight: 16
                     }}>
                         <CheckBox
                             checked={accepted}
                             onToggle={(newVal) => setAccepted(newVal)}
                             text={
-                                <Text style={{ color: theme.textSecondary }}>
+                                <Text style={[{ color: theme.textSecondary }, Typography.regular13_18]}>
                                     {termsAndPrivacy}
                                     <Text
-                                        style={{ color: theme.accent }}
+                                        style={[{ color: theme.accent }, Typography.regular13_18]}
                                         onPress={openTerms}
                                     >
                                         {t('legal.termsOfService')}
                                     </Text>
                                     {' ' + t('common.and') + ' '}
                                     <Text
-                                        style={{ color: theme.accent }}
+                                        style={[{ color: theme.accent }, Typography.regular13_18]}
                                         onPress={openPrivacy}
                                     >
                                         {t('legal.privacyPolicy')}
@@ -122,7 +142,7 @@ export const ConfirmLegal = memo(({
                             checked={doNotShow}
                             onToggle={onDoNotShowToggle}
                             text={
-                                <Text style={[{ marginLeft: 16, color: theme.textSecondary }, Typography.regular15_20]}>
+                                <Text style={[{ marginLeft: 16, color: theme.textSecondary }, Typography.regular13_18]}>
                                     {dontShowTitle}
                                 </Text>
                             }
@@ -131,7 +151,18 @@ export const ConfirmLegal = memo(({
                     </View>
                 </View>
             </ScrollView>
-            <View style={{ height: 64, marginTop: 16, marginBottom: safeArea.bottom === 0 ? 32 : safeArea.bottom, alignSelf: 'stretch', paddingHorizontal: 16 }}>
+            <View style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: 64,
+                marginTop: 16,
+                marginBottom: safeArea.bottom === 0
+                    ? 32
+                    : safeArea.bottom,
+                paddingHorizontal: 16
+            }}>
                 <RoundButton
                     disabled={!accepted}
                     title={t('common.continue')}

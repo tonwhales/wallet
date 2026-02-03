@@ -4,6 +4,7 @@ import { useConnectExtensions } from "../../hooks/dapps/useTonConnectExtenstions
 import { TonConnectBridgeType } from '../../tonconnect/types';
 import { extensionKey } from "./useAddExtension";
 import { useSetAppsConnectionsState } from "./useSetTonconnectConnections";
+import { saveErrorLog } from "../../../storage";
 
 export function useRemoveInjectedConnection(address?: string) {
     const [extensions] = useConnectExtensions(address);
@@ -14,7 +15,13 @@ export function useRemoveInjectedConnection(address?: string) {
         try {
             const url = new URL(endpoint);
             endpoint = url.origin;
-        } catch {
+        } catch (error) {
+            saveErrorLog({
+                message: error instanceof Error ? error.message : String(error),
+                stack: error instanceof Error ? error.stack : undefined,
+                url: 'useRemoveInjectedConnection:parseUrl',
+                additionalData: { endpoint }
+            });
             warn(`Invalid URL ${endpoint}`);
             return;
         }

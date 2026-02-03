@@ -7,7 +7,7 @@ export function debounce<T extends (...args: any[]) => void>(
     func: T,
     wait: number
 ): DebouncedFunc<T> {
-    let timer: NodeJS.Timeout | null;
+    let timer: ReturnType<typeof setTimeout> | null;
 
     const debouncedFunc = function (this: ThisParameterType<T>, ...args: Parameters<T>) {
         if (timer) {

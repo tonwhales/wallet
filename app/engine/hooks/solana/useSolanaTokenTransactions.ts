@@ -87,7 +87,7 @@ export function useSolanaTokenTransactions(address: string, mint?: string, enabl
 
     const [isRefreshing, setIsRefreshing] = useState(false);
 
-    const timerRef = useRef<NodeJS.Timeout>();
+    const timerRef = useRef<ReturnType<typeof setTimeout>>();
 
     useEffect(() => {
         if (!query.isRefetching) {

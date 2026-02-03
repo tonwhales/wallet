@@ -38,7 +38,7 @@ export async function emulateSolanaTranOrder({ order, solanaClients, sender }: O
             }
         } catch { }
 
-        const res = mapSolanaError(error);
+        const res = await mapSolanaError(error, client);
         if (res instanceof SendSolanaTransactionError && (res.lamportsNeeded || res.rentNeeded)) {
             return res;
         }

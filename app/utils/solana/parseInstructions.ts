@@ -128,7 +128,7 @@ export type HoldersInstructionName =
     | 'setWithdrawalConfig'
     | 'fixIncorrectDeposit';
 
-export type InstructionName = HoldersInstructionName | 'systemTransfer' | 'createAccount' | 'tokenTransfer' | 'createAssociatedTokenAccount' | 'unknown';
+export type InstructionName = HoldersInstructionName | 'systemTransfer' | 'createAccount' | 'tokenTransfer' | 'createAssociatedTokenAccount' | 'unknown' | 'instruction-12';
 
 /**
  * Parse a holders program instruction using the IDL

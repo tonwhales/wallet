@@ -310,7 +310,16 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "rateLimited": "Спостерігається високе навантаження, спробуйте пізніше або зверніться до підтримки",
                 "signingFailed": "Помилка підпису транзакції",
                 "insufficientFundsForRentTitle": "Сума транзакції нижче мінімальної",
-                "insufficientFundsForRent": "Недостатньо SOL для відправки на: {{address}}, потрібно ще {{amount}}"
+                "insufficientFundsForRent": "Недостатньо SOL для відправки на: {{address}}, потрібно ще {{amount}}",
+                "blockhashExpired": "Транзакція застаріла, спробуйте знову",
+                "accountNotFound": "Акаунт отримувача не знайдено",
+                "accountNotInitialized": "Акаунт отримувача ще не активовано в мережі",
+                "insufficientFundsForFee": "Недостатньо SOL для оплати комісії",
+                "customProgramError": "Помилка програми (код: {{code}})",
+                "transactionTooLarge": "Транзакція занадто велика",
+                "duplicateTransaction": "Цю транзакцію вже було оброблено",
+                "simulationFailed": "Симуляція транзакції не пройшла",
+                "unknownError": "Сталася невідома помилка"
             }
         }
     },
@@ -1464,7 +1473,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "solana": {
         "instructions": {
-            "createAssociatedTokenAccount": "Створення пов'язаного облікового запису токена",
+            "createAssociatedTokenAccount": "Створити ATA",
             "unknown": "Невідома інструкція",
             "systemTransfer": "Переказ SOL",
             "createAccount": "Створення облікового запису",
@@ -1491,7 +1500,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "assignNewTreasureAuthority": "Призначити нового власника сховища",
             "setSupportAuthority": "Встановити підтримку",
             "setWithdrawalConfig": "Встановити конфігурацію виведення",
-            "fixIncorrectDeposit": "Виправити помилковий депозит"
+            "fixIncorrectDeposit": "Виправити помилковий депозит",
+            "instruction-12": "Переказ"
         },
         "banner": {
             "title": "Тепер доступні Solana та USDC",

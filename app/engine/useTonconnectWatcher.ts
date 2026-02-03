@@ -26,7 +26,7 @@ export function useTonconnectWatcher() {
         handleMessageRef.current = handleMessage;
     }, [handleMessage]);
 
-    const sessionTimeout = useRef<NodeJS.Timeout | null>(null);
+    const sessionTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
         if (connections.length === 0) {

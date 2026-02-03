@@ -222,6 +222,12 @@ export const DeveloperToolsFragment = fragment(() => {
                             <ItemButton title={"Storage Status"} onPress={() => navigation.navigate('DeveloperToolsStorage')} />
                         </View>
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemButton
+                                title={'Error Logs'}
+                                onPress={() => navigation.navigate('DeveloperToolsErrorLogs')}
+                            />
+                        </View>
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ItemButton title={t('devTools.switchNetwork')} onPress={switchNetworkAlert} hint={isTestnet ? 'Testnet' : 'Mainnet'} />
                         </View>
                         {Platform.OS === 'android' && (

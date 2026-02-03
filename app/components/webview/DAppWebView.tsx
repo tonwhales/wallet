@@ -438,7 +438,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                 autoManageStatusBarEnabled={false}
                 allowFileAccessFromFileURLs={false}
                 allowUniversalAccessFromFileURLs={false}
-                decelerationRate={'normal'}
+                decelerationRate={(Platform.OS === 'ios' ? 'normal' : 0.998) as 'normal'}
                 allowsInlineMediaPlayback={true}
                 keyboardDisplayRequiresUserAction={false}
                 bounces={false}

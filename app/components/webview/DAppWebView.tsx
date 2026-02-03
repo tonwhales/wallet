@@ -320,9 +320,9 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
     }, [navigationOptions.backPolicy, onClose, loaded]);
 
     useEffect(() => {
-        BackHandler.addEventListener('hardwareBackPress', onHardwareBackPress);
+        const listener = BackHandler.addEventListener('hardwareBackPress', onHardwareBackPress);
         return () => {
-            BackHandler.removeEventListener('hardwareBackPress', onHardwareBackPress);
+            listener.remove();
         }
     }, [onHardwareBackPress]);
 

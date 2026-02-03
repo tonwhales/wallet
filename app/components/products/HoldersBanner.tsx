@@ -17,7 +17,7 @@ import { HoldersUserState } from "../../engine/api/holders/fetchUserState";
 import { getFailedBannerClicked, setFailedBannerClicked } from "../../utils/holders/holdersBanner";
 import { getDogsRef } from "../../engine/holders/dogsUtils";
 
-const gradientColors = ['#3F33CC', '#B341D9'];
+const gradientColors = ['#3F33CC', '#B341D9'] as const;
 
 const CardActionBanner = memo(({ onPress, content, gradient }: { onPress: () => void, content: HoldersBannerContent, gradient?: boolean }) => {
     const theme = useTheme();

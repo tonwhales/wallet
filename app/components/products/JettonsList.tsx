@@ -186,8 +186,6 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
             <FlashList
                 data={filteredJettons as (JettonFull & { type: 'jetton' } | ExtraCurrencyHint & { type: 'extra' })[]}
                 renderItem={renderItem}
-                // to see less blank space
-                estimatedItemSize={80}
                 contentContainerStyle={{ paddingHorizontal: 16 }}
                 ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
                 contentInset={{ bottom: safeArea.bottom + 16, top: 16 }}

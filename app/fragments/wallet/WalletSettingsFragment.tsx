@@ -69,9 +69,9 @@ export const WalletSettingsFragment = fragment(() => {
     }, [isInputNameFocus]);
 
     useEffect(() => {
-        BackHandler.addEventListener('hardwareBackPress', onHardwareBackPress);
+        const listener = BackHandler.addEventListener('hardwareBackPress', onHardwareBackPress);
         return () => {
-            BackHandler.removeEventListener('hardwareBackPress', onHardwareBackPress);
+            listener.remove();
         }
     }, [onHardwareBackPress]);
 
@@ -274,7 +274,7 @@ export const WalletSettingsFragment = fragment(() => {
                                     <Text
                                         key={index}
                                         style={[
-                                            { 
+                                            {
                                                 color: theme.textPrimary,
                                                 includeFontPadding: false
                                             },

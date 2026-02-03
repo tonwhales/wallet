@@ -104,7 +104,6 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
             <FlashList
                 data={items.data as any}
                 renderItem={items.renderItem}
-                estimatedItemSize={items.estimatedItemSize}
                 contentContainerStyle={{ paddingHorizontal: 16 }}
                 ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
                 contentInset={{ bottom: safeArea.bottom + 16, top: 16 }}

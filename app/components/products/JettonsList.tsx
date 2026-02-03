@@ -1,4 +1,4 @@
-import { Pressable, View, Text, Platform, useWindowDimensions } from "react-native";
+import { Pressable, View, Text, Platform, useWindowDimensions, FlatList } from "react-native";
 import { ItemSwitch } from "../Item";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { useCloudValue, useExtraCurrencyHints, useHintsFull, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
@@ -9,7 +9,6 @@ import { Address } from "@ton/core";
 import { ScreenHeader } from "../ScreenHeader";
 import { t } from "../../i18n/t";
 import { Image } from "expo-image";
-import { FlashList } from "@shopify/flash-list";
 import { JettonProductItem } from "./JettonProductItem";
 import Modal from "react-native-modal";
 import { RoundButton } from "../RoundButton";
@@ -183,12 +182,13 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
                     </Pressable>
                 }
             />
-            <FlashList
+            <FlatList
                 data={filteredJettons as (JettonFull & { type: 'jetton' } | ExtraCurrencyHint & { type: 'extra' })[]}
                 renderItem={renderItem}
+                style={{ flexGrow: 1, flexBasis: 0, marginTop: 16 }}
                 contentContainerStyle={{ paddingHorizontal: 16 }}
+                contentInset={{ bottom: safeArea.bottom + 16 }}
                 ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-                contentInset={{ bottom: safeArea.bottom + 16, top: 16 }}
                 keyExtractor={(item, index) => `jetton-i-${index}`}
                 ListEmptyComponent={(
                     (filter?.length === 1 && filter?.includes('scam')) ? (
@@ -309,7 +309,7 @@ const JettonsFilterModal = memo(({
                     value={!value?.includes('balance')}
                     onChange={() => onUpdateValue('balance')}
                 />
-                 <ItemSwitch
+                <ItemSwitch
                     title={t('jetton.hidden')}
                     value={!value?.includes('hidden')}
                     onChange={() => onUpdateValue('hidden')}

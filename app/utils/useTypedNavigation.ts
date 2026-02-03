@@ -42,6 +42,9 @@ import type { SolanaWalletFragmentProps } from '../fragments/wallet/SolanaWallet
 import type { TonWalletFragmentParams } from '../fragments/wallet/TonWalletFragment';
 import { getCurrentAddress } from '../storage/appState';
 import { ReceiveAssetsFragmentParams } from '../fragments/wallet/ReceiveAssetsFragment';
+import { ChangellyListFragmentParams } from '../fragments/integrations/ChangellyListFragment';
+import { ChangellyCalculationFragmentParams } from '../fragments/integrations/ChangellyCalculationFragment';
+import { ChangellyOrderFragmentParams } from '../fragments/integrations/ChangellyOrderFragment';
 
 export const nullTransfer = {
     amount: null,
@@ -313,14 +316,11 @@ export class TypedNavigation {
         })();
     }
 
-    navigateAlert(
-        params: { title: string; message?: string; callback?: () => void },
-        replace?: boolean
-    ) {
+    navigateAlert(params: { title: string, message?: string, buttonTitle?: string, callback?: () => void }, replace?: boolean) {
         if (replace) {
             this.replace('Alert', params);
             return;
-        }
+        };
         this.navigate('Alert', params);
     }
 
@@ -398,6 +398,10 @@ export class TypedNavigation {
         this.navigate('ReceiveAssets', params);
     }
 
+    navigateSwap() {
+        this.navigate('Swap');
+    }
+
     navigateAssets(params: AssetsFragmentParams) {
         this.navigate('Assets', params);
     }
@@ -408,6 +412,18 @@ export class TypedNavigation {
 
     navigateReceiveAssetsJettons(params: AssetsFragmentParams) {
         this.navigate('ReceiveAssetsJettons', params);
+    }
+
+    navigateChangellyList(params: ChangellyListFragmentParams) {
+        this.navigate('ChangellyList', params);
+    }
+
+    navigateChangellyCalculation(params: ChangellyCalculationFragmentParams) {
+        this.navigate('ChangellyCalculation', params)
+    }
+
+    navigateChangellyOrder(params: ChangellyOrderFragmentParams) {
+        this.navigate('ChangellyOrder', params)
     }
 
     navigateAddressBook(params: AddressBookParams) {

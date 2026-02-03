@@ -1,0 +1,85 @@
+diff --git a/node_modules/expo-modules-core/android/bin/src/main/java/com/facebook/react/uimanager/ReactStylesDiffMapHelper.kt b/node_modules/expo-modules-core/android/bin/src/main/java/com/facebook/react/uimanager/ReactStylesDiffMapHelper.kt
+new file mode 100644
+index 0000000..13691cd
+--- /dev/null
++++ b/node_modules/expo-modules-core/android/bin/src/main/java/com/facebook/react/uimanager/ReactStylesDiffMapHelper.kt
+@@ -0,0 +1,29 @@
++package com.facebook.react.uimanager
++
++import com.facebook.react.bridge.ReadableMap
++import expo.modules.core.interfaces.DoNotStrip
++import java.lang.reflect.Field
++
++@get:DoNotStrip
++private val backingMapField: Field by lazy {
++  try {
++    ReactStylesDiffMap::class.java.getDeclaredField("backingMap")
++  } catch (e: NoSuchFieldException) {
++    ReactStylesDiffMap::class.java.getDeclaredField("mBackingMap")
++  }.apply {
++    isAccessible = true
++  }
++}
++
++/**
++ * Access the package private property declared inside of [ReactStylesDiffMap]
++ * TODO: We should stop using this field and find a better way to access the backing map:
++ * See: https://github.com/facebook/react-native/pull/51386
++ */
++fun ReactStylesDiffMap.getBackingMap(): ReadableMap {
++  return try {
++    backingMapField.get(this) as ReadableMap
++  } catch (e: ReflectiveOperationException) {
++    throw RuntimeException("Unable to access internal_backingMap via reflection", e)
++  }
++}
+diff --git a/node_modules/expo-modules-core/android/src/main/java/com/facebook/react/uimanager/ReactStylesDiffMapHelper.kt b/node_modules/expo-modules-core/android/src/main/java/com/facebook/react/uimanager/ReactStylesDiffMapHelper.kt
+index 823ad6e..13691cd 100644
+--- a/node_modules/expo-modules-core/android/src/main/java/com/facebook/react/uimanager/ReactStylesDiffMapHelper.kt
++++ b/node_modules/expo-modules-core/android/src/main/java/com/facebook/react/uimanager/ReactStylesDiffMapHelper.kt
+@@ -6,7 +6,11 @@ import java.lang.reflect.Field
+ 
+ @get:DoNotStrip
+ private val backingMapField: Field by lazy {
+-  ReactStylesDiffMap::class.java.getDeclaredField("backingMap").apply {
++  try {
++    ReactStylesDiffMap::class.java.getDeclaredField("backingMap")
++  } catch (e: NoSuchFieldException) {
++    ReactStylesDiffMap::class.java.getDeclaredField("mBackingMap")
++  }.apply {
+     isAccessible = true
+   }
+ }
+diff --git a/node_modules/expo-modules-core/common/cpp/fabric/ExpoViewComponentDescriptor.cpp b/node_modules/expo-modules-core/common/cpp/fabric/ExpoViewComponentDescriptor.cpp
+index dbfca2c..775cd77 100644
+--- a/node_modules/expo-modules-core/common/cpp/fabric/ExpoViewComponentDescriptor.cpp
++++ b/node_modules/expo-modules-core/common/cpp/fabric/ExpoViewComponentDescriptor.cpp
+@@ -56,12 +56,12 @@ void ExpoViewComponentDescriptor::adopt(facebook::react::ShadowNode &shadowNode)
+     bool changedStyle = false;
+     
+     if (!isnan(styleWidth)) {
+-      style.setDimension(facebook::yoga::Dimension::Width, facebook::yoga::StyleSizeLength::points(styleWidth));
++      style.setDimension(facebook::yoga::Dimension::Width, facebook::yoga::StyleLength::points(styleWidth));
+       changedStyle = true;
+     }
+     
+     if (!isnan(styleHeight)) {
+-      style.setDimension(facebook::yoga::Dimension::Height, facebook::yoga::StyleSizeLength::points(styleHeight));
++      style.setDimension(facebook::yoga::Dimension::Height, facebook::yoga::StyleLength::points(styleHeight));
+       changedStyle = true;
+     }
+     
+diff --git a/node_modules/expo-modules-core/ios/JSI/EXJSIConversions.mm b/node_modules/expo-modules-core/ios/JSI/EXJSIConversions.mm
+index b33b454..8590389 100644
+--- a/node_modules/expo-modules-core/ios/JSI/EXJSIConversions.mm
++++ b/node_modules/expo-modules-core/ios/JSI/EXJSIConversions.mm
+@@ -35,8 +35,7 @@
+   if (utf8 != nullptr && expo::isAllASCIIAndNotNull(utf8, utf8 + length)) {
+     return jsi::String::createFromAscii(runtime, (const char *)utf8, length);
+   }
+-  // Using cStringUsingEncoding should be fine as long as we provide the length.
+-  return jsi::String::createFromUtf16(runtime, (const char16_t *)[value cStringUsingEncoding:NSUTF16StringEncoding], length);
++  return jsi::String::createFromUtf8(runtime, (const uint8_t *)[value UTF8String], [value lengthOfBytesUsingEncoding:NSUTF8StringEncoding]);
+ #else
+   // TODO(@jakex7): Remove after update to react-native-macos@0.79.0
+   return jsi::String::createFromUtf8(runtime, [value UTF8String]);

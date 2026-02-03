@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useMemo } from "react";
+import { memo, useCallback, useMemo } from "react";
 import { Platform, Pressable, Share, Image } from "react-native";
 import { t } from "../../../../i18n/t";
 import { useActionSheet } from "@expo/react-native-action-sheet";
@@ -9,7 +9,6 @@ import { PerfView } from "../../../../components/basic/PerfView";
 import { PerfText } from "../../../../components/basic/PerfText";
 import { ThemeType } from "../../../../engine/state/theme";
 import { Typography } from "../../../../components/styles";
-import * as ScreenCapture from 'expo-screen-capture';
 import { TONVIEWER_TRANSACTION_URL } from "../../../../utils/constants";
 
 type TxInfoProps = {
@@ -90,19 +89,6 @@ export const TxInfo = memo(({ lt, hash, address, isTestnet, toaster, theme }: Tx
             }
         });
     }, [tonhubLink, tonviewerLink, txId]);
-
-    useEffect(() => {
-        let subscription: ScreenCapture.Subscription;
-        if (Platform.OS === 'ios') {
-            subscription = ScreenCapture.addScreenshotListener(() => {
-                if (!tonhubLink) {
-                    return;
-                }
-                Share.share({ title: t('txActions.share.transaction'), url: tonhubLink });
-            });
-        }
-        return () => subscription?.remove();
-    }, [tonhubLink]);
 
     return (
         <Pressable

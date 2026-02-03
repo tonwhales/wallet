@@ -5,7 +5,7 @@ import { LedgerSignTransferParams } from '../fragments/ledger/LedgerSignTransfer
 import { TonConnectAuthProps } from '../fragments/secure/dapps/TonConnectAuthenticateFragment';
 import { TransferFragmentParams } from '../fragments/secure/transfer/TransferFragment';
 import { SimpleTransferParams } from '../fragments/secure/simpleTransfer';
-import { BarCodeScanner } from 'expo-barcode-scanner';
+import { Camera } from 'expo-camera';
 import { HoldersAppParams } from '../fragments/holders/HoldersAppFragment';
 import { useMemo } from 'react';
 import { DAppWebViewFragmentParams } from '../fragments/utils/DAppWebViewFragment';
@@ -255,7 +255,7 @@ export class TypedNavigation {
 
     navigateScanner(params: { callback: (src: string) => void }, modal?: boolean) {
         (async () => {
-            await BarCodeScanner.requestPermissionsAsync();
+            await Camera.requestCameraPermissionsAsync();
             this.navigate('Scanner', params);
         })();
     }

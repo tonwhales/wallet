@@ -94,7 +94,7 @@ export const TransactionsEmptyState = memo((params: TransactionsEmptyParams) => 
                 marginBottom: params.isWalletTab ? 32 : 16
             }}>
                 <Image
-                    resizeMode={'center'}
+                    resizeMode={'contain'}
                     style={{ height: illHeight, width: illWidth, marginTop: -20 }}
                     source={EmptyIllustrations[theme.style]}
                 />

@@ -7,7 +7,6 @@ import { getPlatform } from "../../engine/tonconnect/config";
 import { tonhubBridgeSource } from "../apps/components/inject/createInjectSource";
 import { getCurrentAddress } from "../../storage/appState";
 import { useTonhubBridgeEngine } from "../apps/components/inject/useInjectEngine";
-import { usePermissions } from "expo-notifications";
 import i18n from 'i18next';
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { useLinkNavigator } from "../../utils/link-navigator/useLinkNavigator";
@@ -25,6 +24,7 @@ import { ScreenHeader } from "../../components/ScreenHeader";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ConfirmLegal } from "../../components/ConfirmLegal";
 import { saveErrorLog } from "../../storage";
+import { usePushPermissions } from "../../utils";
 
 const skipLegalDeDust = 'skipLegalDeDust';
 const logo = require('@assets/known/ic-dedust.png');
@@ -35,7 +35,7 @@ export const DedustFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const { isTestnet } = useNetwork();
     const [bounceableFormat,] = useBounceableWalletFormat();
-    const [pushPemissions,] = usePermissions();
+    const pushPemissions = usePushPermissions();
     const [, currency] = usePrice();
     const [accepted, setAccepted] = useState(sharedStoragePersistence.getBoolean(skipLegalDeDust));
 

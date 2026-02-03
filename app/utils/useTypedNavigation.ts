@@ -1,47 +1,50 @@
-import { NavigationProp, ParamListBase, StackActions, useNavigation } from '@react-navigation/native';
-import { Cell } from '@ton/core';
-import { StakingTransferParams } from '../fragments/staking/StakingTransferFragment';
-import { LedgerSignTransferParams } from '../fragments/ledger/LedgerSignTransferFragment';
-import { TonConnectAuthProps } from '../fragments/secure/dapps/TonConnectAuthenticateFragment';
-import { TransferFragmentParams } from '../fragments/secure/transfer/TransferFragment';
-import { SimpleTransferParams } from '../fragments/secure/simpleTransfer';
+import {
+    CommonActions,
+    type NavigationProp,
+    type NavigationState,
+    StackActions,
+    useNavigation
+} from '@react-navigation/native';
+import type { Cell } from '@ton/core';
 import { Camera } from 'expo-camera';
-import { HoldersAppParams } from '../fragments/holders/HoldersAppFragment';
 import { useMemo } from 'react';
-import { DAppWebViewFragmentParams } from '../fragments/utils/DAppWebViewFragment';
-import { LiquidStakingTransferParams } from '../fragments/staking/LiquidStakingTransferFragment';
-import { ProductsListFragmentParams } from '../fragments/wallet/ProductsListFragment';
-import { StakingFragmentParams } from '../fragments/staking/StakingFragment';
-import { PendingTxPreviewParams } from '../fragments/wallet/PendingTxPreviewFragment';
-import { HomeFragmentProps } from '../fragments/HomeFragment';
-import { MandatoryAuthSetupParams } from '../fragments/secure/MandatoryAuthSetupFragment';
-import { getLockAppWithAuthState } from '../engine/state/lockAppWithAuthState';
 import { getHasHoldersProducts } from '../engine/hooks/holders/useHasHoldersProducts';
+import { getLockAppWithAuthState } from '../engine/state/lockAppWithAuthState';
+import type { TonTransaction } from '../engine/types';
+import type { HomeFragmentProps } from '../fragments/HomeFragment';
+import type { AddressBookParams } from '../fragments/contacts/AddressBookFragment';
+import type { HoldersAppParams } from '../fragments/holders/HoldersAppFragment';
+import type { LedgerDeviceSelectionParams } from '../fragments/ledger/LedgerDeviceSelectionFragment';
+import type { LedgerSelectAccountParams } from '../fragments/ledger/LedgerSelectAccountFragment';
+import type { LedgerSignTransferParams } from '../fragments/ledger/LedgerSignTransferFragment';
+import type { MandatoryAuthSetupParams } from '../fragments/secure/MandatoryAuthSetupFragment';
+import type { TonConnectAuthProps } from '../fragments/secure/dapps/TonConnectAuthenticateFragment';
+import type { TonConnectSignProps } from '../fragments/secure/dapps/TonConnectSignFragment';
+import type { SimpleTransferParams, SolanaSimpleTransferParams } from '../fragments/secure/simpleTransfer';
+import type { SolanaTransferParams } from '../fragments/secure/transfer/SolanaTransferFragment';
+import type { TransferFragmentParams } from '../fragments/secure/transfer/TransferFragment';
+import type { PendingSolanaTransactionPreviewParams } from '../fragments/solana/transaction/PendingSolanaTransactionPreviewFragment';
+import type { SolanaTransactionPreviewParams } from '../fragments/solana/transaction/SolanaTransactionPreviewFragment';
+import type { LiquidStakingTransferParams } from '../fragments/staking/LiquidStakingTransferFragment';
+import type { LiquidUSDeStakingTransferParams } from '../fragments/staking/LiquidUSDeStakingTransferFragment';
+import type { StakingFragmentParams } from '../fragments/staking/StakingFragment';
+import type { StakingTransferParams } from '../fragments/staking/StakingTransferFragment';
+import type { DAppWebViewFragmentParams } from '../fragments/utils/DAppWebViewFragment';
+import type { AssetsFragmentParams } from '../fragments/wallet/AssetsFragment';
+import type { ExchangesFragmentParams } from '../fragments/wallet/ExchangesFragment';
+import type { JettonTransactionPreviewParams } from '../fragments/wallet/JettonTransactionPreviewFragment';
+import type { JettonWalletFragmentProps as JettonWalletFragmentParams } from '../fragments/wallet/JettonWalletFragment';
+import type { PendingTxPreviewParams } from '../fragments/wallet/PendingTxPreviewFragment';
+import type { ProductsListFragmentParams } from '../fragments/wallet/ProductsListFragment';
+import type { ReceiveSolanaParams, ReceiveTonParams } from '../fragments/wallet/ReceiveFragment';
+import type { SolanaTokenWalletFragmentProps } from '../fragments/wallet/SolanaTokenWalletFragment';
+import type { SolanaWalletFragmentProps } from '../fragments/wallet/SolanaWalletFragment';
+import type { TonWalletFragmentParams } from '../fragments/wallet/TonWalletFragment';
 import { getCurrentAddress } from '../storage/appState';
-import { JettonWalletFragmentProps as JettonWalletFragmentParams } from '../fragments/wallet/JettonWalletFragment';
-import { ReceiveSolanaParams, ReceiveTonParams } from '../fragments/wallet/ReceiveFragment';
-import { JettonTransactionPreviewParams } from '../fragments/wallet/JettonTransactionPreviewFragment';
-import { AssetsFragmentParams } from '../fragments/wallet/AssetsFragment';
-import { AddressBookParams } from '../fragments/contacts/AddressBookFragment';
-import { ExchangesFragmentParams } from '../fragments/wallet/ExchangesFragment';
-import { ReceiveAssetsFragment } from '../fragments/wallet/ReceiveAssetsFragment';
-import { TonWalletFragmentParams } from '../fragments/wallet/TonWalletFragment';
-import { LedgerDeviceSelectionParams } from '../fragments/ledger/LedgerDeviceSelectionFragment';
-import { LedgerSelectAccountParams } from '../fragments/ledger/LedgerSelectAccountFragment';
-import { TonTransaction } from '../engine/types';
-import { SolanaWalletFragmentProps } from '../fragments/wallet/SolanaWalletFragment';
-import { SolanaSimpleTransferParams } from '../fragments/secure/simpleTransfer/SimpleTransferFragment';
-import { SolanaTransferParams } from '../fragments/secure/transfer/SolanaTransferFragment';
-import { SolanaTokenWalletFragmentProps } from '../fragments/wallet/SolanaTokenWalletFragment';
-import { SolanaTransactionPreviewParams } from '../fragments/solana/transaction/SolanaTransactionPreviewFragment';
-import { PendingSolanaTransactionPreviewParams } from '../fragments/solana/transaction/PendingSolanaTransactionPreviewFragment';
-import { LiquidUSDeStakingTransferParams } from '../fragments/staking/LiquidUSDeStakingTransferFragment';
-import { TonConnectSignProps } from '../fragments/secure/dapps/TonConnectSignFragment';
+import { ReceiveAssetsFragmentParams } from '../fragments/wallet/ReceiveAssetsFragment';
 import { ChangellyListFragmentParams } from '../fragments/integrations/ChangellyListFragment';
 import { ChangellyCalculationFragmentParams } from '../fragments/integrations/ChangellyCalculationFragment';
 import { ChangellyOrderFragmentParams } from '../fragments/integrations/ChangellyOrderFragment';
-
-type Base = NavigationProp<ParamListBase>;
 
 export const nullTransfer = {
     amount: null,
@@ -51,71 +54,84 @@ export const nullTransfer = {
     comment: null,
     jetton: null,
     callback: null
+};
+
+export function typedNavigate(src: TypedNavigationBase, name: string, params?: any) {
+    src.dispatch(CommonActions.navigate({ name, params: { ...params } }));
 }
 
-export function typedNavigate(src: Base, name: string, params?: any) {
-    src.navigate({ name, params: { ...params } });
-}
-
-export function typedReplace(src: Base, name: string, params?: any) {
+export function typedReplace(src: TypedNavigationBase, name: string, params?: any) {
     src.dispatch(StackActions.replace(name, params));
 }
 
-export function typedNavigateAndReplaceAll(src: Base, name: string, params?: any) {
-    src.reset({ index: 0, routes: [{ name, params }] });
+export function typedNavigateAndReplaceAll(src: TypedNavigationBase, name: string, params?: any) {
+    src.dispatch(CommonActions.reset({ index: 0, routes: [{ name, params }] }));
 }
 
 function shouldTurnAuthOn(isTestnet: boolean) {
     const isAppAuthOn = getLockAppWithAuthState();
     const currentAccount = getCurrentAddress();
-    const hasAccounts = getHasHoldersProducts(currentAccount.address.toString({ testOnly: isTestnet }));
+    const hasAccounts = getHasHoldersProducts(
+        currentAccount.address.toString({ testOnly: isTestnet })
+    );
 
     return !isAppAuthOn && hasAccounts;
 }
 
+export type TypedNavigationBase = Omit<NavigationProp<ReactNavigation.RootParamList>, "getState"> & {
+    getState(): NavigationState | undefined;
+};
+
 export class TypedNavigation {
-    readonly base: any;
-    constructor(navigation: any) {
+    readonly base: TypedNavigationBase;
+    constructor(navigation: TypedNavigationBase) {
         this.base = navigation;
     }
 
     baseNavigation = () => {
         return this.base;
-    }
+    };
 
     navigate = (name: string, params?: any) => {
         typedNavigate(this.base, name, params);
-    }
+    };
 
     navigateAndReplaceAll = (name: string, params?: any) => {
-        typedNavigateAndReplaceAll(this.base, name, params)
-    }
+        typedNavigateAndReplaceAll(this.base, name, params);
+    };
 
     replace = (name: string, params?: any) => {
         typedReplace(this.base, name, params);
-    }
+    };
+
+    getState = () => {
+        return this.base.getState();
+    };
 
     goBack = () => {
         this.base.goBack();
-    }
+    };
 
-    setOptions = (options: Partial<{}>) => {
+    setOptions = (options: Partial<Record<string, unknown>>) => {
         this.base.setOptions(options);
-    }
+    };
 
     dismiss = () => {
         this.base.getParent()?.goBack();
-    }
+    };
 
     popToTop = () => {
-        this.base.popToTop();
-    }
+        this.base.dispatch(StackActions.popToTop());
+    };
 
     navigateTransfer(tx: TransferFragmentParams) {
         this.navigate('Transfer', tx);
     }
 
-    navigateStakingPool(params: StakingFragmentParams, options?: { ledger?: boolean, replace?: boolean }) {
+    navigateStakingPool(
+        params: StakingFragmentParams,
+        options?: { ledger?: boolean; replace?: boolean }
+    ) {
         const action = options?.replace ? this.replace : this.navigate;
         if (options?.ledger) {
             action('LedgerStaking', params);
@@ -124,7 +140,10 @@ export class TypedNavigation {
         action('Staking', params);
     }
 
-    navigateStakingTransfer(params: StakingTransferParams, options?: { ledger?: boolean, replace?: boolean }) {
+    navigateStakingTransfer(
+        params: StakingTransferParams,
+        options?: { ledger?: boolean; replace?: boolean }
+    ) {
         const action = options?.replace ? this.replace : this.navigate;
         if (options?.ledger) {
             action('LedgerStakingTransfer', params);
@@ -133,7 +152,10 @@ export class TypedNavigation {
         action('StakingTransfer', params);
     }
 
-    navigateLiquidStakingTransfer(params: LiquidStakingTransferParams, options?: { ledger?: boolean, replace?: boolean }) {
+    navigateLiquidStakingTransfer(
+        params: LiquidStakingTransferParams,
+        options?: { ledger?: boolean; replace?: boolean }
+    ) {
         const action = options?.replace ? this.replace : this.navigate;
         if (options?.ledger) {
             action('LedgerLiquidStakingTransfer', params);
@@ -162,18 +184,18 @@ export class TypedNavigation {
     }
 
     navigateSign(tx: {
-        textCell: Cell,
-        payloadCell: Cell,
-        text: string,
-        name: string,
-        callback: ((ok: boolean, result: Cell | null) => void) | null,
+        textCell: Cell;
+        payloadCell: Cell;
+        text: string;
+        name: string;
+        callback: ((ok: boolean, result: Cell | null) => void) | null;
     }) {
         this.navigate('Sign', tx);
     }
 
     navigateReview(params: {
-        type: 'review' | 'report',
-        url: string
+        type: 'review' | 'report';
+        url: string;
     }) {
         this.navigate('Review', params);
     }
@@ -190,7 +212,10 @@ export class TypedNavigation {
         this.navigate(isLedger ? 'LedgerLiquidUSDeStakingCalculator' : 'LiquidUSDeStakingCalculator');
     }
 
-    navigateLiquidUSDeStakingTransfer(params: LiquidUSDeStakingTransferParams, options?: { ledger?: boolean, replace?: boolean }) {
+    navigateLiquidUSDeStakingTransfer(
+        params: LiquidUSDeStakingTransferParams,
+        options?: { ledger?: boolean; replace?: boolean }
+    ) {
         const action = options?.replace ? this.replace : this.navigate;
         if (options?.ledger) {
             action('LedgerLiquidUSDeStakingTransfer', params);
@@ -205,7 +230,7 @@ export class TypedNavigation {
             return;
         }
 
-        this.navigate('LiquidUSDeStakingUnstake')
+        this.navigate('LiquidUSDeStakingUnstake');
     }
 
     navigateStakingPools(isLedger?: boolean) {
@@ -216,29 +241,57 @@ export class TypedNavigation {
         this.navigateAndReplaceAll('LedgerApp');
     }
 
-    navigateHoldersLanding({ endpoint, onEnrollType, inviteId, isLedger, invitationId }: { endpoint: string, onEnrollType: HoldersAppParams, inviteId?: string, isLedger?: boolean, invitationId?: string }, isTestnet: boolean) {
-        const navigate = () => this.navigate(isLedger ? 'LedgerHoldersLanding' : 'HoldersLanding', { endpoint, onEnrollType, inviteId, invitationId });
+    navigateHoldersLanding(
+        {
+            endpoint,
+            onEnrollType,
+            inviteId,
+            isLedger,
+            invitationId
+        }: {
+            endpoint: string;
+            onEnrollType: HoldersAppParams;
+            inviteId?: string;
+            isLedger?: boolean;
+            invitationId?: string;
+        },
+        isTestnet: boolean
+    ) {
+        const navigate = () =>
+            this.navigate(isLedger ? 'LedgerHoldersLanding' : 'HoldersLanding', {
+                endpoint,
+                onEnrollType,
+                inviteId,
+                invitationId
+            });
         if (shouldTurnAuthOn(isTestnet)) {
             const callback = (success: boolean) => {
-                if (success) { // navigate only if auth is set up
+                if (success) {
+                    // navigate only if auth is set up
                     navigate();
                 }
-            }
+            };
             this.navigateMandatoryAuthSetup({ callback });
         } else {
             navigate();
         }
     }
 
-    navigateHolders(params: HoldersAppParams, isTestnet: boolean, isLedger?: boolean, replace?: boolean) {
+    navigateHolders(
+        params: HoldersAppParams,
+        isTestnet: boolean,
+        isLedger?: boolean,
+        replace?: boolean
+    ) {
         const action = replace ? this.replace : this.navigate;
         const navigate = () => action(isLedger ? 'LedgerHolders' : 'Holders', params);
         if (shouldTurnAuthOn(isTestnet)) {
             const callback = (success: boolean) => {
-                if (success) { // navigate only if auth is set up
+                if (success) {
+                    // navigate only if auth is set up
                     navigate();
                 }
-            }
+            };
             this.navigateMandatoryAuthSetup({ callback });
         } else {
             navigate();
@@ -258,10 +311,6 @@ export class TypedNavigation {
             await Camera.requestCameraPermissionsAsync();
             this.navigate('Scanner', params);
         })();
-    }
-
-    navigateScreenCapture(params?: { callback: (src: string) => void, modal?: boolean }) {
-        this.navigate('ScreenCapture', params);
     }
 
     navigateAlert(params: { title: string, message?: string, buttonTitle?: string, callback?: () => void }, replace?: boolean) {
@@ -321,7 +370,9 @@ export class TypedNavigation {
     }
 
     navigateTonTransaction(transaction: TonTransaction, isLedger?: boolean) {
-        this.navigate(isLedger ? 'LedgerTransaction' : 'Transaction', { transaction });
+        this.navigate(isLedger ? 'LedgerTransaction' : 'Transaction', {
+            transaction
+        });
     }
 
     navigateJettonTransaction(param: JettonTransactionPreviewParams) {
@@ -336,7 +387,7 @@ export class TypedNavigation {
         this.navigate('Receive', { ...params, type: 'ton' });
     }
 
-    navigateReceiveAssets(params: ReceiveAssetsFragment, isLedger?: boolean) {
+    navigateReceiveAssets(params: ReceiveAssetsFragmentParams, isLedger?: boolean) {
         if (isLedger) {
             this.navigate('LedgerReceiveAssets', params);
             return;
@@ -380,7 +431,10 @@ export class TypedNavigation {
         this.navigate('Exchanges', params);
     }
 
-    navigateLedgerDeviceSelection(params: LedgerDeviceSelectionParams, options: { replace?: boolean } = {}) {
+    navigateLedgerDeviceSelection(
+        params: LedgerDeviceSelectionParams,
+        options: { replace?: boolean } = {}
+    ) {
         const action = options.replace ? this.replace : this.navigate;
         action('LedgerDeviceSelection', params);
     }

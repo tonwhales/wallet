@@ -74,34 +74,37 @@ export const AppAuthFragment = fragment(() => {
     }, []);
 
     useEffect(() => {
-        if (isAppStart) {
-            return;
-        }
+		if (isAppStart) {
+			return;
+		}
 
-        // lock native android navigation
-        const subscription: NativeEventSubscription = AppState.addEventListener('change', (newState) => {
-            if (newState === 'active') {
-                setBlur(false);
-            }
-        });
+		// lock native android navigation
+		const subscription: NativeEventSubscription = AppState.addEventListener(
+			'change',
+			(newState) => {
+				if (newState === 'active') {
+					setBlur(false);
+				}
+			}
+		);
 
-        const transitionEndListener = navigation.base.addListener('transitionEnd', (e: any) => {
-            // hide blur on screen enter animation end
-            if (!e.data.closing) {
-                const current = AppState.currentState;
+		const removeTransitionListener = navigation.base.addListener('transitionEnd' as any, (e: any) => {
+			// hide blur on screen enter animation end
+			if (!e.data.closing) {
+				const current = AppState.currentState;
 
-                if (current === 'active') {
-                    setBlur(false);
-                }
-            }
-        });
+				if (current === 'active') {
+					setBlur(false);
+				}
+			}
+		});
 
-        return () => {
-            // Don't forget to remove the listener when the component is unmounted
-            transitionEndListener.remove();
-            subscription.remove();
-        };
-    }, []);
+		return () => {
+			// Don't forget to remove the listener when the component is unmounted
+			removeTransitionListener();
+			subscription.remove();
+		};
+	}, []);
 
     const authenticateWithBiometrics = useCallback(async () => {
         if (!useBiometrics) {

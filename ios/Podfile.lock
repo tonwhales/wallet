@@ -13,7 +13,7 @@ PODS:
     - React-Core
   - EXNotifications (0.32.16):
     - ExpoModulesCore
-  - Expo (54.0.32):
+  - Expo (54.0.33):
     - DoubleConversion
     - ExpoModulesCore
     - glog
@@ -2619,7 +2619,7 @@ SPEC CHECKSUMS:
   EXConstants: fce59a631a06c4151602843667f7cfe35f81e271
   EXImageLoader: 189e3476581efe3ad4d1d3fb4735b7179eb26f05
   EXNotifications: 9eec98712cc814ceff916d876cb53859003b0597
-  Expo: 157eb987a6d858eab1272c118305582cd6d07eee
+  Expo: 8da4a81d8332770b30b7629deafe71188616a028
   ExpoAsset: f867e55ceb428aab99e1e8c082b5aee7c159ea18
   ExpoBlur: b90747a3f22a8b6ceffd9cb0dc41a4184efdc656
   ExpoCamera: 6a326deb45ba840749652e4c15198317aa78497e
@@ -2757,6 +2757,6 @@ SPEC CHECKSUMS:
   Yoga: 92f3bb322c40a86b7233b815854730442e01b8c4
   ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 
-PODFILE CHECKSUM: 98e478a8a14a90c9a96adef0a2834dc51742101e
+PODFILE CHECKSUM: 63bac876cc81213419ca080434af33314078e759
 
 COCOAPODS: 1.16.2

@@ -1,10 +1,9 @@
 import { memo, PropsWithChildren, useCallback, useEffect } from "react"
 import { WithDelay } from "./WithDelay"
-import Animated, { Easing, Extrapolation, interpolate, SharedValue, useAnimatedStyle, useDerivedValue, useSharedValue, withTiming } from "react-native-reanimated"
+import Animated, { Easing, Extrapolation, interpolate, SharedValue, useAnimatedStyle, useDerivedValue, useSharedValue, withTiming, WithTimingConfig } from "react-native-reanimated"
 import { LayoutChangeEvent } from "react-native"
-import { TimingConfig } from "@shopify/react-native-skia/lib/typescript/src/animation/types"
 
-const timingConfig = (noAnimation?: boolean): TimingConfig => ({ duration: noAnimation ? 0 : 300, easing: Easing.bezierFn(0.25, 0.1, 0.25, 1) })
+const timingConfig = (noAnimation?: boolean): WithTimingConfig => ({ duration: noAnimation ? 0 : 300, easing: Easing.bezierFn(0.25, 0.1, 0.25, 1) })
 
 export const SimpleTransferAnimatedWrapper = memo(({ scrollOffsetSv, delay = 0, isActive, children, noAnimation, selected }: PropsWithChildren<{
     isActive: boolean | null
@@ -12,7 +11,7 @@ export const SimpleTransferAnimatedWrapper = memo(({ scrollOffsetSv, delay = 0, 
     noAnimation?: boolean
     delay?: number
     selected: "address" | "amount" | "comment" | null
-}>) => {  
+}>) => {
     const animvSV = useSharedValue(0)
     const offsetSv = useSharedValue(0)
     const onLayout = useCallback((e: LayoutChangeEvent) => {
@@ -21,7 +20,7 @@ export const SimpleTransferAnimatedWrapper = memo(({ scrollOffsetSv, delay = 0, 
 
     const min = useDerivedValue(() => 0);
     const max = useDerivedValue(() => - offsetSv.value + (selected !== 'address' ? scrollOffsetSv.value : 0));
-        
+
     const animatedStyle = useAnimatedStyle(() => ({
         opacity: interpolate(animvSV.value, [0, 1], [0, 1], Extrapolation.CLAMP),
         pointerEvents: animvSV.value === 0 ? 'none' : 'auto',
@@ -36,7 +35,7 @@ export const SimpleTransferAnimatedWrapper = memo(({ scrollOffsetSv, delay = 0, 
         ],
         height: selected === 'address' && animvSV.value === 0 ? 0 : 'auto',
     }), [selected])
-    
+
     useEffect(() => {
         if (isActive === null) {
             animvSV.value = withTiming(1, timingConfig(noAnimation))

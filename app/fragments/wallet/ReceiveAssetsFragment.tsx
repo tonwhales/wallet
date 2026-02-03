@@ -26,9 +26,6 @@ import { SolanaToken } from "../../engine/api/solana/fetchSolanaTokens";
 import { ChangellyBanner } from "../../components/products/ChangellyBanner";
 import { AssetType } from "../../engine/types/deposit";
 import { TonProductComponent } from "../../components/products/savings/TonWalletProduct";
-import { MaestraEvent, trackMaestraEvent } from "../../analytics/maestra";
-import MindboxSdk from "mindbox-sdk";
-import { useHoldersProfile } from "../../engine/hooks/holders/useHoldersProfile";
 
 type ListItem = { type: AssetType.OTHERCOINS }
     | { type: AssetType.SPECIAL }
@@ -38,18 +35,18 @@ type ListItem = { type: AssetType.OTHERCOINS }
     | { type: AssetType.SOLANA }
     | { type: AssetType.SOLANA_TOKEN, token: SolanaToken };
 
-export type ReceiveAssetsFragment = {
+export type ReceiveAssetsFragmentParams = {
     assetCallback?: (selected: ReceiveableTonAsset | null) => void,
     title: string
 }
 
-export const ReceiveAssetsFragment = fragment(() => {
+export const ReceiveAssetsFragmentParams = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const { tonAddress, solanaAddress, isLedger } = useCurrentAddress()
-    const { assetCallback, title } = useParams<ReceiveAssetsFragment>();
+    const { assetCallback, title } = useParams<ReceiveAssetsFragmentParams>();
     const ledgerContext = useLedgerTransport();
     const [bounceableFormat] = useBounceableWalletFormat();
     const tokens = useSolanaTokens(solanaAddress!, isLedger);
@@ -61,7 +58,6 @@ export const ReceiveAssetsFragment = fragment(() => {
     const isHoldersReady = useIsConnectAppReady(url);
     const needsEnrollment = holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
     const [isWalletMode] = useAppMode(tonAddress);
-    const profile = useHoldersProfile(tonAddress!.toString({ testOnly: isTestnet })).data;
 
     const onAssetCallback = useCallback((asset: ReceiveableTonAsset | null) => {
         if (assetCallback) {
@@ -73,13 +69,6 @@ export const ReceiveAssetsFragment = fragment(() => {
             navigation.navigateReceive({ addr: tonAddress.toString({ testOnly: isTestnet, bounceable: isLedger ? false : bounceableFormat }), asset: asset || undefined }, isLedger);
         }
     }, [assetCallback, isLedger, tonAddress, isTestnet, bounceableFormat]);
-
-    useEffect(() => {
-        if (isTestnet) {
-            return;
-        }
-        trackMaestraEvent(MaestraEvent.ViewReceivePage, { walletID: tonAddress!.toString(), tonhubID: profile?.userId });
-    }, []);
 
     const onHoldersSelected = useCallback((target: GeneralHoldersAccount) => {
         let path = `/account/${target.id}?deposit-open=true`;

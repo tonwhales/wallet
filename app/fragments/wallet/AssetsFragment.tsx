@@ -563,8 +563,6 @@ export const AssetsFragment = fragment(() => {
                 <FlashList
                     data={itemsList as ListItem[]}
                     renderItem={renderItem}
-                    // to see less blank space
-                    estimatedItemSize={80}
                     ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
                     style={{ flexGrow: 1, flexBasis: 0, marginTop: 16 }}
                     contentContainerStyle={{ paddingHorizontal: 16 }}

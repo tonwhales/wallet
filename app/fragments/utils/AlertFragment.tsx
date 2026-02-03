@@ -8,6 +8,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useTheme } from "../../engine/hooks";
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../../components/ScreenHeader";
+import { Typography } from "../../components/styles";
 
 export const AlertFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -47,22 +48,18 @@ export const AlertFragment = fragment(() => {
                 },
                 Platform.select({ android: { flexGrow: 1 } })
             ]}>
-                <Text style={{
-                    fontSize: 32,
-                    fontWeight: '600',
+                <Text style={[{
                     color: theme.textPrimary,
                     marginBottom: !!message ? 12 : 36,
                     marginTop: Platform.OS === 'ios' ? 16 : 0,
-                }}>
+                }, Typography.semiBold32_38]}>
                     {title}
                 </Text>
                 {!!message && (
-                    <Text style={{
-                        fontSize: 17,
-                        fontWeight: '400',
+                    <Text style={[{
                         color: theme.textSecondary,
-                        marginBottom: 36,
-                    }}>
+                        marginBottom: 36
+                    }, Typography.regular17_24]}>
                         {message}
                     </Text>
                 )}

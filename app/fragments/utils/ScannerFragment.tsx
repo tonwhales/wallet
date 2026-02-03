@@ -16,15 +16,13 @@ import * as RNImagePicker from 'expo-image-picker';
 import { Camera, CameraView, type BarcodeScanningResult } from 'expo-camera';
 import { useCurrentAddress, useNetwork, useTheme } from '../../engine/hooks';
 import { Typography } from '../../components/styles';
-import { useCameraAspectRatio } from '../../utils/useCameraAspectRatio';
 import { changeNavBarColor } from '../../modules/NavBar';
 import { openGalleryPermissionAlert } from '../../utils/permissions';
-import { MaestraEvent, trackMaestraEvent } from '../../analytics/maestra';
-import { useHoldersProfile } from '../../engine/hooks/holders/useHoldersProfile';
 
 import FlashOn from '../../../assets/ic-flash-on.svg';
 import FlashOff from '../../../assets/ic-flash-off.svg';
 import Photo from '../../../assets/ic-photo.svg';
+import { useCameraAspectRatio } from '../../utils';
 
 const EmptyIllustrations = {
     dark: require('@assets/empty-cam-dark.webp'),
@@ -39,8 +37,6 @@ export const ScannerFragment = systemFragment(() => {
     const navigation = useNavigation();
     const { isTestnet } = useNetwork();
     const { tonAddress } = useCurrentAddress();
-    const profile = useHoldersProfile(tonAddress!.toString({ testOnly: isTestnet })).data;
-
     const [hasPermission, setHasPermission] = useState<null | boolean>(null);
     const [isActive, setActive] = useState(true);
     const [flashOn, setFlashOn] = useState(false);
@@ -152,13 +148,6 @@ export const ScannerFragment = systemFragment(() => {
             }
         }
     }, [hasPermission, theme]);
-
-    useEffect(() => {
-        if (isTestnet) {
-            return;
-        }
-        trackMaestraEvent(MaestraEvent.ViewScanPage, { walletID: tonAddress!.toString(), tonhubID: profile?.userId });
-    }, []);
 
     return (
         <>

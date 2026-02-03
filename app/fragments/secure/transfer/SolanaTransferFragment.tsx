@@ -25,8 +25,6 @@ import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { TransferInstructions } from "../components/TransferInstructions";
 import { SolanaTransactionAppHeader } from "./SolanaTransactionAppHeader";
 import { SolanaTransferFees } from "../../solana/transfer/components/SolanaTransferFees";
-import { trackMaestraSent } from "../../../analytics/maestra";
-import { useHoldersProfile } from "../../../engine/hooks/holders/useHoldersProfile";
 import { SolanaTransferParams, paramsToTransfer } from "./solanaTransferParams";
 
 export { SolanaTransferParams } from "./solanaTransferParams";
@@ -44,7 +42,6 @@ const TransferOrder = (props: { order: SolanaOrder, callback?: (ok: boolean, sig
     const token = useSolanaToken(solanaAddress, order.token?.mint);
     const registerPending = useRegisterPendingSolana(solanaAddress);
     const transaction = useSolanaTransactionFromOrder(order, solanaAddress, solanaClients);
-    const profile = useHoldersProfile(tonAddress!.toString({ testOnly: isTestnet })).data;
 
     const forceAvatar = useForcedAvatarType({ address: order.target });
 
@@ -71,16 +68,6 @@ const TransferOrder = (props: { order: SolanaOrder, callback?: (ok: boolean, sig
                 order,
                 sender: solanaAddress
             });
-
-            if (!isTestnet) {
-                trackMaestraSent({
-                    amount: amount,
-                    currency: token?.symbol ?? 'SOL',
-                    walletID: solanaAddress,
-                    tonhubID: profile?.userId,
-                    transactionID: pending.id
-                });
-            }
 
             registerPending(pending);
             callback?.(true, pending.id);

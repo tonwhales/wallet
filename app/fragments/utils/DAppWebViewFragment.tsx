@@ -13,7 +13,6 @@ import { ScreenHeader } from "../../components/ScreenHeader";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { DAppWebView, DAppWebViewProps } from "../../components/webview/DAppWebView";
 import { getCurrentAddress } from "../../storage/appState";
-import { usePermissions } from "expo-notifications";
 import i18n from 'i18next';
 import { useInjectEngine } from "../apps/components/inject/useInjectEngine";
 import { injectSourceFromDomain } from "../../engine/utils/injectSourceFromDomain";
@@ -27,6 +26,7 @@ import { ActionSheetOptions, useActionSheet } from "@expo/react-native-action-sh
 import { t } from "../../i18n/t";
 import { ThemeType } from "../../engine/state/theme";
 import { Typography } from "../../components/styles";
+import { usePushPermissions } from "../../utils";
 
 type DAppEngine = 'ton-x' | 'ton-connect';
 
@@ -95,7 +95,7 @@ export const DAppWebViewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const isTestnet = useNetwork().isTestnet;
     const navigation = useTypedNavigation();
-    const [pushPemissions] = usePermissions();
+    const pushPemissions = usePushPermissions();
     const [, currency] = usePrice();
     const routeName = useRoute().name;
     const isModal = routeName === 'DAppWebViewModal';
@@ -380,9 +380,9 @@ export const DAppWebViewFragment = fragment(() => {
 
     useEffect(() => {
         if (Platform.OS === 'android' && lockNativeBack) {
-            BackHandler.addEventListener('hardwareBackPress', onAndroidBackPressed);
+            const listener = BackHandler.addEventListener('hardwareBackPress', onAndroidBackPressed);
+            return () => listener.remove();
         }
-        return () => BackHandler.removeEventListener('hardwareBackPress', onAndroidBackPressed);
     }, [onAndroidBackPressed, lockNativeBack]);
 
     const onNavigationStateChange = useCallback((event: WebViewNavigation) => {

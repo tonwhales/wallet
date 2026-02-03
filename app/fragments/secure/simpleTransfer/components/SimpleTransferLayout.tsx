@@ -6,8 +6,6 @@ import { Dispatch, forwardRef, memo, ReactNode, SetStateAction, useEffect, useIm
 import { SimpleTransferAnimatedWrapper } from "./SimpleTransferAnimatedWrapper";
 import { ASSET_ITEM_HEIGHT } from "../../../../utils/constants";
 import { useCurrentAddress, useNetwork } from "../../../../engine/hooks";
-import { MaestraEvent, trackMaestraEvent } from "../../../../analytics/maestra";
-import { useHoldersProfile } from "../../../../engine/hooks/holders/useHoldersProfile";
 
 type Props = {
     headerComponent: ReactNode;
@@ -35,9 +33,6 @@ export const SimpleTransferLayout = memo(forwardRef(({
     setIsScrolling
 }: Props, ref) => {
     const keyboard = useKeyboard();
-    const { tonAddress } = useCurrentAddress();
-    const { isTestnet } = useNetwork();
-    const profile = useHoldersProfile(tonAddress!.toString({ testOnly: isTestnet })).data;
 
     const innerRef = useRef<Animated.ScrollView>(null)
     useImperativeHandle(ref, () => innerRef.current)
@@ -54,13 +49,6 @@ export const SimpleTransferLayout = memo(forwardRef(({
             top: 0.1 /* Some weird bug on iOS */
         }
     }, [keyboard.keyboardShown, keyboard.keyboardHeight]);
-
-    useEffect(() => {
-        if (isTestnet) {
-            return;
-        }
-        trackMaestraEvent(MaestraEvent.ViewSendPage, { walletID: tonAddress.toString(), tonhubID: profile?.userId });
-    }, []);
 
     return (
         <View style={styles.container}>

@@ -2,7 +2,6 @@ import axios from "axios";
 import { whalesConnectEndpoint } from "../../clients";
 import { z } from "zod";
 import { changellyTransactionStatusCodec } from "./fetchChangellyUserTransactions";
-import { trackMaestraSwapped } from "../../../analytics/maestra";
 import { saveErrorLog } from "../../../storage";
 
 export const changellyCreateTransactionCodec = z.object({
@@ -60,18 +59,6 @@ export async function createChangellyTransaction(data: CreateChangellyTransactio
 
         if (res.status !== 200) {
             throw new Error('Request failed');
-        }
-
-        if (!data.isTestnet) {
-            trackMaestraSwapped({
-                amountFrom: data.amount,
-                currencyFrom: data.fromCurrency,
-                amountTo: res.data.amountTo,
-                currencyTo: data.toCurrency,
-                walletID: data.wallet,
-                tonhubID: data.tonhubID,
-                transactionID: res.data.id
-            });
         }
 
         const validatedData = changellyCreateTransactionCodec.safeParse(res.data);

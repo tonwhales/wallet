@@ -1,5 +1,5 @@
 import { memo, useCallback, useMemo } from "react";
-import { View, Text, useWindowDimensions, Pressable, SectionList } from "react-native";
+import { View, Text, useWindowDimensions, Pressable, SectionList, FlatList } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
@@ -13,7 +13,6 @@ import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StatusBar } from "expo-status-bar";
 import { Platform } from "react-native";
 import { AssetsListItem } from "../../components/jettons/AssetsListItem";
-import { FlashList } from "@shopify/flash-list";
 import { Typography } from "../../components/styles";
 import { Image } from "expo-image";
 import { JettonFull } from "../../engine/api/fetchHintsFull";
@@ -560,7 +559,7 @@ export const AssetsFragment = fragment(() => {
                     ListFooterComponent={<View style={{ height: Platform.OS === 'android' ? safeArea.bottom + 16 : 0 }} />}
                 />
             ) : (
-                <FlashList
+                <FlatList
                     data={itemsList as ListItem[]}
                     renderItem={renderItem}
                     ItemSeparatorComponent={() => <View style={{ height: 8 }} />}

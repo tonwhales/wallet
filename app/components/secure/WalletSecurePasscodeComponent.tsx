@@ -25,8 +25,6 @@ import { WalletVersions } from '../../engine/types';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 import { RegistrationMethod, trackAppsFlyerEvent } from '../../analytics/appsflyer';
 import { AppsFlyerEvent } from '../../analytics/appsflyer';
-import { MaestraEvent, trackMaestraEvent } from '../../analytics/maestra';
-
 export const WalletSecurePasscodeComponent = systemFragment((props: {
     mnemonics: string,
     import: boolean,
@@ -60,13 +58,6 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
         const event = isImport ? MixpanelEvent.WalletSeedImported : MixpanelEvent.WalletNewSeedCreated;
         const registrationMethod = isImport ? RegistrationMethod.Import : RegistrationMethod.Create;
         trackEvent(event, { isTestnet, additionalWallet }, isTestnet, true);
-
-        if (isImport) {
-            if (isTestnet) {
-                return;
-            }
-            trackMaestraEvent(MaestraEvent.WalletSeedImported, { walletID: address.address.toString() });
-        }
 
         if (!additionalWallet) {
             trackAppsFlyerEvent(AppsFlyerEvent.CompletedRegistration, {

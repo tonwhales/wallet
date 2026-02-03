@@ -127,8 +127,9 @@ import { ChangellyOrderFragment } from './fragments/integrations/ChangellyOrderF
 import { SwapFragment } from './fragments/wallet/SwapFragment';
 import { isLatestIos } from './utils/isLatestIos';
 import { HoldersAIChatFragment } from './fragments/holders/HoldersAIChatFragment';
-import { MaestraEvent, trackMaestraEvent } from './analytics/maestra';
 import { DogsInviteFragment } from './fragments/holders/DogsInviteFragment';
+import { trackMaestraAuth } from './analytics/maestra';
+import { useHoldersProfile } from './engine/hooks/holders/useHoldersProfile';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -424,6 +425,11 @@ export const Navigation = memo(() => {
     const { isTestnet } = useNetwork();
     const [lang] = useLanguage();
 
+    // Get selected address for Maestra auth
+    const selectedAddress = appState.addresses[appState.selected];
+    const addressString = selectedAddress?.address?.toString({ testOnly: isTestnet });
+    const profile = useHoldersProfile(addressString);
+
     const initial = useMemo(() => {
         const lastLink = CachedLinking.getLastLink();
         trackEvent(MixpanelEvent.AppStart, { isTestnet, source: lastLink || 'none' }, isTestnet, true);
@@ -443,21 +449,16 @@ export const Navigation = memo(() => {
     }, [mounted]);
     const hideSplash = mounted && !isRestoring;
 
+    // Track Maestra auth for authorized users
     useEffect(() => {
         if (isTestnet) {
             return;
         }
-        const selectedAddress = appState.addresses[appState.selected];
-
-        if (selectedAddress) {
-            trackMaestraEvent(MaestraEvent.SessionStart, {
-                walletID: selectedAddress.address.toString(),
-                customFields: {
-                    language: lang ?? 'en'
-                }
-            });
+        const userId = profile.data?.userId;
+        if (userId) {
+            trackMaestraAuth(userId);
         }
-    }, [appState.addresses.length, appState.selected, isTestnet, lang]);
+    }, [isTestnet, profile.data?.userId]);
 
     useEffect(() => {
         const apnsSubscription = setupAPNsTokenHandler();

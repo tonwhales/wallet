@@ -32,8 +32,6 @@ import { AppsFlyerEvent, trackAppsFlyerEvent } from "../../../analytics/appsflye
 import { useAddressBookContext } from "../../../engine/AddressBookContext";
 import { useAddressFormatsHistory } from "../../../engine/hooks";
 import { clearLastReturnStrategy } from "../../../engine/tonconnect";
-import { trackMaestraSent } from "../../../analytics/maestra";
-import { useHoldersProfile } from "../../../engine/hooks/holders/useHoldersProfile";
 
 export const failableTransferBackoff = createBackoffFailaible({
     logErrors: true,
@@ -53,7 +51,6 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const knownWallets = useKnownWallets(isTestnet);
     const registerPending = useRegisterPending();
     const { getAddressFormat } = useAddressFormatsHistory();
-    const profile = useHoldersProfile(selected!.address.toString({ testOnly: isTestnet })).data;
 
     let { restricted, target, jettonTarget, text, order, fees, metadata, callback, onSetUseGasless } = props;
 
@@ -371,16 +368,6 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
 
                 const amount = jettonAmountString ?? fromNano(order.messages[0].amount);
 
-                if (!isTestnet) {
-                    trackMaestraSent({
-                        amount: amount,
-                        currency: jetton?.symbol ?? 'TON',
-                        walletID: selected!.address.toString({ testOnly: isTestnet }),
-                        tonhubID: profile?.userId,
-                        transactionID: tetherTransferForSend.hash().toString('hex')
-                    });
-                }
-
                 // Notify callback
                 try {
                     callback?.(true, tetherTransferForSend);
@@ -469,16 +456,6 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             trackAppsFlyerEvent(AppsFlyerEvent.TransactionSent, {
                 af_currency: `${!jettonAmountString ? 'TON' : jetton?.symbol ?? ''}`,
                 af_revenue: value.toString()
-            });
-        }
-
-        if (!isTestnet) {
-            trackMaestraSent({
-                amount: jettonAmountString ?? fromNano(order.messages[0].amount),
-                currency: jetton?.symbol ?? 'TON',
-                walletID: selected!.address.toString({ testOnly: isTestnet }),
-                tonhubID: profile?.userId,
-                transactionID: msg.hash().toString('hex')
             });
         }
 

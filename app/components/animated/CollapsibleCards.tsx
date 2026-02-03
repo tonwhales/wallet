@@ -1,4 +1,4 @@
-import { ReactNode, memo, useEffect, useState } from "react";
+import { Fragment, ReactNode, memo, useEffect, useState } from "react";
 import { View, Text, Pressable, useWindowDimensions } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { t } from "../../i18n/t";
@@ -246,7 +246,7 @@ const CollapsibleCardsComponent = <T,>({
                 <View style={{ gap: 16, paddingHorizontal: 16 }}>
                     {items.map((item, index) => {
                         const itemView = renderItem(item, index);
-                        return itemView;
+                        return <Fragment key={index}>{itemView}</Fragment>;
                     })}
                 </View>
             </View>

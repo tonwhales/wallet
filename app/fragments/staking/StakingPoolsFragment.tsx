@@ -21,8 +21,6 @@ import { LiquidStakingPool } from "../../components/staking/LiquidStakingPool";
 import { LiquidUSDeStakingPool } from "../../components/staking/LiquidUSDeStakingPool";
 import { useAppConfig } from "../../engine/hooks/useAppConfig";
 import { Typography } from "../../components/styles";
-import { MaestraEvent, trackMaestraEvent } from "../../analytics/maestra";
-import { useHoldersProfile } from "../../engine/hooks/holders/useHoldersProfile";
 
 export type StakingPoolType = 'club' | 'team' | 'nominators' | 'lockup' | 'tonkeeper' | 'liquid' | 'usde';
 
@@ -51,7 +49,6 @@ export const StakingPoolsFragment = fragment(() => {
         try { return Address.parse(ledgerContext?.addr?.address); } catch { }
     }, [ledgerContext?.addr?.address]);
     const memberAddress = isLedger ? ledgerAddress : selected?.address;
-    const profile = useHoldersProfile(memberAddress!.toString({ testOnly: isTestnet })).data;
 
     const config = useStakingWalletConfig(memberAddress!.toString({ testOnly: network.isTestnet }));
     const members = useStakingPoolMembers(
@@ -96,15 +93,6 @@ export const StakingPoolsFragment = fragment(() => {
     };
 
     const onJoinTeam = () => openWithInApp('https://whalescorp.notion.site/TonWhales-job-offers-235c45dc85af44718b28e79fb334eff1');
-
-    useEffect(() => {
-        if (isTestnet) {
-            return;
-        }
-        if (memberAddress) {
-            trackMaestraEvent(MaestraEvent.ViewStakingPage, { walletID: memberAddress.toString(), tonhubID: profile?.userId });
-        }
-    }, []);
 
     // Await config
     if (!config) {

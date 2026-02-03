@@ -100,7 +100,7 @@ import { W5UpdateFragment } from './fragments/W5UpdateFragment';
 import { JettonTransactionPreviewFragment } from './fragments/wallet/JettonTransactionPreviewFragment';
 import { AddressBookFragment } from './fragments/contacts/AddressBookFragment';
 import { ExchangesFragment } from './fragments/wallet/ExchangesFragment';
-import { ReceiveAssetsFragment } from './fragments/wallet/ReceiveAssetsFragment';
+import { ReceiveAssetsFragmentParams } from './fragments/wallet/ReceiveAssetsFragment';
 import { LanguageFragment } from './fragments/LanguageFragment';
 import { MixpanelEvent, trackEvent } from './analytics/mixpanel';
 import { CachedLinking } from './utils/CachedLinking';
@@ -284,8 +284,8 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('SimpleTransfer', SimpleTransferFragment, safeArea),
     modalScreen('Transfer', TransferFragment, safeArea),
     modalScreen('Receive', ReceiveFragment, safeArea),
-    modalScreen('ReceiveAssets', ReceiveAssetsFragment, safeArea),
-    modalScreen('LedgerReceiveAssets', ReceiveAssetsFragment, safeArea),
+    modalScreen('ReceiveAssets', ReceiveAssetsFragmentParams, safeArea),
+    modalScreen('LedgerReceiveAssets', ReceiveAssetsFragmentParams, safeArea),
     modalScreen('Swap', SwapFragment, safeArea),
     modalScreen('ReceiveAssetsJettons', AssetsFragment, safeArea),
     modalScreen('ChangellyList', ChangellyListFragment, safeArea),

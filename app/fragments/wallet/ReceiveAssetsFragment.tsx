@@ -35,18 +35,18 @@ type ListItem = { type: AssetType.OTHERCOINS }
     | { type: AssetType.SOLANA }
     | { type: AssetType.SOLANA_TOKEN, token: SolanaToken };
 
-export type ReceiveAssetsFragment = {
+export type ReceiveAssetsFragmentParams = {
     assetCallback?: (selected: ReceiveableTonAsset | null) => void,
     title: string
 }
 
-export const ReceiveAssetsFragment = fragment(() => {
+export const ReceiveAssetsFragmentParams = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const { tonAddress, solanaAddress, isLedger } = useCurrentAddress()
-    const { assetCallback, title } = useParams<ReceiveAssetsFragment>();
+    const { assetCallback, title } = useParams<ReceiveAssetsFragmentParams>();
     const ledgerContext = useLedgerTransport();
     const [bounceableFormat] = useBounceableWalletFormat();
     const tokens = useSolanaTokens(solanaAddress!, isLedger);

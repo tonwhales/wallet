@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import { Platform, Pressable, View, useWindowDimensions, Text } from "react-native";
+import { Platform, Pressable, View, Dimensions, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { WalletSelector } from "../../components/wallet/WalletSelector";
@@ -14,13 +14,13 @@ import { Address } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { Typography } from "../../components/styles";
-import { isLatestIos } from "../../utils/isLatestIos";
+import { CloseButton } from "../../components/navigation/CloseButton";
 
 export const AccountSelectorFragment = fragment(() => {
     const theme = useTheme();
     const { showActionSheetWithOptions } = useActionSheet();
     const { callback } = useParams<{ callback?: (address: Address) => void }>();
-    const dimentions = useWindowDimensions();
+    const screenHeight = Dimensions.get('window').height;
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const appState = useAppState();
@@ -31,9 +31,9 @@ export const AccountSelectorFragment = fragment(() => {
     const addressesCount = appState.addresses.length + ledgerContext.wallets.length;
 
     const heightMultiplier = useMemo(() => {
-        const heightDependentMultiplier = dimentions.height > 800 ? 0 : .1;
+        const heightDependentMultiplier = screenHeight > 800 ? 0 : .1;
         let multiplier = 1;
-        if (addressesCount === 1) {
+        if (addressesCount <= 1) {
             multiplier = .5 + heightDependentMultiplier;
         } else if (addressesCount === 2) {
             multiplier = .52 + heightDependentMultiplier;
@@ -43,7 +43,7 @@ export const AccountSelectorFragment = fragment(() => {
             multiplier = .8;
         }
         return multiplier;
-    }, [addressesCount, dimentions.height]);
+    }, [addressesCount, screenHeight]);
 
     const isScrollMode = useMemo(() => addressesCount > 3, [addressesCount]);
 
@@ -94,47 +94,60 @@ export const AccountSelectorFragment = fragment(() => {
         <View style={[
             { flexGrow: 1, justifyContent: 'flex-end' },
             Platform.select({
-                ios: { paddingBottom: isScrollMode || isLatestIos ? 0 : safeArea.bottom === 0 ? 32 : safeArea.bottom, },
-                android: { paddingTop: safeArea.top, backgroundColor: theme.backgroundPrimary, }
+                android: { paddingTop: safeArea.top, backgroundColor: theme.backgroundPrimary }
             })
         ]}>
             <StatusBar style={Platform.select({
                 android: theme.style === 'dark' ? 'light' : 'dark',
                 ios: 'light'
             })} />
-            {Platform.OS === 'android' ? (
-                <ScreenHeader
-                    title={t('common.wallets')}
-                    onBackPressed={navigation.goBack}
-                    style={{ paddingHorizontal: 16 }}
-                />
-            ) : (
-                <Pressable
-                    onPress={navigation.goBack}
-                    style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
-                />
-            )}
+            {Platform.select({
+                android: (
+                    <ScreenHeader
+                        title={t('common.wallets')}
+                        onBackPressed={navigation.goBack}
+                        style={{ paddingHorizontal: 16 }}
+                    />
+                ),
+                ios: (
+                    <Pressable
+                        onPress={navigation.goBack}
+                        style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
+                    />
+                )
+            })}
             {isScrollMode ? (
                 <View style={{
                     flex: 1,
-                    backgroundColor: Platform.OS === 'android' ? theme.backgroundPrimary : theme.elevation,
-                    borderTopEndRadius: Platform.OS === 'android' ? 0 : 20,
-                    borderTopStartRadius: Platform.OS === 'android' ? 0 : 20,
-                    paddingBottom: safeArea.bottom + 16
+                    ...Platform.select({
+                        android: { backgroundColor: theme.backgroundPrimary, paddingBottom: safeArea.bottom + 16 },
+                        ios: {
+                            backgroundColor: theme.elevation,
+                            borderTopEndRadius: 20,
+                            borderTopStartRadius: 20,
+                            paddingBottom: Math.max(safeArea.bottom, 34) + 16
+                        }
+                    })
                 }}>
-                    {Platform.OS === 'ios' && (
-                        <Text style={[{
-                            color: theme.textPrimary,
-                            marginTop: Platform.OS === 'ios' ? 32 : 0,
-                            marginLeft: 16
-                        }, Typography.semiBold17_24]}>
-                            {t('common.wallets')}
-                        </Text>
-                    )}
+                    {Platform.select({
+                        ios: (
+                            <View style={{
+                                flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+                                marginHorizontal: 16,
+                                marginBottom: 16,
+                                marginTop: safeArea.top
+                            }}>
+                                <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
+                                    {t('common.wallets')}
+                                </Text>
+                                <CloseButton />
+                            </View>
+                        )
+                    })}
                     <WalletSelector onSelect={callback} />
                     {!callback && (
                         <RoundButton
-                            style={{ marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom + 16 }}
+                            style={{ marginHorizontal: 16, marginTop: 16 }}
                             onPress={onAddNewAccount}
                             title={t('wallets.addNewTitle')}
                         />
@@ -142,28 +155,39 @@ export const AccountSelectorFragment = fragment(() => {
                 </View>
             ) : (
                 <View style={[{
-                    height: Platform.OS === 'ios' ? (Math.floor(dimentions.height * heightMultiplier)) : undefined,
-                    flexGrow: Platform.OS === 'ios' ? 0 : 1,
-                    backgroundColor: Platform.OS === 'android' ? theme.backgroundPrimary : theme.elevation,
-                    borderTopEndRadius: Platform.OS === 'android' ? 0 : 20,
-                    borderTopStartRadius: Platform.OS === 'android' ? 0 : 20,
-                    paddingBottom: isLatestIos ? 16 : safeArea.bottom + 16
-                }, Platform.select({ android: { paddingBottom: safeArea.bottom } })]}>
-                    {Platform.OS === 'ios' && (
-                        <Text style={[{
-                            marginHorizontal: 16,
-                            marginBottom: 16,
-                            color: theme.textPrimary,
-                            marginTop: Platform.OS === 'ios' ? 32 : 0,
-                        }, Typography.semiBold17_24]}>
-                            {t('common.wallets')}
-                        </Text>
-                    )}
+                    ...Platform.select({
+                        android: {
+                            flexGrow: 1,
+                            backgroundColor: theme.backgroundPrimary,
+                            paddingBottom: safeArea.bottom
+                        },
+                        ios: {
+                            height: Math.floor(screenHeight * heightMultiplier),
+                            flexGrow: 0,
+                            backgroundColor: theme.elevation,
+                            borderTopEndRadius: 20,
+                            borderTopStartRadius: 20,
+                            paddingBottom: Math.max(safeArea.bottom, 34) + 16
+                        }
+                    })
+                }]}>
+                    {Platform.select({
+                        ios: (
+                            <Text style={[{
+                                marginHorizontal: 16,
+                                marginBottom: 16,
+                                color: theme.textPrimary,
+                                marginTop: 32
+                            }, Typography.semiBold17_24]}>
+                                {t('common.wallets')}
+                            </Text>
+                        )
+                    })}
                     <WalletSelector onSelect={callback} />
                     {!callback && (
                         <View style={{ paddingHorizontal: 16 }}>
                             <RoundButton
-                                style={{ marginVertical: 16 }}
+                                style={{ marginTop: 16 }}
                                 onPress={onAddNewAccount}
                                 title={t('wallets.addNewTitle')}
                             />

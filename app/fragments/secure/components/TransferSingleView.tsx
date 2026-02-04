@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { memo, useCallback } from "react";
-import { ScrollView, View, Text, Pressable, Alert } from "react-native";
+import { ScrollView, View, Text, Pressable, Alert, Platform } from "react-native";
 import { RoundButton } from "../../../components/RoundButton";
 import { t } from "../../../i18n/t";
 import { ItemGroup } from "../../../components/ItemGroup";
@@ -739,7 +739,10 @@ export const TransferSingleView = memo(({
                 </View>
             </ScrollView>
             {!!doSend && (
-                <View style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
+                <View style={[
+                    { paddingHorizontal: 16 },
+                    Platform.select({ android: { paddingBottom: 16 } })
+                ]}>
                     <RoundButton
                         title={t('common.confirm')}
                         action={onSend}

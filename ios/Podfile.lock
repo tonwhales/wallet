@@ -1393,6 +1393,49 @@ PODS:
     - React
   - react-native-fast-pbkdf2 (0.3.1):
     - React-Core
+  - react-native-keyboard-controller (1.20.7):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - react-native-keyboard-controller/common (= 1.20.7)
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
+  - react-native-keyboard-controller/common (1.20.7):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - react-native-minimizer (1.3.0):
     - React
   - react-native-mmkv (3.2.0):
@@ -2282,6 +2325,7 @@ DEPENDENCIES:
   - react-native-blurhash (from `../node_modules/react-native-blurhash`)
   - react-native-context-menu-view (from `../node_modules/react-native-context-menu-view`)
   - react-native-fast-pbkdf2 (from `../node_modules/react-native-fast-pbkdf2`)
+  - react-native-keyboard-controller (from `../node_modules/react-native-keyboard-controller`)
   - react-native-minimizer (from `../node_modules/react-native-minimizer`)
   - react-native-mmkv (from `../node_modules/react-native-mmkv`)
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
@@ -2506,6 +2550,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-context-menu-view"
   react-native-fast-pbkdf2:
     :path: "../node_modules/react-native-fast-pbkdf2"
+  react-native-keyboard-controller:
+    :path: "../node_modules/react-native-keyboard-controller"
   react-native-minimizer:
     :path: "../node_modules/react-native-minimizer"
   react-native-mmkv:
@@ -2698,6 +2744,7 @@ SPEC CHECKSUMS:
   react-native-blurhash: 275104c6fb85e754c448854024bf7a8d4571ba8a
   react-native-context-menu-view: da39a4612c1294d651907162529cfba8421e9b89
   react-native-fast-pbkdf2: 329e89b9929a51ed4d9ba88bf355a266f13d9d93
+  react-native-keyboard-controller: fc5a23625c263cef10cf69c461d4a9ab896a9118
   react-native-minimizer: c39a2267f46f37dc19971faa8b10049cfb0efe1b
   react-native-mmkv: 24917f0685641ccfd37c9b7004b26c00551128be
   react-native-pager-view: dcfa9627ad282529a547f4fea89652df1de41385

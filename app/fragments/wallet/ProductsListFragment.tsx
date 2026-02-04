@@ -4,8 +4,7 @@ import { useHoldersAccountStatus, useHoldersAccounts, useIsLedgerRoute, useNetwo
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Suspense, memo, useMemo } from "react";
 import { Address } from "@ton/core";
-import { View } from "react-native";
-import { FlashList } from "@shopify/flash-list";
+import { View, FlatList, Platform } from "react-native";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { HoldersAccountItem, HoldersItemContentType } from "../../components/products/HoldersAccountItem";
@@ -47,8 +46,7 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
 
     const items = useMemo<{
         data: (GeneralHoldersAccount | PrePaidHoldersCard)[],
-        renderItem: ({ item, index }: { item: any, index: number }) => any,
-        estimatedItemSize: number
+        renderItem: ({ item, index }: { item: any, index: number }) => any
     }>(() => {
         if (type === 'holders-accounts') {
             return {
@@ -69,8 +67,7 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
                             isFavorite={favoriteHoldersAccount === item?.address}
                         />
                     );
-                },
-                estimatedItemSize: 122
+                }
             };
         } else {
             return {
@@ -88,8 +85,7 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
                             onBeforeOpen={navigation.goBack}
                         />
                     );
-                },
-                estimatedItemSize: 84
+                }
             };
         }
     }, [holdersAccounts, holdersAccStatus, favoriteHoldersAccount]);
@@ -101,13 +97,15 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
                 onBackPressed={navigation.goBack}
                 title={type === 'holders-cards' ? t('products.holders.accounts.prepaidTitle') : t('products.holders.accounts.title')}
             />
-            <FlashList
+            <FlatList
                 data={items.data as any}
                 renderItem={items.renderItem}
+                style={{ flexGrow: 1, flexBasis: 0, marginTop: 16 }}
                 contentContainerStyle={{ paddingHorizontal: 16 }}
+                contentInset={{ bottom: safeArea.bottom + 16 }}
                 ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-                contentInset={{ bottom: safeArea.bottom + 16, top: 16 }}
                 keyExtractor={(item, index) => `${type}-${index}`}
+                ListFooterComponent={<View style={{ height: Platform.OS === 'android' ? safeArea.bottom + 16 : 0 }} />}
             />
         </View>
     )

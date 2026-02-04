@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { memo, useCallback } from "react";
-import { ScrollView, View, Text, Pressable, Alert } from "react-native";
+import { ScrollView, View, Text, Pressable, Alert, Platform } from "react-native";
 import { RoundButton } from "../../../components/RoundButton";
 import { t } from "../../../i18n/t";
 import { ItemGroup } from "../../../components/ItemGroup";
@@ -35,12 +35,9 @@ import { HoldersOp, HoldersOpView } from "../../../components/transfer/HoldersOp
 import { ItemSwitch } from "../../../components/Item";
 import { Image } from 'expo-image';
 import { useExtraCurrencyMap } from "../../../engine/hooks/jettons/useExtraCurrencyMap";
-
-import WithStateInit from '@assets/ic_sign_contract.svg';
-import IcAlert from '@assets/ic-alert.svg';
-import SignLock from '@assets/ic_sign_lock.svg';
 import { TransferEstimate } from "../transfer/TransferFragment";
 import { useAddressFormatsHistory } from "../../../engine/hooks";
+import { IcAlert, SignLock, WithStateInit } from "@assets";
 
 const TxAvatar = memo(({
     address,
@@ -739,7 +736,10 @@ export const TransferSingleView = memo(({
                 </View>
             </ScrollView>
             {!!doSend && (
-                <View style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
+                <View style={[
+                    { paddingHorizontal: 16 },
+                    Platform.select({ android: { paddingBottom: 16 } })
+                ]}>
                     <RoundButton
                         title={t('common.confirm')}
                         action={onSend}

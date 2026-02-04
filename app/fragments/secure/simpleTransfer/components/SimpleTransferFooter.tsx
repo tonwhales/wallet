@@ -1,8 +1,9 @@
 import { memo } from "react";
-import { Platform, KeyboardAvoidingView } from "react-native";
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Platform, View } from "react-native";
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { RoundButton } from '../../../../components/RoundButton';
 import { t } from '../../../../i18n/t';
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Props = {
     selected: "address" | "amount" | "comment" | null
@@ -24,28 +25,23 @@ export const SimpleTransferFooter = memo(({
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'position' : undefined}
-            style={[
-                { marginHorizontal: 16, marginTop: 16, },
-                Platform.select({
-                    android: { marginBottom: safeArea.bottom + 16 },
-                    ios: { marginBottom: safeArea.bottom + 32 }
-                })
-            ]}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? safeArea.top + 32 : 0}
+            keyboardVerticalOffset={Platform.select({ ios: safeArea.top + 24, android: 0 })}
         >
-            {!!selected
-                ? <RoundButton
-                    title={t('common.save')}
-                    disabled={!onNext}
-                    onPress={onNext ? onNext : undefined}
-                />
-                : <RoundButton
-                    disabled={continueDisabled}
-                    loading={continueLoading}
-                    title={t('common.continue')}
-                    action={doSend}
-                />
-            }
+            <View style={{ marginHorizontal: 16 }}>
+                {!!selected
+                    ? <RoundButton
+                        title={t('common.save')}
+                        disabled={!onNext}
+                        onPress={onNext ? onNext : undefined}
+                    />
+                    : <RoundButton
+                        disabled={continueDisabled}
+                        loading={continueLoading}
+                        title={t('common.continue')}
+                        action={doSend}
+                    />
+                }
+            </View>
         </KeyboardAvoidingView>
     )
 })

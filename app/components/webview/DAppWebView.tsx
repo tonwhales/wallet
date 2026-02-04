@@ -430,8 +430,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                         backgroundColor: theme.surfaceOnBg,
                         flexGrow: 1, flexBasis: 0, height: '100%',
                         alignSelf: 'stretch'
-                    },
-                    Platform.select({ android: { marginTop: 8 } })
+                    }
                 ]}
                 injectedJavaScript={checkLocalStorageScript}
                 startInLoadingState={true}

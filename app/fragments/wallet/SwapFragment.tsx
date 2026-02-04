@@ -91,7 +91,7 @@ export const SwapFragment = fragment(() => {
 
     const renderSectionHeader = useCallback(() => {
         return (
-            <Text style={[{ color: theme.textSecondary, marginVertical: 16 }, Typography.regular17_24]}>
+            <Text style={[{ color: theme.textSecondary, marginBottom: 16 }, Typography.regular17_24]}>
                 {t('order.chooseAsset')}
             </Text>
         );
@@ -148,7 +148,7 @@ export const SwapFragment = fragment(() => {
                     removeClippedSubviews={true}
                     stickySectionHeadersEnabled={false}
                     ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
-                    style={{ flexGrow: 1, flexBasis: 0, marginTop: 16 }}
+                    style={{ flexGrow: 1, flexBasis: 0 }}
                     contentContainerStyle={{ paddingHorizontal: 16 }}
                     contentInset={{ bottom: safeArea.bottom + 16 }}
                     keyExtractor={(item, index) => `swap-asset-${index}`}

@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef } from "react";
-import { Alert, View, Text, ScrollView, Pressable, Linking } from "react-native";
+import { Alert, View, Text, ScrollView, Pressable, Linking, Platform } from "react-native";
 import { MixpanelEvent, trackEvent } from "../../../analytics/mixpanel";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
 import { SupportedMessage, parseMessageBody } from "../../../engine/transactions/parseMessageBody";
@@ -941,7 +941,10 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
                     <View style={{ height: 56 }} />
                 </View >
             </ScrollView >
-            <View style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
+            <View style={[
+                { paddingHorizontal: 16 },
+                Platform.select({ android: { paddingBottom: 16 } })
+            ]}>
                 <RoundButton
                     title={t('common.confirm')}
                     action={doSend}

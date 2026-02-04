@@ -27,6 +27,7 @@ import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-c
 import { Root } from './app/Root';
 import * as SplashScreen from 'expo-splash-screen';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { getThemeStyleState } from './app/engine/state/theme';
 import { AndroidAppearance } from './app/modules/AndroidAppearance';
 import { initAppsFlyer } from './app/analytics/appsflyer';
@@ -58,9 +59,11 @@ function Boot() {
       <StatusBar style={isDark ? 'light' : 'dark'} />
       <SafeAreaProvider initialMetrics={initialWindowMetrics}>
         <GestureHandlerRootView style={styles.container}>
-          <ActionSheetProvider>
-            <Root />
-          </ActionSheetProvider>
+          <KeyboardProvider>
+            <ActionSheetProvider>
+              <Root />
+            </ActionSheetProvider>
+          </KeyboardProvider>
         </GestureHandlerRootView>
       </SafeAreaProvider>
     </>

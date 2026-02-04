@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
-import { View, Text, TextInput, ScrollView, KeyboardAvoidingView } from "react-native";
+import { View, Text, TextInput, ScrollView } from "react-native";
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
@@ -25,11 +26,7 @@ import { ChangellyLimitError, ChangellyLimitType } from "../../engine/api/change
 import { debounce } from "../../utils/debounce";
 import { useKeyboard } from "@react-native-community/hooks";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { ChangellyBigLogo } from "@assets";
-
-import ExchangeRateIcon from '@assets/order/exchange-rate.svg';
-import NetworkFeeIcon from '@assets/order/network-fee.svg';
-import ArrowIcon from '@assets/order/arrow-without-background.svg';
+import { ArrowIcon, ChangellyBigLogo, ExchangeRateIcon, NetworkFeeIcon } from "@assets";
 
 const INITIAL_MAX_VALUE = 1000000;
 const MAX_DECIMALS = 6;
@@ -219,7 +216,7 @@ export const ChangellyCalculationFragment = fragment(() => {
                 onClosePressed={navigation.goBack}
             />
             <ScrollView
-                style={{ paddingHorizontal: 16, paddingVertical: 8 }}
+                style={{ paddingHorizontal: 16, paddingVertical: 8, flexGrow: 1 }}
                 keyboardShouldPersistTaps="handled"
                 contentContainerStyle={{ gap: 8 }}
                 contentInset={contentInset}
@@ -340,23 +337,25 @@ export const ChangellyCalculationFragment = fragment(() => {
                     <ChangellyBigLogo width={88} height={20} color={theme.textSecondary} />
                 </View>
             </ScrollView>
+            <View style={{ flexGrow: 1 }} />
             <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'position' : undefined}
-                style={[
-                    { marginHorizontal: 16, marginTop: 16, },
-                    Platform.select({
-                        android: { marginBottom: safeArea.bottom + 16 },
-                        ios: { marginBottom: safeArea.bottom + 16 }
-                    })
-                ]}
-                keyboardVerticalOffset={Platform.OS === 'ios' ? safeArea.top + 16 : 0}
+                behavior='position'
+                keyboardVerticalOffset={Platform.select({ ios: 24, android: 24 })}
             >
-                <RoundButton
-                    title={t('order.continue')}
-                    onPress={onContinue}
-                    disabled={isContinueButtonDisabled}
-                    loading={isCreatingTransaction}
-                />
+                <View style={[
+                    { marginHorizontal: 16 },
+                    Platform.select({
+                        ios: { marginBottom: safeArea.top },
+                        // android: { marginBottom: safeArea.bottom + 16 }
+                    })
+                ]}>
+                    <RoundButton
+                        title={t('order.continue')}
+                        onPress={onContinue}
+                        disabled={isContinueButtonDisabled}
+                        loading={isCreatingTransaction}
+                    />
+                </View>
             </KeyboardAvoidingView>
         </View>
     );

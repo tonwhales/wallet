@@ -1,6 +1,6 @@
 import React, { ForwardedRef, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useReducer, useRef, useState } from "react"
 import { Alert, Pressable, Image, TextInput, View, Text, LayoutChangeEvent } from "react-native"
-import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
+import Animated, { interpolate, useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from "react-native-reanimated"
 import { Camera } from 'expo-camera';
 import { Address } from "@ton/core";
 import { AddressContact } from "../../engine/hooks/contacts/useAddressBook";
@@ -57,71 +57,69 @@ export type AddressInputAction = {
     addressType: 'ton' | 'solana' | undefined,
 } | { type: InputAction.Clear }
 
-export function addressInputReducer() {
-    return (state: AddressInputState, action: AddressInputAction): AddressInputState => {
-        switch (action.type) {
-            case InputAction.Input:
-                if (action.input === state.input) {
-                    return state;
-                }
-
-                let addressType: 'ton' | 'solana' | undefined;
-                let target = '';
-
-                try {
-                    Address.parse(action.input);
-                    target = action.input;
-                    addressType = 'ton';
-                } catch {
-                    if (isSolanaAddress(action.input)) {
-                        target = action.input;
-                        addressType = 'solana';
-                    }
-                }
-                return {
-                    ...state,
-                    input: action.input,
-                    target,
-                    suffix: undefined,
-                    addressType
-                };
-            case InputAction.Target:
-                return {
-                    ...state,
-                    target: action.target,
-                    suffix: undefined
-                };
-            case InputAction.Domain:
-                return {
-                    ...state,
-                    domain: action.domain,
-                    suffix: undefined
-                };
-            case InputAction.DomainTarget:
-                return {
-                    ...state,
-                    domain: action.domain,
-                    target: action.target,
-                    suffix: undefined
-                };
-            case InputAction.InputTarget:
-                return {
-                    ...state,
-                    input: action.input,
-                    target: action.target,
-                    suffix: action.suffix,
-                    addressType: action.addressType
-                };
-            case InputAction.Clear:
-                return {
-                    input: '',
-                    target: '',
-                    domain: undefined,
-                    suffix: undefined
-                };
-            default:
+export function addressInputReducer(state: AddressInputState, action: AddressInputAction): AddressInputState {
+    switch (action.type) {
+        case InputAction.Input:
+            if (action.input === state.input) {
                 return state;
-        }
+            }
+
+            let addressType: 'ton' | 'solana' | undefined;
+            let target = '';
+
+            try {
+                Address.parse(action.input);
+                target = action.input;
+                addressType = 'ton';
+            } catch {
+                if (isSolanaAddress(action.input)) {
+                    target = action.input;
+                    addressType = 'solana';
+                }
+            }
+            return {
+                ...state,
+                input: action.input,
+                target,
+                suffix: undefined,
+                addressType
+            };
+        case InputAction.Target:
+            return {
+                ...state,
+                target: action.target,
+                suffix: undefined
+            };
+        case InputAction.Domain:
+            return {
+                ...state,
+                domain: action.domain,
+                suffix: undefined
+            };
+        case InputAction.DomainTarget:
+            return {
+                ...state,
+                domain: action.domain,
+                target: action.target,
+                suffix: undefined
+            };
+        case InputAction.InputTarget:
+            return {
+                ...state,
+                input: action.input,
+                target: action.target,
+                suffix: action.suffix,
+                addressType: action.addressType
+            };
+        case InputAction.Clear:
+            return {
+                input: '',
+                target: '',
+                domain: undefined,
+                suffix: undefined
+            };
+        default:
+            return state;
     }
 }
 
@@ -175,7 +173,6 @@ export type AddressDomainInputRef = Omit<ATextInputRef, 'setText'> & {
     inputAction: React.Dispatch<AddressInputAction>
 }
 
-// TODO: pls refactor this component, its just sad
 export const AddressDomainInput = memo(forwardRef(({
     acc,
     onFocus,
@@ -224,7 +221,7 @@ export const AddressDomainInput = memo(forwardRef(({
     const [resolving, setResolving] = useState<boolean>();
 
     const [inputState, inputAction] = useReducer(
-        addressInputReducer(),
+        addressInputReducer,
         {
             input: initTarget || '',
             target: initTarget || '',
@@ -236,16 +233,18 @@ export const AddressDomainInput = memo(forwardRef(({
 
     const [displayText, setDisplayText] = useState(inputState.input);
     const [isFocused, setIsFocused] = useState(false);
-    
+
     const { input, domain, target, suffix } = inputState;
 
     useEffect(() => {
         onStateChange(inputState);
+        // Sync displayText when input changes externally (e.g., address book selection, QR scan)
         setDisplayText(input);
-    }, [inputState]);
+    }, [inputState, onStateChange]);
 
 
     const debouncedInputActionRef = useRef<ReturnType<typeof debounce<(value: string) => void>> | null>(null);
+    const isClearing = useRef(false);
 
     if (!debouncedInputActionRef.current) {
         debouncedInputActionRef.current = debounce((value: string) => {
@@ -256,14 +255,14 @@ export const AddressDomainInput = memo(forwardRef(({
         }, 300);
     }
 
-    const openScanner = () => {
+    const openScanner = useCallback(() => {
         (async () => {
             await Camera.requestCameraPermissionsAsync();
             navigation.navigateScanner({ callback: onQRCodeRead });
         })();
-    };
+    }, [navigation, onQRCodeRead]);
 
-    const onResolveDomain = (async (
+    const onResolveDomain = useCallback(async (
         toResolve: string, zone: '.t.me' | '.ton',
         rootDnsAddress: Address
     ) => {
@@ -314,7 +313,7 @@ export const AddressDomainInput = memo(forwardRef(({
             Alert.alert(t('transfer.error.invalidDomain'));
         }
         setResolving(false);
-    });
+    }, [client, isTestnet, bounceableFormat]);
 
     const { suff, textInput } = useMemo(() => {
 
@@ -354,7 +353,7 @@ export const AddressDomainInput = memo(forwardRef(({
         } else if (textInput.endsWith('.t.me')) {
             onResolveDomain(textInput, '.t.me', Address.parse(netConfig.rootDnsAddress));
         }
-    }, [textInput, netConfig]);
+    }, [textInput, netConfig, onResolveDomain]);
 
     const animatedRef = useRef<TextInput | null>(null);
 
@@ -368,6 +367,7 @@ export const AddressDomainInput = memo(forwardRef(({
         inputAction
     }), [inputAction]);
 
+    const reduceMotion = useReducedMotion();
     const valueNotEmptyShared = useSharedValue(0);
 
     const labelHeight = useSharedValue(0);
@@ -416,6 +416,10 @@ export const AddressDomainInput = memo(forwardRef(({
     }, [textInput]);
 
     const focus = useCallback(() => {
+        // Ignore focus events triggered during/after clear
+        if (isClearing.current) {
+            return;
+        }
         onFocus?.(index)
         setIsFocused(true);
     }, [index, onFocus]);
@@ -429,24 +433,38 @@ export const AddressDomainInput = memo(forwardRef(({
 
     const clear = useCallback(() => {
         debouncedInputActionRef.current?.cancel();
+        // Prevent focus events from re-triggering animation during clear
+        isClearing.current = true;
+        // Immediately set animation to unfocused state
+        valueNotEmptyShared.value = reduceMotion ? 0 : withTiming(0, { duration: 100 });
+        setIsFocused(false);
+        inputAction({ type: InputAction.Clear });
         setDisplayText('');
-        animatedRef.current?.blur()
+        animatedRef.current?.blur();
+        // Reset the clearing flag after animation completes
         setTimeout(() => {
-            inputAction({ type: InputAction.Clear });
-        }, 100);
-    }, [inputAction]);
+            isClearing.current = false;
+        }, 150);
+    }, [inputAction, reduceMotion]);
 
     useEffect(() => {
-        valueNotEmptyShared.value = withTiming(valueNotEmpty || isFocused ? 1 : 0, { duration: 100 });
-    }, [valueNotEmpty, isFocused]);
+        // Skip animation updates during clearing to prevent bounce
+        if (isClearing.current) {
+            return;
+        }
+        const targetValue = valueNotEmpty || isFocused ? 1 : 0;
+        valueNotEmptyShared.value = reduceMotion
+            ? targetValue
+            : withTiming(targetValue, { duration: 100 });
+    }, [valueNotEmpty, isFocused, reduceMotion]);
 
-    const openAddressBook = () => {
+    const openAddressBook = useCallback(() => {
         navigation.navigateAddressBook({
             account: acc.toString({ testOnly: isTestnet }),
             onSelected: onSearchItemSelected,
             solanaAddress: solanaAddress
         });
-    };
+    }, [navigation, acc, isTestnet, onSearchItemSelected, solanaAddress]);
 
     const rightAction = useMemo(() => {
         return (
@@ -463,7 +481,7 @@ export const AddressDomainInput = memo(forwardRef(({
                 />
             </Pressable>
         );
-    }, []);
+    }, [openAddressBook, theme.accent]);
 
     return (
         <View

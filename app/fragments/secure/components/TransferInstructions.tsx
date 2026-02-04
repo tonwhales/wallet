@@ -110,9 +110,7 @@ export const TransferInstructions = (params: TransferInstructionsProps) => {
                     <View style={{ height: 54 }} />
                 </View>
             </ScrollView>
-            <View style={[
-                { paddingHorizontal: 16 }
-            ]}>
+            <View style={[{ paddingHorizontal: 16 }]}>
                 <RoundButton
                     title={t('common.confirm')}
                     action={doSend}

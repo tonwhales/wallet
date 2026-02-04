@@ -2,15 +2,12 @@ import React from "react";
 import { memo, useEffect } from "react";
 import Animated, { Easing, FadeIn, FadeOut, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
 import { usePulsatingStyle } from "./usePulsatingStyle";
-import { View } from "react-native";
 import { ItemGroup } from "../ItemGroup";
 import { RoundButton } from "../RoundButton";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ASSET_ITEM_HEIGHT } from "../../utils/constants";
 
 export const TransferSkeleton = memo(() => {
     const animation = useSharedValue(0);
-    const safeArea = useSafeAreaInsets();
 
     useEffect(() => {
         animation.value =
@@ -49,15 +46,11 @@ export const TransferSkeleton = memo(() => {
 
                 </ItemGroup>
             </Animated.View>
-            <View style={{
-                paddingBottom: 16 + safeArea.bottom
-            }}>
-                <RoundButton
-                    disabled={true}
-                    loading={true}
-                    display={'secondary'}
-                />
-            </View>
+            <RoundButton
+                disabled={true}
+                loading={true}
+                display={'secondary'}
+            />
         </Animated.View>
     );
 });

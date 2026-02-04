@@ -92,14 +92,13 @@ export const CoinItem = memo(({
                     gap: 12
                 },
             ]}>
-                <View style={{
-                    width: 46, height: 46, borderRadius: 23,
-                    borderWidth: 0,
-                    backgroundColor: theme.white,
-                    justifyContent: 'center',
-                    alignItems: 'center'
-                }}>
-                    <CoinIcon type={currency} url={imageUrl} />
+                <View style={{ width: 46, height: 46 }}>
+                    <View style={{
+                        width: 46, height: 46, borderRadius: 23,
+                        overflow: 'hidden'
+                    }}>
+                        <CoinIcon type={currency} url={imageUrl} />
+                    </View>
                     {viewType !== AssetViewType.Transfer ? blockchain && (
                         <View style={{
                             justifyContent: 'center', alignItems: 'center',

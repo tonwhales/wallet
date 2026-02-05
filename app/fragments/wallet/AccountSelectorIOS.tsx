@@ -13,7 +13,7 @@ import { StatusBar } from "expo-status-bar";
 import { Typography } from "../../components/styles";
 import { CloseButton } from "../../components/navigation/CloseButton";
 import { AccountSelectorParams } from "./AccountSelectorFragment";
-import { isAfterGlassIOS } from "../../utils/isLatestIos";
+import { isAfterGlassIOS } from "../../utils";
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 

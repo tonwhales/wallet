@@ -114,7 +114,7 @@ export const HomeFragment = fragment(() => {
         } else if (navigateTo?.type === 'deep-link') {
             switch (navigateTo.deepLinkType) {
                 case 'new-wallet':
-                    navigation.navigate('WalletCreate', { additionalWallet: true });
+                    navigation.navigateWalletCreate({ additionalWallet: true });
                     break;
                 case 'deposit':
                     navigation.navigateReceiveAssets({ title: t('wallet.actions.deposit') });

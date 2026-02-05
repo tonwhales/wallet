@@ -40,6 +40,7 @@ import type { ReceiveSolanaParams, ReceiveTonParams } from '../fragments/wallet/
 import type { SolanaTokenWalletFragmentProps } from '../fragments/wallet/SolanaTokenWalletFragment';
 import type { SolanaWalletFragmentProps } from '../fragments/wallet/SolanaWalletFragment';
 import type { TonWalletFragmentParams } from '../fragments/wallet/TonWalletFragment';
+import type { AccountSelectorParams } from '../fragments/wallet/AccountSelectorFragment';
 import { getCurrentAddress } from '../storage/appState';
 import { ReceiveAssetsFragmentParams } from '../fragments/wallet/ReceiveAssetsFragment';
 import { ChangellyListFragmentParams } from '../fragments/integrations/ChangellyListFragment';
@@ -441,6 +442,18 @@ export class TypedNavigation {
 
     navigateLedgerSelectAccount(params: LedgerSelectAccountParams) {
         this.navigate('LedgerSelectAccount', params);
+    }
+
+    navigateAccountSelector(params: AccountSelectorParams) {
+        this.navigate('AccountSelector', params);
+    }
+
+    navigateWalletCreate(params?: { mnemonics?: string, additionalWallet?: boolean, ledger?: boolean }) {
+        this.navigate('WalletCreate', params);
+    }
+
+    navigateWalletImport(params?: { additionalWallet?: boolean }) {
+        this.navigate('WalletImport', params);
     }
 
     //

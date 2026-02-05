@@ -78,6 +78,10 @@ export const ReceiveFragment = fragment(() => {
     const tonAsset = isTon ? asset as ReceiveableTonAsset : undefined;
     const solanaAsset = isTon ? undefined : asset as ReceiveableSolanaAsset;
 
+    const bottomPadding = useMemo(() => {
+        return safeArea.bottom + 16;
+    }, []);
+
     const tonAddress = useMemo(() => {
         if (!isTon) {
             return undefined;
@@ -332,8 +336,7 @@ export const ReceiveFragment = fragment(() => {
                     }), {
                         alignItems: 'center',
                         gap: 16,
-                        paddingVertical: capturing ? 16 : 0,
-                        marginTop: capturing ? -16 : 0
+                        paddingVertical: 0
                     }]}
                 >
                     {isHolders ? (
@@ -477,7 +480,7 @@ export const ReceiveFragment = fragment(() => {
                             borderRadius: 40, paddingHorizontal: 16,
                             flexShrink: 1, maxWidth: 224, alignSelf: 'center',
                             paddingVertical: 8,
-                            marginTop: capturing ? 0 : 8
+                            marginTop: 8
                         }}
                         entering={FadeInUp}
                         exiting={FadeOutDown}
@@ -505,17 +508,15 @@ export const ReceiveFragment = fragment(() => {
                         </Pressable>
                     </Animated.View>
                 )}
-                <Animated.View
+                <View
                     style={{
                         backgroundColor: theme.surfaceOnElevation,
                         borderRadius: 40, paddingHorizontal: 16, gap: 8,
                         flexShrink: 1,
-                        marginTop: (capturing && !isLedger) ? 0 : 8,
+                        marginTop: 8,
                         alignSelf: 'center',
                         paddingVertical: 8
                     }}
-                    entering={FadeInUp}
-                    exiting={FadeOutDown}
                 >
                     <Pressable
                         style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
@@ -538,14 +539,9 @@ export const ReceiveFragment = fragment(() => {
                             </Text>
                         </View>
                     </Pressable>
-                </Animated.View>
+                </View>
             </ScrollView>
-            <View style={{
-                gap: 8, width: '100%', paddingHorizontal: 16, paddingBottom: Platform.select({
-                    android: safeArea.bottom + 16,
-                    ios: safeArea.bottom + 16
-                })
-            }}>
+            <View style={{ gap: 8, width: '100%', paddingHorizontal: 16, paddingBottom: bottomPadding }}>
                 <RoundButton title={t('receive.fromExchange')} onPress={navigateToExchanges} />
                 <RoundButton display="secondary" title={t('receive.fromAnotherWallet')} onPress={() => navigation.navigateSwap()} />
             </View>

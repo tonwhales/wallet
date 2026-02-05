@@ -27,7 +27,7 @@ export const WalletImportSelectorFragment = systemFragment(() => {
         // Wait for the animation to finish
         setTimeout(() => {
             if (isTermsAccepted()) {
-                navigation.navigate('WalletImport');
+                navigation.navigateWalletImport();
             } else {
                 navigation.navigate('LegalImport');
             }

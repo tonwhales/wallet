@@ -125,11 +125,11 @@ import { ChangellyListFragment } from './fragments/integrations/ChangellyListFra
 import { ChangellyCalculationFragment } from './fragments/integrations/ChangellyCalculationFragment';
 import { ChangellyOrderFragment } from './fragments/integrations/ChangellyOrderFragment';
 import { SwapFragment } from './fragments/wallet/SwapFragment';
-import { isLatestIos } from './utils/isLatestIos';
 import { HoldersAIChatFragment } from './fragments/holders/HoldersAIChatFragment';
 import { DogsInviteFragment } from './fragments/holders/DogsInviteFragment';
 import { trackMaestraAuth } from './analytics/maestra';
 import { useHoldersProfile } from './engine/hooks/holders/useHoldersProfile';
+import { isAfterGlassIOS } from './utils';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -246,7 +246,7 @@ function transparentModalScreen(name: string, component: React.ComponentType<any
             name={name}
             component={component}
             options={{
-                presentation: isLatestIos ? 'containedTransparentModal' : 'modal',
+                presentation: isAfterGlassIOS ? 'containedTransparentModal' : 'modal',
                 headerShown: false,
                 contentStyle: { backgroundColor: Platform.OS === 'ios' ? 'transparent' : theme.backgroundPrimary },
             }}

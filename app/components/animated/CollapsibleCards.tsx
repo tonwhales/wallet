@@ -1,8 +1,8 @@
-import { Fragment, ReactNode, memo, useEffect, useState } from "react";
+import { Fragment, ReactNode, memo, useCallback, useEffect, useMemo, useState } from "react";
 import { View, Text, Pressable, useWindowDimensions } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { t } from "../../i18n/t";
-import Animated, { Easing, Extrapolation, SharedValue, interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import Animated, { Easing, Extrapolation, SharedValue, interpolate, runOnJS, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { Typography } from "../styles";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ProductsListFragmentParams } from "../../fragments/wallet/ProductsListFragment";
@@ -64,6 +64,9 @@ type CollapsibleCardsProps<T> = {
     subtitleSection?: ReactNode
 };
 
+// Estimated width of "Hide" text for animation
+const HIDE_TEXT_WIDTH = 40;
+
 const CollapsibleCardsComponent = <T,>({
     title,
     items,
@@ -78,16 +81,36 @@ const CollapsibleCardsComponent = <T,>({
     subtitleSection
 }: CollapsibleCardsProps<T>) => {
     const navigation = useTypedNavigation();
-    const dimentions = useWindowDimensions();
+    const dimensions = useWindowDimensions();
     const [collapsed, setCollapsed] = useState(!alwaysExpanded && initialCollapsed);
+    const [isAnimating, setIsAnimating] = useState(false);
     const progress = useSharedValue(alwaysExpanded || initialCollapsed ? 0 : 1);
-    const toggle = () => setCollapsed((prev) => !prev);
+
+    // Pre-calculate width values outside worklets to avoid JS-to-native bridge calls
+    const screenWidth = dimensions.width;
+    const fullWidth = screenWidth - 32;
+    const secondLevelCollapsedWidth = screenWidth - 32 - 20;
+    const thirdLevelCollapsedWidth = screenWidth - 32 - 40;
+
+    const toggle = useCallback(() => setCollapsed((prev) => !prev), []);
+
+    const onAnimationComplete = useCallback((finished?: boolean) => {
+        'worklet';
+        if (finished) {
+            runOnJS(setIsAnimating)(false);
+        }
+    }, []);
 
     useEffect(() => {
-        progress.value = withTiming(collapsed ? 0 : 1, {
-            duration: 300,
-            easing: Easing.bezier(0.25, 0.1, 0.25, 1)
-        });
+        setIsAnimating(true);
+        progress.value = withTiming(
+            collapsed ? 0 : 1,
+            {
+                duration: 300,
+                easing: Easing.bezier(0.25, 0.1, 0.25, 1)
+            },
+            onAnimationComplete
+        );
     }, [collapsed]);
 
     const firstItem = items[0];
@@ -98,9 +121,20 @@ const CollapsibleCardsComponent = <T,>({
     const secondHeight = secondItem?.height || itemHeight;
     const thirdHeight = thirdItem?.height || itemHeight;
 
-    const cardFirstItem = renderItem(firstItem, 0);
-    const cardSecondItem = renderItem(secondItem, 1);
-    const cardThirdItem = renderItem(thirdItem, 2);
+    // Only render items that exist
+    const cardFirstItem = firstItem ? renderItem(firstItem, 0) : null;
+    const cardSecondItem = secondItem ? renderItem(secondItem, 1) : null;
+    const cardThirdItem = thirdItem ? renderItem(thirdItem, 2) : null;
+
+    // Memoize sliced items to avoid creating new array on every render
+    const remainingItems = useMemo(
+        () => items.slice(3, limitConfig?.maxItems),
+        [items, limitConfig?.maxItems]
+    );
+
+    // Derive pointerEvents from animation state - prevents discrete jumps during animation
+    const expandedPointerEvents = !collapsed && !isAnimating ? 'auto' : 'none';
+    const collapsedPointerEvents = collapsed && !isAnimating ? 'auto' : 'none';
 
     const cardLevelOpacity = useAnimatedStyle(() => ({
         opacity: interpolate(
@@ -109,14 +143,13 @@ const CollapsibleCardsComponent = <T,>({
             [1, 0],
             Extrapolation.CLAMP
         ),
-        pointerEvents: progress.value === 1 ? 'none' : 'auto'
     }));
 
     const cardFirstLevelStyle = useAnimatedStyle(() => ({
         opacity: interpolate(
             progress.value,
-            [1, 0],
-            [1, 0],
+            [0, 1],
+            [0, 1],
             Extrapolation.CLAMP,
         ),
         height: interpolate(
@@ -125,7 +158,6 @@ const CollapsibleCardsComponent = <T,>({
             [ASSET_ITEM_HEIGHT, firstHeight],
             Extrapolation.CLAMP
         ),
-        pointerEvents: progress.value === 0 ? 'none' : 'auto'
     }));
 
     const cardSecondLevelStyle = useAnimatedStyle(() => ({
@@ -138,7 +170,7 @@ const CollapsibleCardsComponent = <T,>({
         width: interpolate(
             progress.value,
             [0, 1],
-            [dimentions.width - 32 - 20, dimentions.width - 32],
+            [secondLevelCollapsedWidth, fullWidth],
             Extrapolation.CLAMP
         ),
         marginTop: interpolate(
@@ -159,7 +191,7 @@ const CollapsibleCardsComponent = <T,>({
         width: interpolate(
             progress.value,
             [0, 1],
-            [dimentions.width - 32 - 40, dimentions.width - 32],
+            [thirdLevelCollapsedWidth, fullWidth],
             Extrapolation.CLAMP
         ),
         marginTop: interpolate(
@@ -189,26 +221,21 @@ const CollapsibleCardsComponent = <T,>({
         transform: [{ rotate: `${interpolate(progress.value, [0, 1], [0, 90])}deg` }]
     }));
 
-    const mapHideWidth = (value: number) => {
-        'worklet';
-
-        if (value > 0.9) {
-            return 'auto';
-        }
-
-        return value
-    }
-
-    const hideStyle = useAnimatedStyle(() => {
-        let w: number | 'auto' = interpolate(
+    // Use numeric width instead of 'auto' to enable smooth interpolation
+    const hideStyle = useAnimatedStyle(() => ({
+        width: interpolate(
             progress.value,
-            [0, 0.9, 1],
-            [0, 0.9, 1],
+            [0, 0.5, 1],
+            [0, 0, HIDE_TEXT_WIDTH],
             Extrapolation.CLAMP
-        );
-
-        return { width: mapHideWidth(w) }
-    });
+        ),
+        opacity: interpolate(
+            progress.value,
+            [0, 0.7, 1],
+            [0, 0, 1],
+            Extrapolation.CLAMP
+        ),
+    }));
 
     const faceStyle = useAnimatedStyle(() => ({
         opacity: interpolate(
@@ -217,7 +244,6 @@ const CollapsibleCardsComponent = <T,>({
             [1, 0],
             Extrapolation.CLAMP
         ),
-        pointerEvents: progress.value === 1 ? 'none' : 'auto'
     }));
 
     if (items.length < 3) {
@@ -225,15 +251,13 @@ const CollapsibleCardsComponent = <T,>({
             <View>
                 <View style={{ marginBottom: 14 }}>
                     <Pressable
-                        style={({ pressed }) => {
-                            return {
-                                opacity: pressed ? 0.8 : 1,
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                paddingHorizontal: 16
-                            }
-                        }}
+                        style={({ pressed }) => ({
+                            opacity: pressed ? 0.8 : 1,
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            paddingHorizontal: 16
+                        })}
                         onPress={toggle}
                     >
                         <Text style={[{ color: theme.textPrimary }, Typography.semiBold20_28]}>
@@ -258,18 +282,16 @@ const CollapsibleCardsComponent = <T,>({
             {subtitleSection}
             <View>
                 <Pressable
-                    style={({ pressed }) => {
-                        return {
-                            opacity: pressed ? 0.8 : 1,
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            paddingHorizontal: 16,
-                            gap: 8,
-                            justifyContent: 'space-between',
-                            marginBottom: 8,
-                            height: 34
-                        }
-                    }}
+                    style={({ pressed }) => ({
+                        opacity: pressed ? 0.8 : 1,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        paddingHorizontal: 16,
+                        gap: 8,
+                        justifyContent: 'space-between',
+                        marginBottom: 8,
+                        height: 34
+                    })}
                     onPress={toggle}
                 >
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -289,7 +311,7 @@ const CollapsibleCardsComponent = <T,>({
                                     style={{ height: 16, width: 16, tintColor: theme.iconPrimary }}
                                 />
                             </Animated.View>
-                            <Animated.View style={hideStyle}>
+                            <Animated.View style={[hideStyle, { overflow: 'hidden' }]}>
                                 <Text style={[{ color: theme.textSecondary, marginRight: 6 }, Typography.medium13_18]}>
                                     {t('common.hide')}
                                 </Text>
@@ -302,19 +324,25 @@ const CollapsibleCardsComponent = <T,>({
             </View>
             <View style={{ zIndex: 102 }}>
                 <View style={{ zIndex: 101 }}>
-                    <Animated.View style={[
-                        faceStyle,
-                        { borderRadius: 20, overflow: 'hidden' }
-                    ]}>
-                        <Pressable onPress={() => setCollapsed(!collapsed)}>
+                    <Animated.View
+                        style={[
+                            faceStyle,
+                            { borderRadius: 20, overflow: 'hidden' }
+                        ]}
+                        pointerEvents={collapsedPointerEvents}
+                    >
+                        <Pressable onPress={toggle}>
                             {renderFace && renderFace()}
                         </Pressable>
                     </Animated.View>
-                    <Animated.View style={[
-                        { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
-                        { paddingHorizontal: 16, borderRadius: 20 },
-                        cardFirstLevelStyle
-                    ]}>
+                    <Animated.View
+                        style={[
+                            { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
+                            { paddingHorizontal: 16, borderRadius: 20 },
+                            cardFirstLevelStyle
+                        ]}
+                        pointerEvents={expandedPointerEvents}
+                    >
                         {cardFirstItem}
                     </Animated.View>
                 </View>
@@ -348,6 +376,7 @@ const CollapsibleCardsComponent = <T,>({
                             },
                             cardLevelOpacity
                         ]}
+                        pointerEvents={collapsedPointerEvents}
                     />
                 </Animated.View>
                 <Animated.View
@@ -372,12 +401,13 @@ const CollapsibleCardsComponent = <T,>({
                             },
                             cardLevelOpacity
                         ]}
+                        pointerEvents={collapsedPointerEvents}
                     />
                 </Animated.View>
             </View>
             <Animated.View style={{ paddingHorizontal: 16, overflow: 'hidden' }}>
-                {items.slice(3, limitConfig?.maxItems).map((item, index) => {
-                    const itemView = renderItem(item, index);
+                {remainingItems.map((item, index) => {
+                    const itemView = renderItem(item, index + 3);
                     const height = item.height || itemHeight;
                     return (
                         <CardItemWrapper
@@ -403,11 +433,9 @@ const CollapsibleCardsComponent = <T,>({
                     ]}
                 >
                     <Pressable
-                        style={({ pressed }) => {
-                            return {
-                                opacity: pressed ? 0.5 : 1
-                            }
-                        }}
+                        style={({ pressed }) => ({
+                            opacity: pressed ? 0.5 : 1
+                        })}
                         onPress={() => navigation.navigateProductsList(limitConfig.fullList)}
                     >
                         <Text style={[{ color: theme.accent }, Typography.medium15_20]}>

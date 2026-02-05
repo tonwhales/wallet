@@ -8,6 +8,9 @@ import ArrowIcon from '@assets/order/arrow-without-background.svg';
 import WithStateInit from '@assets/ic_sign_contract.svg';
 import IcAlert from '@assets/ic-alert.svg';
 import SignLock from '@assets/ic_sign_lock.svg';
+import IcDelete from '@assets/ic-delete-red.svg';
+import IcCheckAddress from '@assets/ic-check-recipient.svg';
+import IcSupport from '@assets/ic-support.svg';
 export * from './known';
 
 export {
@@ -20,5 +23,8 @@ export {
 	ArrowIcon,
 	WithStateInit,
 	IcAlert,
-	SignLock
+	SignLock,
+	IcDelete,
+	IcCheckAddress,
+	IcSupport
 };

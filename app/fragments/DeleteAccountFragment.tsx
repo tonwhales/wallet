@@ -25,10 +25,8 @@ import { StatusBar } from "expo-status-bar";
 import { useWalletVersion } from "../engine/hooks/useWalletVersion";
 import { WalletContractV4, WalletContractV5R1 } from "@ton/ton";
 import { useSpecialJetton } from "../engine/hooks/jettons/useSpecialJetton";
-
-import IcDelete from '@assets/ic-delete-red.svg';
-import IcCheckAddress from '@assets/ic-check-recipient.svg';
-import IcSupport from '@assets/ic-support.svg';
+import { IcCheckAddress, IcDelete, IcSupport } from "@assets";
+import { Typography } from "../components/styles";
 
 export const DeleteAccountFragment = fragment(() => {
     const theme = useTheme();
@@ -278,20 +276,20 @@ export const DeleteAccountFragment = fragment(() => {
                 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <IcDelete width={24} height={24} color={theme.accentRed} />
-                        <Text style={{
-                            fontSize: 17, lineHeight: 24,
-                            marginLeft: 12,
-                            fontWeight: '600',
-                            color: theme.accentRed,
-                        }}>
+                        <Text style={[
+                            {
+                                marginLeft: 12,
+                                color: theme.accentRed,
+                            }
+                            , Typography.semiBold17_24
+                        ]}>
                             {t('common.attention')}
                         </Text>
                     </View>
-                    <Text style={{
-                        fontSize: 15, lineHeight: 20,
-                        fontWeight: '400',
-                        color: theme.accentRed,
-                    }}>
+                    <Text style={[
+                        { color: theme.accentRed },
+                        Typography.regular15_20
+                    ]}>
                         {t('logout.logoutDescription')}
                     </Text>
                 </View>
@@ -304,12 +302,10 @@ export const DeleteAccountFragment = fragment(() => {
                 }}>
                     <View style={{ flexDirection: 'row', marginBottom: 12 }}>
                         <IcCheckAddress width={24} height={24} color={theme.accentRed} />
-                        <Text style={{
-                            fontWeight: '600',
-                            fontSize: 17, lineHeight: 24,
+                        <Text style={[{
                             color: theme.textPrimary,
                             marginLeft: 12,
-                        }}>
+                        }, Typography.semiBold17_24]}>
                             {`${t('deleteAccount.checkRecipient')}`}
                         </Text>
                     </View>
@@ -342,23 +338,19 @@ export const DeleteAccountFragment = fragment(() => {
                     </View>
                     {!!invalidAddress && (
                         <Animated.View entering={FadeIn} exiting={FadeOut}>
-                            <Text style={{
+                            <Text style={[{
                                 color: theme.accentRed,
-                                fontSize: 13,
-                                lineHeight: 18,
                                 marginTop: 4,
                                 marginLeft: 16,
-                                fontWeight: '400'
-                            }}>
+                            }, Typography.regular13_18]}>
                                 {t('transfer.error.invalidAddress')}
                             </Text>
                         </Animated.View>
                     )}
-                    <Text style={{
-                        fontSize: 13, lineHeight: 18,
-                        fontWeight: '400',
-                        color: theme.textSecondary, marginTop: 4, marginLeft: 16
-                    }}>
+                    <Text style={[
+                        { color: theme.textSecondary, marginTop: 4, marginLeft: 16 },
+                        Typography.regular13_18
+                    ]}>
                         {t('deleteAccount.checkRecipientDescription')}
                     </Text>
                 </View>
@@ -378,14 +370,13 @@ export const DeleteAccountFragment = fragment(() => {
             <View style={{ flexGrow: 1 }} />
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'position' : undefined}
-                style={{ marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom }}
-                keyboardVerticalOffset={Platform.OS === 'ios' ? safeArea.top + 32 : 0}
+                style={{ marginHorizontal: 16, marginTop: 16 }}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? safeArea.top + 16 : 0}
             >
                 <RoundButton
                     title={t('settings.deleteWalletWithName', { name: shortWalletName })}
                     onPress={onContinue}
                     display={'default'}
-                    style={{ marginBottom: 16 }}
                 />
             </KeyboardAvoidingView>
             {!!status && (status === 'deleted' || status === 'loading') && (

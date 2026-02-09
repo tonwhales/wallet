@@ -58,7 +58,10 @@ export const objectToInjection = (obj: Record<string, any>, timeout: number | nu
         window.invokeRnFunc = (name, args, resolve, reject) => {
           const invocationId = btoa(Math.random()).substring(0, 12);
           const timeoutMs = ${timeout};
-          const timeoutId = timeoutMs ? setTimeout(() => reject(new Error(\`bridge timeout for function with name: \${name}\`)), timeoutMs) : null;
+          const timeoutId = timeoutMs ? setTimeout(() => {
+            reject(new Error(\`bridge timeout for function with name: \${name}\`));
+            delete window.rnPromises[invocationId];
+          }, timeoutMs) : null;
           window.rnPromises[invocationId] = { resolve, reject, timeoutId }
           window.ReactNativeWebView.postMessage(JSON.stringify({
             type: '${WebViewBridgeMessageType.invokeRnFunc}',

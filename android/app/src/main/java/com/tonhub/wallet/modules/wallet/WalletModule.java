@@ -65,8 +65,12 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
     private static final int SET_DEFAULT_PAYMENTS_REQUEST_CODE = 5;
     private static final int REQUEST_CREATE_WALLET = 4;
     public static final String GOOGLE_PAY_TP_HCE_SERVICE = "com.google.android.gms.tapandpay.hce.service.TpHceService";
+    
+    private static final String API_URL_STAGING = "https://card-staging.whales-api.com";
+    private static final String API_URL_PROD = "https://card-prod.whales-api.com";
 
     private final TapAndPayClient tapAndPayClient;
+    private final OkHttpClient httpClient;
 
     @Nullable
     private ProvisionRequest currentProvisioning;
@@ -79,6 +83,11 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
     public WalletModule(ReactApplicationContext reactContext) {
         super(reactContext);
         tapAndPayClient = TapAndPay.getClient(reactContext);
+        httpClient = new OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(30, TimeUnit.SECONDS)
+                .build();
         reactContext.addActivityEventListener(this);
     }
 
@@ -382,9 +391,7 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
     }
 
     private void fetchOPC(OPCRequest req) {
-        String url = req.isTestnet ? "https://card-staging.whales-api.com" : "https://card-prod.whales-api.com";
-
-        OkHttpClient client = new OkHttpClient();
+        String url = req.isTestnet ? API_URL_STAGING : API_URL_PROD;
 
         JSONObject body = new JSONObject();
         JSONObject params = new JSONObject();
@@ -406,7 +413,7 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
         Request request = new Request.Builder().url(url + "/v2/card/get/google/provisioning/data").post(requestBody)
                 .build();
 
-        client.newCall(request).enqueue(new Callback() {
+        httpClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 req.future.completeExceptionally(e);
@@ -476,142 +483,11 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
         return future;
     }
 
-    private void pushProvisionWithTokeStatusCheck(ProvisionRequest req) {
-        if (currentProvisioning != null) {
-            req.completableFuture.completeExceptionally(new Exception("Another provisioning is in progress"));
-            return;
-        }
-
-        this.currentProvisioning = req;
-
-        this.shouldOpenInWallet(req.lastDigits).thenAccept((tokenStatus) -> {
-            if (tokenStatus != null && tokenStatus.issuerToken != null) {
-                // open in wallet
-                ViewTokenRequest request = new ViewTokenRequest.Builder()
-                        .setTokenServiceProvider(TapAndPay.CARD_NETWORK_VISA).setIssuerTokenId(tokenStatus.issuerToken)
-                        .build();
-                tapAndPayClient.viewToken(request).addOnCompleteListener(new OnCompleteListener<PendingIntent>() {
-                    @Override
-                    public void onComplete(@NonNull Task<PendingIntent> task) {
-                        if (task.isSuccessful()) {
-                            try {
-                                task.getResult().send();
-                            } catch (PendingIntent.CanceledException e) {
-                            }
-                        } else {
-                            ApiException apiException = (ApiException) task.getException();
-                        }
-                    }
-                });
-                this.currentProvisioning.completableFuture.complete(false);
-                this.currentProvisioning = null;
-            } else {
-                CompletableFuture<String> futureOpc = new CompletableFuture<>();
-                CompletableFuture<String> walletIdFuture = this.getActiveWalletId();
-                CompletableFuture<String> stableHardwareIdFuture = this.getStableHardwareId();
-
-                // await for both walletId and stableHardwareId
-                walletIdFuture
-                        .thenCombine(stableHardwareIdFuture, (walletId, stableHardwareId) -> new OPCRequest(req.cardId,
-                                req.token, walletId, stableHardwareId, req.isTestnet, futureOpc))
-                        .exceptionally(e -> {
-                            // if exception is TAP_AND_PAY_NO_ACTIVE_WALLET There is no active wallet ->
-                            // create wallet
-                            Throwable cause = e instanceof CompletionException ? e.getCause() : e;
-                            String causeMessage = cause != null ? cause.getMessage() : null;
-
-                            if (cause instanceof ApiException
-                                    || (causeMessage != null && causeMessage.contains("15002"))) {
-                                ApiException apiException = (ApiException) cause;
-                                if (apiException.getStatusCode() == 15002) {
-                                    createWallet().thenAccept(res -> {
-                                        if (res) {
-                                            CompletableFuture<String> walletIdFuture2 = this.getActiveWalletId();
-                                            CompletableFuture<String> stableHardwareIdFuture2 = this
-                                                    .getStableHardwareId();
-
-                                            walletIdFuture2.thenCombine(stableHardwareIdFuture2,
-                                                    (walletId, stableHardwareId) -> {
-                                                        return new OPCRequest(req.cardId, req.token, walletId,
-                                                                stableHardwareId, req.isTestnet, futureOpc);
-                                                    }).exceptionally(e2 -> {
-                                                        req.completableFuture.completeExceptionally(e2);
-                                                        return null;
-                                                    }).thenAccept(this::fetchOPC).exceptionally(e2 -> {
-                                                        req.completableFuture.completeExceptionally(e2);
-                                                        return null;
-                                                    });
-                                        } else {
-                                            req.completableFuture
-                                                    .completeExceptionally(new Exception("Failed to create wallet"));
-                                        }
-                                    });
-                                } else {
-                                    req.completableFuture.completeExceptionally(e);
-                                }
-                            } else {
-                                req.completableFuture.completeExceptionally(e);
-                            }
-                            return null;
-                        }).thenAccept(this::fetchOPC).exceptionally(e -> {
-                            req.completableFuture.completeExceptionally(e);
-                            return null;
-                        });
-
-                futureOpc.thenAccept(opc -> {
-                    // UserAddress userAddress = UserAddress.newBuilder()
-                    // .setName(req.name)
-                    // .setAddress1(req.address1)
-                    // .setLocality(req.locality)
-                    // .setAdministrativeArea(req.administrativeArea)
-                    // .setCountryCode(req.countryCode)
-                    // .setPostalCode(req.postalCode)
-                    // .setPhoneNumber(req.phoneNumber)
-                    // .build();
-
-                    PushTokenizeRequest pushTokenizeRequest = new PushTokenizeRequest.Builder()
-                            .setOpaquePaymentCard(opc.getBytes()).setNetwork(TapAndPay.CARD_NETWORK_VISA)
-                            .setTokenServiceProvider(TapAndPay.TOKEN_PROVIDER_VISA).setDisplayName(req.displayName)
-                            .setLastDigits(req.lastDigits)
-                            // .setUserAddress(userAddress)
-                            .build();
-
-                    Activity currentActivity = getReactApplicationContext().getCurrentActivity();
-
-                    if (currentActivity != null) {
-                        tapAndPayClient.pushTokenize(currentActivity, pushTokenizeRequest, REQUEST_CODE_PUSH_TOKENIZE);
-                    } else {
-                        if (this.currentProvisioning != null) {
-                            this.currentProvisioning.completableFuture
-                                    .completeExceptionally(new Exception("No current activity"));
-                            this.currentProvisioning = null;
-                        }
-                    }
-                }).exceptionally(e -> {
-                    if (this.currentProvisioning != null) {
-                        this.currentProvisioning.completableFuture.completeExceptionally(e);
-                        this.currentProvisioning = null;
-                    }
-                    return null;
-                });
-            }
-        }).exceptionally(e -> {
-            if (this.currentProvisioning != null) {
-                this.currentProvisioning.completableFuture.completeExceptionally(e);
-                this.currentProvisioning = null;
-            }
-            return null;
-        });
-    }
-
-    private void pushProvision(ProvisionRequest req) {
-        if (currentProvisioning != null) {
-            req.completableFuture.completeExceptionally(new Exception("Another provisioning is in progress"));
-            return;
-        }
-
-        this.currentProvisioning = req;
-
+    /**
+     * Executes the core provisioning logic: fetches OPC data and initiates push tokenization.
+     * This is the shared implementation used by both pushProvision and pushProvisionWithTokeStatusCheck.
+     */
+    private void executeProvisioning(ProvisionRequest req) {
         CompletableFuture<String> futureOpc = new CompletableFuture<>();
         CompletableFuture<String> walletIdFuture = this.getActiveWalletId();
         CompletableFuture<String> stableHardwareIdFuture = this.getStableHardwareId();
@@ -661,21 +537,10 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
                 });
 
         futureOpc.thenAccept(opc -> {
-            // UserAddress userAddress = UserAddress.newBuilder()
-            // .setName(req.name)
-            // .setAddress1(req.address1)
-            // .setLocality(req.locality)
-            // .setAdministrativeArea(req.administrativeArea)
-            // .setCountryCode(req.countryCode)
-            // .setPostalCode(req.postalCode)
-            // .setPhoneNumber(req.phoneNumber)
-            // .build();
-
             PushTokenizeRequest pushTokenizeRequest = new PushTokenizeRequest.Builder()
                     .setOpaquePaymentCard(opc.getBytes()).setNetwork(TapAndPay.CARD_NETWORK_VISA)
                     .setTokenServiceProvider(TapAndPay.TOKEN_PROVIDER_VISA).setDisplayName(req.displayName)
                     .setLastDigits(req.lastDigits)
-                    // .setUserAddress(userAddress)
                     .build();
 
             Activity currentActivity = getReactApplicationContext().getCurrentActivity();
@@ -696,6 +561,61 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
             }
             return null;
         });
+    }
+
+    /**
+     * Pushes provisioning with token status check.
+     * If the card is already partially provisioned, opens it in the wallet instead.
+     */
+    private void pushProvisionWithTokeStatusCheck(ProvisionRequest req) {
+        if (currentProvisioning != null) {
+            req.completableFuture.completeExceptionally(new Exception("Another provisioning is in progress"));
+            return;
+        }
+
+        this.currentProvisioning = req;
+
+        this.shouldOpenInWallet(req.lastDigits).thenAccept((tokenStatus) -> {
+            if (tokenStatus != null && tokenStatus.issuerToken != null) {
+                // Card needs identity verification - open in wallet instead
+                ViewTokenRequest request = new ViewTokenRequest.Builder()
+                        .setTokenServiceProvider(TapAndPay.CARD_NETWORK_VISA).setIssuerTokenId(tokenStatus.issuerToken)
+                        .build();
+                tapAndPayClient.viewToken(request).addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        try {
+                            task.getResult().send();
+                        } catch (PendingIntent.CanceledException e) {
+                            // User cancelled - ignore
+                        }
+                    }
+                });
+                this.currentProvisioning.completableFuture.complete(false);
+                this.currentProvisioning = null;
+            } else {
+                executeProvisioning(req);
+            }
+        }).exceptionally(e -> {
+            if (this.currentProvisioning != null) {
+                this.currentProvisioning.completableFuture.completeExceptionally(e);
+                this.currentProvisioning = null;
+            }
+            return null;
+        });
+    }
+
+    /**
+     * Pushes provisioning directly without checking token status.
+     * Currently unused - pushProvisionWithTokeStatusCheck is preferred.
+     */
+    private void pushProvision(ProvisionRequest req) {
+        if (currentProvisioning != null) {
+            req.completableFuture.completeExceptionally(new Exception("Another provisioning is in progress"));
+            return;
+        }
+
+        this.currentProvisioning = req;
+        executeProvisioning(req);
     }
 
     @ReactMethod

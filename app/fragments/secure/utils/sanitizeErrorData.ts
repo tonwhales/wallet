@@ -114,7 +114,7 @@ export function sanitizeErrorData(input: string): string {
         // pure hex, 40+ chars (to avoid false positives, increased threshold)
         .replace(/\b[0-9A-Fa-f]{40,}\b/g, "[hex_string_data]")
         // base64 strings, 32+ chars (session tokens, keys, etc.)
-        .replace(/\b[A-Za-z0-9+/]{32,}={0,2}\b/g, "[base64_string_data]")
+        .replace(/\b[A-Za-z0-9+/]{32,}={0,2}(?![A-Za-z0-9+/=])/g, "[base64_string_data]")
         // base58, 32+ chars (increased threshold to avoid false positives)
         .replace(/\b[1-9A-HJ-NP-Za-km-z]{32,}\b/g, "[base58_string_data]")
         // uint8array representation, 20+ elements

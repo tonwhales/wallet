@@ -45,15 +45,21 @@ export async function resolveChangellyTransaction(data: ResolveChangellyTransact
 
         return;
     } catch (error: any) {
-        saveErrorLog({
-            message: error instanceof Error ? error.message : String(error),
-            stack: error instanceof Error ? error.stack : undefined,
-            url: 'resolveChangellyTransaction',
-            additionalData: { transactionId: data.transactionId, statusCode: error.response?.status }
-        });
+        try {
+            saveErrorLog({
+                message: error instanceof Error ? error.message : String(error),
+                stack: error instanceof Error ? error.stack : undefined,
+                url: 'resolveChangellyTransaction',
+                additionalData: { transactionId: data.transactionId, statusCode: error.response?.status }
+            });
+        } catch { }
 
         if (error.response?.data?.error) {
             throw new Error(error.response.data.error);
+        }
+
+        if (typeof error === 'string') {
+            throw new Error(error);
         }
 
         if (error.message) {

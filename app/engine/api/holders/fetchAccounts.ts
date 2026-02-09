@@ -103,10 +103,7 @@ export async function fetchAccountsPublic({
 
   const res = await axios.post(`https://${endpoint}/v2/public/accounts`, body, {
     headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': '*',
-      'Access-Control-Allow-Credentials': 'true'
+      'Content-Type': 'application/json'
     }
   });
 
@@ -346,10 +343,7 @@ export async function fetchAccountsList(token: string, isTestnet: boolean) {
     { token },
     {
       headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': '*',
-        'Access-Control-Allow-Credentials': 'true'
+        'Content-Type': 'application/json'
       }
     }
   );

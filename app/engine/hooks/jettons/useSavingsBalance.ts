@@ -83,14 +83,16 @@ export function useSavingsBalance(addr: string | Address) {
 
     let savingsToTon = 0n;
 
-    try {
-        savingsToTon += toNano((savingTotal / price.price.usd).toFixed(9));
-    } catch (e) {
-        saveErrorLog({
-            message: e instanceof Error ? e.message : String(e),
-            stack: e instanceof Error ? e.stack : undefined,
-            url: 'useSavingsBalance:savingsToTon'
-        });
+    if (price?.price?.usd) {
+        try {
+            savingsToTon += toNano((savingTotal / price.price.usd).toFixed(9));
+        } catch (e) {
+            saveErrorLog({
+                message: e instanceof Error ? e.message : String(e),
+                stack: e instanceof Error ? e.stack : undefined,
+                url: 'useSavingsBalance:savingsToTon'
+            });
+        }
     }
 
     return {

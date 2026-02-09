@@ -19,7 +19,8 @@ export async function sendErrorLog(error: ErrorLogEntry): Promise<boolean> {
 					errorId: error.id,
 					errorTimestamp: error.timestamp
 				}
-			}
+			},
+			{ timeout: 5000 }
 		);
 		return true;
 	} catch {

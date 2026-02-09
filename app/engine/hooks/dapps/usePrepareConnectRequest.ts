@@ -173,6 +173,12 @@ export function usePrepareConnectTxRequest(config: { isTestnet: boolean, toaster
           url: 'usePrepareConnectRequest:parseMessage'
         });
         warn(`usePrepareConnectRequest error: ${error}`);
+        deleteAndReportError(
+          'Failed to parse message',
+          SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
+          t('products.transactionRequest.invalidRequest')
+        );
+        return;
       }
     }
 

@@ -69,6 +69,89 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
     private static final String API_URL_STAGING = "https://card-staging.whales-api.com";
     private static final String API_URL_PROD = "https://card-prod.whales-api.com";
 
+    // Platform-prefixed error codes for wallet operations
+    private static final String ERROR_PROVISION_IN_PROGRESS = "android.tapandpay.provision.in_progress";
+    private static final String ERROR_NO_ACTIVE_WALLET = "android.tapandpay.provision.no_active_wallet";
+    private static final String ERROR_ATTESTATION = "android.tapandpay.provision.attestation_error";
+    private static final String ERROR_WALLET_CREATE_FAILED = "android.tapandpay.wallet.create_failed";
+    private static final String ERROR_NO_ACTIVITY = "android.tapandpay.provision.no_activity";
+    private static final String ERROR_OPC_FETCH_FAILED = "android.tapandpay.provision.opc_fetch_failed";
+    private static final String ERROR_API = "android.tapandpay.api_error";
+    private static final String ERROR_NETWORK = "android.tapandpay.network_error";
+    private static final String ERROR_JSON = "android.tapandpay.json_error";
+    private static final String ERROR_SET_DEFAULT_IN_PROGRESS = "android.tapandpay.set_default.in_progress";
+
+    /**
+     * Custom exception class that carries a structured error code.
+     */
+    private static class WalletException extends Exception {
+        private final String code;
+        @Nullable
+        private final String nativeCode;
+
+        WalletException(String code, String message) {
+            super(message);
+            this.code = code;
+            this.nativeCode = null;
+        }
+
+        WalletException(String code, String message, @Nullable String nativeCode) {
+            super(message);
+            this.code = code;
+            this.nativeCode = nativeCode;
+        }
+
+        WalletException(String code, String message, Throwable cause) {
+            super(message, cause);
+            this.code = code;
+            this.nativeCode = null;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        @Nullable
+        public String getNativeCode() {
+            return nativeCode;
+        }
+    }
+
+    /**
+     * Maps an exception to a WalletException with appropriate error code.
+     */
+    private WalletException mapException(Throwable e, String defaultCode) {
+        if (e instanceof WalletException) {
+            return (WalletException) e;
+        }
+        if (e instanceof CompletionException && e.getCause() != null) {
+            return mapException(e.getCause(), defaultCode);
+        }
+        if (e instanceof ApiException) {
+            ApiException apiException = (ApiException) e;
+            int statusCode = apiException.getStatusCode();
+            if (statusCode == 15002) {
+                return new WalletException(ERROR_NO_ACTIVE_WALLET, "No active wallet", String.valueOf(statusCode));
+            }
+            return new WalletException(ERROR_API, e.getMessage(), String.valueOf(statusCode));
+        }
+        if (e instanceof IOException) {
+            return new WalletException(ERROR_NETWORK, e.getMessage());
+        }
+        if (e instanceof JSONException) {
+            return new WalletException(ERROR_JSON, e.getMessage());
+        }
+        return new WalletException(defaultCode, e.getMessage() != null ? e.getMessage() : "Unknown error");
+    }
+
+    /**
+     * Rejects a promise with a structured error code.
+     */
+    private void rejectWithCode(Promise promise, Throwable e, String defaultCode) {
+        WalletException walletException = mapException(e, defaultCode);
+        promise.reject(walletException.getCode(), walletException.getMessage(), walletException);
+    }
+
     private final TapAndPayClient tapAndPayClient;
     private final OkHttpClient httpClient;
 
@@ -173,7 +256,7 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
     @SuppressWarnings("unused")
     private void listTokens(Promise promise) {
         getTokenInfoList().thenAccept(promise::resolve).exceptionally(e -> {
-            promise.reject(e);
+            rejectWithCode(promise, e, ERROR_API);
             return null;
         });
     }
@@ -217,7 +300,7 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
     @SuppressWarnings("unused")
     private void checkIfCardIsAlreadyAdded(String primaryAccountNumberSuffix, Promise promise) {
         isCardAddedFuture(primaryAccountNumberSuffix).thenAccept(promise::resolve).exceptionally(e -> {
-            promise.reject(e);
+            rejectWithCode(promise, e, ERROR_API);
             return null;
         });
     }
@@ -281,7 +364,7 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
         sequentialProcessing.thenAccept((res) -> {
             promise.resolve(cardIds);
         }).exceptionally(e -> {
-            promise.reject(e);
+            rejectWithCode(promise, e, ERROR_API);
             return null;
         });
     }
@@ -319,7 +402,8 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
         }
 
         if (isDefaultWalletFuture != null) {
-            promise.reject(new Exception("Another set default wallet is in progress"));
+            promise.reject(ERROR_SET_DEFAULT_IN_PROGRESS, "Another set default wallet is in progress",
+                    new WalletException(ERROR_SET_DEFAULT_IN_PROGRESS, "Another set default wallet is in progress"));
             return;
         }
 
@@ -332,7 +416,7 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
         isDefaultWalletFuture = new CompletableFuture<>();
 
         isDefaultWalletFuture.thenAccept(promise::resolve).exceptionally(e -> {
-            promise.reject(e);
+            rejectWithCode(promise, e, ERROR_API);
             return null;
         });
     }
@@ -384,8 +468,8 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
                 // Update the view with the result
                 promise.resolve(task.getResult());
             } else {
-                ApiException apiException = (ApiException) task.getException();
-                promise.reject(apiException);
+                Exception exception = task.getException();
+                rejectWithCode(promise, exception != null ? exception : new Exception("Unknown error"), ERROR_API);
             }
         });
     }
@@ -404,7 +488,8 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
             body.put("token", req.token);
             body.put("id", req.cardId);
         } catch (JSONException e) {
-            req.future.completeExceptionally(e);
+            req.future.completeExceptionally(new WalletException(ERROR_JSON, "Failed to build OPC request: " + e.getMessage(), e));
+            return;
         }
 
         RequestBody requestBody = RequestBody.create(body.toString(), MediaType.parse("application/json"));
@@ -416,7 +501,7 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
         httpClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                req.future.completeExceptionally(e);
+                req.future.completeExceptionally(new WalletException(ERROR_NETWORK, "Network error fetching OPC: " + e.getMessage(), e));
             }
 
             @Override
@@ -431,31 +516,32 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
                         try {
                             json = new JSONObject(body);
                         } catch (JSONException e) {
-                            req.future.completeExceptionally(e);
+                            req.future.completeExceptionally(new WalletException(ERROR_JSON, "Failed to parse OPC response: " + e.getMessage(), e));
+                            return;
                         }
                         try {
                             if (json.has("error")) {
-                                req.future.completeExceptionally(new Exception(json.getString("error")));
+                                req.future.completeExceptionally(new WalletException(ERROR_OPC_FETCH_FAILED, "Server error: " + json.getString("error")));
                             } else if (json.has("data")) {
                                 JSONObject data = json.getJSONObject("data");
 
                                 if (data.has("encryptedData")) {
                                     req.future.complete(data.getString("encryptedData"));
                                 } else {
-                                    req.future.completeExceptionally(new Exception("Missing encryptedData"));
+                                    req.future.completeExceptionally(new WalletException(ERROR_OPC_FETCH_FAILED, "Missing encryptedData in response"));
                                 }
                             } else {
-                                req.future.completeExceptionally(new Exception("Missing data"));
+                                req.future.completeExceptionally(new WalletException(ERROR_OPC_FETCH_FAILED, "Missing data in response"));
                             }
                         } catch (JSONException e) {
-                            req.future.completeExceptionally(e);
+                            req.future.completeExceptionally(new WalletException(ERROR_JSON, "Failed to parse OPC data: " + e.getMessage(), e));
                         }
                     } else {
-                        req.future.completeExceptionally(new Exception("Empty body"));
+                        req.future.completeExceptionally(new WalletException(ERROR_OPC_FETCH_FAILED, "Empty response body"));
                     }
 
                 } else {
-                    req.future.completeExceptionally(new Exception("Failed to fetch OPC"));
+                    req.future.completeExceptionally(new WalletException(ERROR_OPC_FETCH_FAILED, "Failed to fetch OPC: HTTP " + response.code()));
                 }
             }
         });
@@ -513,26 +599,26 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
                                                 return new OPCRequest(req.cardId, req.token, walletId, stableHardwareId,
                                                         req.isTestnet, futureOpc);
                                             }).exceptionally(e2 -> {
-                                                req.completableFuture.completeExceptionally(e2);
+                                                req.completableFuture.completeExceptionally(mapException(e2, ERROR_API));
                                                 return null;
                                             }).thenAccept(this::fetchOPC).exceptionally(e2 -> {
-                                                req.completableFuture.completeExceptionally(e2);
+                                                req.completableFuture.completeExceptionally(mapException(e2, ERROR_OPC_FETCH_FAILED));
                                                 return null;
                                             });
                                 } else {
                                     req.completableFuture
-                                            .completeExceptionally(new Exception("Failed to create wallet"));
+                                            .completeExceptionally(new WalletException(ERROR_WALLET_CREATE_FAILED, "Failed to create wallet"));
                                 }
                             });
                         } else {
-                            req.completableFuture.completeExceptionally(e);
+                            req.completableFuture.completeExceptionally(mapException(e, ERROR_API));
                         }
                     } else {
-                        req.completableFuture.completeExceptionally(e);
+                        req.completableFuture.completeExceptionally(mapException(e, ERROR_API));
                     }
                     return null;
                 }).thenAccept(this::fetchOPC).exceptionally(e -> {
-                    req.completableFuture.completeExceptionally(e);
+                    req.completableFuture.completeExceptionally(mapException(e, ERROR_OPC_FETCH_FAILED));
                     return null;
                 });
 
@@ -550,13 +636,13 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
             } else {
                 if (this.currentProvisioning != null) {
                     this.currentProvisioning.completableFuture
-                            .completeExceptionally(new Exception("No current activity"));
+                            .completeExceptionally(new WalletException(ERROR_NO_ACTIVITY, "No current activity available"));
                     this.currentProvisioning = null;
                 }
             }
         }).exceptionally(e -> {
             if (this.currentProvisioning != null) {
-                this.currentProvisioning.completableFuture.completeExceptionally(e);
+                this.currentProvisioning.completableFuture.completeExceptionally(mapException(e, ERROR_OPC_FETCH_FAILED));
                 this.currentProvisioning = null;
             }
             return null;
@@ -569,7 +655,7 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
      */
     private void pushProvisionWithTokeStatusCheck(ProvisionRequest req) {
         if (currentProvisioning != null) {
-            req.completableFuture.completeExceptionally(new Exception("Another provisioning is in progress"));
+            req.completableFuture.completeExceptionally(new WalletException(ERROR_PROVISION_IN_PROGRESS, "Another provisioning is in progress"));
             return;
         }
 
@@ -597,7 +683,7 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
             }
         }).exceptionally(e -> {
             if (this.currentProvisioning != null) {
-                this.currentProvisioning.completableFuture.completeExceptionally(e);
+                this.currentProvisioning.completableFuture.completeExceptionally(mapException(e, ERROR_API));
                 this.currentProvisioning = null;
             }
             return null;
@@ -610,7 +696,7 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
      */
     private void pushProvision(ProvisionRequest req) {
         if (currentProvisioning != null) {
-            req.completableFuture.completeExceptionally(new Exception("Another provisioning is in progress"));
+            req.completableFuture.completeExceptionally(new WalletException(ERROR_PROVISION_IN_PROGRESS, "Another provisioning is in progress"));
             return;
         }
 
@@ -631,7 +717,7 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
         future.thenAccept(res -> {
             promise.resolve(res);
         }).exceptionally(e -> {
-            promise.reject(e);
+            rejectWithCode(promise, e, ERROR_API);
             return null;
         }).thenRun(() -> {
             this.currentProvisioning = null;
@@ -656,7 +742,7 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
                 // this and alert your users.
 
                 this.currentProvisioning.completableFuture
-                        .completeExceptionally(new Exception("Device attestation error"));
+                        .completeExceptionally(new WalletException(ERROR_ATTESTATION, "Device attestation error"));
 
                 break;
             case Activity.RESULT_OK:
@@ -681,8 +767,8 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
             if (task.isSuccessful()) {
                 promise.resolve(task.getResult());
             } else {
-                ApiException apiException = (ApiException) task.getException();
-                promise.reject(apiException);
+                Exception exception = task.getException();
+                rejectWithCode(promise, exception != null ? exception : new Exception("Unknown error"), ERROR_API);
             }
         });
     }

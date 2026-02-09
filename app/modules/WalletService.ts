@@ -1,6 +1,7 @@
 import { NativeModules, Platform } from 'react-native';
 import { z } from 'zod';
 import { ProvisioningCredential } from '../engine/holders/updateProvisioningCredentials';
+import { saveErrorLog } from '../storage/errorLogs';
 
 const { RNAppleProvisioning } = NativeModules;
 const { WalletModule } = NativeModules;
@@ -21,44 +22,117 @@ const addCardRequestSchemaWithToken = addCardRequestSchema.extend({
 
 type AddCardRequest = z.infer<typeof addCardRequestSchemaWithToken>;
 
+// Platform-prefixed error codes for wallet operations
+export enum WalletErrorCode {
+    // iOS PassKit errors
+    IOS_REQUEST_IN_PROGRESS = 'ios.passkit.add_card.request_in_progress',
+    IOS_MISSING_CARD_DETAILS = 'ios.passkit.add_card.missing_details',
+    IOS_CONFIG_FAILED = 'ios.passkit.add_card.config_failed',
+    IOS_CONTROLLER_FAILED = 'ios.passkit.add_card.controller_failed',
+    IOS_INVALID_CREDENTIAL = 'ios.passkit.credentials.invalid_data',
+    IOS_SERVER_ERROR = 'ios.passkit.add_card.server_error',
+
+    // Android TapAndPay errors
+    ANDROID_PROVISION_IN_PROGRESS = 'android.tapandpay.provision.in_progress',
+    ANDROID_NO_ACTIVE_WALLET = 'android.tapandpay.provision.no_active_wallet',
+    ANDROID_ATTESTATION_ERROR = 'android.tapandpay.provision.attestation_error',
+    ANDROID_WALLET_CREATE_FAILED = 'android.tapandpay.wallet.create_failed',
+    ANDROID_NO_ACTIVITY = 'android.tapandpay.provision.no_activity',
+    ANDROID_OPC_FETCH_FAILED = 'android.tapandpay.provision.opc_fetch_failed',
+    ANDROID_API_ERROR = 'android.tapandpay.api_error',
+    ANDROID_NETWORK_ERROR = 'android.tapandpay.network_error',
+    ANDROID_JSON_ERROR = 'android.tapandpay.json_error',
+    ANDROID_SET_DEFAULT_IN_PROGRESS = 'android.tapandpay.set_default.in_progress',
+
+    // Common errors
+    UNKNOWN_ERROR = 'wallet.unknown_error',
+}
+
+// Structured error from native modules
+export interface WalletNativeError {
+    code: string;
+    message: string;
+    nativeCode?: string | number;
+    details?: Record<string, unknown>;
+}
+
 // Error handling utilities for consistent behavior across platforms
 export class WalletServiceError extends Error {
-    constructor(message: string, public readonly code: string) {
+    public readonly nativeCode?: string | number;
+    public readonly details?: Record<string, unknown>;
+
+    constructor(
+        message: string,
+        public readonly code: string,
+        options?: { nativeCode?: string | number; details?: Record<string, unknown> }
+    ) {
         super(message);
         this.name = 'WalletServiceError';
+        this.nativeCode = options?.nativeCode;
+        this.details = options?.details;
     }
 }
 
 /**
- * Wraps a native module call with consistent error handling.
- * For non-critical operations, returns a default value on error.
- * For critical operations, re-throws with a normalized error.
+ * Parse native error into structured format.
+ * React Native native module errors have code property when rejected with a code.
  */
-async function safeCall<T>(
-    operation: () => Promise<T>,
-    defaultValue: T,
-    operationName: string
-): Promise<T> {
-    try {
-        return await operation();
-    } catch (error) {
-        console.warn(`WalletService.${operationName} failed:`, error);
-        return defaultValue;
+function parseNativeError(error: unknown, operationName: string): WalletNativeError {
+    if (error instanceof Error) {
+        const nativeError = error as Error & { code?: string; nativeCode?: string | number; userInfo?: Record<string, unknown> };
+        return {
+            code: nativeError.code || WalletErrorCode.UNKNOWN_ERROR,
+            message: nativeError.message || 'Unknown error',
+            nativeCode: nativeError.nativeCode,
+            details: {
+                operation: operationName,
+                ...(nativeError.userInfo || {})
+            }
+        };
     }
+    return {
+        code: WalletErrorCode.UNKNOWN_ERROR,
+        message: String(error),
+        details: { operation: operationName }
+    };
 }
 
 /**
- * Wraps a critical native module call - throws normalized errors.
+ * Handles wallet operation errors with logging and optional re-throwing.
+ * For non-critical operations, logs the error and returns a default value.
+ * For critical operations, logs the error and re-throws with normalized error.
  */
-async function criticalCall<T>(
+async function handleWalletError<T>(
     operation: () => Promise<T>,
-    operationName: string
+    operationName: string,
+    options: { critical: boolean; defaultValue?: T }
 ): Promise<T> {
     try {
         return await operation();
     } catch (error) {
-        const message = error instanceof Error ? error.message : 'Unknown error';
-        throw new WalletServiceError(message, operationName);
+        const parsedError = parseNativeError(error, operationName);
+
+        // Log to error storage for debugging
+        saveErrorLog({
+            message: parsedError.message,
+            url: `WalletService.${operationName}`,
+            additionalData: {
+                code: parsedError.code,
+                nativeCode: parsedError.nativeCode,
+                platform: Platform.OS,
+                ...parsedError.details
+            }
+        });
+
+        if (options.critical) {
+            throw new WalletServiceError(parsedError.message, parsedError.code, {
+                nativeCode: parsedError.nativeCode,
+                details: parsedError.details
+            });
+        }
+
+        console.warn(`WalletService.${operationName} failed:`, parsedError.message);
+        return options.defaultValue as T;
     }
 }
 
@@ -91,74 +165,75 @@ interface AndroidWalletService {
 // Note: Platform selection happens at export level, so individual methods don't need platform checks
 export const IosWalletService: IosWalletService = {
     async isEnabled(): Promise<boolean> {
-        return safeCall(
+        return handleWalletError(
             () => RNAppleProvisioning.canAddCards(),
-            false,
-            'isEnabled'
+            'isEnabled',
+            { critical: false, defaultValue: false }
         );
     },
 
     async checkIfCardIsAlreadyAdded(primaryAccountNumberSuffix: string): Promise<boolean> {
-        return safeCall(
+        return handleWalletError(
             () => RNAppleProvisioning.checkIfCardIsAlreadyAdded(primaryAccountNumberSuffix),
-            false,
-            'checkIfCardIsAlreadyAdded'
+            'checkIfCardIsAlreadyAdded',
+            { critical: false, defaultValue: false }
         );
     },
 
     async checkIfCardsAreAdded(cardIds: string[]): Promise<{ [key: string]: boolean }> {
-        return safeCall(
+        return handleWalletError(
             () => RNAppleProvisioning.checkIfCardsAreAdded(cardIds),
-            {},
-            'checkIfCardsAreAdded'
+            'checkIfCardsAreAdded',
+            { critical: false, defaultValue: {} }
         );
     },
 
     async canAddCard(cardId: string): Promise<boolean> {
-        return safeCall(
+        return handleWalletError(
             () => RNAppleProvisioning.canAddCard(cardId),
-            false,
-            'canAddCard'
+            'canAddCard',
+            { critical: false, defaultValue: false }
         );
     },
 
     async addCardToWallet(request: AddCardRequest): Promise<boolean> {
         // Critical operation - propagate errors to caller
-        return criticalCall(
+        return handleWalletError(
             () => RNAppleProvisioning.addCardToWallet(request),
-            'addCardToWallet'
+            'addCardToWallet',
+            { critical: true }
         );
     },
 
     async getCredentials(): Promise<ProvisioningCredential[]> {
-        return safeCall(
+        return handleWalletError(
             () => RNAppleProvisioning.getCredentials(),
-            [],
-            'getCredentials'
+            'getCredentials',
+            { critical: false, defaultValue: [] }
         );
     },
 
     async setCredentialsInGroupUserDefaults(data: { [key: string]: ProvisioningCredential }): Promise<void> {
-        return safeCall(
+        return handleWalletError(
             () => RNAppleProvisioning.setCredentialsInGroupUserDefaults(data),
-            undefined,
-            'setCredentialsInGroupUserDefaults'
+            'setCredentialsInGroupUserDefaults',
+            { critical: false, defaultValue: undefined }
         );
     },
 
     async getShouldRequireAuthenticationForAppleWallet(): Promise<boolean> {
-        return safeCall(
+        return handleWalletError(
             () => RNAppleProvisioning.getShouldRequireAuthenticationForAppleWallet(),
-            false,
-            'getShouldRequireAuthenticationForAppleWallet'
+            'getShouldRequireAuthenticationForAppleWallet',
+            { critical: false, defaultValue: false }
         );
     },
 
     async setShouldRequireAuthenticationForAppleWallet(shouldRequireAuthentication: boolean): Promise<void> {
-        return safeCall(
+        return handleWalletError(
             () => RNAppleProvisioning.setShouldRequireAuthenticationForAppleWallet(shouldRequireAuthentication),
-            undefined,
-            'setShouldRequireAuthenticationForAppleWallet'
+            'setShouldRequireAuthenticationForAppleWallet',
+            { critical: false, defaultValue: undefined }
         );
     }
 }
@@ -167,31 +242,32 @@ export const IosWalletService: IosWalletService = {
 // Note: Platform selection happens at export level, so individual methods don't need platform checks
 export const AndroidWalletService: AndroidWalletService = {
     async isEnabled(): Promise<boolean> {
-        return safeCall(
+        return handleWalletError(
             () => WalletModule.isEnabled(),
-            false,
-            'isEnabled'
+            'isEnabled',
+            { critical: false, defaultValue: false }
         );
     },
 
     async getIsDefaultWallet(): Promise<boolean> {
-        return safeCall(
+        return handleWalletError(
             () => WalletModule.getIsDefaultWallet(),
-            false,
-            'getIsDefaultWallet'
+            'getIsDefaultWallet',
+            { critical: false, defaultValue: false }
         );
     },
 
     async setDefaultWallet(): Promise<void> {
-        return criticalCall(
+        return handleWalletError(
             () => WalletModule.setDefaultWallet(),
-            'setDefaultWallet'
+            'setDefaultWallet',
+            { critical: true }
         );
     },
 
     async addCardToWallet(request: AddCardRequest): Promise<boolean> {
         // Critical operation - propagate errors to caller
-        return criticalCall(
+        return handleWalletError(
             () => WalletModule.addCardToWallet(
                 request.token,
                 request.cardId,
@@ -199,15 +275,16 @@ export const AndroidWalletService: AndroidWalletService = {
                 request.primaryAccountNumberSuffix,
                 request.isTestnet
             ),
-            'addCardToWallet'
+            'addCardToWallet',
+            { critical: true }
         );
     },
 
     async checkIfCardIsAlreadyAdded(primaryAccountNumberSuffix: string): Promise<boolean> {
-        return safeCall(
+        return handleWalletError(
             () => WalletModule.checkIfCardIsAlreadyAdded(primaryAccountNumberSuffix),
-            false,
-            'checkIfCardIsAlreadyAdded'
+            'checkIfCardIsAlreadyAdded',
+            { critical: false, defaultValue: false }
         );
     },
 
@@ -217,17 +294,17 @@ export const AndroidWalletService: AndroidWalletService = {
     },
 
     async checkIfCardsAreAdded(cardIds: string[]): Promise<{ [key: string]: boolean }> {
-        try {
-            const result = await WalletModule.checkIfCardsAreAdded(cardIds);
-
-            return result.reduce((acc: { [key: string]: boolean }, isAdded: boolean, index: number) => {
-                acc[cardIds[index]] = isAdded;
-                return acc;
-            }, {} as { [key: string]: boolean });
-        } catch (error) {
-            console.warn('WalletService.checkIfCardsAreAdded failed:', error);
-            return {};
-        }
+        return handleWalletError(
+            async () => {
+                const result = await WalletModule.checkIfCardsAreAdded(cardIds);
+                return result.reduce((acc: { [key: string]: boolean }, isAdded: boolean, index: number) => {
+                    acc[cardIds[index]] = isAdded;
+                    return acc;
+                }, {} as { [key: string]: boolean });
+            },
+            'checkIfCardsAreAdded',
+            { critical: false, defaultValue: {} }
+        );
     }
 }
 

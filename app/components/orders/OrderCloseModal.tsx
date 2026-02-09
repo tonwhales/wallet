@@ -1,4 +1,4 @@
-import { Dimensions, Platform, Text } from "react-native";
+import { Platform, Text } from "react-native";
 import { BottomSheetBackdrop, BottomSheetModal, BottomSheetModalProvider, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useRef, useCallback, useMemo, forwardRef, useImperativeHandle } from "react";
 import { useSupport, useTheme } from "../../engine/hooks";
@@ -77,7 +77,9 @@ export const OrderCloseModal = forwardRef<BottomSheetModal, Props>((props, ref) 
                 backgroundStyle={{
                     borderTopLeftRadius: 32,
                     borderTopRightRadius: 32,
-                    backgroundColor: theme.style === ThemeStyle.Light ? theme.backgroundPrimary : theme.surfaceOnBg,
+                    backgroundColor: theme.style === ThemeStyle.Light
+                        ? theme.backgroundPrimary
+                        : theme.surfaceOnBg,
                 }}
             >
                 <BottomSheetScrollView
@@ -88,7 +90,7 @@ export const OrderCloseModal = forwardRef<BottomSheetModal, Props>((props, ref) 
                         padding: 24,
                         paddingBottom: Platform.select({
                             android: safeArea.bottom + 16,
-                            ios: safeArea.bottom + 16
+                            ios: 0
                         })
                     }]}>
                     {title}
@@ -96,6 +98,6 @@ export const OrderCloseModal = forwardRef<BottomSheetModal, Props>((props, ref) 
                     {buttons}
                 </BottomSheetScrollView>
             </BottomSheetModal>
-        </BottomSheetModalProvider >
+        </BottomSheetModalProvider>
     )
 });

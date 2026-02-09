@@ -11,6 +11,9 @@ import SignLock from '@assets/ic_sign_lock.svg';
 import IcDelete from '@assets/ic-delete-red.svg';
 import IcCheckAddress from '@assets/ic-check-recipient.svg';
 import IcSupport from '@assets/ic-support.svg';
+import SendAmountIcon from '@assets/order/send-amount.svg';
+import ToAccountIcon from '@assets/order/to-account.svg';
+import ResultIcon from '@assets/order/result.svg';
 export * from './known';
 
 export {
@@ -26,5 +29,8 @@ export {
 	SignLock,
 	IcDelete,
 	IcCheckAddress,
-	IcSupport
+	IcSupport,
+	SendAmountIcon,
+	ToAccountIcon,
+	ResultIcon
 };

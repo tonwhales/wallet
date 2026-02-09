@@ -1,0 +1,16 @@
+diff --git a/node_modules/react-native/React/Fabric/Mounting/ComponentViews/ScrollView/RCTPullToRefreshViewComponentView.mm b/node_modules/react-native/React/Fabric/Mounting/ComponentViews/ScrollView/RCTPullToRefreshViewComponentView.mm
+index 3a5679e..d37f9a0 100644
+--- a/node_modules/react-native/React/Fabric/Mounting/ComponentViews/ScrollView/RCTPullToRefreshViewComponentView.mm
++++ b/node_modules/react-native/React/Fabric/Mounting/ComponentViews/ScrollView/RCTPullToRefreshViewComponentView.mm
+@@ -167,6 +167,11 @@ - (void)_attach
+ 
+   if (@available(macCatalyst 13.1, *)) {
+     _scrollViewComponentView.scrollView.refreshControl = _refreshControl;
++
++    // Re-apply tintColor after attaching to ensure it's visible (fix for New Architecture)
++    const auto &concreteProps = static_cast<const PullToRefreshViewProps &>(*_props);
++    _refreshControl.tintColor = RCTUIColorFromSharedColor(concreteProps.tintColor);
++    _refreshControl.layer.zPosition = 1000;
+   }
+ }
+ 

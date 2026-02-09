@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useMemo } from "react";
-import { Alert, FlatList } from "react-native";
+import { FlatList } from "react-native";
 import { WalletItem } from "./WalletItem";
 import { useAppState, useBounceableWalletFormat, useNetwork } from "../../engine/hooks";
 import { LedgerWallet, useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
@@ -9,8 +9,6 @@ import { useKnownWallets } from "../../secure/KnownWallets";
 import { SelectedAccount, WalletVersions } from "../../engine/types";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LedgerWalletItem } from "./LedgerWalletItem";
-import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { t } from "../../i18n/t";
 
 type Item = {
     type: 'ledger';

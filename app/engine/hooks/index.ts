@@ -27,3 +27,4 @@ export { useSavingsMasters } from '../../secure/KnownWallets';
 export * from './push';
 export * from './common';
 export * from './requests';
+export * from './publicProfile';

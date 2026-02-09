@@ -3,7 +3,8 @@ import { QueryClient } from '@tanstack/react-query';
 import { Platform } from 'react-native';
 import * as Application from 'expo-application';
 
-export const whalesConnectEndpoint = 'https://connect.tonhubapi.com';
+export const whalesConnectEndpoint = 'http://192.168.1.109:1337';
+// export const whalesConnectEndpoint = 'https://connect.tonhubapi.com';
 
 const requestInterceptorMainnet = (config: any) => {
     config.headers['User-Agent'] = `Tonhub/${Application.nativeApplicationVersion} ${Platform.OS}`;

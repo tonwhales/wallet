@@ -1,4 +1,4 @@
-import { Pressable, View, Text, Platform, ScrollView, KeyboardAvoidingView, BackHandler } from "react-native";
+import { Pressable, View, Text, Platform, ScrollView, KeyboardAvoidingView, BackHandler, ActivityIndicator } from "react-native";
 import { fragment } from "../../fragment";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { getAppState } from "../../storage/appState";
@@ -21,6 +21,7 @@ import { useKnownWallets } from "../../secure/KnownWallets";
 import Animated, { useAnimatedStyle, useDerivedValue, useSharedValue, withTiming } from "react-native-reanimated";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address } from "@ton/ton";
+import { useWritePublicProfile } from "../../engine/hooks/publicProfile/useWritePublicProfile";
 
 const PLATFORM_IOS = Platform.OS === 'ios'
 
@@ -42,6 +43,9 @@ export const WalletSettingsFragment = fragment(() => {
 
     const [walletSettings, setSettings] = useWalletSettings(address);
     const [isInputNameFocus, setIsInputNameFocus] = useState(false);
+    
+    // Public profile sync
+    const { write: writePublicProfile, isLoading: isSyncing, isSuccess: syncSuccess, error: syncError } = useWritePublicProfile();
 
     const ref: Ref<ATextInputRef> = createRef()
 
@@ -157,6 +161,31 @@ export const WalletSettingsFragment = fragment(() => {
     const isSaveButtonDisabled = useMemo(() => {
         return !hasChanges || name === ''
     }, [hasChanges, name])
+
+    // Handle public profile sync
+    const onSyncPublicProfile = useCallback(async () => {
+        if (isLedger) return; // Don't support ledger for now
+        
+        try {
+            await writePublicProfile({
+                avatar: avatar,
+                colorIndex: selectedColor
+            });
+            toaster.show({
+                message: t('wallets.settings.syncSuccess'),
+                type: 'default',
+                duration: ToastDuration.SHORT,
+                marginBottom: safeArea.bottom + 16
+            });
+        } catch (e) {
+            toaster.show({
+                message: t('wallets.settings.syncFailed'),
+                type: 'error',
+                duration: ToastDuration.SHORT,
+                marginBottom: safeArea.bottom + 16
+            });
+        }
+    }, [avatar, selectedColor, writePublicProfile, isLedger, toaster, safeArea.bottom]);
 
     return (
         <View style={{ flexGrow: 1 }} >
@@ -287,6 +316,48 @@ export const WalletSettingsFragment = fragment(() => {
                             </Pressable>
                         </View>
                     </Animated.View>
+                    
+                    {/* Public Profile Sync */}
+                    {!isLedger && (
+                        <Animated.View style={animWalletAddressStyles}>
+                            <Pressable
+                                style={({ pressed }) => ({
+                                    backgroundColor: theme.surfaceOnElevation,
+                                    paddingVertical: 16,
+                                    paddingHorizontal: 16,
+                                    marginTop: 20,
+                                    width: '100%',
+                                    borderRadius: 20,
+                                    opacity: pressed ? 0.7 : 1,
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between'
+                                })}
+                                disabled={isSyncing || isInputNameFocus}
+                                onPress={onSyncPublicProfile}
+                            >
+                                <View style={{ flex: 1 }}>
+                                    <Text style={[
+                                        { color: theme.textPrimary },
+                                        Typography.semiBold17_24
+                                    ]}>
+                                        {t('wallets.settings.syncToPublicProfile')}
+                                    </Text>
+                                    <Text style={[
+                                        { color: theme.textSecondary, marginTop: 4 },
+                                        Typography.regular15_20
+                                    ]}>
+                                        {t('wallets.settings.syncToPublicProfileDesc')}
+                                    </Text>
+                                </View>
+                                {isSyncing ? (
+                                    <ActivityIndicator color={theme.accent} style={{ marginLeft: 12 }} />
+                                ) : syncSuccess ? (
+                                    <Text style={{ color: theme.accentGreen, marginLeft: 12 }}>✓</Text>
+                                ) : null}
+                            </Pressable>
+                        </Animated.View>
+                    )}
                 </View>
             </ScrollView>
             <KeyboardAvoidingView

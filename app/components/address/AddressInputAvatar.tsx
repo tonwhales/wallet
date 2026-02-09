@@ -6,6 +6,7 @@ import { KnownWallet } from "../../secure/KnownWallets";
 import { ForcedAvatar, ForcedAvatarType } from "../avatar/ForcedAvatar";
 import { View } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import { PublicProfileAvatar } from "../avatar/PublicProfileAvatar";
 
 export const AddressInputAvatar = memo(({
     size,
@@ -45,19 +46,12 @@ export const AddressInputAvatar = memo(({
         );
     } else if (friendly) {
         const avatarComponent = (
-            <Avatar
+            <PublicProfileAvatar
+                enablePublicProfile={true}
                 size={size}
-                id={friendly}
                 address={friendly}
-                borderColor={theme.elevation}
                 theme={theme}
-                hash={hash}
-                knownWallets={knownWallets}
-                backgroundColor={avatarColor}
-                markContact={markContact}
-                icProps={{ isOwn }}
-                borderWidth={0}
-                isLedger={isLedger}
+                id={friendly}
             />
         );
 

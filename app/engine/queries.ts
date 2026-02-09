@@ -137,4 +137,5 @@ export const Queries = {
         }
     },
     TokenInfo: (id: string) => (['tokenInfo', id]),
+    PublicProfile: (address: string) => (['publicProfile', address]),
 }

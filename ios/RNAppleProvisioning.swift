@@ -7,6 +7,16 @@ import Foundation
 import PassKit
 import React
 
+// Platform-prefixed error codes for wallet operations
+private enum WalletErrorCode: String {
+  case requestInProgress = "ios.passkit.add_card.request_in_progress"
+  case missingCardDetails = "ios.passkit.add_card.missing_details"
+  case configFailed = "ios.passkit.add_card.config_failed"
+  case controllerFailed = "ios.passkit.add_card.controller_failed"
+  case invalidCredential = "ios.passkit.credentials.invalid_data"
+  case serverError = "ios.passkit.add_card.server_error"
+}
+
 @objc(RNAppleProvisioning)
 class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewControllerDelegate {
   var currentRequest: AddCardRequestHandler?
@@ -85,14 +95,22 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
   @objc
   func addCardToWallet(_ cardDetails: [String: Any], resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
     guard currentRequest == nil else {
-      reject("error", "Another request is being processed", nil)
+      reject(WalletErrorCode.requestInProgress.rawValue, "Another request is being processed", nil)
       return
     }
     
-    currentRequest = AddCardRequestHandler(resolver: resolve, rejecter: reject, cardId: cardDetails["cardId"] as! String, token: cardDetails["token"] as! String, isTestnet: cardDetails["isTestnet"] as! Bool)
+    guard let cardId = cardDetails["cardId"] as? String,
+          let token = cardDetails["token"] as? String,
+          let isTestnet = cardDetails["isTestnet"] as? Bool else {
+      reject(WalletErrorCode.missingCardDetails.rawValue, "Missing required card details (cardId, token, or isTestnet)", nil)
+      return
+    }
+    
+    currentRequest = AddCardRequestHandler(resolver: resolve, rejecter: reject, cardId: cardId, token: token, isTestnet: isTestnet)
     
     guard let config = PKAddPaymentPassRequestConfiguration(encryptionScheme: .ECC_V2) else {
-      reject("error", "Unable to create PKAddPaymentPassRequestConfiguration", nil)
+      reject(WalletErrorCode.configFailed.rawValue, "Unable to create PKAddPaymentPassRequestConfiguration", nil)
+      currentRequest = nil
       return
     }
     
@@ -108,7 +126,8 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
     }
     
     guard let paymentPassVC = PKAddPaymentPassViewController(requestConfiguration: config, delegate: self) else {
-      reject("error", "Unable to create PKAddPaymentPassViewController", nil)
+      reject(WalletErrorCode.controllerFailed.rawValue, "Unable to create PKAddPaymentPassViewController", nil)
+      currentRequest = nil
       return
     }
     
@@ -192,14 +211,24 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
     var credsDict = [String: ProvisioningCredential]()
     
     for (key, value) in data {
-      let credDict = value as! [String: Any]
+      guard let credDict = value as? [String: Any],
+            let identifier = credDict["identifier"] as? String,
+            let label = credDict["label"] as? String,
+            let cardholderName = credDict["cardholderName"] as? String,
+            let token = credDict["token"] as? String,
+            let address = credDict["address"] as? String,
+            let primaryAccountSuffix = credDict["primaryAccountSuffix"] as? String else {
+        reject(WalletErrorCode.invalidCredential.rawValue, "Invalid credential data for key: \(key)", nil)
+        return
+      }
+      
       let credential = ProvisioningCredential(
-        identifier: credDict["identifier"] as! String,
-        label: credDict["label"] as! String,
-        cardholderName: credDict["cardholderName"] as! String,
-        token: credDict["token"] as! String,
-        address: credDict["address"] as! String,
-        primaryAccountSuffix: credDict["primaryAccountSuffix"] as! String,
+        identifier: identifier,
+        label: label,
+        cardholderName: cardholderName,
+        token: token,
+        address: address,
+        primaryAccountSuffix: primaryAccountSuffix,
         isTestnet: credDict["isTestnet"] as? Bool,
         assetName: credDict["assetName"] as? String,
         assetUrl: credDict["assetUrl"] as? String

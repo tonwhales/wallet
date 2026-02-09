@@ -81,7 +81,13 @@ export const usePushNotificationsInit = (initialPushData?: PushNotificationData)
       subscribeCustomerIfCreated: true,
       shouldCreateCustomer: true,
     };
-    await MindboxSdk.initialize(configuration);
+    try {
+      console.log('Initializing Mindbox SDK');
+      await MindboxSdk.initialize(configuration);
+      console.log('Mindbox SDK initialized');
+    } catch (error) {
+      console.error('Error initializing Mindbox SDK:', error);
+    }
     MindboxSdk.setLogLevel(LogLevel.DEBUG);
   }, []);
 

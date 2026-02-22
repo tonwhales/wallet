@@ -55,6 +55,7 @@ export const Img_Telegram = require('./ic-telegram.png');
 export const Img_Usdt = require('./ic-usdt.png');
 export const Img_Usde = require('./ic_usde.png');
 export const Img_Usdy = require('./ic-usdy.webp');
+export const Img_Xaut = require('./ic-xaut.webp');
 
 // NFT Collections & Projects
 export const Img_TonTake = require('./Img_TonTake.jpg');

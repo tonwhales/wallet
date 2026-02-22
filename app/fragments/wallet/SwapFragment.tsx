@@ -21,6 +21,11 @@ import ChangellyLogo from '../../../assets/changelly.svg';
 import { CHANGELLY_PRIVACY_URL, CHANGELLY_TERMS_URL } from "../../utils/constants";
 import { MaestraEvent, trackMaestraEvent } from "../../analytics/maestra";
 import { useHoldersProfile } from "../../engine/hooks/holders/useHoldersProfile";
+import { xautMintAddress } from "../../secure/KnownWallets";
+
+const swapUnsupportedMints = new Set([
+    xautMintAddress,
+]);
 
 type ListItem = { type: AssetType.TON }
     | { type: AssetType.SPECIAL }
@@ -105,10 +110,12 @@ export const SwapFragment = fragment(() => {
             { type: AssetType.TON },
             { type: AssetType.SPECIAL },
             { type: AssetType.SOLANA },
-            ...solanaTokens.map((t) => ({
-                type: AssetType.SOLANA_TOKEN as AssetType.SOLANA_TOKEN,
-                token: t
-            }))
+            ...solanaTokens
+                .filter((t) => !swapUnsupportedMints.has(t.address))
+                .map((t) => ({
+                    type: AssetType.SOLANA_TOKEN as AssetType.SOLANA_TOKEN,
+                    token: t
+                }))
         ]
     }
 

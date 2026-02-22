@@ -1,7 +1,7 @@
 import { memo, useEffect, useState } from "react";
 import { View, Text, Pressable } from "react-native";
 import { useTheme } from "../../../../engine/hooks";
-import { usdyMintAddress } from "../../../../secure/KnownWallets";
+import { usdyMintAddress, xautMintAddress } from "../../../../secure/KnownWallets";
 import { useTokenInfo } from "../../../../engine/hooks/useTokenInfo";
 import { openWithInApp } from "../../../../utils/openWithInApp";
 import Collapsible from "react-native-collapsible";
@@ -12,7 +12,11 @@ import { Image } from "expo-image";
 
 export const SolanaTokenInfoView = memo(({ mint }: { mint: string }) => {
     const theme = useTheme();
-    const tokenId = mint === usdyMintAddress ? '29256' : undefined;
+    const tokenId = mint === usdyMintAddress
+        ? '29256'
+        : mint === xautMintAddress
+            ? '29257'
+            : undefined;
     const tokenInfo = useTokenInfo(tokenId).data;
     const [collapsed, setCollapsed] = useState(true);
     const progress = useSharedValue(0);

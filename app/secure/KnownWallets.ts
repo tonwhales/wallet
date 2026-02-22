@@ -828,3 +828,4 @@ export const KnownJettonTickers = [
 
 
 export const usdyMintAddress = 'A1KLoBrKBde8Ty9qtNQUtq3C2ortoC3u7twggz7sEto6';
+export const xautMintAddress = 'AymATz4TCL9sWNEEV9Kvyz45CHVhDZ6kUgjTJPzLpU9P';

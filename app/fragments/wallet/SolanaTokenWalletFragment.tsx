@@ -22,7 +22,7 @@ import { PriceComponent } from "../../components/PriceComponent";
 import { WImage } from "../../components/WImage";
 import { ReceiveableSolanaAsset } from "./ReceiveFragment";
 import { Image } from "expo-image";
-import { usdyMintAddress } from "../../secure/KnownWallets";
+import { usdyMintAddress, xautMintAddress } from "../../secure/KnownWallets";
 import { SolanaTokenInfoView } from "./views/solana/SolanaTokenInfoView";
 import { USDYRateAmination } from "./views/solana/USDYRateAmination";
 
@@ -60,8 +60,9 @@ const SolanaTokenHeader = memo(({ mint, owner }: { mint: string, owner: string }
     const navigation = useTypedNavigation();
     const token = useSolanaToken(owner, mint);
     const bottomBarHeight = useBottomTabBarHeight();
-    const [, , , usdyPriceData] = usePrice();
+    const [, , , usdyPriceData, xautPriceData] = usePrice();
     const usdyPrice = usdyPriceData.price.usd;
+    const xautPrice = xautPriceData.price.usd;
 
     if (!token) {
         return null;
@@ -69,7 +70,7 @@ const SolanaTokenHeader = memo(({ mint, owner }: { mint: string, owner: string }
 
     const isUsdy = mint === usdyMintAddress;
 
-    const rate = isUsdy ? usdyPrice : 1;
+    const rate = isUsdy ? usdyPrice : mint === xautMintAddress ? xautPrice : 1;
     const balance = token.amount ?? 0n;
     const symbol = token.symbol ?? "?";
     const decimals = token.decimals ?? 6;
@@ -199,8 +200,9 @@ const SolanaTokenWalletComponent = memo(({ owner, mint }: SolanaTokenWalletFragm
         markAsTimedOut
     } = useUnifiedSolanaTransactions(owner, mint);
     const token = useSolanaToken(owner, mint);
-    const [, , , usdyPriceData] = usePrice();
+    const [, , , usdyPriceData, xautPriceData] = usePrice();
     const usdyPrice = usdyPriceData.price.usd;
+    const xautPrice = xautPriceData.price.usd;
 
     const asset: ReceiveableSolanaAsset = {
         mint: mint,
@@ -227,7 +229,7 @@ const SolanaTokenWalletComponent = memo(({ owner, mint }: SolanaTokenWalletFragm
         setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
     });
 
-    const rate = mint === usdyMintAddress ? usdyPrice : 1;
+    const rate = mint === usdyMintAddress ? usdyPrice : mint === xautMintAddress ? xautPrice : 1;
 
     return (
         <View style={styles.container}>

@@ -9,9 +9,13 @@ const SolanaNativeTransfers = ({ nativeTransfers, owner, item }: { nativeTransfe
         return tx.fromUserAccount === owner || tx.toUserAccount === owner;
     });
 
+    if (filteredNativeTransfers.length === 0) {
+        return null;
+    }
+
     return (
         <View style={[styles.transactionItem, { gap: 32 }]}>
-            {filteredNativeTransfers?.map((tx, index) => {
+            {filteredNativeTransfers.map((tx, index) => {
                 return <SolanaNativeTransferView
                     key={`${item.signature}-${index}`}
                     transfer={tx}
@@ -24,9 +28,13 @@ const SolanaNativeTransfers = ({ nativeTransfers, owner, item }: { nativeTransfe
 };
 
 const SolanaTokenTransfers = ({ tokenTransfers, owner, item, asset }: { tokenTransfers: SolanaTokenTransfer[], owner: string, item: SolanaTransaction, asset?: ReceiveableSolanaAsset }) => {
+    if (!asset || tokenTransfers.length === 0) {
+        return null;
+    }
+
     return (
         <View style={[styles.transactionItem, { gap: 32 }]}>
-            {!!asset && tokenTransfers?.map((tx, index) => {
+            {tokenTransfers.map((tx, index) => {
                 return <SolanaTokenTransferView
                     key={`${tx.mint}-${item.signature}-${index}`}
                     transfer={tx}
@@ -42,22 +50,22 @@ const SolanaTokenTransfers = ({ tokenTransfers, owner, item, asset }: { tokenTra
 export const SolanaTransactionView = ({ item, owner, asset }: { item: SolanaTransaction, owner: string, asset?: ReceiveableSolanaAsset }) => {
     const { nativeTransfers, tokenTransfers } = item;
 
-    if (!asset) {
+    if (asset) {
         return (
-            <SolanaNativeTransfers
-                nativeTransfers={nativeTransfers}
+            <SolanaTokenTransfers
+                tokenTransfers={tokenTransfers}
                 owner={owner}
                 item={item}
+                asset={asset}
             />
         );
     }
 
     return (
-        <SolanaTokenTransfers
-            tokenTransfers={tokenTransfers}
+        <SolanaNativeTransfers
+            nativeTransfers={nativeTransfers}
             owner={owner}
             item={item}
-            asset={asset}
         />
     );
 };

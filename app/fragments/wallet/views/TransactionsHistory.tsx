@@ -65,7 +65,17 @@ export const TransactionsHistory = memo((props: {
     const [bounceableFormat] = useBounceableWalletFormat();
     const [walletsSettings] = useWalletsSettings();
 
-    const transactionsSectioned = useSectionedTransactions(transactions);
+    const solanaFilterFn = useCallback((tx: UnifiedTransaction): boolean => {
+        if (tx.network !== TransactionType.SOLANA) return true;
+        const solanaItem = tx as UnifiedSolanaTransaction;
+        if (!isBlockchainSolanaTransaction(solanaItem)) return true;
+        if (isUSDCTransaction(solanaItem.data) && solanaItem.data.tokenTransfers.length > 0) return true;
+        return solanaItem.data.nativeTransfers.some(
+            (t) => t.fromUserAccount === solanaAddress || t.toUserAccount === solanaAddress
+        );
+    }, [solanaAddress]);
+
+    const transactionsSectioned = useSectionedTransactions(transactions, solanaFilterFn);
 
     const navigateToPreview = useCallback((transaction: TonTransaction) => {
         navigation.navigateTonTransaction(transaction, props.ledger);

@@ -1,7 +1,7 @@
 import { memo, useEffect, useState } from "react";
 import { View, Text, Pressable } from "react-native";
 import { useTheme } from "../../../../engine/hooks";
-import { usdyMintAddress, xautMintAddress } from "../../../../secure/KnownWallets";
+import { usdyMintAddress, XAUT0MintAddress } from "../../../../secure/KnownWallets";
 import { useTokenInfo } from "../../../../engine/hooks/useTokenInfo";
 import { openWithInApp } from "../../../../utils/openWithInApp";
 import Collapsible from "react-native-collapsible";
@@ -10,15 +10,15 @@ import { t } from "../../../../i18n/t";
 import Animated, { Easing, interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { Image } from "expo-image";
 
-const xautTokenId = '5176';
+const xaut0TokenId = '37082';
 const usdyTokenId = '29256';
 
 export const SolanaTokenInfoView = memo(({ mint }: { mint: string }) => {
     const theme = useTheme();
     const tokenId = mint === usdyMintAddress
         ? usdyTokenId
-        : mint === xautMintAddress
-            ? xautTokenId
+        : mint === XAUT0MintAddress
+            ? xaut0TokenId
             : undefined;
     const tokenInfo = useTokenInfo(tokenId).data;
     const [collapsed, setCollapsed] = useState(true);

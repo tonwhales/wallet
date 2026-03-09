@@ -21,10 +21,10 @@ import ChangellyLogo from '../../../assets/changelly.svg';
 import { CHANGELLY_PRIVACY_URL, CHANGELLY_TERMS_URL } from "../../utils/constants";
 import { MaestraEvent, trackMaestraEvent } from "../../analytics/maestra";
 import { useHoldersProfile } from "../../engine/hooks/holders/useHoldersProfile";
-import { xautMintAddress } from "../../secure/KnownWallets";
+import { XAUT0MintAddress } from "../../secure/KnownWallets";
 
 const swapUnsupportedMints = new Set([
-    xautMintAddress,
+    XAUT0MintAddress,
 ]);
 
 type ListItem = { type: AssetType.TON }

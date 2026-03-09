@@ -706,7 +706,7 @@ const knownWalletsMainnet = {
 export const useKnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet } = (isTestnet: boolean) => {
     const ethena = useEthena();
     const wallets = isTestnet ? knownWalletsTestnet : knownWalletsMainnet;
-    
+
     return useMemo(() => ({
         ...wallets,
         [ethena.minter.toString({ testOnly: isTestnet })]: {
@@ -828,4 +828,4 @@ export const KnownJettonTickers = [
 
 
 export const usdyMintAddress = 'A1KLoBrKBde8Ty9qtNQUtq3C2ortoC3u7twggz7sEto6';
-export const xautMintAddress = 'AymATz4TCL9sWNEEV9Kvyz45CHVhDZ6kUgjTJPzLpU9P';
+export const XAUT0MintAddress = 'AymATz4TCL9sWNEEV9Kvyz45CHVhDZ6kUgjTJPzLpU9P';

@@ -39,9 +39,9 @@ export function usePriceQuery(): [Price, string, Price, Price, Price] {
         }
     };
 
-    const xautPrice = {
+    const XAUT0Price = {
         price: {
-            usd: price.data?.xautPrice?.usd ?? 0,
+            usd: price.data?.xaut0Price?.usd ?? 0,
             rates: price.data?.rates ?? {}
         }
     };
@@ -51,6 +51,6 @@ export function usePriceQuery(): [Price, string, Price, Price, Price] {
         currency,
         solanaPrice,
         usdyPrice,
-        xautPrice
+        XAUT0Price
     ];
 }

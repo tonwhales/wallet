@@ -7,8 +7,7 @@ export function useTokenInfo(id?: string) {
         queryKey: Queries.TokenInfo(id ?? ''),
         refetchOnMount: true,
         refetchOnWindowFocus: true,
-        // staleTime: 1000 * 60 * 60,
-        staleTime: 1000,
+        staleTime: 1000 * 60 * 60,
         enabled: !!id,
         queryFn: async () => {
             if (!id) {

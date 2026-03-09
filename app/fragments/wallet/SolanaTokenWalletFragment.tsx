@@ -22,12 +22,11 @@ import { PriceComponent } from "../../components/PriceComponent";
 import { WImage } from "../../components/WImage";
 import { ReceiveableSolanaAsset } from "./ReceiveFragment";
 import { Image } from "expo-image";
-import { usdyMintAddress, xautMintAddress } from "../../secure/KnownWallets";
+import { usdyMintAddress, XAUT0MintAddress } from "../../secure/KnownWallets";
 import { SolanaTokenInfoView } from "./views/solana/SolanaTokenInfoView";
 import { USDYRateAmination } from "./views/solana/USDYRateAmination";
 
 import SolanaIcon from '@assets/ic-solana.svg';
-import ArrowIcon from '@assets/order/arrow-without-background.svg';
 
 export type SolanaTokenWalletFragmentProps = {
     owner: string,
@@ -60,9 +59,9 @@ const SolanaTokenHeader = memo(({ mint, owner }: { mint: string, owner: string }
     const navigation = useTypedNavigation();
     const token = useSolanaToken(owner, mint);
     const bottomBarHeight = useBottomTabBarHeight();
-    const [, , , usdyPriceData, xautPriceData] = usePrice();
+    const [, , , usdyPriceData, XAUT0PriceData] = usePrice();
     const usdyPrice = usdyPriceData.price.usd;
-    const xautPrice = xautPriceData.price.usd;
+    const xaut0Price = XAUT0PriceData.price.usd;
 
     if (!token) {
         return null;
@@ -70,7 +69,7 @@ const SolanaTokenHeader = memo(({ mint, owner }: { mint: string, owner: string }
 
     const isUsdy = mint === usdyMintAddress;
 
-    const rate = isUsdy ? usdyPrice : mint === xautMintAddress ? xautPrice : 1;
+    const rate = isUsdy ? usdyPrice : mint === XAUT0MintAddress ? xaut0Price : 1;
     const balance = token.amount ?? 0n;
     const symbol = token.symbol ?? "?";
     const decimals = token.decimals ?? 6;
@@ -200,9 +199,9 @@ const SolanaTokenWalletComponent = memo(({ owner, mint }: SolanaTokenWalletFragm
         markAsTimedOut
     } = useUnifiedSolanaTransactions(owner, mint);
     const token = useSolanaToken(owner, mint);
-    const [, , , usdyPriceData, xautPriceData] = usePrice();
+    const [, , , usdyPriceData, XAUT0PriceData] = usePrice();
     const usdyPrice = usdyPriceData.price.usd;
-    const xautPrice = xautPriceData.price.usd;
+    const xaut0Price = XAUT0PriceData.price.usd;
 
     const asset: ReceiveableSolanaAsset = {
         mint: mint,
@@ -229,7 +228,7 @@ const SolanaTokenWalletComponent = memo(({ owner, mint }: SolanaTokenWalletFragm
         setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
     });
 
-    const rate = mint === usdyMintAddress ? usdyPrice : mint === xautMintAddress ? xautPrice : 1;
+    const rate = mint === usdyMintAddress ? usdyPrice : mint === XAUT0MintAddress ? xaut0Price : 1;
 
     return (
         <View style={styles.container}>

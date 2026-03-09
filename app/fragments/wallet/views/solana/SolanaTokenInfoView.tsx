@@ -10,12 +10,15 @@ import { t } from "../../../../i18n/t";
 import Animated, { Easing, interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { Image } from "expo-image";
 
+const xautTokenId = '5176';
+const usdyTokenId = '29256';
+
 export const SolanaTokenInfoView = memo(({ mint }: { mint: string }) => {
     const theme = useTheme();
     const tokenId = mint === usdyMintAddress
-        ? '29256'
+        ? usdyTokenId
         : mint === xautMintAddress
-            ? '29257'
+            ? xautTokenId
             : undefined;
     const tokenInfo = useTokenInfo(tokenId).data;
     const [collapsed, setCollapsed] = useState(true);

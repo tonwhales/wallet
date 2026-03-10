@@ -15,7 +15,7 @@ import { processEmitterMessage } from "./processEmitterMessage";
 import { NavigationOptionsAction, SetNavigationOptionsAction } from "./reduceNavigationOptions";
 import { Address } from "@ton/core";
 import { getCurrentAddress } from "../../../storage/appState";
-import { Space } from "@intercom/intercom-react-native";
+import Intercom, { Space } from "@intercom/intercom-react-native";
 import { z } from "zod";
 import { isAuthTimedOut } from "../../SessionWatcher";
 
@@ -57,7 +57,8 @@ export enum DAppWebViewAPIMethod {
     navigate = 'navigate',
     aiChat = 'aiChat',
     aiChatMessage = 'aiChatMessage',
-    aiChatTx = 'aiChatTx'
+    aiChatTx = 'aiChatTx',
+    intercomTrackEvent = 'intercomTrackEvent'
 }
 
 const userAttributesSchema = z.object({
@@ -337,6 +338,17 @@ export function processWebViewMessage(
                         }
                     } catch {
                         warn('Failed to show intercom with message');
+                    }
+                })();
+                return true;
+            case DAppWebViewAPIMethod.intercomTrackEvent:
+                (async () => {
+                    try {
+                        if (api.useSupportAPI && args.eventName) {
+                            await Intercom.logEvent(args.eventName, args.metadata);
+                        }
+                    } catch {
+                        warn('Failed to track intercom event');
                     }
                 })();
                 return true;

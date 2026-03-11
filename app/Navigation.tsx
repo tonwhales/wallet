@@ -129,6 +129,8 @@ import { isLatestIos } from './utils/isLatestIos';
 import { HoldersAIChatFragment } from './fragments/holders/HoldersAIChatFragment';
 import { MaestraEvent, trackMaestraEvent } from './analytics/maestra';
 import { DogsInviteFragment } from './fragments/holders/DogsInviteFragment';
+import { PGPExportFragment } from './fragments/secure/PGPExportFragment';
+import { PGPImportFragment } from './fragments/secure/PGPImportFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -274,6 +276,8 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('DeveloperToolsStorage', DevStorageFragment, safeArea),
     genericScreen('DeveloperToolsErrorLogs', DevErrorLogsFragment, safeArea),
     genericScreen('DevDAppWebView', DevDAppWebViewFragment, safeArea, true, 0),
+    genericScreen('PGPExport', PGPExportFragment, safeArea, true, 0),
+    genericScreen('PGPImport', PGPImportFragment, safeArea, true, 0),
 
     modalScreen('PasscodeSetupInit', PasscodeSetupFragment, safeArea),
     modalScreen('KeyStoreMigration', KeyStoreMigrationFragment, safeArea),

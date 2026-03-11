@@ -35,6 +35,7 @@ import { useScreenProtectorState } from '../../engine/hooks/settings/useScreenPr
 import WebView from 'react-native-webview';
 import { holdersUrl } from '../../engine/api/holders/fetchUserState';
 import { useWebViewPreloader } from '../../components/WebViewPreloaderContext';
+import { setDogsInvShown } from '../../engine/holders/dogsUtils';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -286,6 +287,30 @@ export const DeveloperToolsFragment = fragment(() => {
                     }}>
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ItemButton
+                                title={'🔐 PGP Export Wallets'}
+                                onPress={() => {
+                                    navigation.navigate('PGPExport');
+                                }}
+                            />
+                        </View>
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemButton
+                                title={'📥 PGP Import Wallets'}
+                                onPress={() => {
+                                    navigation.navigate('PGPImport');
+                                }}
+                            />
+                        </View>
+                    </View>
+                    <View style={{
+                        backgroundColor: theme.border,
+                        borderRadius: 14,
+                        overflow: 'hidden',
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                    }}>
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemButton
                                 title={'Open LedgerSignData'}
                                 onPress={() => {
                                     navigation.navigate('LedgerSignData');
@@ -303,6 +328,22 @@ export const DeveloperToolsFragment = fragment(() => {
                     }}>
                         <Item title={"Store code"} hint={countryCodes.storeFrontCode ?? 'Not availible'} />
                         <Item title={"Country code"} hint={countryCodes.countryCode} />
+                    </View>
+                    <View style={{
+                        backgroundColor: theme.border,
+                        borderRadius: 14,
+                        overflow: 'hidden',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        padding: 4
+                    }}>
+                        <ItemButton
+                            title={"DOGS"}
+                            onPress={() => {
+                                setDogsInvShown(false);
+                                navigation.navigate('DogsInvite');
+                            }}
+                        />
                     </View>
                     {__DEV__ && (
                         <View style={{

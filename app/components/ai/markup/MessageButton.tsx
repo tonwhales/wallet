@@ -13,8 +13,6 @@ export const MessageButton = memo(({ element }: { element: ButtonElement }) => {
     const theme = useTheme();
     const { url, title, icon } = element.attributes;
 
-    console.log('url', url);
-
     const handlePress = () => {
         openWithInApp(url);
     };

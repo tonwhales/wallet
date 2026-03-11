@@ -17,7 +17,7 @@ export type HoldersAccountTarget = {
 export function mapHoldersAccountTarget(account: GeneralHoldersAccount): HoldersAccountTarget {
     let memo: string | undefined = undefined;
 
-    if (account.cryptoCurrency.ticker === 'TON') {
+    if (account.cryptoCurrency?.ticker === 'TON') {
         memo = 'Top Up';
     }
 
@@ -27,8 +27,8 @@ export function mapHoldersAccountTarget(account: GeneralHoldersAccount): Holders
         name: account.name,
         accountIndex: account.accountIndex,
         accountType: account.type || 'crypto',
-        jettonMaster: account.cryptoCurrency.tokenContract,
-        symbol: account.cryptoCurrency.ticker
+        jettonMaster: account.cryptoCurrency?.tokenContract,
+        symbol: account.cryptoCurrency?.ticker ?? ''
     };
 }
 
@@ -55,7 +55,7 @@ export function useHoldersAccountTrargets(address: string | Address, solanaAddre
             }).map((item) => {
                 let memo: string | undefined = undefined;
 
-                if (isPrivate && item.cryptoCurrency.ticker === 'TON' && item.contract !== 'ton.card.v7') {
+                if (isPrivate && item.cryptoCurrency?.ticker === 'TON' && item.contract !== 'ton.card.v7') {
                     memo = 'Top Up';
                 }
 
@@ -64,8 +64,8 @@ export function useHoldersAccountTrargets(address: string | Address, solanaAddre
                     memo,
                     name: item.name,
                     accountIndex: item.accountIndex,
-                    jettonMaster: item.cryptoCurrency.tokenContract,
-                    symbol: item.cryptoCurrency.ticker,
+                    jettonMaster: item.cryptoCurrency?.tokenContract,
+                    symbol: item.cryptoCurrency?.ticker ?? '',
                     accountType: item.type || 'crypto',
                 };
             });

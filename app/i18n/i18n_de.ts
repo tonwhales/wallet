@@ -310,7 +310,16 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "rateLimited": "Wir verzeichnen eine hohe Nachfrage, bitte versuchen Sie es später erneut oder kontaktieren Sie den Support",
                 "signingFailed": "Transaktionssignatur fehlgeschlagen",
                 "insufficientFundsForRentTitle": "Transaktionsbetrag ist unter dem Mindestbetrag",
-                "insufficientFundsForRent": "Unzureichende SOL für das Senden an: {{address}}, benötigen {{amount}} mehr"
+                "insufficientFundsForRent": "Unzureichende SOL-Mittel für die Überweisung an: {{address}}, benötigen {{amount}} mehr",
+                "blockhashExpired": "Transaktion abgelaufen, bitte erneut versuchen",
+                "accountNotFound": "Empfängerkonto nicht gefunden",
+                "accountNotInitialized": "Empfängerkonto wurde noch nicht im Netzwerk aktiviert",
+                "insufficientFundsForFee": "Unzureichende SOL-Mittel für die Transaktionsgebühr",
+                "customProgramError": "Programmfehler (Code: {{code}})",
+                "transactionTooLarge": "Transaktion ist zu groß",
+                "duplicateTransaction": "Diese Transaktion wurde bereits verarbeitet",
+                "simulationFailed": "Transaktionssimulation fehlgeschlagen",
+                "unknownError": "Ein unbekannter Fehler ist aufgetreten"
             }
         }
     },
@@ -1464,14 +1473,35 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "solana": {
         "instructions": {
-            "createAssociatedTokenAccount": "Verknüpftes Token-Konto erstellen",
+            "createAssociatedTokenAccount": "ATA erstellen",
             "unknown": "Unbekannte Anweisung",
             "systemTransfer": "SOL-Überweisung",
             "createAccount": "Konto erstellen",
             "tokenTransfer": "Token-Überweisung",
             "depositCard": "Kontoeinzahlung",
             "closeCard": "Karte schließen",
-            "updateCardLimits": "Kartenlimits aktualisieren"
+            "updateCardLimits": "Kartenlimits aktualisieren",
+            "executeWithdrawal": "Auszahlung ausführen",
+            "cancelWithdrawal": "Auszahlung stornieren",
+            "allocateWithdrawals": "Auszahlungen zuweisen",
+            "deleteCard": "Karte löschen",
+            "updateCardStateV2": "Kartenstatus aktualisieren",
+            "createRoot": "Root erstellen",
+            "issueCard": "Karte ausstellen",
+            "refund": "Rückerstattung",
+            "syncCardBalance": "Kartenguthaben synchronisieren",
+            "updateCardState": "Kartenstatus aktualisieren",
+            "withdrawFromTreasure": "Vom Schatz abheben",
+            "addToWhitelist": "Zur Whitelist hinzufügen",
+            "removeFromWhitelist": "Von der Whitelist entfernen",
+            "resetWhitelist": "Whitelist zurücksetzen",
+            "changeController": "Controller ändern",
+            "changeGracefulPeriod": "Karenzzeit ändern",
+            "assignNewTreasureAuthority": "Neue Schatz-Autorität zuweisen",
+            "setSupportAuthority": "Support-Autorität festlegen",
+            "setWithdrawalConfig": "Auszahlungskonfiguration festlegen",
+            "fixIncorrectDeposit": "Fehlerhafte Einzahlung korrigieren",
+            "instruction-12": "Übertrag"
         },
         "banner": {
             "title": "Solana ist jetzt verfügbar",

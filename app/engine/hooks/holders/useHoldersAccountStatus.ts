@@ -7,6 +7,7 @@ import { HoldersUserState, userStateCodec, fetchUserState } from "../../api/hold
 import { z } from 'zod';
 import axios from "axios";
 import { deleteHoldersToken, getHoldersToken } from "../../../storage/holders";
+import { saveErrorLog } from "../../../storage";
 
 const holdersAccountStatus = z.union([
     z.object({ state: z.literal(HoldersUserState.NeedEnrollment) }),
@@ -45,6 +46,12 @@ export function useHoldersAccountStatus(address: string | Address | undefined) {
 
                 return { ...fetched, token } as HoldersAccountStatus;
             } catch (error) {
+                saveErrorLog({
+                    message: error instanceof Error ? error.message : String(error),
+                    stack: error instanceof Error ? error.stack : undefined,
+                    url: 'useHoldersAccountStatus:fetchUserState',
+                    additionalData: { isTestnet, statusCode: axios.isAxiosError(error) ? error.response?.status : undefined }
+                });
                 if (axios.isAxiosError(error) && error.response?.status === 401) {
                     deleteHoldersToken(addressString!);
                     throw new Error('Unauthorized');

@@ -19,9 +19,11 @@ import { useWalletVersion } from '../useWalletVersion';
 import { useToaster } from '../../../components/toast/ToastProvider';
 import { useNetwork } from '..';
 import { checkProtocolVersionCapability, checkTonconnectSignRequest, checkTonconnectTxRequest, CURRENT_PROTOCOL_VERSION, verifyConnectRequest } from '../../tonconnect';
+import { saveErrorLog } from '../../../storage';
 
 type SolanaInjectedBridge = {
     sendSolanaTransaction: (transaction: string) => Promise<void>;
+    sendSolanaVersionedTransaction: (transaction: string) => Promise<void>;
 }
 
 export function useDAppBridge(endpoint: string, navigation: TypedNavigation, address?: string, isLedger?: boolean): any {
@@ -129,6 +131,13 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
                         return error;
                     }
 
+                    saveErrorLog({
+                        message: error instanceof Error ? error.message : String(error),
+                        stack: error instanceof Error ? error.stack : undefined,
+                        url: 'useDAppBridge:connect',
+                        additionalData: { endpoint: cleanEndpoint }
+                    });
+
                     return new ConnectEventError(
                         CONNECT_EVENT_ERROR_CODES.UNKNOWN_ERROR,
                         error?.message,
@@ -233,6 +242,12 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
                                 });
                                 return;
                             } catch (error) {
+                                saveErrorLog({
+                                    message: error instanceof Error ? error.message : String(error),
+                                    stack: error instanceof Error ? error.stack : undefined,
+                                    url: 'useDAppBridge:sendTransaction',
+                                    additionalData: { endpoint: cleanEndpoint, requestId: request.id.toString() }
+                                });
                                 callback({
                                     error: {
                                         code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
@@ -266,6 +281,12 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
                                     callback
                                 });
                             } catch (error) {
+                                saveErrorLog({
+                                    message: error instanceof Error ? error.message : String(error),
+                                    stack: error instanceof Error ? error.stack : undefined,
+                                    url: 'useDAppBridge:signData',
+                                    additionalData: { endpoint: cleanEndpoint, requestId: request.id.toString() }
+                                });
                                 callback({
                                     error: {
                                         code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
@@ -294,7 +315,7 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
                     }
                 });
             },
-            
+
             sendSolanaTransaction: async (transaction: string) => {
                 return new Promise<WalletResponse<any>>((resolve) => {
                     const callback = (ok: boolean, signature: string | null) => {
@@ -315,11 +336,37 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
                         });
                     };
 
-                    // TODO: *solana* check if transaction is valid
-
                     navigation.navigateSolanaTransfer({
                         type: 'message',
                         message: transaction,
+                        callback
+                    });
+                });
+            },
+
+            sendSolanaVersionedTransaction: async (transaction: string) => {
+                return new Promise<WalletResponse<any>>((resolve) => {
+                    const callback = (ok: boolean, signature: string | null) => {
+                        if (!ok) {
+                            resolve({
+                                error: {
+                                    code: SEND_TRANSACTION_ERROR_CODES.USER_REJECTS_ERROR,
+                                    message: 'User rejected',
+                                },
+                                id: requestId.toString(),
+                            });
+                            return;
+                        }
+
+                        resolve({
+                            result: signature,
+                            id: requestId.toString(),
+                        });
+                    };
+
+                    navigation.navigateSolanaTransfer({
+                        type: 'versioned-transaction',
+                        transaction,
                         callback
                     });
                 });
@@ -334,7 +381,14 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
         try {
             onDisconnect(cleanEndpoint, requestId);
             sendEvent({ event: 'disconnect', payload: {}, id: requestId });
-        } catch { }
+        } catch (error) {
+            saveErrorLog({
+                message: error instanceof Error ? error.message : String(error),
+                stack: error instanceof Error ? error.stack : undefined,
+                url: 'useDAppBridge:disconnect',
+                additionalData: { endpoint: cleanEndpoint }
+            });
+        }
     }, [cleanEndpoint, sendEvent, requestId]);
 
     return {

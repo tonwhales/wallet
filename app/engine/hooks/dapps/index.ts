@@ -26,3 +26,4 @@ export { useBrowserWebSearchSuggestions } from './useBrowserWebSearchSuggestions
 export { useDAppsSuggestions } from './useDAppsSuggestions';
 export { useSearchEngine } from './useSearchEngine';
 export { usePrepareConnectSignRequest } from './usePrepareConnectSignRequest';
+export { useAllowedDomains, getAllowedDomains, isDomainAllowed } from './useAllowedDomains';

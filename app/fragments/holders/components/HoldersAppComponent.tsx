@@ -59,7 +59,7 @@ export const HoldersLoader = memo(({
         return { opacity: opacity.value };
     });
 
-    const longLoadingTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const longLoadingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const start = useMemo(() => Date.now(), []);
     const trackLoadingTime = useCallback(() => {
         trackEvent(MixpanelEvent.HoldersLoadingTime, { type, duration: Date.now() - start });

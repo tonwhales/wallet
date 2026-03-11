@@ -2,7 +2,6 @@ import React, { useMemo } from "react";
 import { Image, Platform, Pressable, ScrollView, View } from "react-native";
 import { fragment } from "../../fragment";
 import { Text } from "react-native";
-import ChangellyLogo from '../../../assets/changelly.svg';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../../engine/hooks";
 import { ScreenHeader } from "../../components/ScreenHeader";
@@ -11,6 +10,7 @@ import { StatusBar } from "expo-status-bar";
 import { Typography } from "../../components/styles";
 import { t } from "../../i18n/t";
 import { getLedgerSelected } from "../../storage/appState";
+import { ChangellyLogo } from "@assets";
 
 const DedustLogo = require('@assets/known/ic-dedust.png');
 

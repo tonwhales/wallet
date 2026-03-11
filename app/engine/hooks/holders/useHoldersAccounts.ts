@@ -9,6 +9,7 @@ import { HoldersUserState } from "../../api/holders/fetchUserState";
 import { updateProvisioningCredentials } from "../../holders/updateProvisioningCredentials";
 import axios from "axios";
 import { deleteHoldersToken } from "../../../storage/holders";
+import { saveErrorLog } from "../../../storage";
 
 export type HoldersAccounts = {
     accounts: GeneralHoldersAccount[],
@@ -83,11 +84,23 @@ export function useHoldersAccounts(address: string | Address | undefined, solana
                             BigInt(a.balance);
                             return { ...a, balance: a.balance };
                         } catch (error) {
+                            saveErrorLog({
+                                message: error instanceof Error ? error.message : String(error),
+                                stack: error instanceof Error ? error.stack : undefined,
+                                url: 'useHoldersAccounts:parseBalance',
+                                additionalData: { accountId: a.id }
+                            });
                             return { ...a, balance: '0' }
                         }
                     }), type, prepaidCards
                 } as HoldersAccounts;
             } catch (error) {
+                saveErrorLog({
+                    message: error instanceof Error ? error.message : String(error),
+                    stack: error instanceof Error ? error.stack : undefined,
+                    url: 'useHoldersAccounts:queryFn',
+                    additionalData: { isTestnet, statusCode: axios.isAxiosError(error) ? error.response?.status : undefined }
+                });
                 if (axios.isAxiosError(error) && error.response?.status === 401) {
                     deleteHoldersToken(addressString!);
                     throw new Error('Unauthorized');

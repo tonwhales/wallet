@@ -18,10 +18,9 @@ import { PerfView } from '../../../components/basic/PerfView';
 import { Typography } from '../../../components/styles';
 import { avatarHash } from '../../../utils/avatarHash';
 import { WalletSettings } from '../../../engine/state/walletSettings';
-import { useVerifyJetton } from '../../../engine/hooks';
+import { useVerifyJetton, useForcedAvatarType } from '../../../engine/hooks';
 import { TxAvatar } from './TxAvatar';
 import { useContractInfo } from '../../../engine/hooks/metadata/useContractInfo';
-import { ForcedAvatarType } from '../../../components/avatar/ForcedAvatar';
 import { isJettonTxSPAM, parseForwardPayloadComment } from '../../../utils/spam/isTxSPAM';
 import { JettonTransfer } from '../../../engine/hooks/transactions/useJettonTransactions';
 import { mapJettonToMasterState } from '../../../utils/jettons/mapJettonToMasterState';
@@ -95,15 +94,10 @@ export function JettonTransactionView(props: {
         op = t('tx.failed');
     }
 
-    const forcedAvatar: ForcedAvatarType | undefined = useMemo(() => {
-        if (targetContract?.kind === 'dedust-vault') {
-            return 'dedust';
-        }
-
-        if (targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card') {
-            return 'holders';
-        }
-    }, [targetContract, opAddress, ledgerAddresses]);
+    const forcedAvatar = useForcedAvatarType({
+        address: opAddress,
+        contractInfo: targetContract
+    });
 
     const isLedgerTarget = useMemo(() => {
         return !!ledgerAddresses?.find((addr) => {

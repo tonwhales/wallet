@@ -3,8 +3,11 @@ import { Image } from 'expo-image';
 import { PerfView } from "../basic/PerfView";
 import { useTheme } from "../../engine/hooks";
 import { AvatarIcProps, resolveAvatarIc } from "./Avatar";
+import { ChangellyLogo, IcProxyCashSmall, Img_Cashback, Img_Dedust } from "@assets";
+import { View } from "react-native";
+import { ServiceAddressService } from "../../engine/api";
 
-export type ForcedAvatarType = 'dedust' | 'holders' | 'cashback';
+export type ForcedAvatarType = 'dedust' | 'cashback' | ServiceAddressService;
 
 export const ForcedAvatar = memo(({
     type,
@@ -52,7 +55,7 @@ export const ForcedAvatar = memo(({
     switch (type) {
         case 'dedust':
             img = <Image
-                source={require('@assets/known/ic-dedust.png')}
+                source={Img_Dedust}
                 style={{ width: size, height: size, borderRadius: size / 2 }}
             />
             break;
@@ -64,9 +67,34 @@ export const ForcedAvatar = memo(({
             break;
         case 'cashback':
             img = <Image
-                source={require('@assets/known/ic-cashback.png')}
+                source={Img_Cashback}
                 style={{ width: size, height: size, borderRadius: size / 2 }}
             />
+            break;
+        case 'postcash':
+            img = <View style={{
+                width: size, height: size,
+                borderRadius: size / 2,
+                overflow: 'hidden',
+                justifyContent: 'center', alignItems: 'center',
+                backgroundColor: theme.surfaceOnBg,
+            }}>
+                <IcProxyCashSmall
+                    width={size * 0.95} height={size * 0.95}
+                    style={{ height: size * 0.95, width: size * 0.95 }}
+                />
+            </View>
+            break;
+        case 'changelly':
+            img = <View style={{
+                width: size, height: size,
+                borderRadius: size / 2,
+                overflow: 'hidden',
+                justifyContent: 'center', alignItems: 'center',
+                backgroundColor: theme.surfaceOnBg,
+            }}>
+                <ChangellyLogo width={size * 1.2} height={size * 1.2} />
+            </View>
             break;
     }
 

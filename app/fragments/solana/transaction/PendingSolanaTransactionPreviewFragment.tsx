@@ -16,16 +16,15 @@ import { avatarColors } from "../../../components/avatar/Avatar";
 import { avatarHash } from "../../../utils/avatarHash";
 import { ToastDuration, useToaster } from "../../../components/toast/ToastProvider";
 import { copyText } from "../../../utils/copyText";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { SolanaWalletAddress } from "../../../components/address/SolanaWalletAddress";
 import { useParams } from "../../../utils/useParams";
-import { useCurrentAddress, useHoldersAccounts, usePendingSolanaTransferInfo } from "../../../engine/hooks";
+import { usePendingSolanaTransferInfo, useForcedAvatarType } from "../../../engine/hooks";
 import { PendingSolanaTransaction, PendingSolanaTransactionInstructions } from "../../../engine/state/pending";
 import { SolanaTransactionPreview } from "../../../engine/hooks/solana/useSolanaTransferInfo";
 import { formatTime } from "../../../utils/dates";
 import { formatDate } from "../../../utils/dates";
 import { TransferInstructionView } from "../transfer/components/TransferInstructionView";
-import { useTransactionsUtilsContext } from "../../../engine/TransactionsUtilsContext";
 
 export type PendingSolanaTransactionPreviewParams = {
     owner: string;
@@ -39,11 +38,10 @@ const SolanaTxPreview = ({ transfer, statusText }: { transfer: SolanaTransaction
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const toaster = useToaster();
-    const { checkIsHoldersTarget } = useTransactionsUtilsContext();
-    
+
     const amountColor = (kind === 'in') ? theme.accentGreen : theme.textPrimary;
     const avatarColor = avatarColors[avatarHash(address ?? '', avatarColors.length)];
-    const forceAvatar = useMemo(() => checkIsHoldersTarget(address ?? '') ? 'holders' : undefined, [checkIsHoldersTarget, address]);
+    const forceAvatar = useForcedAvatarType({ address });
 
     const onCopyAddress = useCallback((address: string) => {
         copyText(address);
@@ -241,7 +239,7 @@ const PendingSolanaTransactionPreview = fragment(() => {
 
     return !transferInfo
         ? <SolanaTxPreviewInstructions tx={{ ...transaction as PendingSolanaTransactionInstructions, owner }} />
-        : <SolanaTxPreview transfer={{ ...transferInfo, id: transaction.id }} statusText={statusText}/>
+        : <SolanaTxPreview transfer={{ ...transferInfo, id: transaction.id }} statusText={statusText} />
 });
 
 PendingSolanaTransactionPreview.displayName = 'PendingSolanaTransactionPreview';

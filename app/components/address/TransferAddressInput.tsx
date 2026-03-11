@@ -5,7 +5,7 @@ import { avatarColors } from "../avatar/Avatar";
 import { AddressDomainInput, AddressDomainInputRef, AddressInputState, InputAction } from "./AddressDomainInput";
 import { ATextInputRef } from "../ATextInput";
 import { KnownWallet } from "../../secure/KnownWallets";
-import { useAppState, useBounceableWalletFormat, useContractInfo, useHoldersAccounts, useTheme, useWalletSettings } from "../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useContractInfo, useHoldersAccounts, useTheme, useWalletSettings, useForcedAvatarType } from "../../engine/hooks";
 import { AddressSearchItem, SolanaAddressSearchItem } from "./AddressSearch";
 import { t } from "../../i18n/t";
 import { PerfText } from "../basic/PerfText";
@@ -103,22 +103,13 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     }
 
     const targetContract = useContractInfo(validTonAddressFriendly || '');
-    const isTargetHolders = addressType === 'ton'
-        ? (
-            holdersAccounts.find((acc) => !!acc.address && (acc.network === 'ton-mainnet' || acc.network === 'ton-testnet') && validTonAddress?.equals(Address.parse(acc.address))) ||
-            targetContract?.kind === 'card' ||
-            targetContract?.kind === 'jetton-card'
-        )
-        : addressType === 'solana'
-            ? (
-                holdersAccounts.find((acc) =>
-                    !!acc.address &&
-                    acc.address === validSolanaAddress
-                )
-            )
-            : false;
-
     const displayAddress = validSolanaAddress || validTonAddressFriendly;
+
+    // Unified hook handles service check + own holders account check + contract info
+    const forceAvatarType = useForcedAvatarType({
+        address: displayAddress,
+        contractInfo: targetContract
+    });
     const avatarColorHash = walletSettings?.color ?? avatarHash(displayAddress ?? '', avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
 
@@ -170,9 +161,9 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
             friendly={displayAddress}
             avatarColor={avatarColor}
             knownWallets={addressType === 'ton' ? knownWallets : {}}
-            forceAvatar={isTargetHolders ? 'holders' : undefined}
+            forceAvatar={forceAvatarType}
         />
-    ), [theme, own, addressType, contact, walletSettings?.avatar, isSelectedLedger, displayAddress, avatarColor, knownWallets, isTargetHolders]);
+    ), [theme, own, addressType, contact, walletSettings?.avatar, isSelectedLedger, displayAddress, avatarColor, knownWallets, forceAvatarType]);
 
     const onFocusCallback = useCallback(() => onFocus(index), [index]);
 

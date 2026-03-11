@@ -310,7 +310,16 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "rateLimited": "We are experiencing high demand, please try again later or contact support",
                 "signingFailed": "Transaction signing failed",
                 "insufficientFundsForRentTitle": "Transaction amount is below minimum",
-                "insufficientFundsForRent": "Insufficient SOL for sending to: {{address}}, need {{amount}} more"
+                "insufficientFundsForRent": "Insufficient SOL for sending to: {{address}}, need {{amount}} more",
+                "blockhashExpired": "Transaction expired, please try again",
+                "accountNotFound": "Recipient account not found",
+                "accountNotInitialized": "Recipient account has not been initialized on chain yet",
+                "insufficientFundsForFee": "Insufficient SOL for transaction fee",
+                "customProgramError": "Program error (code: {{code}})",
+                "transactionTooLarge": "Transaction is too large",
+                "duplicateTransaction": "This transaction has already been processed",
+                "simulationFailed": "Transaction simulation failed",
+                "unknownError": "An unknown error occurred"
             }
         }
     },
@@ -1465,14 +1474,35 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "solana": {
         "instructions": {
-            "createAssociatedTokenAccount": "Create associated token account",
+            "createAssociatedTokenAccount": "Create ATA",
             "unknown": "Unknown instruction",
             "systemTransfer": "SOL transfer",
             "createAccount": "Create account",
             "tokenTransfer": "Token transfer",
             "depositCard": "Account deposit",
             "closeCard": "Close card",
-            "updateCardLimits": "Update card limits"
+            "updateCardLimits": "Update card limits",
+            "executeWithdrawal": "Execute withdrawal",
+            "cancelWithdrawal": "Cancel withdrawal",
+            "allocateWithdrawals": "Allocate withdrawals",
+            "deleteCard": "Delete card",
+            "updateCardStateV2": "Update card state",
+            "createRoot": "Create root",
+            "issueCard": "Issue card",
+            "refund": "Refund",
+            "syncCardBalance": "Sync card balance",
+            "updateCardState": "Update card state",
+            "withdrawFromTreasure": "Withdraw from treasure",
+            "addToWhitelist": "Add to whitelist",
+            "removeFromWhitelist": "Remove from whitelist",
+            "resetWhitelist": "Reset whitelist",
+            "changeController": "Change controller",
+            "changeGracefulPeriod": "Change graceful period",
+            "assignNewTreasureAuthority": "Assign new treasure authority",
+            "setSupportAuthority": "Set support authority",
+            "setWithdrawalConfig": "Set withdrawal config",
+            "fixIncorrectDeposit": "Fix incorrect deposit",
+            "instruction-12": "Transfer"
         },
         "banner": {
             "title": "Solana is Now Available",

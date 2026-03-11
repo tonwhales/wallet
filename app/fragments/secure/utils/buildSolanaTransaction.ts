@@ -55,12 +55,12 @@ export async function buildSolanaTransaction({
     try {
         lastBlockHash = await failableSolanaBackoff('getLatestBlockhash', () => client.getLatestBlockhash());
     } catch (error) {
-        const mappedError = mapSolanaError(error);
+        const mappedError = await mapSolanaError(error, client);
         if (mappedError instanceof SendSolanaTransactionError && mappedError.isNetworkError) {
             try {
                 lastBlockHash = await failableSolanaBackoff('getLatestBlockhash', () => publicClient.getLatestBlockhash());
             } catch (error) {
-                throw mapSolanaError(error);
+                throw await mapSolanaError(error, publicClient);
             }
         } else {
             throw mappedError;
@@ -98,7 +98,7 @@ export async function buildSolanaTransaction({
                     true // allowOwnerOffCurve for PDA/multisig support
                 ));
             } catch (error) {
-                const mappedError = mapSolanaError(error);
+                const mappedError = await mapSolanaError(error, client);
                 if (mappedError instanceof SendSolanaTransactionError && mappedError.isNetworkError) {
                     try {
                         senderTokenAccount = await failableSolanaBackoff('getOrCreateAssociatedTokenAccount', () => getOrCreateAssociatedTokenAccount(
@@ -109,7 +109,7 @@ export async function buildSolanaTransaction({
                             true // allowOwnerOffCurve for PDA/multisig support
                         ));
                     } catch (error) {
-                        throw mapSolanaError(error);
+                        throw await mapSolanaError(error, publicClient);
                     }
                 } else {
                     throw mappedError;
@@ -124,7 +124,7 @@ export async function buildSolanaTransaction({
                     true // allowOwnerOffCurve for PDA/multisig support
                 ));
             } catch (error) {
-                const mappedError = mapSolanaError(error);
+                const mappedError = await mapSolanaError(error, client);
                 if (mappedError instanceof SendSolanaTransactionError && mappedError.isNetworkError) {
                     try {
                         senderTokenAccount = await failableSolanaBackoff('getAssociatedTokenAddress', () => getAssociatedTokenAddress(
@@ -133,7 +133,7 @@ export async function buildSolanaTransaction({
                             true // allowOwnerOffCurve for PDA/multisig support
                         ));
                     } catch (error) {
-                        throw mapSolanaError(error);
+                        throw await mapSolanaError(error, publicClient);
                     }
                 } else {
                     throw mappedError;
@@ -145,12 +145,12 @@ export async function buildSolanaTransaction({
         try {
             isATA = await failableSolanaBackoff('isPublicKeyATA', () => isPublicKeyATA({ solanaClient: client, address: recipient, mint: mintAddress }));
         } catch (error) {
-            const mappedError = mapSolanaError(error);
+            const mappedError = await mapSolanaError(error, client);
             if (mappedError instanceof SendSolanaTransactionError && mappedError.isNetworkError) {
                 try {
                     isATA = await failableSolanaBackoff('isPublicKeyATA', () => isPublicKeyATA({ solanaClient: publicClient, address: recipient, mint: mintAddress }));
                 } catch (error) {
-                    throw mapSolanaError(error);
+                    throw await mapSolanaError(error, publicClient);
                 }
             } else {
                 throw mappedError;
@@ -170,7 +170,7 @@ export async function buildSolanaTransaction({
                         true // allowOwnerOffCurve for PDA/multisig support
                     ))).address;
                 } catch (error) {
-                    const mappedError = mapSolanaError(error);
+                    const mappedError = await mapSolanaError(error, client);
                     if (mappedError instanceof SendSolanaTransactionError && mappedError.isNetworkError) {
                         try {
                             recipientAddress = (await failableSolanaBackoff('getOrCreateAssociatedTokenAccount', () => getOrCreateAssociatedTokenAccount(
@@ -181,7 +181,7 @@ export async function buildSolanaTransaction({
                                 true // allowOwnerOffCurve for PDA/multisig support
                             ))).address;
                         } catch (error) {
-                            throw mapSolanaError(error);
+                            throw await mapSolanaError(error, publicClient);
                         }
                     } else {
                         throw mappedError;
@@ -196,7 +196,7 @@ export async function buildSolanaTransaction({
                         true // allowOwnerOffCurve for PDA/multisig support
                     ));
                 } catch (error) {
-                    const mappedError = mapSolanaError(error);
+                    const mappedError = await mapSolanaError(error, client);
                     if (mappedError instanceof SendSolanaTransactionError && mappedError.isNetworkError) {
                         try {
                             recipientAddress = await failableSolanaBackoff('getAssociatedTokenAddress', () => getAssociatedTokenAddress(
@@ -205,7 +205,7 @@ export async function buildSolanaTransaction({
                                 true // allowOwnerOffCurve for PDA/multisig support
                             ));
                         } catch (error) {
-                            throw mapSolanaError(error);
+                            throw await mapSolanaError(error, publicClient);
                         }
                     } else {
                         throw mappedError;

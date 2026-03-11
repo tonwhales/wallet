@@ -8,6 +8,7 @@ import { ConnectQrQuery, setLastReturnStrategy } from "../../engine/tonconnect";
 import { resolveTransferUrl } from "./resolveTransferUrl";
 import { ResolvedUrl, ResolveUrlError } from "./types";
 import { setDogsRef } from "../../engine/holders/dogsUtils";
+import { saveErrorLog } from "../../storage";
 
 
 export function isUrl(str: string): boolean {
@@ -265,7 +266,7 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
                 }
             } else if (isTonhubHost && url.pathname.toLowerCase().startsWith('/changelly/transaction')) { // open changelly transaction
                 const transactionId = url.pathname.slice('/changelly/transaction/'.length)
-                
+
                 if (url.query && url.query.address && transactionId) {
                     return {
                         type: 'changelly-transaction',
@@ -275,6 +276,36 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
                 }
             } else if (isSupportedDomain && url.pathname.toLowerCase().startsWith('/holders')) { // holders path with address
                 return resolveHoldersUrl(url);
+            } else if (isTonhubHost && url.pathname.toLowerCase() === '/new-wallet') { // create new wallet
+                return {
+                    type: 'new-wallet',
+                    query: url.query
+                };
+            } else if (isTonhubHost && url.pathname.toLowerCase() === '/deposit') { // deposit to wallet
+                return {
+                    type: 'deposit',
+                    query: url.query
+                };
+            } else if (isTonhubHost && url.pathname.toLowerCase() === '/security') { // security section
+                return {
+                    type: 'security',
+                    query: url.query
+                };
+            } else if (isTonhubHost && url.pathname.toLowerCase() === '/earnings') { // staking pools list
+                return {
+                    type: 'earnings',
+                    query: url.query
+                };
+            } else if (isTonhubHost && url.pathname.toLowerCase() === '/swap') { // swap
+                return {
+                    type: 'swap',
+                    query: url.query
+                };
+            } else if (isTonhubHost && url.pathname.toLowerCase() === '/send') { // send/transfer
+                return {
+                    type: 'send',
+                    query: url.query
+                };
             }
         }
 
@@ -305,7 +336,11 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
         }
 
     } catch (e) {
-        // Ignore
+        saveErrorLog({
+            message: e instanceof Error ? e.message : String(e),
+            stack: e instanceof Error ? e.stack : undefined,
+            url: 'resolveUrl:parseUrl'
+        });
         warn(`resolveUrl error: ${e}`);
     }
 
@@ -337,6 +372,11 @@ export function normalizeUrl(url: string) {
         let hash = parsedUrl.hash;
         normalizedURL = `${scheme}//${host}${pathname}${search}${hash}`;
     } catch (error) {
+        saveErrorLog({
+            message: error instanceof Error ? error.message : String(error),
+            stack: error instanceof Error ? error.stack : undefined,
+            url: 'normalizeUrl'
+        });
         console.warn('Failed to normalize URL', error);
     }
 

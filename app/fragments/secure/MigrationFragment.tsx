@@ -56,7 +56,7 @@ const MigrationProcessFragment = fragment(() => {
             let key: WalletKeys
             try {
                 key = await authContext.authenticate({ cancelable: true });
-            } catch (e) {
+            } catch {
                 navigation.goBack();
                 return;
             }

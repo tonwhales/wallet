@@ -746,6 +746,10 @@ export type LocalizationSchema = {
                 dogsTitle: string,
                 dogsSubtitle: string,
             },
+            dogsbanner: {
+                subtitle: string,
+                action: string,
+            },
             transaction: {
                 type: {
                     cardReady: string,

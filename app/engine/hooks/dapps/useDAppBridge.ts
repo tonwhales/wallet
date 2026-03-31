@@ -24,6 +24,10 @@ type SolanaInjectedBridge = {
     sendSolanaTransaction: (transaction: string) => Promise<void>;
 }
 
+type EthereumInjectedBridge = {
+    ethereumAddress: string | null;
+}
+
 export function useDAppBridge(endpoint: string, navigation: TypedNavigation, address?: string, isLedger?: boolean): any {
     const saveAppConnection = useSaveAppConnection();
     const getConnectApp = useConnectApp(address);
@@ -35,7 +39,9 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
     const { isTestnet } = useNetwork();
     const cleanEndpoint = endpoint.split('?')[0];
 
-    const account = address ?? getCurrentAddress().addressString;
+    const currentWallet = getCurrentAddress();
+    const account = address ?? currentWallet.addressString;
+    const ethereumAddress = currentWallet.ethereum?.address ?? null;
     const handleLedgerRequest = useHoldersLedgerTonconnectHandler();
 
     const [connectEvent, setConnectEvent] = useState<ConnectEvent | null>(null);
@@ -51,11 +57,12 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
         return Boolean(connectEvent && connectEvent.event === 'connect');
     }, [app, connectEvent]);
 
-    const bridgeObject = useMemo((): TonConnectInjectedBridge & SolanaInjectedBridge => {
+    const bridgeObject = useMemo((): TonConnectInjectedBridge & SolanaInjectedBridge & EthereumInjectedBridge => {
         return {
             deviceInfo: tonConnectDeviceInfo(walletVersion),
             protocolVersion: CURRENT_PROTOCOL_VERSION,
             isWalletBrowser: true,
+            ethereumAddress,
 
             connect: async (protocolVersion, request) => {
                 try {
@@ -325,7 +332,7 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
                 });
             }
         };
-    }, [cleanEndpoint, app, requestId, saveAppConnection, autoConnect, removeInjectedConnection, handleLedgerRequest]);
+    }, [cleanEndpoint, app, requestId, saveAppConnection, autoConnect, removeInjectedConnection, handleLedgerRequest, ethereumAddress]);
 
     const [ref, injectedJavaScriptBeforeContentLoaded, onMessage, sendEvent] =
         useWebViewBridge<TonConnectInjectedBridge, WalletEvent>(bridgeObject);

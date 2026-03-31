@@ -90,13 +90,28 @@ function derivePathSecp256k1(seed: Buffer, path: string): Uint8Array {
 }
 
 /**
+ * EIP-55 mixed-case checksum encoding
+ */
+function toChecksumAddress(address: string): string {
+    const lowerAddress = address.toLowerCase().replace('0x', '');
+    const hash = Buffer.from(keccak_256(new TextEncoder().encode(lowerAddress))).toString('hex');
+
+    let checksummed = '0x';
+    for (let i = 0; i < lowerAddress.length; i++) {
+        checksummed += parseInt(hash[i], 16) >= 8
+            ? lowerAddress[i].toUpperCase()
+            : lowerAddress[i];
+    }
+    return checksummed;
+}
+
+/**
  * Get Ethereum address from public key (uncompressed, without 0x04 prefix)
  */
 export function ethereumAddressFromPublicKey(publicKey: Uint8Array): string {
-    // Take last 20 bytes of keccak256 hash
     const hash = keccak_256(publicKey);
     const address = hash.slice(-20);
-    return '0x' + Buffer.from(address).toString('hex');
+    return toChecksumAddress('0x' + Buffer.from(address).toString('hex'));
 }
 
 /**

@@ -38,6 +38,7 @@ import { StakingWithdrawReady } from "./earnings/StakingWithdrawReady"
 import { AiChatBanner } from "./AiChatBanner"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
+import { DogsBanner } from "./DogsBanner"
 
 export type HoldersBannerType = { type: 'built-in' } | { type: 'custom', banner: HoldersCustomBanner };
 
@@ -109,6 +110,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     return (
         <View>
             <View style={{ backgroundColor: theme.backgroundPrimary }}>
+                <DogsBanner />
                 {isWalletMode && <OrdersList />}
                 <PendingTransactions />
                 <PendingSolanaTransactions

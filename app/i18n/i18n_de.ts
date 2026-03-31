@@ -744,6 +744,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "dogsTitle": "DOGS jetzt unterstützt",
                 "dogsSubtitle": "Einfach mit DOGS aufladen",
             },
+            "dogsbanner": {
+                "subtitle": "Personalisiere deine Karte mit DOGS und bezahle weltweit mit Extra-Funktionen.",
+                "action": "Karte personalisieren",
+            },
             "transaction": {
                 "type": {
                     "cardReady": "Karte aktiviert",

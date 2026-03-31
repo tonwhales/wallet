@@ -134,9 +134,20 @@ const ethereumAuthRequestCodec = z.object({
     }),
 });
 
+const baseAuthRequestCodec = z.object({
+    stack: z.literal('base'),
+    network: z.union([z.literal('base-mainnet'), z.literal('base-sepolia')]),
+    key: z.object({
+        kind: z.literal('tonconnect-v2'),
+        wallet: z.literal('tonhub'),
+        config: tonconnectV2EthereumConfig,
+    }),
+});
+
 export type TonAuthRequest = z.infer<typeof tonAuthRequestCodec>;
 export type SolanaAuthRequest = z.infer<typeof solanaAuthRequestCodec>;
 export type EthereumAuthRequest = z.infer<typeof ethereumAuthRequestCodec>;
+export type BaseAuthRequest = z.infer<typeof baseAuthRequestCodec>;
 
 const tonSolanaAuthRequestCodec = z.tuple([
     tonAuthRequestCodec,
@@ -152,6 +163,15 @@ const tonSolanaEthereumAuthRequestCodec = z.tuple([
 ]);
 
 export type TonSolanaEthereumAuthRequest = z.infer<typeof tonSolanaEthereumAuthRequestCodec>;
+
+const tonSolanaEvmAuthRequestCodec = z.tuple([
+    tonAuthRequestCodec,
+    solanaAuthRequestCodec,
+    ethereumAuthRequestCodec,
+    baseAuthRequestCodec,
+]);
+
+export type TonSolanaEvmAuthRequest = z.infer<typeof tonSolanaEvmAuthRequestCodec>;
 
 const tonhubLedgerConfig = z.object({
     address: z.string(),
@@ -174,7 +194,7 @@ const keys = z.union([tonXKey, tonXLiteKey, tonconnectV2Key, tonhubLedgerKey]);
 
 export type AccountKeyParam = z.infer<typeof keys>;
 
-export async function fetchUserToken(requestParams: TonSolanaAuthRequest | TonSolanaEthereumAuthRequest | TonAuthRequest, isTestnet: boolean): Promise<string> {
+export async function fetchUserToken(requestParams: TonSolanaAuthRequest | TonSolanaEthereumAuthRequest | TonSolanaEvmAuthRequest | TonAuthRequest, isTestnet: boolean): Promise<string> {
     const endpoint = holdersEndpoint(isTestnet);
 
     const url = `https://${endpoint}/v2/user/wallet/connect`;

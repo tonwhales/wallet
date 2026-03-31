@@ -1,6 +1,6 @@
 import { Address, beginCell, storeStateInit } from "@ton/core";
 import { AuthParams, AuthWalletKeysType } from "../../../components/secure/AuthWalletKeys";
-import { fetchUserToken, TonSolanaAuthRequest, TonSolanaEthereumAuthRequest } from "../../api/holders/fetchUserToken";
+import { fetchUserToken, TonSolanaAuthRequest, TonSolanaEvmAuthRequest } from "../../api/holders/fetchUserToken";
 import { contractFromPublicKey } from "../../contractFromPublicKey";
 import { onHoldersEnroll } from "../../effects/onHoldersEnroll";
 import { WalletKeys } from "../../../storage/walletKeys";
@@ -237,29 +237,41 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId, invita
                         }
                     };
 
-                    // Build request params based on available auth methods
-                    let requestParams: TonSolanaAuthRequest | TonSolanaEthereumAuthRequest;
+                    let requestParams: TonSolanaAuthRequest | TonSolanaEvmAuthRequest;
 
                     if (walletKeys.ethKeyPair && ethereumProof) {
+                        const evmProofConfig = {
+                            address: walletKeys.ethKeyPair.address,
+                            proof: {
+                                timestamp: ethereumProof.proof.timestamp,
+                                domain: ethereumProof.proof.domain,
+                                signature: ethereumProof.proof.signature,
+                                payload: ethereumProof.proof.payload,
+                                publicKey: Buffer.from(walletKeys.ethKeyPair.publicKey).toString('hex')
+                            }
+                        };
+
                         const ethereumAuth = {
                             stack: 'ethereum' as const,
                             network: isTestnet ? 'ethereum-sepolia' as const : 'ethereum-mainnet' as const,
                             key: {
                                 kind: 'tonconnect-v2' as const,
                                 wallet: 'tonhub' as const,
-                                config: {
-                                    address: walletKeys.ethKeyPair.address,
-                                    proof: {
-                                        timestamp: ethereumProof.proof.timestamp,
-                                        domain: ethereumProof.proof.domain,
-                                        signature: ethereumProof.proof.signature,
-                                        payload: ethereumProof.proof.payload,
-                                        publicKey: Buffer.from(walletKeys.ethKeyPair.publicKey).toString('hex')
-                                    }
-                                }
+                                config: evmProofConfig
                             }
                         };
-                        requestParams = [tonAuth, solanaAuth, ethereumAuth];
+
+                        const baseAuth = {
+                            stack: 'base' as const,
+                            network: isTestnet ? 'base-sepolia' as const : 'base-mainnet' as const,
+                            key: {
+                                kind: 'tonconnect-v2' as const,
+                                wallet: 'tonhub' as const,
+                                config: evmProofConfig
+                            }
+                        };
+
+                        requestParams = [tonAuth, solanaAuth, ethereumAuth, baseAuth];
                     } else {
                         requestParams = [tonAuth, solanaAuth];
                     }

@@ -4,7 +4,7 @@ import { fetchUserToken, TonSolanaAuthRequest, TonSolanaEthereumAuthRequest } fr
 import { contractFromPublicKey } from "../../contractFromPublicKey";
 import { onHoldersEnroll } from "../../effects/onHoldersEnroll";
 import { WalletKeys } from "../../../storage/walletKeys";
-import { ConnectReplyBuilder, EthereumProofItemReply, ExtendedConnectItemReply, SolanaProofItemReply } from "../../tonconnect/ConnectReplyBuilder";
+import { ConnectReplyBuilder, EthereumProofItemReply, ExtendedConnectItem, ExtendedConnectItemReply, SolanaProofItemReply } from "../../tonconnect/ConnectReplyBuilder";
 import { holdersUrl } from "../../api/holders/fetchUserState";
 import { getAppManifest } from "../../getters/getAppManifest";
 import { AppManifest } from "../../api/fetchManifest";
@@ -133,16 +133,18 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId, invita
                 const stateInitCell = beginCell().store(storeStateInit({ code: initialCode, data: initialData })).endCell();
                 const stateInitStr = stateInitCell.toBoc({ idx: false }).toString('base64');
 
+                const items: ExtendedConnectItem[] = [
+                    { name: 'ton_addr' },
+                    { name: 'ton_proof', payload: payload ?? 'ton-proof-any' },
+                    { name: 'solana_proof', payload: payload ?? 'solana-proof-any' },
+                ];
+
+                if (walletKeys.ethKeyPair) {
+                    items.push({ name: 'ethereum_proof', payload: payload ?? 'ethereum-proof-any' });
+                }
+
                 const replyBuilder = new ConnectReplyBuilder(
-                    {
-                        items: [
-                            { name: 'ton_addr' },
-                            { name: 'ton_proof', payload: payload ?? 'ton-proof-any' },
-                            { name: 'solana_proof', payload: payload ?? 'solana-proof-any' },
-                            { name: 'ethereum_proof', payload: payload ?? 'ethereum-proof-any' }
-                        ],
-                        manifestUrl
-                    },
+                    { items, manifestUrl },
                     manifest
                 );
 

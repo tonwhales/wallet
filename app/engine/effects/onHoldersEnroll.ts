@@ -47,8 +47,8 @@ export async function onHoldersEnroll({account, isTestnet, solanaAddress, ethere
         const filtered = accounts?.filter((a) => supportedNetworks.has(a.network));
 
         const sorted = filtered?.sort((a, b) => {
-            if (a.cards.length > b.cards.length) return -1;
-            if (a.cards.length < b.cards.length) return 1;
+            if ((a.cards?.length ?? 0) > (b.cards?.length ?? 0)) return -1;
+            if ((a.cards?.length ?? 0) < (b.cards?.length ?? 0)) return 1;
             return 0;
         });
 

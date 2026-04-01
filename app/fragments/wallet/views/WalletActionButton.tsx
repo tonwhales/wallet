@@ -152,7 +152,7 @@ export const WalletActionButton = memo(({
                 } else {
                     const accountId = accounts?.[0]?.id;
                     if (accountId) {
-                        const path = `/transfer/${accounts}`;
+                        const path = `/transfer/${accountId}`;
                         const navParams: HoldersAppParams = { type: HoldersAppParamsType.Path, path, query: {} };
                         if (needsEnrollment || !isHoldersReady) {
                             navigation.navigateHoldersLanding(
@@ -161,7 +161,7 @@ export const WalletActionButton = memo(({
                             );
                             return;
                         }
-                
+
                         navigation.navigateHolders(navParams, isTestnet);
                     }
                 }

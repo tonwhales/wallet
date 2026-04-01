@@ -311,8 +311,17 @@ export type LocalizationSchema = {
                 insufficientTokenFunds: string,
                 rateLimited: string,
                 signingFailed: string,
-                insufficientFundsForRent: string
-                insufficientFundsForRentTitle: string
+                insufficientFundsForRent: string,
+                insufficientFundsForRentTitle: string,
+                blockhashExpired: string,
+                accountNotFound: string,
+                accountNotInitialized: string,
+                insufficientFundsForFee: string,
+                customProgramError: string,
+                transactionTooLarge: string,
+                duplicateTransaction: string,
+                simulationFailed: string,
+                unknownError: string
             }
         }
     },
@@ -1474,6 +1483,27 @@ export type LocalizationSchema = {
             createAccount: string,
             tokenTransfer: string,
             unknown: string,
+            executeWithdrawal: string,
+            cancelWithdrawal: string,
+            allocateWithdrawals: string,
+            deleteCard: string,
+            updateCardStateV2: string,
+            createRoot: string,
+            issueCard: string,
+            refund: string,
+            syncCardBalance: string,
+            updateCardState: string,
+            withdrawFromTreasure: string,
+            addToWhitelist: string,
+            removeFromWhitelist: string,
+            resetWhitelist: string,
+            changeController: string,
+            changeGracefulPeriod: string,
+            assignNewTreasureAuthority: string,
+            setSupportAuthority: string,
+            setWithdrawalConfig: string,
+            fixIncorrectDeposit: string,
+            "instruction-12": string
         },
         banner: {
             title: string,

@@ -2,6 +2,7 @@ import EventEmitter from "events";
 import * as t from 'io-ts';
 import { exponentialBackoffDelay } from "teslabot";
 import { createLogger } from "../../utils/log";
+import { saveErrorLog } from "../../storage";
 
 const MESSAGE_TIMEOUT = 15000;
 const CONNECTION_TIMEOUT = 5000;
@@ -94,6 +95,11 @@ export class BlocksWatcher extends EventEmitter {
             try {
                 parsed = JSON.parse(ev.data);
             } catch (e) {
+                saveErrorLog({
+                    message: e instanceof Error ? e.message : String(e),
+                    stack: e instanceof Error ? e.stack : undefined,
+                    url: 'BlocksWatcher:parseMessage'
+                });
                 logger.warn(e);
                 return;
             }

@@ -310,7 +310,16 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "rateLimited": "Спостерігається високе навантаження, спробуйте пізніше або зверніться до підтримки",
                 "signingFailed": "Помилка підпису транзакції",
                 "insufficientFundsForRentTitle": "Сума транзакції нижче мінімальної",
-                "insufficientFundsForRent": "Недостатньо SOL для відправки на: {{address}}, потрібно ще {{amount}}"
+                "insufficientFundsForRent": "Недостатньо SOL для відправки на: {{address}}, потрібно ще {{amount}}",
+                "blockhashExpired": "Транзакція застаріла, спробуйте знову",
+                "accountNotFound": "Акаунт отримувача не знайдено",
+                "accountNotInitialized": "Акаунт отримувача ще не активовано в мережі",
+                "insufficientFundsForFee": "Недостатньо SOL для оплати комісії",
+                "customProgramError": "Помилка програми (код: {{code}})",
+                "transactionTooLarge": "Транзакція занадто велика",
+                "duplicateTransaction": "Цю транзакцію вже було оброблено",
+                "simulationFailed": "Симуляція транзакції не пройшла",
+                "unknownError": "Сталася невідома помилка"
             }
         }
     },
@@ -1464,14 +1473,35 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "solana": {
         "instructions": {
-            "createAssociatedTokenAccount": "Створення пов'язаного облікового запису токена",
+            "createAssociatedTokenAccount": "Створити ATA",
             "unknown": "Невідома інструкція",
             "systemTransfer": "Переказ SOL",
             "createAccount": "Створення облікового запису",
             "tokenTransfer": "Переказ токена",
             "depositCard": "Поповнення рахунку",
             "closeCard": "Закрити картку",
-            "updateCardLimits": "Оновити ліміти картки"
+            "updateCardLimits": "Оновити ліміти картки",
+            "executeWithdrawal": "Виконати виведення",
+            "cancelWithdrawal": "Скасувати виведення",
+            "allocateWithdrawals": "Виділити виведення",
+            "deleteCard": "Видалити картку",
+            "updateCardStateV2": "Оновити стан картки",
+            "createRoot": "Створити root",
+            "issueCard": "Випустити картку",
+            "refund": "Повернення",
+            "syncCardBalance": "Синхронізувати баланс картки",
+            "updateCardState": "Оновити стан картки",
+            "withdrawFromTreasure": "Вивести зі сховища",
+            "addToWhitelist": "Додати до білого списку",
+            "removeFromWhitelist": "Видалити з білого списку",
+            "resetWhitelist": "Скинути білий список",
+            "changeController": "Змінити контролер",
+            "changeGracefulPeriod": "Змінити пільговий період",
+            "assignNewTreasureAuthority": "Призначити нового власника сховища",
+            "setSupportAuthority": "Встановити підтримку",
+            "setWithdrawalConfig": "Встановити конфігурацію виведення",
+            "fixIncorrectDeposit": "Виправити помилковий депозит",
+            "instruction-12": "Переказ"
         },
         "banner": {
             "title": "Тепер доступні Solana та USDC",

@@ -22,7 +22,7 @@ import { PriceComponent } from "../../components/PriceComponent";
 import { WImage } from "../../components/WImage";
 import { ReceiveableSolanaAsset } from "./ReceiveFragment";
 import { Image } from "expo-image";
-import { usdyMintAddress } from "../../secure/KnownWallets";
+import { usdyMintAddress, XAUT0MintAddress } from "../../secure/KnownWallets";
 import { SolanaTokenInfoView } from "./views/solana/SolanaTokenInfoView";
 import { USDYRateAmination } from "./views/solana/USDYRateAmination";
 
@@ -59,8 +59,9 @@ const SolanaTokenHeader = memo(({ mint, owner }: { mint: string, owner: string }
     const navigation = useTypedNavigation();
     const token = useSolanaToken(owner, mint);
     const bottomBarHeight = useBottomTabBarHeight();
-    const [, , , usdyPriceData] = usePrice();
+    const [, , , usdyPriceData, XAUT0PriceData] = usePrice();
     const usdyPrice = usdyPriceData.price.usd;
+    const xaut0Price = XAUT0PriceData.price.usd;
 
     if (!token) {
         return null;
@@ -68,7 +69,7 @@ const SolanaTokenHeader = memo(({ mint, owner }: { mint: string, owner: string }
 
     const isUsdy = mint === usdyMintAddress;
 
-    const rate = isUsdy ? usdyPrice : 1;
+    const rate = isUsdy ? usdyPrice : mint === XAUT0MintAddress ? xaut0Price : 1;
     const balance = token.amount ?? 0n;
     const symbol = token.symbol ?? "?";
     const decimals = token.decimals ?? 6;
@@ -116,36 +117,54 @@ const SolanaTokenHeader = memo(({ mint, owner }: { mint: string, owner: string }
                         disableContextMenu
                         copyToastProps={{ marginBottom: 70 + bottomBarHeight }}
                     />
-                    <ValueComponent
-                        value={balance}
-                        decimals={decimals}
-                        precision={4}
-                        fontStyle={[Typography.semiBold32_38, { color: theme.textPrimary }]}
-                        centFontStyle={{ color: theme.textSecondary }}
-                        suffix={` ${symbol}`}
-                    />
-                    <View>
-                        {isUsdy ? (
+                    {isUsdy ? (
+                        <>
                             <USDYRateAmination
                                 usdyRate={rate}
                                 currentPrice={usdyPrice}
                                 amount={token.uiAmount ?? 0}
+                                cacheKey={`usdy-balance-${owner}`}
+                                typography={{ fontSize: 32, lineHeight: 38, fontWeight: '600' }}
+                                showIcon={true}
+                                decimalPlaces={4}
                             />
-                        ) : (
-                            <PriceComponent
-                                amount={price}
-                                style={{
-                                    backgroundColor: 'transparent',
-                                    paddingHorizontal: 0, paddingVertical: 0,
-                                    height: undefined,
-                                }}
-                                textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
-                                theme={theme}
-                                priceUSD={1}
-                                hideCentsIfNull
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                                <ValueComponent
+                                    value={balance}
+                                    decimals={decimals}
+                                    precision={4}
+                                    fontStyle={[Typography.regular15_20, { color: theme.accentGreen }]}
+                                    centFontStyle={{ color: theme.accentGreen }}
+                                    suffix={` ${symbol}`}
+                                />
+                            </View>
+                        </>
+                    ) : (
+                        <>
+                            <ValueComponent
+                                value={balance}
+                                decimals={decimals}
+                                precision={4}
+                                fontStyle={[Typography.semiBold32_38, { color: theme.textPrimary }]}
+                                centFontStyle={{ color: theme.textSecondary }}
+                                suffix={` ${symbol}`}
                             />
-                        )}
-                    </View>
+                            <View>
+                                <PriceComponent
+                                    amount={price}
+                                    style={{
+                                        backgroundColor: 'transparent',
+                                        paddingHorizontal: 0, paddingVertical: 0,
+                                        height: undefined,
+                                    }}
+                                    textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                                    theme={theme}
+                                    priceUSD={1}
+                                    hideCentsIfNull
+                                />
+                            </View>
+                        </>
+                    )}
                 </View>
                 <SolanaWalletActions
                     theme={theme}
@@ -180,8 +199,9 @@ const SolanaTokenWalletComponent = memo(({ owner, mint }: SolanaTokenWalletFragm
         markAsTimedOut
     } = useUnifiedSolanaTransactions(owner, mint);
     const token = useSolanaToken(owner, mint);
-    const [, , , usdyPriceData] = usePrice();
+    const [, , , usdyPriceData, XAUT0PriceData] = usePrice();
     const usdyPrice = usdyPriceData.price.usd;
+    const xaut0Price = XAUT0PriceData.price.usd;
 
     const asset: ReceiveableSolanaAsset = {
         mint: mint,
@@ -208,7 +228,7 @@ const SolanaTokenWalletComponent = memo(({ owner, mint }: SolanaTokenWalletFragm
         setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
     });
 
-    const rate = mint === usdyMintAddress ? usdyPrice : 1;
+    const rate = mint === usdyMintAddress ? usdyPrice : mint === XAUT0MintAddress ? xaut0Price : 1;
 
     return (
         <View style={styles.container}>

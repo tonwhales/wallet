@@ -294,6 +294,15 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "signingFailed": "Ошибка подписания транзакции",
                 "insufficientFundsForRentTitle": "Сумма транзакции ниже минимальной",
                 "insufficientFundsForRent": "Недостаточно SOL для отправки на: {{address}}, необходимо еще {{amount}}",
+                "blockhashExpired": "Транзакция устарела, попробуйте снова",
+                "accountNotFound": "Аккаунт получателя не найден",
+                "accountNotInitialized": "Аккаунт получателя еще не активирован в сети",
+                "insufficientFundsForFee": "Недостаточно SOL для оплаты комиссии",
+                "customProgramError": "Ошибка программы (код: {{code}})",
+                "transactionTooLarge": "Транзакция слишком большая",
+                "duplicateTransaction": "Эта транзакция уже была обработана",
+                "simulationFailed": "Симуляция транзакции не прошла",
+                "unknownError": "Произошла неизвестная ошибка"
             }
         }
     },
@@ -1464,14 +1473,35 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     },
     "solana": {
         "instructions": {
-            "createAssociatedTokenAccount": "Создание связанного аккаунта токена",
+            "createAssociatedTokenAccount": "Создать ATA",
             "unknown": "Неизвестная инструкция",
             "systemTransfer": "Перевод SOL",
             "createAccount": "Создание аккаунта",
             "tokenTransfer": "Перевод токена",
             "depositCard": "Пополнение счета",
             "closeCard": "Закрыть карту",
-            "updateCardLimits": "Обновить лимиты карты"
+            "updateCardLimits": "Обновить лимиты карты",
+            "executeWithdrawal": "Выполнить вывод",
+            "cancelWithdrawal": "Отменить вывод",
+            "allocateWithdrawals": "Выделить выводы",
+            "deleteCard": "Удалить карту",
+            "updateCardStateV2": "Обновить состояние карты",
+            "createRoot": "Создать root",
+            "issueCard": "Выпустить карту",
+            "refund": "Возврат",
+            "syncCardBalance": "Синхронизировать баланс карты",
+            "updateCardState": "Обновить состояние карты",
+            "withdrawFromTreasure": "Вывести из хранилища",
+            "addToWhitelist": "Добавить в белый список",
+            "removeFromWhitelist": "Удалить из белого списка",
+            "resetWhitelist": "Сбросить белый список",
+            "changeController": "Сменить контроллер",
+            "changeGracefulPeriod": "Изменить льготный период",
+            "assignNewTreasureAuthority": "Назначить нового владельца хранилища",
+            "setSupportAuthority": "Установить поддержку",
+            "setWithdrawalConfig": "Установить конфигурацию вывода",
+            "fixIncorrectDeposit": "Исправить ошибочный депозит",
+            "instruction-12": "Перевод"
         },
         "banner": {
             "title": "Solana уже в Tonhub",

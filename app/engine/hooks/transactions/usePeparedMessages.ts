@@ -9,6 +9,7 @@ import { useGaslessConfig } from "../jettons/useGaslessConfig";
 import { getJettonHint } from "../jettons/useJetton";
 import { mapJettonFullToMasterState } from "../../../utils/jettons/mapJettonToMasterState";
 import { GaslessConfig } from "../../api/gasless/fetchGaslessConfig";
+import { saveErrorLog } from "../../../storage";
 
 type PreparedMessageType = 'relayed' | 'message';
 
@@ -28,8 +29,8 @@ export type PreparedMessage = {
 
 export const prepareMessages = (messages: StoredMessage[], testOnly: boolean, owner: Address | null, gaslessConfig?: GaslessConfig | null): PreparedMessage[] => {
     const addresses = messages.length > 1
-    ? messages.map(m => m.info.type === 'internal' ? m.info.dest : null).filter(m => !!m) as string[]
-    : [];
+        ? messages.map(m => m.info.type === 'internal' ? m.info.dest : null).filter(m => !!m) as string[]
+        : [];
     const jettonHints = (owner ? addresses.map(a => getJettonHint({
         owner: owner,
         master: a,
@@ -80,7 +81,12 @@ export const prepareMessages = (messages: StoredMessage[], testOnly: boolean, ow
                         jettonAmount = parsing.loadCoins();
                     }
                 }
-            } catch {
+            } catch (e) {
+                saveErrorLog({
+                    message: e instanceof Error ? e.message : String(e),
+                    stack: e instanceof Error ? e.stack : undefined,
+                    url: 'prepareMessages:parseJettonAmount'
+                });
                 console.warn('Failed to parse jetton amount');
             }
 
@@ -105,7 +111,12 @@ export const prepareMessages = (messages: StoredMessage[], testOnly: boolean, ow
                 if (gaslessConfig?.relay_address && target.equals(Address.parse(gaslessConfig.relay_address))) {
                     type = 'relayed';
                 }
-            } catch {
+            } catch (e) {
+                saveErrorLog({
+                    message: e instanceof Error ? e.message : String(e),
+                    stack: e instanceof Error ? e.stack : undefined,
+                    url: 'prepareMessages:resolveRelayAddress'
+                });
                 console.warn('Failed to resolve relay address');
             }
 
@@ -142,7 +153,12 @@ export const prepareMessages = (messages: StoredMessage[], testOnly: boolean, ow
                 friendlyTarget,
             };
 
-        } catch {
+        } catch (e) {
+            saveErrorLog({
+                message: e instanceof Error ? e.message : String(e),
+                stack: e instanceof Error ? e.stack : undefined,
+                url: 'prepareMessages:parseMessage'
+            });
             console.warn('Failed to parse message');
             return null;
         }

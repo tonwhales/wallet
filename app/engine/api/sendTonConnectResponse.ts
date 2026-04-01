@@ -2,6 +2,7 @@ import { Base64, ConnectEvent, DisconnectEvent, hexToByteArray, RpcMethod, Sessi
 import axios from "axios";
 import { warn } from "../../utils/log";
 import { bridgeUrl } from "../tonconnect/config";
+import { saveErrorLog } from "../../storage";
 
 export const defaultTtl = 300;
 
@@ -29,7 +30,13 @@ export async function sendTonConnectResponse<T extends RpcMethod>({
         );
 
         await axios.post(url, Base64.encode(encodedResponse), { headers: { 'Content-Type': 'text/plain' } });
-    } catch {
+    } catch (error) {
+        saveErrorLog({
+            message: error instanceof Error ? error.message : String(error),
+            stack: error instanceof Error ? error.stack : undefined,
+            url: 'sendTonConnectResponse',
+            additionalData: { ttl }
+        });
         warn('Failed to send TonConnect response');
     }
 }

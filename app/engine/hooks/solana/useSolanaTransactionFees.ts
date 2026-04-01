@@ -2,12 +2,19 @@ import { fetchSolanaTransactionFees } from "../../api/solana/fetchSolanaTransact
 import { useQuery } from "@tanstack/react-query";
 import { Queries } from "../../queries";
 import { useNetwork } from "../network";
-import { Transaction } from "@solana/web3.js";
+import { Transaction, VersionedTransaction } from "@solana/web3.js";
 
-export function useSolanaTransactionFees(tx?: Transaction) {
+function serializeTransaction(tx: Transaction | VersionedTransaction): string {
+    if (tx instanceof VersionedTransaction) {
+        return Buffer.from(tx.serialize()).toString('base64');
+    }
+    return tx.serialize({ requireAllSignatures: false }).toString('base64');
+}
+
+export function useSolanaTransactionFees(tx?: Transaction | VersionedTransaction) {
     const { isTestnet } = useNetwork();
 
-    const txString = !!tx ? tx.serialize({ requireAllSignatures: false }).toString('base64') : '';
+    const txString = !!tx ? serializeTransaction(tx) : '';
 
     const query = useQuery({
         enabled: !!tx,

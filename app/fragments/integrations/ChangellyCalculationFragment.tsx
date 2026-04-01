@@ -25,10 +25,10 @@ import { ChangellyLimitError, ChangellyLimitType } from "../../engine/api/change
 import { debounce } from "../../utils/debounce";
 import { useKeyboard } from "@react-native-community/hooks";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import { ChangellyBigLogo } from "@assets";
 
 import ExchangeRateIcon from '@assets/order/exchange-rate.svg';
 import NetworkFeeIcon from '@assets/order/network-fee.svg';
-import ChangellyLogo from '@assets/changelly-big.svg';
 import ArrowIcon from '@assets/order/arrow-without-background.svg';
 
 const INITIAL_MAX_VALUE = 1000000;
@@ -337,7 +337,7 @@ export const ChangellyCalculationFragment = fragment(() => {
                     <Text style={[Typography.regular15_20, { color: theme.textSecondary }]}>
                         {t('order.poweredBy')}
                     </Text>
-                    <ChangellyLogo width={88} height={20} color={theme.textSecondary} />
+                    <ChangellyBigLogo width={88} height={20} color={theme.textSecondary} />
                 </View>
             </ScrollView>
             <KeyboardAvoidingView

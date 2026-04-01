@@ -5,7 +5,7 @@ import { Avatar, avatarColors } from "../avatar/Avatar";
 import { AddressComponent } from "./AddressComponent";
 import { WalletSettings } from "../../engine/state/walletSettings";
 import { avatarHash } from "../../utils/avatarHash";
-import { useContractInfo } from "../../engine/hooks/metadata/useContractInfo";
+import { useContractInfo, useForcedAvatarType } from "../../engine/hooks";
 import { KnownWallet } from "../../secure/KnownWallets";
 import { ThemeType } from "../../engine/state/theme";
 import { ForcedAvatar } from "../avatar/ForcedAvatar";
@@ -47,7 +47,23 @@ export const AddressSearchItemView = memo(({
         }
     }, [onPress, item, known, bounceable]);
 
-    let avatar = (
+    // Use service address check as first source of truth
+    const forcedAvatarType = useForcedAvatarType({
+        address: addressString,
+        contractInfo
+    });
+
+    // Determine avatar type: prioritize service check, then item.type === 'holders'
+    const shouldUseForcedAvatar = forcedAvatarType || item.type === 'holders';
+    const avatarType = forcedAvatarType || (item.type === 'holders' ? 'holders' : undefined);
+
+    let avatar = shouldUseForcedAvatar && avatarType ? (
+        <ForcedAvatar
+            type={avatarType}
+            size={46}
+            icProps={{ position: 'right' }}
+        />
+    ) : (
         <Avatar
             address={addressString}
             id={addressString}
@@ -65,16 +81,6 @@ export const AddressSearchItemView = memo(({
             isLedger={item.isLedger}
         />
     );
-
-    if (item.type === 'holders') {
-        avatar = (
-            <ForcedAvatar
-                type={'holders'}
-                size={46}
-                icProps={{ position: 'right' }}
-            />
-        );
-    }
 
     return (
         <Pressable

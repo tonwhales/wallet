@@ -22,7 +22,7 @@ export function setWalletsSettings(walletsSettings: { [key: string]: WalletSetti
     sharedStoragePersistence.set(walletSettingsKey, JSON.stringify(walletsSettings));
 }
 
-function getWalletsSettings(): z.infer<typeof walletSettingsSchema> {
+export function getWalletsSettings(): z.infer<typeof walletSettingsSchema> {
     let walletsSettings = sharedStoragePersistence.getString(walletSettingsKey);
     if (walletsSettings) {
         const jsonObj = JSON.parse(walletsSettings);

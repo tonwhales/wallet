@@ -32,6 +32,7 @@ import { NeocryptoFragment } from './fragments/integrations/NeocryptoFragment';
 import { StakingTransferFragment } from './fragments/staking/StakingTransferFragment';
 import { SignFragment } from './fragments/secure/SignFragment';
 import { AppFragment } from './fragments/apps/AppFragment';
+import { DevErrorLogsFragment } from './fragments/dev/DevErrorLogsFragment';
 import { DevStorageFragment } from './fragments/dev/DevStorageFragment';
 import { WalletUpgradeFragment } from './fragments/secure/WalletUpgradeFragment';
 import { InstallFragment } from './fragments/secure/dapps/InstallFragment';
@@ -54,7 +55,7 @@ import { HoldersLandingFragment } from './fragments/holders/HoldersLandingFragme
 import { HoldersAppFragment } from './fragments/holders/HoldersAppFragment';
 import { BiometricsSetupFragment } from './fragments/BiometricsSetupFragment';
 import { KeyStoreMigrationFragment } from './fragments/secure/KeyStoreMigrationFragment';
-import { useLanguage, useNetwork, useSupportAuth, useTheme } from './engine/hooks';
+import { useAllowedDomains, useLanguage, useNetwork, useSupportAuth, useTheme } from './engine/hooks';
 import { useNavigationTheme } from './engine/hooks';
 import { useRecoilValue } from 'recoil';
 import { appStateAtom } from './engine/state/appState';
@@ -133,6 +134,8 @@ import { isLatestIos } from './utils/isLatestIos';
 import { HoldersAIChatFragment } from './fragments/holders/HoldersAIChatFragment';
 import { MaestraEvent, trackMaestraEvent } from './analytics/maestra';
 import { DogsInviteFragment } from './fragments/holders/DogsInviteFragment';
+import { PGPExportFragment } from './fragments/secure/PGPExportFragment';
+import { PGPImportFragment } from './fragments/secure/PGPImportFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -276,7 +279,10 @@ const navigation = (safeArea: EdgeInsets) => [
     // Dev
     genericScreen('DeveloperTools', DeveloperToolsFragment, safeArea, true, 0),
     genericScreen('DeveloperToolsStorage', DevStorageFragment, safeArea),
+    genericScreen('DeveloperToolsErrorLogs', DevErrorLogsFragment, safeArea),
     genericScreen('DevDAppWebView', DevDAppWebViewFragment, safeArea, true, 0),
+    genericScreen('PGPExport', PGPExportFragment, safeArea, true, 0),
+    genericScreen('PGPImport', PGPImportFragment, safeArea, true, 0),
 
     // Ethereum
     genericScreen('Ethereum', EthereumFragment, safeArea, true, 0),
@@ -435,6 +441,9 @@ export const Navigation = memo(() => {
     const appState = useRecoilValue(appStateAtom);
     const { isTestnet } = useNetwork();
     const [lang] = useLanguage();
+
+    // Prefetch allowed domains for navigation protection
+    useAllowedDomains();
 
     const initial = useMemo(() => {
         const lastLink = CachedLinking.getLastLink();

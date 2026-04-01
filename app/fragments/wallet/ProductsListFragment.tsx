@@ -42,7 +42,8 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
         return selected!.address.toString({ testOnly });
     }, [selected, ledgerContext, testOnly]);
 
-    const holdersAccounts = useHoldersAccounts(addressStr, isLedger ? undefined : solanaAddress).data;
+    const ethereumAddress = isLedger ? undefined : selected?.ethereum?.address;
+    const holdersAccounts = useHoldersAccounts(addressStr, isLedger ? undefined : solanaAddress, ethereumAddress).data;
     const holdersAccStatus = useHoldersAccountStatus(addressStr).data;
 
     const items = useMemo<{

@@ -56,9 +56,10 @@ export const HoldersAppFragment = fragment(({ initialParams }: { initialParams?:
     const ledgerAddress = ledgerContext?.addr?.address ? Address.parse(ledgerContext?.addr?.address) : undefined;
     const address = isLedger ? ledgerAddress : acc?.address;
     const solanaAddress = useSolanaSelectedAccount()!;
+    const ethereumAddress = isLedger ? undefined : acc?.ethereum?.address;
     const status = useHoldersAccountStatus(address!.toString({ testOnly: isTestnet })).data;
     const profile = useHoldersProfile(address!.toString({ testOnly: isTestnet })).data;
-    const accounts = useHoldersAccounts(address!.toString({ testOnly: isTestnet }), isLedger ? undefined : solanaAddress).data;
+    const accounts = useHoldersAccounts(address!.toString({ testOnly: isTestnet }), isLedger ? undefined : solanaAddress, ethereumAddress).data;
     const url = holdersUrl(isTestnet);
 
     useEffect(() => {

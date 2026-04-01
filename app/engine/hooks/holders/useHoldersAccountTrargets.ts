@@ -32,8 +32,8 @@ export function mapHoldersAccountTarget(account: GeneralHoldersAccount): Holders
     };
 }
 
-export function useHoldersAccountTrargets(address: string | Address, solanaAddress?: string): HoldersAccountTarget[] {
-    const data = useHoldersAccounts(address, solanaAddress).data;
+export function useHoldersAccountTrargets(address: string | Address, solanaAddress?: string, ethereumAddress?: string): HoldersAccountTarget[] {
+    const data = useHoldersAccounts(address, solanaAddress, ethereumAddress).data;
 
     const readyAccounts = useMemo(() => {
         const isPrivate = data?.type === 'private';

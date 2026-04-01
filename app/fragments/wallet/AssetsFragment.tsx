@@ -187,7 +187,8 @@ export const AssetsFragment = fragment(() => {
     const owner = isLedger ? ledgerAddress! : selected!.address;
     const savings = useDisplayableJettons(owner.toString({ testOnly: isTestnet })).savings || [];
     const holdersAccStatus = useHoldersAccountStatus(owner).data;
-    const holdersAccounts = useHoldersAccounts(owner, isLedger ? undefined : solanaAddress).data?.accounts?.filter(acc => hasDirectTonDeposit(acc)) ?? [];
+    const ethereumAddress = isLedger ? undefined : selected?.ethereum?.address;
+    const holdersAccounts = useHoldersAccounts(owner, isLedger ? undefined : solanaAddress, ethereumAddress).data?.accounts?.filter(acc => hasDirectTonDeposit(acc)) ?? [];
     const account = useAccountLite(owner);
     const hints = useHintsFull(owner.toString({ testOnly: isTestnet })).data?.hints ?? [];
     const extraCurrencies = useExtraCurrencyHints(owner.toString({ testOnly: isTestnet })).data ?? [];

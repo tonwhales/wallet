@@ -9,8 +9,8 @@ interface TransactionsUtilsContextValue {
 const TransactionsUtilsContext = createContext<TransactionsUtilsContextValue | undefined>(undefined);
 
 export function TransactionsUtilsProvider({ children }: { children: ReactNode }) {
-    const { tonAddress, solanaAddress } = useCurrentAddress();
-    const holdersAccounts = useHoldersAccounts(tonAddress, solanaAddress).data?.accounts ?? [];
+    const { tonAddress, solanaAddress, ethereumAddress } = useCurrentAddress();
+    const holdersAccounts = useHoldersAccounts(tonAddress, solanaAddress, ethereumAddress).data?.accounts ?? [];
 
     const checkIsHoldersTarget = useMemo(() => {
         return (address: string) => {

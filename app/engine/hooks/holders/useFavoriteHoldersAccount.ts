@@ -10,9 +10,9 @@ import { useHoldersAccounts } from "./useHoldersAccounts";
  * @returns [string | undefined, (value: string) => void]
  */
 export function useFavoriteHoldersAccount(): [string | undefined, (value: string) => void] {
-    const { tonAddressString, solanaAddress } = useCurrentAddress();
+    const { tonAddressString, solanaAddress, ethereumAddress } = useCurrentAddress();
 
-    const { accounts } = useHoldersAccounts(tonAddressString, solanaAddress).data ?? {};
+    const { accounts } = useHoldersAccounts(tonAddressString, solanaAddress, ethereumAddress).data ?? {};
 
     const [state, update] = useRecoilState(favoriteHoldersAccountsAtom)
     try {

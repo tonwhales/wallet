@@ -5,7 +5,7 @@ import { avatarColors } from "../avatar/Avatar";
 import { AddressDomainInput, AddressDomainInputRef, AddressInputState, InputAction } from "./AddressDomainInput";
 import { ATextInputRef } from "../ATextInput";
 import { KnownWallet } from "../../secure/KnownWallets";
-import { useAppState, useBounceableWalletFormat, useContractInfo, useHoldersAccounts, useTheme, useWalletSettings } from "../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useContractInfo, useHoldersAccounts, useSelectedAccount, useTheme, useWalletSettings } from "../../engine/hooks";
 import { AddressSearchItem, SolanaAddressSearchItem } from "./AddressSearch";
 import { t } from "../../i18n/t";
 import { PerfText } from "../basic/PerfText";
@@ -84,9 +84,12 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     const [walletSettings] = useWalletSettings(validTonAddressFriendly);
     const [bounceableFormat] = useBounceableWalletFormat();
     const ledgerTransport = useLedgerTransport();
+    const selected = useSelectedAccount();
+    const ethereumAddress = isLedger ? undefined : selected?.ethereum?.address;
     const allHoldersAccounts = useHoldersAccounts(
         account,
-        isLedger ? undefined : solanaAddress
+        isLedger ? undefined : solanaAddress,
+        ethereumAddress
     ).data?.accounts ?? [];
 
     // filtration depends on the wallet from which this screen was opened

@@ -6,7 +6,7 @@ import { HoldersUserState, fetchUserState } from "../api/holders/fetchUserState"
 import { fetchAccountsPublic, fetchAccountsList } from "../api/holders/fetchAccounts";
 import { updateProvisioningCredentials } from "../holders/updateProvisioningCredentials";
 
-export async function onHoldersEnroll({account, isTestnet, solanaAddress}: {account: string, isTestnet: boolean, solanaAddress?: string}) {
+export async function onHoldersEnroll({account, isTestnet, solanaAddress, ethereumAddress}: {account: string, isTestnet: boolean, solanaAddress?: string, ethereumAddress?: string}) {
     const address = Address.parse(account).toString({ testOnly: isTestnet });
 
     const token = getHoldersToken(address);
@@ -35,11 +35,16 @@ export async function onHoldersEnroll({account, isTestnet, solanaAddress}: {acco
             // fetch apple pay credentials and update provisioning credentials cache
             await updateProvisioningCredentials(address, isTestnet);
         } else {
-            accounts = await fetchAccountsPublic({ address, isTestnet, solanaAddress });
+            accounts = await fetchAccountsPublic({ address, isTestnet, solanaAddress, ethereumAddress });
             type = 'public';
         }
 
-        const filtered = accounts?.filter((a) => a.network === (isTestnet ? 'ton-testnet' : 'ton-mainnet'));
+        const supportedNetworks = new Set([
+            'ton-mainnet', 'ton-testnet', 'solana',
+            'ethereum-mainnet', 'ethereum-sepolia',
+            'base-mainnet', 'base-sepolia', 'ether'
+        ]);
+        const filtered = accounts?.filter((a) => supportedNetworks.has(a.network));
 
         const sorted = filtered?.sort((a, b) => {
             if (a.cards.length > b.cards.length) return -1;

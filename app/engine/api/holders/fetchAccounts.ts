@@ -9,7 +9,11 @@ const networksSchema = z.union([
   z.literal('tron'),
   z.literal('polygon'),
   z.literal('ether'),
-  z.literal('solana')
+  z.literal('solana'),
+  z.literal('ethereum-sepolia'),
+  z.literal('ethereum-mainnet'),
+  z.literal('base-sepolia'),
+  z.literal('base-mainnet')
 ]);
 
 const cardPublicSchema = z.object({
@@ -73,22 +77,35 @@ export const accountsListPublicSchema = z.union([
   }),
 ]);
 
-export async function fetchAccountsPublic({ address, solanaAddress, isTestnet }: { address: string | Address, isTestnet: boolean, solanaAddress?: string }) {
+export async function fetchAccountsPublic({ address, solanaAddress, ethereumAddress, isTestnet }: { address: string | Address, isTestnet: boolean, solanaAddress?: string, ethereumAddress?: string }) {
   const endpoint = holdersEndpoint(isTestnet);
   const addressString = (address instanceof Address) ? address.toString({ testOnly: isTestnet }) : address;
 
-  const body = solanaAddress ? {
+  const wallets: { network: string; address: string }[] = [
+    {
+      network: isTestnet ? 'ton-testnet' : 'ton-mainnet',
+      address: addressString
+    }
+  ];
+
+  if (solanaAddress) {
+    wallets.push({ network: 'solana', address: solanaAddress });
+  }
+
+  if (ethereumAddress) {
+    wallets.push({
+      network: isTestnet ? 'ethereum-sepolia' : 'ethereum-mainnet',
+      address: ethereumAddress
+    });
+    wallets.push({
+      network: isTestnet ? 'base-sepolia' : 'base-mainnet',
+      address: ethereumAddress
+    });
+  }
+
+  const body = wallets.length > 1 ? {
     walletKind: 'tonhub',
-    wallets: [
-      {
-        network: isTestnet ? 'ton-testnet' : 'ton-mainnet',
-        address: addressString
-      },
-      {
-        network: 'solana',
-        address: solanaAddress
-      }
-    ]
+    wallets
   } : {
     walletKind: 'tonhub',
     network: isTestnet ? 'ton-testnet' : 'ton-mainnet',

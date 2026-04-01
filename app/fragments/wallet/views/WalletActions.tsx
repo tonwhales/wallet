@@ -7,7 +7,7 @@ import { isNeocryptoAvailable } from "../../../utils/isNeocryptoAvailable";
 import { useAppConfig } from "../../../engine/hooks/useAppConfig";
 import { Jetton } from "../../../engine/types";
 import { Address } from "@ton/core";
-import { useHoldersAccounts } from "../../../engine/hooks";
+import { useHoldersAccounts, useSelectedAccount } from "../../../engine/hooks";
 import { useAppMode } from "../../../engine/hooks/appstate/useAppMode";
 
 type Asset = {
@@ -36,7 +36,9 @@ export const WalletActions = memo(({
 }) => {
     const showBuy = isNeocryptoAvailable() && !isLedger;
     const appConfig = useAppConfig();
-    const holdersAccounts = useHoldersAccounts(address, solanaAddress).data;
+    const selected = useSelectedAccount();
+    const ethereumAddress = isLedger ? undefined : selected?.ethereum?.address;
+    const holdersAccounts = useHoldersAccounts(address, solanaAddress, ethereumAddress).data;
     const [isWalletMode] = useAppMode(address, { isLedger });
     const holdersAccountsCount = holdersAccounts?.accounts?.length ?? 0;
     const receiveType = holdersAccountsCount > 0 ? WalletActionType.Deposit : WalletActionType.Receive;

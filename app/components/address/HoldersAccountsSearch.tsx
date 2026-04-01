@@ -42,11 +42,10 @@ export const HoldersAccountsSearch = memo(({
         return (holdersAccounts || [])
             .filter((a) => !!a.address)
             .filter((a) => a.type !== 'vesting')
-            .map((acc): HoldersSearchItem => {
+            .map((acc): HoldersSearchItem | null => {
                 const title = getAccountName(acc.type, acc.accountIndex, acc.name);
                 const searchable = `${title.toLowerCase()} ${acc.address!.toLowerCase()}`;
 
-                // Check if it's a Solana account
                 if (hasDirectSolanaDeposit(acc)) {
                     return {
                         type: 'solana',
@@ -55,27 +54,31 @@ export const HoldersAccountsSearch = memo(({
                     };
                 }
 
-                // TON account logic
-                const address = Address.parse(acc.address!!);
-                let memo: string | undefined = undefined;
+                try {
+                    const address = Address.parse(acc.address!!);
+                    let memo: string | undefined = undefined;
 
-                if (acc.cryptoCurrency.ticker === 'TON') {
-                    memo = 'Top Up';
-                }
+                    if ('cryptoCurrency' in acc && acc.cryptoCurrency.ticker === 'TON') {
+                        memo = 'Top Up';
+                    }
 
-                return {
-                    type: 'holders',
-                    addr: {
-                        isBounceable: true,
-                        isTestOnly: isTestnet,
-                        address
-                    },
-                    title,
-                    searchable,
-                    memo,
-                    acc
+                    return {
+                        type: 'holders',
+                        addr: {
+                            isBounceable: true,
+                            isTestOnly: isTestnet,
+                            address
+                        },
+                        title,
+                        searchable,
+                        memo,
+                        acc
+                    }
+                } catch {
+                    return null;
                 }
-            });
+            })
+            .filter((item): item is HoldersSearchItem => item !== null);
     }, [isTestnet, holdersAccounts]);
 
     const filtered = useMemo(() => {
@@ -109,7 +112,7 @@ export const HoldersAccountsSearch = memo(({
                                         title,
                                         searchable: item.searchable,
                                         type: 'holders',
-                                        memo: item.acc.cryptoCurrency.ticker === 'USDC' ? 'Top Up' : undefined
+                                        memo: 'cryptoCurrency' in item.acc && item.acc.cryptoCurrency.ticker === 'USDC' ? 'Top Up' : undefined
                                     });
                                 }
                             };

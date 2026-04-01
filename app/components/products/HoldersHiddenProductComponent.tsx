@@ -28,10 +28,11 @@ export const HoldersHiddenProductComponent = memo(({ holdersAccStatus, isLedger 
     const ledgerContext = useLedgerTransport();
     const ledgerAddress = ledgerContext?.addr?.address ? Address.parse(ledgerContext?.addr?.address) : undefined;
     const address = isLedger ? ledgerAddress : selected!.address;
-    const { accounts, prepaidCards } = useHoldersAccounts(address, isLedger ? undefined : solanaAddress).data ?? {};
+    const ethereumAddress = isLedger ? undefined : selected?.ethereum?.address;
+    const { accounts, prepaidCards } = useHoldersAccounts(address, isLedger ? undefined : solanaAddress, ethereumAddress).data ?? {};
 
-    const [hiddenAccounts, markAccount] = useHoldersHiddenAccounts(address!, isLedger ? undefined : solanaAddress);
-    const [hiddenPrepaidCards, markPrepaidCard] = useHoldersHiddenPrepaidCards(address!, isLedger ? undefined : solanaAddress);
+    const [hiddenAccounts, markAccount] = useHoldersHiddenAccounts(address!, isLedger ? undefined : solanaAddress, ethereumAddress);
+    const [hiddenPrepaidCards, markPrepaidCard] = useHoldersHiddenPrepaidCards(address!, isLedger ? undefined : solanaAddress, ethereumAddress);
 
     let hiddenAccountsList = useMemo(() => {
         return (accounts ?? []).filter((item) => {

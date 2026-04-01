@@ -55,11 +55,12 @@ export const SettingsFragment = fragment(() => {
     const [lang] = useLanguage();
     const [bounceableFormat] = useBounceableWalletFormat();
     const solanaAddress = useSolanaSelectedAccount()!;
-    const hasHoldersProducts = useHasHoldersProducts(selected?.address.toString({ testOnly: network.isTestnet }) || '', solanaAddress);
+    const isLedger = useIsLedgerRoute();
+    const ethereumAddress = isLedger ? undefined : selected?.ethereum?.address;
+    const hasHoldersProducts = useHasHoldersProducts(selected?.address.toString({ testOnly: network.isTestnet }) || '', solanaAddress, ethereumAddress);
     const inviteCheck = useIsHoldersInvited(selected?.address, network.isTestnet);
     const holdersAccStatus = useHoldersAccountStatus(selected?.address).data;
-    const isLedger = useIsLedgerRoute()
-    const holdersAccounts = useHoldersAccounts(selected?.address, isLedger ? undefined : solanaAddress).data;
+    const holdersAccounts = useHoldersAccounts(selected?.address, isLedger ? undefined : solanaAddress, ethereumAddress).data;
     const url = holdersUrl(network.isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
     const showHoldersItem = !isLedger && hasHoldersProducts;

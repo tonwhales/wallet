@@ -27,9 +27,10 @@ export const IbanBanner = memo(({ isLedger }: { isLedger?: boolean }) => {
     const ledgerContext = useLedgerTransport();
     const ledgerAddress = ledgerContext?.addr?.address ? Address.parse(ledgerContext?.addr?.address) : undefined;
     const address = isLedger ? ledgerAddress : selected?.address;
+    const ethereumAddress = isLedger ? undefined : selected?.ethereum?.address;
     const url = holdersUrl(isTestnet);
     const holdersAccStatus = useHoldersAccountStatus(address).data;
-    const accounts = useHoldersAccounts(address, isLedger ? undefined : solanaAddress).data?.accounts ?? [];
+    const accounts = useHoldersAccounts(address, isLedger ? undefined : solanaAddress, ethereumAddress).data?.accounts ?? [];
 
     const { data: ibanPromo } = useHoldersIban(address);
 

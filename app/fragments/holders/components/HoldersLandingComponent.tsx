@@ -34,7 +34,8 @@ export type HoldersLandingComponentProps = {
 
 export const HoldersLandingComponent = memo(({ endpoint, onEnrollType, inviteId, invitationId, isLedger }: HoldersLandingComponentProps) => {
     const acc = useSelectedAccount()!;
-    const solanaAddress = useSolanaSelectedAccount()!
+    const solanaAddress = useSolanaSelectedAccount()!;
+    const ethereumAddress = acc?.ethereum?.address;
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const webRef = useRef<WebView>(null);
@@ -53,7 +54,7 @@ export const HoldersLandingComponent = memo(({ endpoint, onEnrollType, inviteId,
     const [confirmOnLedger, setConfirmOnLedger] = useState(false);
     const isComponentMounted = useRef(true);
 
-    const enroll = useHoldersEnroll({ acc, domain, authContext, inviteId, invitationId, authStyle: { paddingTop: 32 }, solanaAddress: isLedger ? undefined : solanaAddress });
+    const enroll = useHoldersEnroll({ acc, domain, authContext, inviteId, invitationId, authStyle: { paddingTop: 32 }, solanaAddress: isLedger ? undefined : solanaAddress, ethereumAddress: isLedger ? undefined : ethereumAddress });
     const ledgerEnroll = useHoldersLedgerEnroll({ inviteId, invitationId, setConfirming: setConfirmOnLedger });
     const authenticate = isLedger ? ledgerEnroll : enroll;
 

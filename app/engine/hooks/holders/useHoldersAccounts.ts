@@ -21,13 +21,18 @@ const networkFilter = (account: GeneralHoldersAccount) => {
         case 'ton-testnet':
         case 'ton-mainnet':
         case 'solana':
+        case 'ethereum-mainnet':
+        case 'ethereum-sepolia':
+        case 'base-mainnet':
+        case 'base-sepolia':
+        case 'ether':
             return true;
         default:
             return false;
     }
 }
 
-export function useHoldersAccounts(address: string | Address | undefined, solanaAddress?: string | null) {
+export function useHoldersAccounts(address: string | Address | undefined, solanaAddress?: string | null, ethereumAddress?: string | null) {
     let { isTestnet } = useNetwork();
     let status = useHoldersAccountStatus(address).data;
 
@@ -71,7 +76,7 @@ export function useHoldersAccounts(address: string | Address | undefined, solana
                     // fetch apple pay credentials and update provisioning credentials cache
                     await updateProvisioningCredentials(addressString!, isTestnet);
                 } else {
-                    accounts = await fetchAccountsPublic({ address: addressString!, isTestnet, solanaAddress: solanaAddress || undefined });
+                    accounts = await fetchAccountsPublic({ address: addressString!, isTestnet, solanaAddress: solanaAddress || undefined, ethereumAddress: ethereumAddress || undefined });
                     type = 'public';
                 }
 

@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useMemo } from "react";
-import { useAccountLite, useHoldersAccounts, useLiquidStakingBalance, usePrice, useSolanaSavingsBalance, useStaking, useTheme } from "../../../engine/hooks";
+import { useAccountLite, useHoldersAccounts, useLiquidStakingBalance, usePrice, useSelectedAccount, useSolanaSavingsBalance, useStaking, useTheme } from "../../../engine/hooks";
 import { useAppMode } from "../../../engine/hooks/appstate/useAppMode";
 import { reduceHoldersBalances } from "../../../utils/reduceHoldersBalances";
 import { LinearGradient } from "expo-linear-gradient";
@@ -82,13 +82,15 @@ const AnimatedPriceLoader = () => {
 }
 
 export const WalletCard = memo(({ address, pubKey, height, walletHeaderHeight, isLedger }: { address: Address, pubKey: Buffer, height: number, walletHeaderHeight: number, isLedger?: boolean }) => {
+    const selected = useSelectedAccount();
     const solanaAddress = solanaAddressFromPublicKey(pubKey).toString();
+    const ethereumAddress = isLedger ? undefined : selected?.ethereum?.address;
     const { specialToTon, savingsToTon } = useSavingsBalance(address);
     const { solAssetsToTon: solanaTotalBalance } = useSolanaSavingsBalance(solanaAddress);
     const account = useAccountLite(address);
     const theme = useTheme();
     const staking = useStaking(address);
-    const holdersCards = useHoldersAccounts(address, isLedger ? undefined : solanaAddress).data?.accounts;
+    const holdersCards = useHoldersAccounts(address, isLedger ? undefined : solanaAddress, ethereumAddress).data?.accounts;
     const [price] = usePrice();
     const [isWalletMode] = useAppMode(address);
     const bottomBarHeight = useBottomTabBarHeight();

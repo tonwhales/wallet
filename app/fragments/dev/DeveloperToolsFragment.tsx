@@ -48,7 +48,7 @@ export const DeveloperToolsFragment = fragment(() => {
     const ledgerContext = useLedgerTransport();
     const acc = useSelectedAccount()!;
     const solanaAddress = useSolanaSelectedAccount()!;
-    const accounts = useHoldersAccounts(acc.address, solanaAddress);
+    const accounts = useHoldersAccounts(acc.address, solanaAddress, acc.ethereum?.address);
     const holdersStatus = useHoldersAccountStatus(acc.address);
     const setAppState = useSetAppState();
     const [isScreenProtectorEnabled, setScreenProtector] = useScreenProtectorState();

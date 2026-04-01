@@ -17,9 +17,9 @@ export const SelectHoldersMainAccountFragment = fragment(() => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const { tonAddress, solanaAddress } = useCurrentAddress();
+    const { tonAddress, solanaAddress, ethereumAddress } = useCurrentAddress();
     const { isTestnet } = useNetwork();
-    const holdersAccounts = useHoldersAccounts(tonAddress, solanaAddress).data?.accounts ?? [];
+    const holdersAccounts = useHoldersAccounts(tonAddress, solanaAddress, ethereumAddress).data?.accounts ?? [];
     const holdersAccStatus = useHoldersAccountStatus(tonAddress).data;
     const [favoriteHoldersAccount, setFavoriteHoldersAccount] = useFavoriteHoldersAccount()
 

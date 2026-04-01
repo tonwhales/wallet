@@ -46,7 +46,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const oldWalletsBalance = useOldWalletsBalances().total;
-    const holdersAccounts = useHoldersAccounts(selected!.address, selected!.solanaAddress).data;
+    const holdersAccounts = useHoldersAccounts(selected!.address, selected!.solanaAddress, selected!.ethereum?.address).data;
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
     const banners = useBanners();
     const url = holdersUrl(isTestnet);
@@ -179,7 +179,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                     </>
                 ) : (
                     <>
-                        <HoldersChangellyBanner address={selected.address} solanaAddress={selected.solanaAddress} />
+                        <HoldersChangellyBanner address={selected.address} solanaAddress={selected.solanaAddress} ethereumAddress={selected.ethereum?.address} />
                         <AiChatBanner address={selected.address} />
                         <HoldersProductComponent holdersAccStatus={holdersAccStatus} key={'holders'} />
                         <HoldersHiddenProductComponent holdersAccStatus={holdersAccStatus} key={'holders-hidden'} />

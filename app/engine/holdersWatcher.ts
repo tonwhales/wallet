@@ -12,10 +12,11 @@ import { getHoldersToken } from "../storage/holders";
 export function useHoldersWatcher() {
     const account = useSelectedAccount();
     const solanaAddress = useSolanaSelectedAccount()!;
+    const ethereumAddress = account?.ethereum?.address;
     const { isTestnet } = useNetwork();
     const accAddressString = account?.address.toString({ testOnly: isTestnet }) ?? '';
     const status = useHoldersAccountStatus(accAddressString);
-    const cards = useHoldersAccounts(accAddressString, solanaAddress);
+    const cards = useHoldersAccounts(accAddressString, solanaAddress, ethereumAddress);
     const otpKey = Queries.Holders(accAddressString).OTP();
 
     const token = getHoldersToken(accAddressString);

@@ -48,13 +48,13 @@ export const ReceiveAssetsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const { tonAddress, solanaAddress, isLedger } = useCurrentAddress()
+    const { tonAddress, solanaAddress, ethereumAddress, isLedger } = useCurrentAddress()
     const { assetCallback, title } = useParams<ReceiveAssetsFragment>();
     const ledgerContext = useLedgerTransport();
     const [bounceableFormat] = useBounceableWalletFormat();
     const tokens = useSolanaTokens(solanaAddress!, isLedger);
     const holdersAccStatus = useHoldersAccountStatus(tonAddress).data;
-    const holdersAccounts = useHoldersAccounts(tonAddress, isLedger ? undefined : solanaAddress).data?.accounts ?? [];
+    const holdersAccounts = useHoldersAccounts(tonAddress, isLedger ? undefined : solanaAddress, ethereumAddress).data?.accounts ?? [];
     const hints = useDisplayableJettons(tonAddress.toString({ testOnly: isTestnet }));
     const showOtherCoins = hints.jettonsList.length > 0 || hints.savings.length > 0;
     const url = holdersUrl(isTestnet);

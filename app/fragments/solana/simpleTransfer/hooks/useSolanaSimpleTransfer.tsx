@@ -26,7 +26,7 @@ export type SolanaAddressInputState = {
 
 export const useSolanaSimpleTransfer = ({ params }: Options) => {
     const navigation = useTypedNavigation();
-    const { solanaAddress, tonAddress } = useCurrentAddress();
+    const { solanaAddress, tonAddress, ethereumAddress } = useCurrentAddress();
     const usdcMintAddress = useUsdcMintAddress();
     const [selectedAsset, setSelectedAsset] = useState<SimpleTransferAsset | null>(params.token ? { type: 'solana-token', address: params.token } : { type: 'solana' });
     const token = selectedAsset?.type === 'solana-token' ? selectedAsset.address : null;
@@ -35,7 +35,7 @@ export const useSolanaSimpleTransfer = ({ params }: Options) => {
     const { client, publicClient } = useSolanaClients();
     const hasParamsFilled = !!params?.target && !!params?.amount;
     const [selectedInput, setSelectedInput] = useState<SelectedInput | null>(hasParamsFilled ? null : SelectedInput.ADDRESS);
-    const holdersAccounts = useHoldersAccounts(tonAddress, solanaAddress);
+    const holdersAccounts = useHoldersAccounts(tonAddress, solanaAddress, ethereumAddress);
 
     const [addressInputState, setAddressInputState] = useState<SolanaAddressInputState>(
         {

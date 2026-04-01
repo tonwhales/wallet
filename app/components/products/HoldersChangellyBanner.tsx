@@ -11,11 +11,11 @@ import { View } from "react-native";
 
 const bannerId = 'holders-changelly-banner';
 
-export const HoldersChangellyBanner = memo(({ address, solanaAddress }: { address: Address, solanaAddress?: string }) => {
+export const HoldersChangellyBanner = memo(({ address, solanaAddress, ethereumAddress }: { address: Address, solanaAddress?: string, ethereumAddress?: string }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
-    const accounts = useHoldersAccounts(address, solanaAddress).data?.accounts ?? [];
+    const accounts = useHoldersAccounts(address, solanaAddress, ethereumAddress).data?.accounts ?? [];
     const holdersAccStatus = useHoldersAccountStatus(address).data;
     const hiddenBanners = useHiddenBanners();
     const markBannerHidden = useMarkBannerHidden();

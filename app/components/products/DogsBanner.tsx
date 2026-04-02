@@ -13,6 +13,8 @@ import { useAppConfig } from "../../engine/hooks/useAppConfig";
 import { HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment";
 import { useAppMode } from "../../engine/hooks/appstate/useAppMode";
 import { holdersUrl, HoldersUserState } from "../../engine/api/holders/fetchUserState";
+import { getDogsRef } from "../../engine/holders/dogsUtils";
+import { storeInvitationId } from "../../utils/holders/storage";
 
 const bannerId = 'tonhub-x-dogs-banner';
 
@@ -33,16 +35,19 @@ export const DogsBanner = memo(({ isLedger }: { isLedger?: boolean }) => {
     }, [holdersAccStatus?.state]);
 
     const isEnabled = appConfig.features?.tonhubXDogsBanner;
+    const isDogs = getDogsRef();
 
     const navigateToHoldersProductSelect = useCallback(() => {
+        storeInvitationId('dogs');
+
         if (needsEnrollment || !isHoldersReady) {
-            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: HoldersAppParamsType.Create } }, isTestnet);
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: HoldersAppParamsType.Invitation }, invitationId: 'dogs' }, isTestnet);
             return;
         }
         navigation.navigateHolders({ type: HoldersAppParamsType.Create }, isTestnet);
     }, [navigation, needsEnrollment, isHoldersReady, isTestnet, url]);
 
-    if (isHidden.includes(bannerId) || !isEnabled || !isWalletMode) {
+    if (isHidden.includes(bannerId) || !isEnabled || !isWalletMode || !isDogs) {
         return null;
     }
 

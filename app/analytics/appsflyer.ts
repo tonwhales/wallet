@@ -42,7 +42,8 @@ export const initAppsFlyer = () => {
   });
 
   appsFlyer.onInstallConversionData(res => {
-    if (res?.data?.is_first_launch !== 'true') {
+    const isFirstLaunch: unknown = res?.data?.is_first_launch;
+    if (isFirstLaunch !== 'true' && isFirstLaunch !== true) {
       return;
     }
 

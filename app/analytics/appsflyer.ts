@@ -24,27 +24,30 @@ export const appsFlyerConfig: InitSDKOptions = {
   timeToWaitForATTUserAuthorization: 15 //for iOS 14.5
 };
 
-let deepLinkHandled = false;
+let attributionHandled = false;
+
+function handleAttributionOnce(value: string) {
+  if (attributionHandled) {
+    return;
+  }
+  attributionHandled = true;
+  handleAttribution(value);
+}
 
 export const initAppsFlyer = () => {
   appsFlyer.onDeepLink(res => {
     if (res.data && res.data.deep_link_value) {
-      deepLinkHandled = true;
-      handleAttribution(res.data.deep_link_value);
+      handleAttributionOnce(res.data.deep_link_value);
     }
   });
 
   appsFlyer.onInstallConversionData(res => {
-    if (deepLinkHandled) {
-      return;
-    }
-
     if (
       res?.data?.is_first_launch === 'true' &&
       res?.data?.af_status === 'Non-organic'
     ) {
       if (res.data.deep_link_value) {
-        handleAttribution(res.data.deep_link_value);
+        handleAttributionOnce(res.data.deep_link_value);
         return;
       }
 
@@ -55,7 +58,7 @@ export const initAppsFlyer = () => {
           ? afDp.substring(schemeIdx + 3).replace(/^\//, '')
           : afDp;
         if (path) {
-          handleAttribution(path);
+          handleAttributionOnce(path);
         }
       }
     }

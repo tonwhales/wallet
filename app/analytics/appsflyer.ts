@@ -24,12 +24,46 @@ export const appsFlyerConfig: InitSDKOptions = {
   timeToWaitForATTUserAuthorization: 15 //for iOS 14.5
 };
 
+let attributionHandled = false;
+
+function handleAttributionOnce(value: string) {
+  if (attributionHandled) {
+    return;
+  }
+  attributionHandled = true;
+  handleAttribution(value);
+}
+
 export const initAppsFlyer = () => {
   appsFlyer.onDeepLink(res => {
     if (res.data && res.data.deep_link_value) {
-      handleAttribution(res.data.deep_link_value);
+      handleAttributionOnce(res.data.deep_link_value);
     }
   });
+
+  appsFlyer.onInstallConversionData(res => {
+    if (
+      res?.data?.is_first_launch === 'true' &&
+      res?.data?.af_status === 'Non-organic'
+    ) {
+      if (res.data.deep_link_value) {
+        handleAttributionOnce(res.data.deep_link_value);
+        return;
+      }
+
+      const afDp = res.data.af_dp;
+      if (typeof afDp === 'string') {
+        const schemeIdx = afDp.indexOf('://');
+        const path = schemeIdx !== -1
+          ? afDp.substring(schemeIdx + 3).replace(/^\//, '')
+          : afDp;
+        if (path) {
+          handleAttributionOnce(path);
+        }
+      }
+    }
+  });
+
   appsFlyer.initSdk(appsFlyerConfig);
 }
 

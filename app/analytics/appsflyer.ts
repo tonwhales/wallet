@@ -24,12 +24,32 @@ export const appsFlyerConfig: InitSDKOptions = {
   timeToWaitForATTUserAuthorization: 15 //for iOS 14.5
 };
 
+let deepLinkHandled = false;
+
 export const initAppsFlyer = () => {
   appsFlyer.onDeepLink(res => {
     if (res.data && res.data.deep_link_value) {
+      deepLinkHandled = true;
       handleAttribution(res.data.deep_link_value);
     }
   });
+
+  appsFlyer.onInstallConversionData(res => {
+    if (deepLinkHandled) {
+      return;
+    }
+
+    if (
+      res?.data?.is_first_launch === 'true' &&
+      res?.data?.af_status === 'Non-organic'
+    ) {
+      const deepLinkValue = res.data.deep_link_value || res.data.af_dp;
+      if (deepLinkValue) {
+        handleAttribution(deepLinkValue);
+      }
+    }
+  });
+
   appsFlyer.initSdk(appsFlyerConfig);
 }
 

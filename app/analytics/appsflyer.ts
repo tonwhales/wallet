@@ -43,9 +43,20 @@ export const initAppsFlyer = () => {
       res?.data?.is_first_launch === 'true' &&
       res?.data?.af_status === 'Non-organic'
     ) {
-      const deepLinkValue = res.data.deep_link_value || res.data.af_dp;
-      if (deepLinkValue) {
-        handleAttribution(deepLinkValue);
+      if (res.data.deep_link_value) {
+        handleAttribution(res.data.deep_link_value);
+        return;
+      }
+
+      const afDp = res.data.af_dp;
+      if (typeof afDp === 'string') {
+        const schemeIdx = afDp.indexOf('://');
+        const path = schemeIdx !== -1
+          ? afDp.substring(schemeIdx + 3).replace(/^\//, '')
+          : afDp;
+        if (path) {
+          handleAttribution(path);
+        }
       }
     }
   });

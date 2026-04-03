@@ -42,10 +42,12 @@ export const initAppsFlyer = () => {
   });
 
   appsFlyer.onInstallConversionData(res => {
-    if (
-      res?.data?.is_first_launch === 'true' &&
-      res?.data?.af_status === 'Non-organic'
-    ) {
+    const isFirstLaunch: unknown = res?.data?.is_first_launch;
+    if (isFirstLaunch !== 'true' && isFirstLaunch !== true) {
+      return;
+    }
+
+    if (res.data.af_status === 'Non-organic') {
       if (res.data.deep_link_value) {
         handleAttributionOnce(res.data.deep_link_value);
         return;
@@ -61,6 +63,14 @@ export const initAppsFlyer = () => {
           handleAttributionOnce(path);
         }
       }
+      return;
+    }
+
+    // Fallback for installs from tonhub.com landing page:
+    // These may be classified as Organic if AppsFlyer fingerprint matching missed,
+    // but the Play Store referrer still carries deep_link_value.
+    if (res.data.deep_link_value) {
+      handleAttributionOnce(res.data.deep_link_value);
     }
   });
 

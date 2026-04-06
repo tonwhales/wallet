@@ -141,6 +141,49 @@ export const initAppsFlyer = () => {
         .then((raw: string) => {
           afLog('REFERRER', 'Raw Install Referrer from Google Play', { raw });
           Alert.alert('Raw Install Referrer', raw);
+
+          // Parse the raw referrer ourselves (AppsFlyer ignores it without af_tranid)
+          const referrerLine = raw.split('\n')[0] || '';
+          const referrerStr = referrerLine.startsWith('referrer=')
+            ? referrerLine.substring('referrer='.length)
+            : referrerLine;
+
+          let params: Record<string, string> = {};
+          try {
+            const decoded = decodeURIComponent(referrerStr);
+            for (const pair of decoded.split('&')) {
+              const [k, ...v] = pair.split('=');
+              if (k) params[k] = decodeURIComponent(v.join('='));
+            }
+          } catch (_e) {
+            try {
+              for (const pair of referrerStr.split('&')) {
+                const [k, ...v] = pair.split('=');
+                if (k) params[k] = decodeURIComponent(v.join('='));
+              }
+            } catch (_e2) { /* */ }
+          }
+
+          afLog('REFERRER', 'Parsed referrer params', params);
+
+          const deepLinkValue = params['deep_link_value'];
+          if (deepLinkValue) {
+            afLog('REFERRER', `Found deep_link_value in raw referrer: ${deepLinkValue}`);
+            handleAttributionOnce(deepLinkValue);
+            return;
+          }
+
+          const afDp = params['af_dp'];
+          if (afDp) {
+            const schemeIdx = afDp.indexOf('://');
+            const path = schemeIdx !== -1
+              ? afDp.substring(schemeIdx + 3).replace(/^\//, '')
+              : afDp;
+            afLog('REFERRER', `Found af_dp in raw referrer: ${afDp} → path: ${path}`);
+            if (path) {
+              handleAttributionOnce(path);
+            }
+          }
         })
         .catch((err: unknown) => {
           afLog('REFERRER', 'Failed to read referrer', { error: String(err) });

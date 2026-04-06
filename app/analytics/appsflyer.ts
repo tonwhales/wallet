@@ -1,5 +1,6 @@
 import appsFlyer, { InitSDKOptions } from "react-native-appsflyer"
 import { Alert, NativeModules, Platform } from "react-native";
+import Clipboard from '@react-native-clipboard/clipboard';
 import { handleAttribution } from "../utils/CachedLinking";
 import { afLog } from "./appsFlyerDebugLog";
 
@@ -36,6 +37,25 @@ function handleAttributionOnce(value: string) {
   attributionHandled = true;
   afLog('ATTR', 'handleAttributionOnce → handleAttribution', { value });
   handleAttribution(value);
+}
+
+async function checkClipboardForDeepLink() {
+  try {
+    const content = await Clipboard.getString();
+    afLog('CLIPBOARD', 'Clipboard content', { content: content?.substring(0, 300) });
+
+    const match = content?.match(/tonhub\.com\/holders\/i\/(\w+)/);
+    if (match) {
+      const path = `holders/i/${match[1]}`;
+      afLog('CLIPBOARD', `Found invite in clipboard: ${path}`);
+      Alert.alert('Clipboard deep link', path);
+      handleAttributionOnce(path);
+    } else {
+      afLog('CLIPBOARD', 'No tonhub invite found in clipboard');
+    }
+  } catch (e) {
+    afLog('CLIPBOARD', 'Failed to read clipboard', { error: String(e) });
+  }
 }
 
 export const initAppsFlyer = () => {
@@ -121,7 +141,10 @@ export const initAppsFlyer = () => {
         handleAttributionOnce(path);
       }
     } else {
-      afLog('CONV', 'No deep_link_value or af_dp found — attribution not possible');
+      afLog('CONV', 'No deep_link_value or af_dp found — trying clipboard fallback');
+      if (Platform.OS === 'android') {
+        checkClipboardForDeepLink();
+      }
     }
   });
 
@@ -141,49 +164,6 @@ export const initAppsFlyer = () => {
         .then((raw: string) => {
           afLog('REFERRER', 'Raw Install Referrer from Google Play', { raw });
           Alert.alert('Raw Install Referrer', raw);
-
-          // Parse the raw referrer ourselves (AppsFlyer ignores it without af_tranid)
-          const referrerLine = raw.split('\n')[0] || '';
-          const referrerStr = referrerLine.startsWith('referrer=')
-            ? referrerLine.substring('referrer='.length)
-            : referrerLine;
-
-          let params: Record<string, string> = {};
-          try {
-            const decoded = decodeURIComponent(referrerStr);
-            for (const pair of decoded.split('&')) {
-              const [k, ...v] = pair.split('=');
-              if (k) params[k] = decodeURIComponent(v.join('='));
-            }
-          } catch (_e) {
-            try {
-              for (const pair of referrerStr.split('&')) {
-                const [k, ...v] = pair.split('=');
-                if (k) params[k] = decodeURIComponent(v.join('='));
-              }
-            } catch (_e2) { /* */ }
-          }
-
-          afLog('REFERRER', 'Parsed referrer params', params);
-
-          const deepLinkValue = params['deep_link_value'];
-          if (deepLinkValue) {
-            afLog('REFERRER', `Found deep_link_value in raw referrer: ${deepLinkValue}`);
-            handleAttributionOnce(deepLinkValue);
-            return;
-          }
-
-          const afDp = params['af_dp'];
-          if (afDp) {
-            const schemeIdx = afDp.indexOf('://');
-            const path = schemeIdx !== -1
-              ? afDp.substring(schemeIdx + 3).replace(/^\//, '')
-              : afDp;
-            afLog('REFERRER', `Found af_dp in raw referrer: ${afDp} → path: ${path}`);
-            if (path) {
-              handleAttributionOnce(path);
-            }
-          }
         })
         .catch((err: unknown) => {
           afLog('REFERRER', 'Failed to read referrer', { error: String(err) });

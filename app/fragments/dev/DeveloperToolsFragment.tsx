@@ -36,6 +36,7 @@ import WebView from 'react-native-webview';
 import { holdersUrl } from '../../engine/api/holders/fetchUserState';
 import { useWebViewPreloader } from '../../components/WebViewPreloaderContext';
 import { setDogsInvShown } from '../../engine/holders/dogsUtils';
+import { getAFLogsText, clearAFLogs } from '../../analytics/appsFlyerDebugLog';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -342,6 +343,42 @@ export const DeveloperToolsFragment = fragment(() => {
                             onPress={() => {
                                 setDogsInvShown(false);
                                 navigation.navigate('DogsInvite');
+                            }}
+                        />
+                    </View>
+                    <View style={{
+                        backgroundColor: theme.border,
+                        borderRadius: 14,
+                        overflow: 'hidden',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        padding: 4
+                    }}>
+                        <ItemButton
+                            title={"AppsFlyer Logs (view)"}
+                            onPress={() => {
+                                const txt = getAFLogsText();
+                                Alert.alert('AppsFlyer Debug Logs', txt.length > 3000 ? txt.slice(-3000) : txt);
+                            }}
+                        />
+                        <ItemButton
+                            title={"AppsFlyer Logs (copy)"}
+                            onPress={() => {
+                                const txt = getAFLogsText();
+                                Clipboard.setString(txt);
+                                if (Platform.OS === 'android') {
+                                    ToastAndroid.show('AF logs copied', ToastAndroid.SHORT);
+                                } else {
+                                    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                                }
+                            }}
+                        />
+                        <ItemButton
+                            dangerZone
+                            title={"AppsFlyer Logs (clear)"}
+                            onPress={() => {
+                                clearAFLogs();
+                                Alert.alert('Done', 'AF logs cleared');
                             }}
                         />
                     </View>

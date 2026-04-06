@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { resolveSearchParams } from "./holders/resolveSearchParams";
 import { processSearchParams } from "./holders/queryParamsStore";
 import { isMaestraPushDataIOS } from "../engine/types";
+import { afLog } from "../analytics/appsFlyerDebugLog";
 
 const { MaestraModule } = NativeModules;
 
@@ -11,15 +12,20 @@ let lastLink: string | null = null;
 let listener: (((link: string) => string | null) | null) = null;
 
 export function handleLinkReceived(link: string) {
+    afLog('LINK', `handleLinkReceived: listener=${!!listener}`, { link });
     if (listener) {
         lastLink = listener(link);
+        afLog('LINK', `listener returned lastLink=${lastLink}`);
     } else {
         lastLink = link;
+        afLog('LINK', `No listener, cached lastLink=${lastLink}`);
     }
 }
 
 function resolveAndProcessLink(link: string) {
+    afLog('LINK', `resolveAndProcessLink`, { link });
     const params = resolveSearchParams(link);
+    afLog('LINK', `resolvedSearchParams`, params);
     processSearchParams(params);
     handleLinkReceived(link);
 }
@@ -27,7 +33,7 @@ function resolveAndProcessLink(link: string) {
 // Fetch initial
 (async () => {
     let url = await Linking.getInitialURL();
-    
+    afLog('LINK', `getInitialURL = ${url}`);
     if (url) {
         resolveAndProcessLink(url);
     }
@@ -35,6 +41,7 @@ function resolveAndProcessLink(link: string) {
 
 export function handleAttribution(deepLink: string) {
     const uri = `https://tonhub.com/${deepLink}`;
+    afLog('LINK', `handleAttribution: deepLink=${deepLink}, uri=${uri}`);
     resolveAndProcessLink(uri);
 }
 
@@ -109,13 +116,16 @@ if (Platform.OS === 'android') {
 
 export const CachedLinking = {
     setListener: (handler: (link: string) => string | null) => {
+        afLog('LINK', `setListener called, lastLink=${lastLink}`);
         if (listener) {
             throw Error('Listener already set');
         }
         listener = handler;
         if (lastLink) {
             let l = lastLink;
+            afLog('LINK', `setListener: processing cached lastLink=${l}`);
             lastLink = handler(l);
+            afLog('LINK', `setListener: after handler, lastLink=${lastLink}`);
         }
         return () => {
             if (listener !== handler) {
@@ -125,8 +135,10 @@ export const CachedLinking = {
         };
     },
     openLastLink: () => {
+        afLog('LINK', `openLastLink called, lastLink=${lastLink}, listener=${!!listener}`);
         if (lastLink && listener) {
             lastLink = listener(lastLink);
+            afLog('LINK', `openLastLink: after handler, lastLink=${lastLink}`);
         }
     },
     getLastLink: () => lastLink

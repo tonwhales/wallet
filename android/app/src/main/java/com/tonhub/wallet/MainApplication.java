@@ -30,6 +30,7 @@ import com.tonhub.wallet.modules.flagsecure.FlagSecurePackage;
 
 import com.shopify.reactnativeperformance.ReactNativePerformance;
 import com.tonhub.wallet.modules.wallet.WalletPackage;
+import com.tonhub.wallet.modules.referrer.InstallReferrerPackage;
 import com.intercom.reactnative.IntercomModule;
 import cloud.mindbox.mobile_sdk.Mindbox;
 import cloud.mindbox.mindbox_firebase.MindboxFirebase;
@@ -53,6 +54,7 @@ public class MainApplication extends Application implements ReactApplication {
                     packages.add(new WebViewCachePackage());
                     packages.add(new FlagSecurePackage());
                     packages.add(new WalletPackage());
+                    packages.add(new InstallReferrerPackage());
                     return packages;
                 }
 

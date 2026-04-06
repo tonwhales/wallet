@@ -1,5 +1,5 @@
 import appsFlyer, { InitSDKOptions } from "react-native-appsflyer"
-import { Alert } from "react-native";
+import { Alert, NativeModules, Platform } from "react-native";
 import { handleAttribution } from "../utils/CachedLinking";
 import { afLog } from "./appsFlyerDebugLog";
 
@@ -133,6 +133,22 @@ export const initAppsFlyer = () => {
     .catch((err) => {
       afLog('INIT', 'initSdk rejected', { error: String(err) });
     });
+
+  if (Platform.OS === 'android') {
+    const { InstallReferrerModule } = NativeModules;
+    if (InstallReferrerModule) {
+      InstallReferrerModule.getReferrer()
+        .then((raw: string) => {
+          afLog('REFERRER', 'Raw Install Referrer from Google Play', { raw });
+          Alert.alert('Raw Install Referrer', raw);
+        })
+        .catch((err: unknown) => {
+          afLog('REFERRER', 'Failed to read referrer', { error: String(err) });
+        });
+    } else {
+      afLog('REFERRER', 'InstallReferrerModule not available');
+    }
+  }
 }
 
 export const trackAppsFlyerEvent = async (

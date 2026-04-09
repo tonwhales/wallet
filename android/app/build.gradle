@@ -75,8 +75,12 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    kotlinOptions {
+        jvmTarget = "11"
     }
 
     buildFeatures {
@@ -248,5 +252,14 @@ configurations.all {
        force 'androidx.lifecycle:lifecycle-livedata-core:2.6.2'
        force 'androidx.lifecycle:lifecycle-runtime:2.6.2'
        force 'androidx.lifecycle:lifecycle-common:2.6.2'
+
+       // Pin Kotlin stdlib to match project kotlinVersion (1.8.10)
+       force "org.jetbrains.kotlin:kotlin-stdlib:${rootProject.ext.kotlinVersion}"
+       force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${rootProject.ext.kotlinVersion}"
+       force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${rootProject.ext.kotlinVersion}"
+
+       // Pin annotation-jvm to a version compatible with Kotlin 1.8.x
+       force 'androidx.annotation:annotation:1.7.1'
+       force 'androidx.annotation:annotation-jvm:1.7.1'
    }
 }

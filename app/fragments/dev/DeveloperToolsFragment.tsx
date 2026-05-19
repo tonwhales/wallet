@@ -95,6 +95,7 @@ export const DeveloperToolsFragment = fragment(() => {
                         utilityKey: address.utilityKey,
                         addressString: contract.address.toString({ testOnly: !isTestnet }),
                         version: address.version,
+                        ethereum: address.ethereum,
                     }
                 })
             )

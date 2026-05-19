@@ -229,6 +229,18 @@ export async function encryptData(data: Buffer, passcode?: string) {
     return Buffer.concat([nonce, sealed]);
 }
 
+// Encrypt several buffers under a single getApplicationKey call.
+// Avoids triggering biometric prompt more than once when multiple secrets
+// (e.g. TON mnemonic + Ethereum private key) need to be sealed together.
+export async function encryptDataBatch(dataArray: Buffer[], passcode?: string): Promise<Buffer[]> {
+    const key = await getApplicationKey(passcode);
+    return Promise.all(dataArray.map(async (data) => {
+        const nonce = await getSecureRandomBytes(24);
+        const sealed = sealBox(data, nonce, key);
+        return Buffer.concat([nonce, sealed]);
+    }));
+}
+
 export async function decryptData(data: Buffer, passcode?: string) {
     const key = await getApplicationKey(passcode);
     let nonce = data.slice(0, 24);

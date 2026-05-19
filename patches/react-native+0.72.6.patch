@@ -1,3 +1,32 @@
+diff --git a/node_modules/react-native/ReactCommon/yoga/yoga/YGValue.h b/node_modules/react-native/ReactCommon/yoga/yoga/YGValue.h
+index 11beb3e..cd8142d 100644
+--- a/node_modules/react-native/ReactCommon/yoga/yoga/YGValue.h
++++ b/node_modules/react-native/ReactCommon/yoga/yoga/YGValue.h
+@@ -74,18 +74,18 @@ namespace facebook {
+ namespace yoga {
+ namespace literals {
+ 
+-inline YGValue operator"" _pt(long double value) {
++inline YGValue operator""_pt(long double value) {
+   return YGValue{static_cast<float>(value), YGUnitPoint};
+ }
+-inline YGValue operator"" _pt(unsigned long long value) {
+-  return operator"" _pt(static_cast<long double>(value));
++inline YGValue operator""_pt(unsigned long long value) {
++  return operator""_pt(static_cast<long double>(value));
+ }
+ 
+-inline YGValue operator"" _percent(long double value) {
++inline YGValue operator""_percent(long double value) {
+   return YGValue{static_cast<float>(value), YGUnitPercent};
+ }
+-inline YGValue operator"" _percent(unsigned long long value) {
+-  return operator"" _percent(static_cast<long double>(value));
++inline YGValue operator""_percent(unsigned long long value) {
++  return operator""_percent(static_cast<long double>(value));
+ }
+ 
+ } // namespace literals
 diff --git a/node_modules/react-native/third-party-podspecs/boost.podspec b/node_modules/react-native/third-party-podspecs/boost.podspec
 index 3d9331c..bbbb738 100644
 --- a/node_modules/react-native/third-party-podspecs/boost.podspec

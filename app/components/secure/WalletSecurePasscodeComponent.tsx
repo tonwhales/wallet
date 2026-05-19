@@ -13,7 +13,7 @@ import { WalletSecureComponent } from './WalletSecureComponent';
 import { DeviceEncryption, getDeviceEncryption } from '../../storage/getDeviceEncryption';
 import { LoadingIndicator } from '../LoadingIndicator';
 import { storage } from '../../storage/storage';
-import { BiometricsState, PasscodeState, encryptData, generateNewKeyAndEncryptWithPasscode, getBiometricsState, getPasscodeState, passcodeStateKey } from '../../storage/secureStorage';
+import { BiometricsState, PasscodeState, encryptData, encryptDataBatch, generateNewKeyAndEncryptWithPasscode, getBiometricsState, getPasscodeState, passcodeStateKey } from '../../storage/secureStorage';
 import { useCallback, useEffect, useState } from 'react';
 import { checkBiometricsPermissions, useKeysAuth } from './AuthWalletKeys';
 import { mnemonicToWalletKey } from '@ton/crypto';
@@ -28,7 +28,6 @@ import { WalletVersions } from '../../engine/types';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 import { RegistrationMethod, trackAppsFlyerEvent } from '../../analytics/appsflyer';
 import { AppsFlyerEvent } from '../../analytics/appsflyer';
-import { MaestraEvent, trackMaestraEvent } from '../../analytics/maestra';
 
 export const WalletSecurePasscodeComponent = systemFragment((props: {
     mnemonics: string,
@@ -64,13 +63,6 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
         const registrationMethod = isImport ? RegistrationMethod.Import : RegistrationMethod.Create;
         trackEvent(event, { isTestnet, additionalWallet }, isTestnet, true);
 
-        if (isImport) {
-            if (isTestnet) {
-                return;
-            }
-            trackMaestraEvent(MaestraEvent.WalletSeedImported, { walletID: address.address.toString() });
-        }
-
         if (!additionalWallet) {
             trackAppsFlyerEvent(AppsFlyerEvent.CompletedRegistration, {
                 method: registrationMethod
@@ -89,9 +81,25 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
         (async () => {
             setLoading(true);
             try {
-                // Encrypted token
+                const mnemonicWords = props.mnemonics.split(' ');
+
+                // Pre-compute Ethereum keypair (pure crypto, no auth prompt) so we can
+                // batch-encrypt the TON mnemonic and the Ethereum private key under a
+                // single getApplicationKey call. This avoids a second biometric prompt
+                // when biometrics is in use.
+                const isBip39 = validateBip39Mnemonic(mnemonicWords);
+                const ethereumKeypair = isBip39
+                    ? await ethereumKeypairFromMnemonic(mnemonicWords)
+                    : undefined;
+
+                const buffersToEncrypt: Buffer[] = [Buffer.from(props.mnemonics)];
+                if (ethereumKeypair) {
+                    buffersToEncrypt.push(Buffer.from(ethereumKeypair.privateKey));
+                }
+
+                // Encrypted buffers (filled by either biometrics or passcode branch below)
                 let secretKeyEnc: Buffer | undefined = undefined;
-                let usedPasscode: string | undefined = undefined;
+                let ethereumSecretKeyEnc: Buffer | undefined = undefined;
 
                 // Authenticate
                 const passcodeState = getPasscodeState();
@@ -101,14 +109,17 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                 const tryPasscode = async () => {
                     const authRes = await authContext.authenticateWithPasscode();
                     if (authRes) {
-                        usedPasscode = authRes.passcode;
-                        secretKeyEnc = await encryptData(Buffer.from(props.mnemonics), authRes.passcode);
+                        const encrypted = await encryptDataBatch(buffersToEncrypt, authRes.passcode);
+                        secretKeyEnc = encrypted[0];
+                        ethereumSecretKeyEnc = encrypted[1];
                     }
                 }
 
                 if (useBiometrics) {
                     try {
-                        secretKeyEnc = await encryptData(Buffer.from(props.mnemonics));
+                        const encrypted = await encryptDataBatch(buffersToEncrypt);
+                        secretKeyEnc = encrypted[0];
+                        ethereumSecretKeyEnc = encrypted[1];
                     } catch {
                         const premissionsRes = await checkBiometricsPermissions(passcodeState);
                         if (premissionsRes === 'biometrics-permission-check') {
@@ -220,29 +231,19 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                     throw new Error('Invalid app key');
                 }
 
-                const mnemonicWords = props.mnemonics.split(' ');
-
                 // Resolve key
                 const key = await mnemonicToWalletKey(mnemonicWords);
 
                 // Resolve utility key
                 const utilityKey = await deriveUtilityKey(mnemonicWords);
 
-                // Check if mnemonic is BIP39 compatible and generate Ethereum keys if so
-                let ethereumState: EthereumState | undefined = undefined;
-                const isBip39 = validateBip39Mnemonic(mnemonicWords);
-                if (isBip39) {
-                    const ethereumKeypair = await ethereumKeypairFromMnemonic(mnemonicWords);
-                    // Use the same encryption method as was used for secretKeyEnc (biometrics or passcode)
-                    const ethereumSecretKeyEnc = usedPasscode
-                        ? await encryptData(Buffer.from(ethereumKeypair.privateKey), usedPasscode)
-                        : await encryptData(Buffer.from(ethereumKeypair.privateKey));
-                    ethereumState = {
+                const ethereumState: EthereumState | undefined = (ethereumKeypair && ethereumSecretKeyEnc)
+                    ? {
                         secretKeyEnc: ethereumSecretKeyEnc,
                         publicKey: Buffer.from(ethereumKeypair.publicKey),
                         address: ethereumKeypair.address
-                    };
-                }
+                    }
+                    : undefined;
 
                 versions.forEach(async (version) => {
                     // Resolve contract

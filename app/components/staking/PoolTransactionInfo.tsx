@@ -205,7 +205,7 @@ export const PoolTransactionInfo = memo(({ pool, poolAddressString,  fee }: { po
                             </Text>
                             <View style={{ justifyContent: 'center', alignItems: 'flex-end' }}>
                                 <Text style={itemValueTextStyle(theme)}>
-                                    {`${formatAmount(fromNano(fee))} TON`}
+                                    {`${formatAmount(fromNano(fee))} ${NATIVE_DISPLAY_SYMBOL}`}
                                 </Text>
                                 <PriceComponent
                                     amount={fee}

@@ -173,11 +173,11 @@ export const TransferSingleView = memo(({
 
     const feesString = useMemo(() => {
         if (fees.type !== 'gasless') {
-            return `${formatAmount(fromNano(fees.value))} TON`;
+            return `${formatAmount(fromNano(fees.value))} ${NATIVE_DISPLAY_SYMBOL}`;
         }
         if (fees.type === 'gasless') {
             if (!isGasless) {
-                return `${formatAmount(fromNano(fees.tonFees))} TON`;
+                return `${formatAmount(fromNano(fees.tonFees))} ${NATIVE_DISPLAY_SYMBOL}`;
             }
 
             return (!!jetton && !!jetton?.decimals)

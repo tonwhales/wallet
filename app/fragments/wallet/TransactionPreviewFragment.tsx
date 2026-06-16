@@ -560,7 +560,7 @@ const TransactionPreview = () => {
                                     <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
                                         {tx.base.fees
                                             ? <>
-                                                {`${formatAmount(fromNano(fees))} TON`}
+                                                {`${formatAmount(fromNano(fees))} ${NATIVE_DISPLAY_SYMBOL}`}
                                                 <PerfText style={{ color: theme.textSecondary }}>
                                                     {` ${feesPrise}`}
                                                 </PerfText>
@@ -637,7 +637,7 @@ const TransactionPreview = () => {
                                     <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
                                         {tx.base.fees
                                             ? <>
-                                                {`${formatAmount(fromNano(fees))} TON`}
+                                                {`${formatAmount(fromNano(fees))} ${NATIVE_DISPLAY_SYMBOL}`}
                                                 <PerfText style={{ color: theme.textSecondary }}>
                                                     {` ${feesPrise}`}
                                                 </PerfText>

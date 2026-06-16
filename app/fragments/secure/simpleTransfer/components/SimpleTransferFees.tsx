@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { Text, View } from "react-native";
 import { t } from '../../../../i18n/t';
-import { formatAmount } from '../../../../utils/formatCurrency';
+import { formatAmount, NATIVE_DISPLAY_SYMBOL } from '../../../../utils/formatCurrency';
 import { useTheme } from '../../../../engine/hooks';
 import { fromNano } from '@ton/core';
 import { AboutIconButton } from '../../../../components/AboutIconButton';
@@ -36,7 +36,7 @@ export const SimpleTransferFees = memo(({
                 <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
                     {estimation
                         ? <>
-                            {`${formatAmount(fromNano(estimation))} TON`}
+                            {`${formatAmount(fromNano(estimation))} ${NATIVE_DISPLAY_SYMBOL}`}
                         </>
                         : '...'
                     }

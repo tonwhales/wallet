@@ -499,7 +499,7 @@ export const StakingTransferFragment = fragment(() => {
                                     </Text>
                                     <View style={{ justifyContent: 'center', alignItems: 'flex-end' }}>
                                         <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
-                                            {`${fromNano(withdrawFee)} TON`}
+                                            {`${fromNano(withdrawFee)} ${NATIVE_DISPLAY_SYMBOL}`}
                                         </Text>
                                         <PriceComponent
                                             amount={withdrawFee}

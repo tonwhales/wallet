@@ -28,6 +28,7 @@ import CopyIcon from '@assets/ic-copy.svg';
 import { RoundButton } from "../../components/RoundButton";
 import { MaestraEvent, trackMaestraEvent } from "../../analytics/maestra";
 import { useHoldersProfile } from "../../engine/hooks/holders/useHoldersProfile";
+import { NATIVE_DISPLAY_SYMBOL } from "../../utils/formatCurrency";
 
 type ReceiveableAssetContent = {
     icon: string | null | undefined;
@@ -291,7 +292,7 @@ export const ReceiveFragment = fragment(() => {
         qrCodeSize = qrCodeSize * 0.8;
     }
 
-    const title = `${isHolders ? t('receive.deposit') : t('receive.title')} ${name ?? (isSolana ? 'SOL' : 'TON')}`;
+    const title = `${isHolders ? t('receive.deposit') : t('receive.title')} ${name ?? (isSolana ? 'SOL' : NATIVE_DISPLAY_SYMBOL)}`;
 
     const navigateToExchanges = () => {
         let params: ExchangesFragmentParams | undefined;
@@ -375,7 +376,7 @@ export const ReceiveFragment = fragment(() => {
                                 { color: theme.warning, flexShrink: 1 },
                                 Typography.regular15_20
                             ]}>
-                                {t('receive.holdersJettonWarning', { symbol: (!!holdersJetton && jetton?.symbol) ? jetton?.symbol : 'TON' })}
+                                {t('receive.holdersJettonWarning', { symbol: (!!holdersJetton && jetton?.symbol) ? jetton?.symbol : NATIVE_DISPLAY_SYMBOL })}
                             </Text>
                         </Animated.View>
                     ) : (

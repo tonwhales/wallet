@@ -13,6 +13,7 @@ import { Typography } from "../../../../components/styles";
 import { useContractInfo } from "../../../../engine/hooks/metadata/useContractInfo";
 import { WalletAddress } from "../../../../components/address/WalletAddress";
 import { PreparedMessage } from "../../../../engine/hooks/transactions/usePeparedMessages";
+import { NATIVE_DISPLAY_SYMBOL } from "../../../../utils/formatCurrency";
 import { useAddressFormatsHistory } from "../../../../engine/hooks";
 
 const MessagePreview = memo(({
@@ -162,7 +163,7 @@ const MessagePreview = memo(({
                         </Text>
                         <View style={{ alignItems: 'flex-end' }}>
                             <Text style={[{ color: theme.textPrimary }, Typography.medium17_24]}>
-                                {fromNano(gas.amount) + ' TON'}
+                                {fromNano(gas.amount) + ` ${NATIVE_DISPLAY_SYMBOL}`}
                             </Text>
                             <PriceComponent
                                 amount={gas.amount}

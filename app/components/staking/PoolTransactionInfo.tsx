@@ -8,7 +8,7 @@ import { StakingPoolState } from "../../engine/types";
 import { fromNano, toNano } from "@ton/core";
 import { ItemDivider } from "../ItemDivider";
 import { AboutIconButton } from "../AboutIconButton";
-import { formatAmount } from "../../utils/formatCurrency";
+import { formatAmount, NATIVE_DISPLAY_SYMBOL } from "../../utils/formatCurrency";
 
 const itemViewStyle = {
     flexDirection: 'row', width: '100%',
@@ -86,7 +86,7 @@ export const PoolTransactionInfo = memo(({ pool, poolAddressString,  fee }: { po
                             pool.params.minStake
                             + pool.params.depositFee
                             + pool.params.receiptPrice
-                        ) + ' TON'}
+                        ) + ` ${NATIVE_DISPLAY_SYMBOL}`}
                     </Text>
                 </View>
             </View>
@@ -124,7 +124,7 @@ export const PoolTransactionInfo = memo(({ pool, poolAddressString,  fee }: { po
                     </Text>
                     <View style={{ justifyContent: 'center', alignItems: 'flex-end' }}>
                         <Text style={itemValueTextStyle(theme)}>
-                            {fromNano(depositFee) + ' ' + 'TON'}
+                            {fromNano(depositFee) + ' ' + NATIVE_DISPLAY_SYMBOL}
                         </Text>
                         <PriceComponent
                             amount={depositFee}
@@ -152,7 +152,7 @@ export const PoolTransactionInfo = memo(({ pool, poolAddressString,  fee }: { po
                     </Text>
                     <View style={{ justifyContent: 'center', alignItems: 'flex-end' }}>
                         <Text style={itemValueTextStyle(theme)}>
-                            {fromNano(withdrawFee) + ' ' + 'TON'}
+                            {fromNano(withdrawFee) + ' ' + NATIVE_DISPLAY_SYMBOL}
                         </Text>
                         <PriceComponent
                             amount={depositFee}
@@ -182,7 +182,7 @@ export const PoolTransactionInfo = memo(({ pool, poolAddressString,  fee }: { po
                     </View>
                     <View style={{ justifyContent: 'center', alignItems: 'flex-end' }}>
                         <Text style={itemValueTextStyle(theme)}>
-                            {fromNano(withdrawFee) + ' ' + 'TON'}
+                            {fromNano(withdrawFee) + ' ' + NATIVE_DISPLAY_SYMBOL}
                         </Text>
                         <PriceComponent
                             amount={depositFee}

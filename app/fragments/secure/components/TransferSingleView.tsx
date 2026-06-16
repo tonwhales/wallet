@@ -18,7 +18,7 @@ import { holdersUrl as resolveHoldersUrl } from "../../../engine/api/holders/fet
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
 import { Jetton, StoredOperation } from "../../../engine/types";
 import { AboutIconButton } from "../../../components/AboutIconButton";
-import { formatAmount, formatCurrency } from "../../../utils/formatCurrency";
+import { formatAmount, formatCurrency, NATIVE_DISPLAY_SYMBOL } from "../../../utils/formatCurrency";
 import { Avatar, avatarColors } from "../../../components/avatar/Avatar";
 import { AddressContact } from "../../../engine/hooks/contacts/useAddressBook";
 import { valueText } from "../../../components/ValueComponent";
@@ -275,7 +275,7 @@ export const TransferSingleView = memo(({
 
         const textArr = valueText({ value, decimals });
 
-        return `-${textArr.join('')} ${!jettonAmountString ? 'TON' : jetton?.symbol ?? ''}`
+        return `-${textArr.join('')} ${!jettonAmountString ? NATIVE_DISPLAY_SYMBOL : jetton?.symbol ?? ''}`
     }, [amount, jettonAmountString, jetton]);
 
     const extraCurrencyTextMap = useMemo(() => {
@@ -651,7 +651,7 @@ export const TransferSingleView = memo(({
                                         </Text>
                                         <View style={{ alignItems: 'flex-end', flexShrink: 1, marginLeft: 8 }}>
                                             <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
-                                                {isGasless ? feesString : fromNano(amount) + ' TON'}
+                                                {isGasless ? feesString : fromNano(amount) + ` ${NATIVE_DISPLAY_SYMBOL}`}
                                             </Text>
                                         </View>
                                     </View>

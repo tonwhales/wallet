@@ -13,6 +13,7 @@ import { Address } from "@ton/core";
 import { LiquidStakingPool } from "../../staking/LiquidStakingPool";
 import { useLiquidStakingBalance } from "../../../engine/hooks/staking/useLiquidStakingBalance";
 import { StakingProductBanner } from "./StakingProductBanner";
+import { NATIVE_DISPLAY_SYMBOL } from "../../../utils/formatCurrency";
 import { LiquidUSDeStakingPool } from "../../staking/LiquidUSDeStakingPool";
 import { ASSET_ITEM_HEIGHT } from "../../../utils/constants";
 import { StakingProductPendingComponent } from "./StakingProductPendingComponent";
@@ -227,7 +228,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
                         <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                             <ValueComponent value={totalBalance} precision={2} centFontStyle={{ color: theme.textSecondary }} />
                             <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
-                                {' TON'}
+                                {` ${NATIVE_DISPLAY_SYMBOL}`}
                             </Text>
                         </Text>
                         <PriceComponent

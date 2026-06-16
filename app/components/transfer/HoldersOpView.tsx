@@ -9,6 +9,7 @@ import { ContractKind } from "../../engine/api/fetchContractInfo";
 import { toNano } from "@ton/core";
 import { fromBnWithDecimals } from "../../utils/withDecimals";
 import { useTheme } from "../../engine/hooks";
+import { NATIVE_DISPLAY_SYMBOL } from "../../utils/formatCurrency";
 
 export type HoldersOp = {
     type: 'topUp';
@@ -28,7 +29,7 @@ function formatAmount(amount: string | null | undefined, type: 'USDT' | 'TON'): 
     }
 
     // convert back to nano and format with decimals
-    return `${fromBnWithDecimals(toNano(amount), type === 'USDT' ? 6 : 9)} ${type}`;
+    return `${fromBnWithDecimals(toNano(amount), type === 'USDT' ? 6 : 9)} ${type === 'TON' ? NATIVE_DISPLAY_SYMBOL : type}`;
 }
 
 export const HoldersOpView = memo(({ op, targetKind }: { op: HoldersOp, targetKind?: ContractKind }) => {
@@ -47,7 +48,7 @@ export const HoldersOpView = memo(({ op, targetKind }: { op: HoldersOp, targetKi
                     </PerfText>
                     <PerfView style={{ alignItems: 'flex-start' }}>
                         <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
-                            {`${op.amount} TON`}
+                            {`${op.amount} ${NATIVE_DISPLAY_SYMBOL}`}
                         </PerfText>
                     </PerfView>
                 </PerfView>

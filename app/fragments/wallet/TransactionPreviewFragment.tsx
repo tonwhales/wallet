@@ -21,7 +21,7 @@ import { useAppState, useBounceableWalletFormat, useDontShowComments, useIsLedge
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, fromNano } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
-import { formatAmount, formatCurrency } from "../../utils/formatCurrency";
+import { formatAmount, formatCurrency, NATIVE_DISPLAY_SYMBOL } from "../../utils/formatCurrency";
 import { PerfText } from "../../components/basic/PerfText";
 import { Typography } from "../../components/styles";
 import { useAddressBookContext } from "../../engine/AddressBookContext";
@@ -296,7 +296,7 @@ const TransactionPreview = () => {
         master: jettonMaster?.toString({ testOnly: isTestnet }),
     });
 
-    const symbolString = item.kind === 'ton' ? ' TON' : (jettonMasterContent?.symbol ? ` ${jettonMasterContent.symbol}` : '')
+    const symbolString = item.kind === 'ton' ? ` ${NATIVE_DISPLAY_SYMBOL}` : (jettonMasterContent?.symbol ? ` ${jettonMasterContent.symbol}` : '')
     const singleAmountString = `${amountText[0]}${amountText[1]}${symbolString}`;
 
     const fromKnownWalletsList = !!knownWallets[parsedAddressFriendly]

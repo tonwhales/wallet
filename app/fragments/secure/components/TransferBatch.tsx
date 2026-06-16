@@ -31,6 +31,7 @@ import { StoredOperation } from "../../../engine/types";
 import { AddressContact, useAddressBook } from "../../../engine/hooks/contacts/useAddressBook";
 import { ConfirmLoadedPropsBatch, OrderMessage } from "../transfer/TransferFragment";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
+import { NATIVE_DISPLAY_SYMBOL } from "../../../utils/formatCurrency";
 import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSettings";
 import { AppInfo } from "../../../components/ConnectedAppButton";
 import { ItemDivider } from "../../../components/ItemDivider";
@@ -529,7 +530,7 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
                                     fontSize: 17, lineHeight: 24,
                                     color: theme.textPrimary
                                 }}>
-                                    {'-' + fromNano(totalAmount) + ' TON'}
+                                    {'-' + fromNano(totalAmount) + ` ${NATIVE_DISPLAY_SYMBOL}`}
                                 </Text>
                                 <PriceComponent
                                     amount={totalAmount}
@@ -614,7 +615,7 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
                             </Text>
                             <View style={{ flexDirection: 'row' }}>
                                 <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
-                                    {fromNano(fees + gas.total) + ' TON'}
+                                    {fromNano(fees + gas.total) + ` ${NATIVE_DISPLAY_SYMBOL}`}
                                 </Text>
                                 <PriceComponent
                                     amount={fees + gas.total}
@@ -643,7 +644,7 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
                             </Text>
                             <View style={{ flexDirection: 'row' }}>
                                 <Text style={{ fontSize: 17, fontWeight: '400', lineHeight: 24, color: theme.textPrimary }}>
-                                    {fromNano(fees) + ' TON'}
+                                    {fromNano(fees) + ` ${NATIVE_DISPLAY_SYMBOL}`}
                                 </Text>
                                 <PriceComponent
                                     amount={fees}
@@ -674,7 +675,7 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
                                     </Text>
                                     <View style={{ flexDirection: 'row' }}>
                                         <Text style={{ fontSize: 17, fontWeight: '400', lineHeight: 24, color: theme.textPrimary }}>
-                                            {fromNano(gas.total) + ' TON'}
+                                            {fromNano(gas.total) + ` ${NATIVE_DISPLAY_SYMBOL}`}
                                         </Text>
                                         <PriceComponent
                                             amount={gas.total}
@@ -751,7 +752,7 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
                                         <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
                                             {i.jettonAmount
                                                 ? fromNano(i.jettonAmount) + (i.jettonMaster?.symbol ?? '')
-                                                : fromNano(i.message.amount) + ' TON'
+                                                : fromNano(i.message.amount) + ` ${NATIVE_DISPLAY_SYMBOL}`
                                             }
                                         </Text>
                                         {!i.jettonAmount && (
@@ -879,7 +880,7 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
                                             </Text>
                                             <View style={{ alignItems: 'flex-end' }}>
                                                 <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary }}>
-                                                    {fromNano(i.message.amount) + ' TON'}
+                                                    {fromNano(i.message.amount) + ` ${NATIVE_DISPLAY_SYMBOL}`}
                                                 </Text>
                                                 <PriceComponent
                                                     amount={i.message.amount}

@@ -55,7 +55,7 @@ const NativeAssetItem = memo((params: {
     selectable: boolean,
     isSelected: boolean
     viewType: AssetViewType
-    symbol: 'TON' | 'SOL'
+    symbol: 'GRAM' | 'SOL'
 }) => {
     const { onSelected, balance, selectable, isSelected, viewType, symbol } = params;
     const theme = useTheme();
@@ -492,7 +492,7 @@ export const AssetsFragment = fragment(() => {
                         selectable={!!simpleTransferAssetCallback || !!assetCallback}
                         isSelected={!selectedAsset || (selectedAsset.type === 'address' && selectedAsset.address.equals(owner))}
                         viewType={viewType}
-                        symbol="TON"
+                        symbol="GRAM"
                     />
                 );
         }

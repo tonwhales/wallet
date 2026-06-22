@@ -438,7 +438,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         },
         "staking": {
             "earnings": "Заработок",
-            "title": "TON Стейкинг",
+            "title": "Gram Стейкинг (ранее TON)",
             "usdeTitle": "USDe Стейкинг",
             "balance": "Баланс стейкинга",
             "subtitle": {

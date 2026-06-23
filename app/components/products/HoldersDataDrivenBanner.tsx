@@ -24,15 +24,22 @@ const SUPPORT_PATH = "/support";
 const DEFAULT_ASPECT_RATIO = 1101 / 360;
 
 // Default full-bleed artwork, bundled from the dapp (same PNGs), keyed by the server banner id (101-105
-// from the issuer resolver). Every variant uses DARK art, so a white title + white pill read in both app
-// themes. A server `imageUrl` overrides this — design can then swap art with no app release.
-const ONBOARDING_ART = require("@assets/banners/altery/card.png");
-const BANNER_ART: Record<number, number> = {
+// from the issuer resolver). Physical states have light + dark variants, theme-picked like the dapp;
+// onboarding/issue-card are single dark-gradient art. A server `imageUrl` overrides everything (design can
+// swap art with no app release).
+const PHYSICAL_ART = {
+    dark: require("@assets/banners/altery/physical-dark.png"),
+    light: require("@assets/banners/altery/physical-light.png"),
+};
+const ONBOARDING_ART: { dark: number; light?: number } = {
+    dark: require("@assets/banners/altery/card.png"),
+};
+const BANNER_ART: Record<number, { dark: number; light?: number }> = {
     101: ONBOARDING_ART, // onboarding
-    102: require("@assets/banners/altery/issue-card.png"), // issue-card
-    103: require("@assets/banners/altery/physical-dark.png"), // physical-order
-    104: require("@assets/banners/altery/physical-dark.png"), // physical-on-the-way
-    105: require("@assets/banners/altery/physical-dark.png"), // physical-link
+    102: { dark: require("@assets/banners/altery/issue-card.png") }, // issue-card
+    103: PHYSICAL_ART, // physical-order
+    104: PHYSICAL_ART, // physical-on-the-way
+    105: PHYSICAL_ART, // physical-link
 };
 
 // Fully data-driven Holders/Altery banner: artwork, content (title/action) and deep-link all come from the
@@ -57,7 +64,11 @@ export const HoldersDataDrivenBanner = memo(
         const title = banner.content.title[lang] || banner.content.title.en;
         const action = banner.content.action[lang] || banner.content.action.en;
 
-        const bundledArt = BANNER_ART[banner.id] ?? ONBOARDING_ART;
+        const artSet = BANNER_ART[banner.id] ?? ONBOARDING_ART;
+        // Light artwork only for bundled physical banners in the light app theme (matches the dapp). A
+        // server imageUrl or any dark-only art keeps the dark overlay (white text).
+        const useLightArt = !banner.imageUrl && theme.style === "light" && artSet.light != null;
+        const bundledArt = useLightArt ? (artSet.light as number) : artSet.dark;
         const imageSource = banner.imageUrl ? { uri: banner.imageUrl } : bundledArt;
         // Render the image at its natural proportions (like the dapp's height:auto). For bundled art we read
         // the intrinsic ratio; for a remote imageUrl we fall back to the standard banner ratio.
@@ -68,6 +79,12 @@ export const HoldersDataDrivenBanner = memo(
             const src = RNImage.resolveAssetSource(bundledArt);
             return src && src.height > 0 ? src.width / src.height : DEFAULT_ASPECT_RATIO;
         }, [banner.imageUrl, bundledArt]);
+
+        // Overlay colors flip with artwork brightness: dark art → white title + white pill (dark label);
+        // light art → dark title + dark pill (white label).
+        const titleColor = useLightArt ? "#1c1c1e" : theme.textUnchangeable;
+        const pillBackground = useLightArt ? "#1c1c1e" : "#ffffff";
+        const pillTextColor = useLightArt ? "#ffffff" : "#1c1c1e";
 
         // Impression tracking — parity with the legacy HoldersBanner (which the data-driven stack replaces).
         useEffect(() => {
@@ -127,9 +144,9 @@ export const HoldersDataDrivenBanner = memo(
                     {/* Overlay matches the dapp banner: title + pill button on the left ~64%, vertically centered.
                         Art is always dark, so the title is white and the pill is white with dark text. */}
                     <View style={styles.overlay}>
-                        <Text style={[styles.title, { color: theme.textUnchangeable }]}>{title}</Text>
-                        <View style={styles.button}>
-                            <Text style={[styles.buttonText, Typography.medium15_20]}>{action}</Text>
+                        <Text style={[styles.title, { color: titleColor }]}>{title}</Text>
+                        <View style={[styles.button, { backgroundColor: pillBackground }]}>
+                            <Text style={[Typography.medium15_20, { color: pillTextColor }]}>{action}</Text>
                         </View>
                     </View>
                 </Pressable>
@@ -168,9 +185,5 @@ const styles = StyleSheet.create({
         paddingHorizontal: 18,
         paddingVertical: 9,
         borderRadius: 12,
-        backgroundColor: "#ffffff",
-    },
-    buttonText: {
-        color: "#1c1c1e",
     },
 });

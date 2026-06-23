@@ -112,18 +112,12 @@ export const HoldersDataDrivenBanner = memo(
                     <LinearGradient style={styles.gradient} colors={gradientColors} start={[0, 1]} end={[1, 0]} />
                     <View style={styles.row}>
                         <View style={styles.textColumn}>
-                            <Text
-                                style={[{ color: theme.textUnchangeable }, Typography.semiBold17_24]}
-                                ellipsizeMode="tail"
-                                numberOfLines={2}
-                            >
+                            {/* No line clamp — let the title wrap freely (matches the dapp banner, whose
+                                title is pre-wrap). A clamped title truncated the long onboarding copy. */}
+                            <Text style={[{ color: theme.textUnchangeable }, Typography.semiBold17_24]}>
                                 {title}
                             </Text>
-                            <Text
-                                style={[{ color: theme.textUnchangeable, opacity: 0.8 }, Typography.regular15_20]}
-                                ellipsizeMode="tail"
-                                numberOfLines={2}
-                            >
+                            <Text style={[{ color: theme.textUnchangeable, opacity: 0.8 }, Typography.regular15_20]}>
                                 {subtitle}
                             </Text>
                             <View style={styles.actionRow}>

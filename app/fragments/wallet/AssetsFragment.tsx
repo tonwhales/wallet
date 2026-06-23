@@ -28,6 +28,7 @@ import { ExtraCurrencyHint } from "../../engine/api/fetchExtraCurrencyHints";
 import { SimpleTransferAsset } from "../secure/simpleTransfer/hooks/useSimpleTransfer";
 import { ExtraCurrencyProductItem } from "../../components/products/ExtraCurrencyProductItem";
 import { ASSET_ITEM_HEIGHT } from "../../utils/constants";
+import { NATIVE_DISPLAY_SYMBOL } from "../../utils/formatCurrency";
 import { SolanaToken } from "../../engine/api/solana/fetchSolanaTokens";
 import { solanaAddressFromPublicKey } from "../../utils/solana/address";
 import { SolanaTokenProduct } from "../../components/products/savings/SolanaTokenProduct";
@@ -492,7 +493,7 @@ export const AssetsFragment = fragment(() => {
                         selectable={!!simpleTransferAssetCallback || !!assetCallback}
                         isSelected={!selectedAsset || (selectedAsset.type === 'address' && selectedAsset.address.equals(owner))}
                         viewType={viewType}
-                        symbol="GRAM"
+                        symbol={NATIVE_DISPLAY_SYMBOL}
                     />
                 );
         }

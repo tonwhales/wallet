@@ -1474,9 +1474,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "general": "Сберегательный счет в {{symbol}}"
     },
     "spending": {
-        "ton": "Платеждный счет в GRAM",
-        "usdt": "Платеждный счет в USDT",
-        "general": "Платеждный счет в {{symbol}}"
+        "ton": "Платежный счет в GRAM",
+        "usdt": "Платежный счет в USDT",
+        "general": "Платежный счет в {{symbol}}"
     },
     "solana": {
         "instructions": {

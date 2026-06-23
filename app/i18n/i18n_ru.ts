@@ -643,6 +643,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "addNew": "Добавить счёт",
                 "network": "Сеть {{networkName}}",
             },
+            "physicalCard": {
+                "supportMessage": "Здравствуйте, у меня вопрос по доставке моей физической карты Holders.",
+            },
             "pageTitles": {
                 "general": "Tonhub Cards",
                 "card": "Tonhub Card",

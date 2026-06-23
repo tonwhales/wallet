@@ -1,7 +1,6 @@
-import React, { memo, useCallback, useEffect } from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import React, { memo, useCallback, useEffect, useMemo } from "react";
+import { View, Text, Pressable, StyleSheet, Image as RNImage } from "react-native";
 import { Image } from "expo-image";
-import { LinearGradient } from "expo-linear-gradient";
 import i18n from "i18next";
 import { Address } from "@ton/core";
 import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated";
@@ -16,20 +15,29 @@ import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel";
 import { t } from "../../i18n/t";
 import { Typography } from "../styles";
 
-const gradientColors = ["#3F33CC", "#B341D9"];
-
-// A support deeplink (vs an in-dapp path): the banner opens native Intercom directly instead of routing
-// into the dapp webview. It's the SAME native Intercom the dapp uses (the dapp bridges support to native).
+// A support deeplink (vs an in-dapp path): open native Intercom directly instead of routing into the
+// dapp webview — the same native Intercom the dapp uses (it bridges support to native).
 const SUPPORT_PATH = "/support";
 
-// Bundled fallback illustration, used until/unless the server supplies a per-banner `imageUrl`. Hybrid by
-// design: server image overrides, so design can swap artwork later with no app release.
-const fallbackIllustration = require("@assets/banners/banner-holders.webp");
+// Used only for a server-supplied (remote) imageUrl, where we can't read intrinsic dimensions up front;
+// the server art should be authored to roughly this ratio. Bundled art uses its own intrinsic ratio.
+const DEFAULT_ASPECT_RATIO = 1101 / 360;
 
-// A fully data-driven Holders/Altery banner: its content (title/subtitle/action), artwork and deep-link
-// all come from the server (invite-check `banners`), so new banners and campaigns need no app release.
-// Tapping opens the Holders dapp at the server-provided `path`. Several of these stack on the home and
-// settings screens (the server decides the count and order).
+// Default full-bleed artwork, bundled from the dapp (same PNGs), keyed by the server banner id (101-105
+// from the issuer resolver). Every variant uses DARK art, so a white title + white pill read in both app
+// themes. A server `imageUrl` overrides this — design can then swap art with no app release.
+const ONBOARDING_ART = require("@assets/banners/altery/card.png");
+const BANNER_ART: Record<number, number> = {
+    101: ONBOARDING_ART, // onboarding
+    102: require("@assets/banners/altery/issue-card.png"), // issue-card
+    103: require("@assets/banners/altery/physical-dark.png"), // physical-order
+    104: require("@assets/banners/altery/physical-dark.png"), // physical-on-the-way
+    105: require("@assets/banners/altery/physical-dark.png"), // physical-link
+};
+
+// Fully data-driven Holders/Altery banner: artwork, content (title/action) and deep-link all come from the
+// server (invite-check `banners`). Full-bleed baked-artwork style (matches the dapp): the image is the whole
+// banner, the title + button are overlaid. Several stack on the home / settings screens.
 export const HoldersDataDrivenBanner = memo(
     ({ banner, address, screen }: { banner: HoldersCustomBanner; address: Address; screen: "Home" | "Settings" }) => {
         const theme = useTheme();
@@ -47,11 +55,21 @@ export const HoldersDataDrivenBanner = memo(
 
         const lang = i18n.language === "ru" ? "ru" : "en";
         const title = banner.content.title[lang] || banner.content.title.en;
-        const subtitle = banner.content.subtitle[lang] || banner.content.subtitle.en;
         const action = banner.content.action[lang] || banner.content.action.en;
 
-        // Impression tracking — parity with the legacy HoldersBanner (which the data-driven stack replaces);
-        // without this the stack would log clicks but no views and break the banner funnel metrics.
+        const bundledArt = BANNER_ART[banner.id] ?? ONBOARDING_ART;
+        const imageSource = banner.imageUrl ? { uri: banner.imageUrl } : bundledArt;
+        // Render the image at its natural proportions (like the dapp's height:auto). For bundled art we read
+        // the intrinsic ratio; for a remote imageUrl we fall back to the standard banner ratio.
+        const aspectRatio = useMemo(() => {
+            if (banner.imageUrl) {
+                return DEFAULT_ASPECT_RATIO;
+            }
+            const src = RNImage.resolveAssetSource(bundledArt);
+            return src && src.height > 0 ? src.width / src.height : DEFAULT_ASPECT_RATIO;
+        }, [banner.imageUrl, bundledArt]);
+
+        // Impression tracking — parity with the legacy HoldersBanner (which the data-driven stack replaces).
         useEffect(() => {
             if (trackViews) {
                 trackEvent(
@@ -72,8 +90,7 @@ export const HoldersDataDrivenBanner = memo(
             );
 
             // Support deeplink → open native Intercom directly with a prefilled message (the user is already
-            // identified in Intercom). Same native composer the dapp opens via its support bridge — no
-            // webview detour, so the user returns cleanly to this screen afterwards.
+            // identified in Intercom). No webview detour, so the user returns cleanly to this screen.
             if (banner.path?.startsWith(SUPPORT_PATH)) {
                 onSupportWithMessage({ message: t("products.holders.physicalCard.supportMessage") });
                 return;
@@ -105,52 +122,15 @@ export const HoldersDataDrivenBanner = memo(
 
         return (
             <Animated.View entering={FadeInUp} exiting={FadeOutDown}>
-                <Pressable
-                    onPress={onPress}
-                    style={({ pressed }) => [styles.pressable, { opacity: pressed ? 0.5 : 1 }]}
-                >
-                    <LinearGradient style={styles.gradient} colors={gradientColors} start={[0, 1]} end={[1, 0]} />
-                    <View style={styles.row}>
-                        <View style={styles.textColumn}>
-                            {/* No line clamp — let the title wrap freely (matches the dapp banner, whose
-                                title is pre-wrap). A clamped title truncated the long onboarding copy. */}
-                            <Text style={[{ color: theme.textUnchangeable }, Typography.semiBold17_24]}>
-                                {title}
-                            </Text>
-                            <Text style={[{ color: theme.textUnchangeable, opacity: 0.8 }, Typography.regular15_20]}>
-                                {subtitle}
-                            </Text>
-                            <View style={styles.actionRow}>
-                                <View style={[styles.actionPill, { backgroundColor: theme.textUnchangeable }]}>
-                                    {/* Pill is always white (textUnchangeable), so the label must always be
-                                        dark. textPrimaryInverted alone is white in light theme → invisible;
-                                        mirror ChipActionBanner's theme-aware pick. */}
-                                    <Text
-                                        style={[
-                                            {
-                                                color:
-                                                    theme.style === "dark"
-                                                        ? theme.textPrimaryInverted
-                                                        : theme.textPrimary,
-                                            },
-                                            Typography.medium15_20,
-                                        ]}
-                                        numberOfLines={1}
-                                    >
-                                        {action}
-                                    </Text>
-                                    <Image
-                                        source={require("@assets/ic-chevron-right.png")}
-                                        style={{ height: 16, width: 16, tintColor: theme.iconPrimary }}
-                                    />
-                                </View>
-                            </View>
+                <Pressable onPress={onPress} style={({ pressed }) => [styles.pressable, { opacity: pressed ? 0.5 : 1 }]}>
+                    <Image style={[styles.image, { aspectRatio }]} source={imageSource} contentFit="cover" />
+                    {/* Overlay matches the dapp banner: title + pill button on the left ~64%, vertically centered.
+                        Art is always dark, so the title is white and the pill is white with dark text. */}
+                    <View style={styles.overlay}>
+                        <Text style={[styles.title, { color: theme.textUnchangeable }]}>{title}</Text>
+                        <View style={styles.button}>
+                            <Text style={[styles.buttonText, Typography.medium15_20]}>{action}</Text>
                         </View>
-                        <Image
-                            style={styles.illustration}
-                            contentFit="contain"
-                            source={banner.imageUrl ? { uri: banner.imageUrl } : fallbackIllustration}
-                        />
                     </View>
                 </Pressable>
             </Animated.View>
@@ -160,46 +140,37 @@ export const HoldersDataDrivenBanner = memo(
 
 const styles = StyleSheet.create({
     pressable: {
-        minHeight: 106,
+        marginTop: 16,
         borderRadius: 20,
         overflow: "hidden",
-        padding: 20,
-        marginTop: 16,
     },
-    gradient: {
+    image: {
+        width: "100%",
+    },
+    overlay: {
         position: "absolute",
-        left: 0,
-        right: 0,
         top: 0,
         bottom: 0,
+        left: 0,
+        maxWidth: "64%",
+        justifyContent: "center",
+        alignItems: "flex-start",
+        gap: 10,
+        padding: 20,
     },
-    row: {
-        flexDirection: "row",
-        flexGrow: 1,
-        alignItems: "center",
+    title: {
+        fontSize: 15,
+        lineHeight: 20,
+        fontWeight: "600",
     },
-    textColumn: {
-        flex: 1,
-        flexShrink: 1,
-        gap: 7,
+    button: {
+        alignSelf: "flex-start",
+        paddingHorizontal: 18,
+        paddingVertical: 9,
+        borderRadius: 12,
+        backgroundColor: "#ffffff",
     },
-    actionRow: {
-        flexDirection: "row",
-        flexShrink: 1,
-    },
-    actionPill: {
-        flexDirection: "row",
-        flexShrink: 1,
-        alignItems: "center",
-        paddingHorizontal: 16,
-        paddingVertical: 6,
-        borderRadius: 50,
-        minHeight: 32,
-        gap: 6,
-    },
-    illustration: {
-        width: 120,
-        height: 120,
-        flexShrink: 0,
+    buttonText: {
+        color: "#1c1c1e",
     },
 });

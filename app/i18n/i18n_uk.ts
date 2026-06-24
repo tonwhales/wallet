@@ -154,7 +154,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "wallet": {
         "sync": "Завантаження даних гаманця",
-        "balanceTitle": "Баланс TON",
+        "balanceTitle": "Баланс GRAM",
         "owner": "Власник",
         "mainAccount": "Основний акаунт",
         "actions": {
@@ -168,7 +168,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         },
         "empty": {
             "message": "У вас немає транзакцій",
-            "receive": "Отримати TON",
+            "receive": "Отримати GRAM",
             "description": "Здійсніть свою першу транзакцію"
         },
         "pendingTransactions": "Очікувані транзакції"
@@ -203,7 +203,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "receive": {
         "title": "Отримати",
-        "subtitleTon": "Надсилайте лише Toncoin та токени в мережі TON на цю адресу, інакше ви можете втратити свої кошти.",
+        "subtitleTon": "Надсилайте лише Gram та токени в мережі TON на цю адресу, інакше ви можете втратити свої кошти.",
         "subtitleSolana": "Надсилайте лише SOL та SPL токени в мережі Solana на цю адресу, інакше ви можете втратити свої кошти.",
         "share": {
             "title": "Моя адреса Tonhub",
@@ -243,10 +243,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "gaslessFailed": "Не вдалося надіслати транзакцію",
             "gaslessFailedMessage": "Будь ласка, спробуйте ще раз або зверніться до підтримки",
             "gaslessFailedEstimate": "Не вдалося оцінити комісію, спробуйте пізніше або зверніться до підтримки",
-            "gaslessCooldown": "Ви можете сплачувати комісію за газ у валюті токена лише раз на кілька хвилин. Будь ласка, зачекайте або сплатіть комісію за транзакцію в TON.",
+            "gaslessCooldown": "Ви можете сплачувати комісію за газ у валюті токена лише раз на кілька хвилин. Будь ласка, зачекайте або сплатіть комісію за транзакцію в GRAM.",
             "gaslessCooldownTitle": "Зачекайте кілька хвилин перед наступною транзакцією",
             "gaslessCooldownWait": "Я зачекаю",
-            "gaslessCooldownPayTon": "Сплатити газ у TON",
+            "gaslessCooldownPayTon": "Сплатити газ у GRAM",
             "gaslessNotEnoughFunds": "Недостатньо коштів",
             "gaslessNotEnoughFundsMessage": "Сума безгазової передачі з комісією перевищує ваш баланс, спробуйте надіслати меншу суму або зверніться до підтримки",
             "gaslessTryLater": "Спробуйте пізніше",
@@ -256,8 +256,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "jettonChange": "Отримувач підтримує лише перекази {{symbol}}, будь ласка, змініть отримувача або валюту переказу",
             "ledgerErrorConnectionTitle": "Ledger не підключений",
             "ledgerErrorConnectionMessage": "Будь ласка, підключіть Ledger та повторіть спробу",
-            "notEnoughGasTitle": "Недостатньо TON для оплати комісії за газ",
-            "notEnoughGasMessage": "Будь ласка, поповніть гаманець TON (потрібно щонайменше {{diff}} TON) і спробуйте ще раз"
+            "notEnoughGasTitle": "Недостатньо GRAM для оплати комісії за газ",
+            "notEnoughGasMessage": "Будь ласка, поповніть гаманець GRAM (потрібно щонайменше {{diff}} GRAM) і спробуйте ще раз"
         },
         "changeJetton": "Переключитися на {{symbol}}",
         "sendAll": "Макс",
@@ -287,7 +287,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "gasDetails": "Деталі газу",
         "jettonGas": "Газ для надсилання токенів",
         "unusualJettonsGas": "Газ вищий за звичайний",
-        "unusualJettonsGasTitle": "Комісія за надсилання токенів становить {{amount}} TON",
+        "unusualJettonsGasTitle": "Комісія за надсилання токенів становить {{amount}} GRAM",
         "unusualJettonsGasMessage": "Комісія за транзакцію токенів (Газ) вища за звичайну",
         "addressNotActive": "Цей гаманець не мав вихідних транзакцій",
         "wrongJettonTitle": "Неправильний токен",
@@ -438,7 +438,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         },
         "staking": {
             "earnings": "Доходи",
-            "title": "TON Стейкінг",
+            "title": "Gram (раніше TON) Стейкінг",
             "usdeTitle": "USDe Стейкінг",
             "balance": "Баланс стейкінгу",
             "subtitle": {
@@ -479,7 +479,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "tonkeeper": "Tonkeeper",
                 "tonkeeperDescription": "Зручний мобільний гаманець на TON",
                 "liquid": "Ліквідний стейкінг",
-                "liquidDescription": "Надішліть TON на стейкінг і отримайте wsTON токени натомість",
+                "liquidDescription": "Надішліть GRAM на стейкінг і отримайте wsTON токени натомість",
                 "rateTitle": "Обмінний курс",
                 "liquidUsde": "USDe Liquid Staking",
                 "liquidUsdeDescription": "Надішліть USDe на стейкінг і отримайте tsUSDe токени натомість",
@@ -499,7 +499,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "confirmWithdrawReady": "Зняти зараз",
                 "restrictedTitle": "Цей пул ставок обмежений",
                 "restrictedMessage": "Ваші кошти не братимуть участі у ставках, якщо адреса вашого гаманця не входить до списку дозволених, але будуть на балансі пулу і чекатимуть на зняття",
-                "notEnoughCoinsFee": "На балансі вашого гаманця недостатньо TON для оплати комісії. Зверніть увагу, що комісія {{amount}} TON повинна бути на основному балансі, а не на балансі ставок",
+                "notEnoughCoinsFee": "На балансі вашого гаманця недостатньо GRAM для оплати комісії. Зверніть увагу, що комісія {{amount}} GRAM повинна бути на основному балансі, а не на балансі ставок",
                 "notEnoughCoins": "На балансі вашого гаманця недостатньо коштів для поповнення балансу ставок",
                 "ledgerSignText": "Ставка: {{action}}"
             },
@@ -521,15 +521,15 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "buttonTitle": "Почати заробляти",
                 "moreAbout": "Детальніше про пул ставок Ton Whales",
                 "earn": "Заробляйте до",
-                "onYourTons": "на ваших TON",
+                "onYourTons": "на ваших GRAM",
                 "apy": "13.3%",
                 "yearly": "APY",
                 "cycle": "Отримуйте винагороди за ставки кожні 36 годин",
-                "ownership": "Залишайтеся власником своїх TON",
+                "ownership": "Залишайтеся власником своїх GRAM",
                 "withdraw": "Знімайте та поповнюйте в будь-який час",
-                "successTitle": "{{amount}} TON поставлено",
-                "successEtimation": "Ваші орієнтовні річні заробітки становлять {{amount}}\u00A0TON\u00A0(${{price}}).",
-                "successNote": "Ваші поставлені TON будуть активовані після початку наступного циклу."
+                "successTitle": "{{amount}} GRAM поставлено",
+                "successEtimation": "Ваші орієнтовні річні заробітки становлять {{amount}}\u00A0GRAM\u00A0(${{price}}).",
+                "successNote": "Ваші поставлені GRAM будуть активовані після початку наступного циклу."
             },
             "pool": {
                 "balance": "Загальна ставка",
@@ -556,7 +556,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             },
             "unstakeLiquid": {
                 "title": "Виведіть ваш wsTON",
-                "message": "Ви можете вивести кошти безпосередньо після закінчення циклу або миттєво обміняти wsTON на TON на "
+                "message": "Ви можете вивести кошти безпосередньо після закінчення циклу або миттєво обміняти wsTON на GRAM на "
             },
             "unstakeLiquidUsde": {
                 "title": "Виведіть ваш tsUSDe",
@@ -588,9 +588,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "withdrawFee": "Комісія за виведення",
                 "withdrawRequestFee": "Комісія за запит на виведення",
                 "withdrawCompleteFee": "Комісія за завершення виведення",
-                "depositFeeDescription": "Сума TON, яка буде вирахувана з суми депозиту для покриття комісій за дію депозиту, невикористана сума буде повернена на ваш баланс гаманця",
-                "withdrawFeeDescription": "Сума TON, необхідна для покриття комісій за дію виведення, невикористана сума буде повернена на ваш баланс гаманця",
-                "withdrawCompleteDescription": "Сума TON, необхідна для покриття комісій за завершення дії виведення, невикористана сума буде повернена на ваш баланс гаманця",
+                "depositFeeDescription": "Сума GRAM, яка буде вирахувана з суми депозиту для покриття комісій за дію депозиту, невикористана сума буде повернена на ваш баланс гаманця",
+                "withdrawFeeDescription": "Сума GRAM, необхідна для покриття комісій за дію виведення, невикористана сума буде повернена на ваш баланс гаманця",
+                "withdrawCompleteDescription": "Сума GRAM, необхідна для покриття комісій за завершення дії виведення, невикористана сума буде повернена на ваш баланс гаманця",
                 "blockchainFee": "Комісія блокчейну",
                 "cooldownTitle": "Спрощений період",
                 "cooldownActive": "Активний",
@@ -599,10 +599,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "cooldownAlert": "На початку кожного циклу стейкінгу активний Спрощений період. Протягом цього періоду вам не потрібно чекати закінчення циклу для виведення або поповнення - це відбувається миттєво, і вам не потрібно надсилати другу транзакцію для виведення, що зменшує комісію за виведення вдвічі. Ви можете переводити кошти з одного пулу в інший без втрати прибутку за цикл, якщо Спрощений період активний в обох пулах",
                 "lockedAlert": "Під час прогресу циклу стейкінгу виведення та депозити очікують. Всі транзакції набувають чинності після закінчення циклу"
             },
-            "minAmountWarning": "Мінімальна сума {{minAmount}} TON",
+            "minAmountWarning": "Мінімальна сума {{minAmount}} GRAM",
             "tryAgainLater": "Будь ласка, спробуйте пізніше",
             "banner": {
-                "estimatedEarnings": "Ваші очікувані річні заробітки зменшаться на {{amount}}\u00A0TON\u00A0({{price}})",
+                "estimatedEarnings": "Ваші очікувані річні заробітки зменшаться на {{amount}}\u00A0GRAM\u00A0({{price}})",
                 "estimatedEarningsDev": "Ваші очікувані річні заробітки зменшаться",
                 "message": "Ви впевнені щодо виведення?"
             },
@@ -643,6 +643,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 addNew: 'Додати рахунок',
                 network: 'Мережа {{networkName}}',
             },
+            "physicalCard": {
+                "supportMessage": "Вітаю, у мене питання щодо доставки моєї фізичної картки Holders.",
+            },
             "pageTitles": {
                 "general": "Tonhub Карти",
                 "card": "Tonhub Картка",
@@ -650,7 +653,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "cardCredentials": "Деталі картки",
                 "cardLimits": "{{cardNumber}} Ліміти картки",
                 "cardLimitsDefault": "Ліміти картки",
-                "cardDeposit": "Поповнити TON",
+                "cardDeposit": "Поповнити GRAM",
                 "transfer": "Переказ",
                 "cardSmartContract": "Смарт-контракт картки",
                 "setUpCard": "Налаштувати картку",
@@ -660,7 +663,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "card": "Картка",
                 "cards": "Картки власників",
                 "title": "Tonhub картка {{cardNumber}}",
-                "defaultSubtitle": "Платіть USDT або TON скрізь за допомогою картки",
+                "defaultSubtitle": "Платіть USDT або GRAM скрізь за допомогою картки",
                 "defaultTitle": "Tonhub картка",
                 "eurSubtitle": "Tonhub EUR",
                 "type": {
@@ -982,7 +985,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "title": "Як працює оформлення замовлення",
             "message": "Заповніть необхідні поля -> Виберіть криптовалюту та вкажіть адресу гаманця і суму для покупки -> Перейдіть до оформлення замовлення -> Введіть свої платіжні дані правильно. Оплата кредитною карткою безпечно обробляється нашими партнерами -> Завершіть покупку. Обліковий запис не потрібен!"
         },
-        "title": "Купуйте TON за допомогою кредитної картки за USD, EUR та RUB",
+        "title": "Купуйте GRAM за допомогою кредитної картки за USD, EUR та RUB",
         "description": "Ви будете перенаправлені на Neocrypto. Послуги, пов'язані з платежами, надаються Neocrypto, яка є окремою платформою, що належить третій стороні\n\nБудь ласка, прочитайте та погодьтеся з Умовами обслуговування Neocrypto перед використанням їхніх послуг",
         "doNotShow": "Більше не показувати для Neocrypto",
         "termsAndPrivacy": "Я прочитав і погоджуюся з ",
@@ -994,7 +997,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     "known": {
         "deposit": "Депозит",
         "depositOk": "Депозит прийнято",
-        "withdraw": "Запит на виведення {{coins}} TON",
+        "withdraw": "Запит на виведення {{coins}} GRAM",
         "withdrawAll": "Запит на виведення всіх монет",
         "withdrawLiquid": "Вивести",
         "withdrawCompleted": "Виведення завершено",
@@ -1006,7 +1009,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "tokenReceived": "Токен отримано",
         "holders": {
             "topUpTitle": "Поповнити суму",
-            "accountTopUp": "Поповнення рахунку на {{amount}} TON",
+            "accountTopUp": "Поповнення рахунку на {{amount}} GRAM",
             "accountJettonTopUp": "Поповнення рахунку",
             "limitsChange": "Зміна лімітів",
             "limitsTitle": "Ліміти",
@@ -1040,9 +1043,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "noAccounts": "У вас ще немає рахунків"
     },
     "spamFilter": {
-        "minAmount": "Мінімальна сума TON",
+        "minAmount": "Мінімальна сума GRAM",
         "dontShowComments": "Не показувати коментарі до СПАМ транзакцій",
-        "minAmountDescription": "Транзакції з сумою TON менше {{amount}} будуть автоматично позначені як СПАМ",
+        "minAmountDescription": "Транзакції з сумою GRAM менше {{amount}} будуть автоматично позначені як СПАМ",
         "applyConfig": "Застосувати вибрані налаштування фільтра СПАМ",
         "denyList": "Ручний фільтр спаму",
         "denyListEmpty": "Немає заблокованих адрес",
@@ -1125,7 +1128,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "title": "Ви впевнені, що хочете видалити обліковий запис?",
         "action": "Видалити обліковий запис і всі дані",
         "logOutAndDelete": "Вийти і видалити всі дані",
-        "description": "Ця дія видалить всі дані та поточний вибраний гаманець з цього пристрою та вашого блокчейн-акаунту\nВам потрібно перевести всі ваші TON монети на інший гаманець. Перед продовженням переконайтеся, що у вас на рахунку більше ніж {{amount}} TON для завершення транзакції",
+        "description": "Ця дія видалить всі дані та поточний вибраний гаманець з цього пристрою та вашого блокчейн-акаунту\nВам потрібно перевести всі ваші GRAM монети на інший гаманець. Перед продовженням переконайтеся, що у вас на рахунку більше ніж {{amount}} GRAM для завершення транзакції",
         "complete": "Видалення облікового запису завершено",
         "error": {
             "hasNfts": "У вас є NFT у вашому гаманці, щоб видалити обліковий запис, будь ласка, надішліть їх на інший гаманець.",
@@ -1135,7 +1138,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         },
         "confirm": {
             "title": "Ви впевнені, що хочете видалити свій обліковий запис і всі дані з цього додатку?",
-            "message": "Ця дія видалить ваш обліковий запис і всі дані з цього додатку та переведе всі ваші TON монети на вказану вами адресу гаманця.\nБудь ласка, уважно перевірте адресу одержувача перед продовженням. Стандартна блокчейн-комісія стягується за цю транзакцію."
+            "message": "Ця дія видалить ваш обліковий запис і всі дані з цього додатку та переведе всі ваші GRAM монети на вказану вами адресу гаманця.\nБудь ласка, уважно перевірте адресу одержувача перед продовженням. Стандартна блокчейн-комісія стягується за цю транзакцію."
         },
         "checkRecipient": "Перевірити одержувача",
         "checkRecipientDescription": "Щоб зробити ваш обліковий запис неактивним, ви повинні перевести всі кошти на інший гаманець (адреса одержувача). Будь ласка, уважно перевірте адресу перед продовженням"
@@ -1330,7 +1333,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "title_2": "Що вам потрібно зробити?",
         "description_2": "Натисніть кнопку на попередньому екрані та авторизуйте нас для відображення всіх адрес у додатку в новому форматі. Ви зможете повернутися до старого формату в налаштуваннях.",
         "title_3": "Що станеться зі старою адресою?",
-        "description_3": "Всі TON, токени, NFT та інші активи, відправлені на вашу стару адресу, продовжать надходити на ваш гаманець.",
+        "description_3": "Всі GRAM, токени, NFT та інші активи, відправлені на вашу стару адресу, продовжать надходити на ваш гаманець.",
         "description_4": "Технічні деталі оновлення можна знайти на",
         "action": "Використовувати {{format}}",
         "oldAddress": "Стара адреса",
@@ -1406,14 +1409,14 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "update": {
             "title": "Оновити гаманець до W5",
             "subtitle_1": "Безгазові переклади USDT",
-            "description_1": "Вам більше не потрібен TON для відправки USDT. Комісії за транзакції можуть бути покриті з вашого балансу токенів.",
+            "description_1": "Вам більше не потрібен GRAM для відправки USDT. Комісії за транзакції можуть бути покриті з вашого балансу токенів.",
             "subtitle_2": "Економія на комісіях",
             "description_2": "W5 дозволяє збільшити кількість операцій в одній транзакції в 60 разів і значно заощадити на комісіях.",
             "subtitle_3": "Ваша секретна фраза не змінюється",
             "description_3": "Гаманці V4 і W5 мають однакову секретну фразу. Ви завжди можете переключатися між версіями, вибираючи бажану адресу у верхній частині головного екрану.",
             "switch_button": "Переключитися на W5"
         },
-        "gaslessInfo": "TON не потрібен для оплати комісії за газ при відправці цього токена. Комісія буде списана безпосередньо з вашого балансу токенів."
+        "gaslessInfo": "GRAM не потрібен для оплати комісії за газ при відправці цього токена. Комісія буде списана безпосередньо з вашого балансу токенів."
     },
     "browser": {
         "listings": {
@@ -1466,12 +1469,12 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "callToAction": "Оновити Tonhub"
     },
     "savings": {
-        "ton": "TON ощадний рахунок",
+        "ton": "GRAM ощадний рахунок",
         "usdt": "USDT ощадний рахунок",
         "general": "{{symbol}} ощадний рахунок"
     },
     "spending": {
-        "ton": "Рахунок витрат TON",
+        "ton": "Рахунок витрат GRAM",
         "usdt": "Рахунок витрат USDT",
         "general": "Рахунок витрат {{symbol}}"
     },

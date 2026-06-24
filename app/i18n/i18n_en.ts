@@ -154,7 +154,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "wallet": {
         "sync": "Downloading wallet data",
-        "balanceTitle": "Ton balance",
+        "balanceTitle": "Gram balance",
         "owner": "Owner",
         "mainAccount": "Main account",
         "actions": {
@@ -168,7 +168,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         },
         "empty": {
             "message": "You have no transactions",
-            "receive": "Receive TON",
+            "receive": "Receive GRAM",
             "description": "Make your first transaction"
         },
         "pendingTransactions": "Pending transactions"
@@ -203,7 +203,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "receive": {
         "title": "Receive",
-        "subtitleTon": "Send only Toncoin and tokens in TON network to this address, or you might lose your funds.",
+        "subtitleTon": "Send only Gram and tokens in TON network to this address, or you might lose your funds.",
         "subtitleSolana": "Send only SOL and SPL tokens in Solana network to this address, or you might lose your funds.",
         "share": {
             "title": "My Tonhub Address",
@@ -243,10 +243,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "gaslessFailed": "Failed to send transaction",
             "gaslessFailedMessage": "Please try again or contact support",
             "gaslessFailedEstimate": "Failed to estimate fees, please try again later or contact support",
-            "gaslessCooldown": "You can only pay the gas fee in the token currency once every few minutes. Please wait or pay the transaction fee in TON.",
+            "gaslessCooldown": "You can only pay the gas fee in the token currency once every few minutes. Please wait or pay the transaction fee in GRAM.",
             "gaslessCooldownTitle": "Wait a few minutes before the next transaction",
             "gaslessCooldownWait": "I'll wait",
-            "gaslessCooldownPayTon": "Pay gas in TON",
+            "gaslessCooldownPayTon": "Pay gas in GRAM",
             "gaslessNotEnoughFunds": "Not enough funds",
             "gaslessNotEnoughFundsMessage": "Gasless transfer amount with fee is higher than your balance, try to send a smaller amount or contact support",
             "gaslessTryLater": "Try again later",
@@ -256,8 +256,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "jettonChange": "Recipient supports only {{symbol}} transfers, please change the recipient or the transfer currency",
             "ledgerErrorConnectionTitle": "Ledger is not connected",
             "ledgerErrorConnectionMessage": "Please, connect ledger and try again",
-            "notEnoughGasTitle": "Insufficient TON to cover the gas fee",
-            "notEnoughGasMessage": "Please top up your wallet with TON (at least {{diff}} TON more is needed) and try again"
+            "notEnoughGasTitle": "Insufficient GRAM to cover the gas fee",
+            "notEnoughGasMessage": "Please top up your wallet with GRAM (at least {{diff}} GRAM more is needed) and try again"
         },
         "changeJetton": "Switch to {{symbol}}",
         "sendAll": "Max",
@@ -287,7 +287,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "gasDetails": "Gas details",
         "jettonGas": "Gas for sending tokens",
         "unusualJettonsGas": "Gas is higher than usual",
-        "unusualJettonsGasTitle": "The fee for sending tokens is {{amount}} TON",
+        "unusualJettonsGasTitle": "The fee for sending tokens is {{amount}} GRAM",
         "unusualJettonsGasMessage": "Tokens transaction fee (Gas) is higher than usual",
         "addressNotActive": "This wallet had no outgoing transactions",
         "wrongJettonTitle": "Wrong token",
@@ -438,7 +438,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         },
         "staking": {
             "earnings": "Earnings",
-            "title": "TON Staking",
+            "title": "Gram (prev. TON) Staking",
             "usdeTitle": "USDe Staking",
             "balance": "Staking balance",
             "subtitle": {
@@ -479,7 +479,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "tonkeeper": "Tonkeeper",
                 "tonkeeperDescription": "Friendly mobile wallet on TON",
                 "liquid": "Liquid Staking",
-                "liquidDescription": "Send TON to staking and get wsTON tokens instead",
+                "liquidDescription": "Send GRAM to staking and get wsTON tokens instead",
                 "rateTitle": "Exchange rate",
                 "liquidUsde": "USDe Liquid Staking",
                 "liquidUsdeDescription": "Send USDe to staking and get tsUSDe tokens instead",
@@ -499,7 +499,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "confirmWithdrawReady": "Withdraw now",
                 "restrictedTitle": "This Staking Pool is restricted",
                 "restrictedMessage": "Your funds will not participate in staking if your wallet address is not on the permit list, but will be on the pool balance and awaiting a withdrawal",
-                "notEnoughCoinsFee": "There are not enough TON on your wallet balance to pay the fee. Please note that the {{amount}} TON fee must be on the main balance, not on the staking balance",
+                "notEnoughCoinsFee": "There are not enough GRAM on your wallet balance to pay the fee. Please note that the {{amount}} GRAM fee must be on the main balance, not on the staking balance",
                 "notEnoughCoins": "There are not enough funds on your wallet balance to top up the staking balance",
                 "ledgerSignText": "Staking: {{action}}"
             },
@@ -521,15 +521,15 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "buttonTitle": "Start Earning",
                 "moreAbout": "More about Ton Whales Staking Pool",
                 "earn": "Earn up to",
-                "onYourTons": "on your TONs",
+                "onYourTons": "on your GRAMs",
                 "apy": "13.3%",
                 "yearly": "APY",
                 "cycle": "Get rewards for staking every 36h",
-                "ownership": "Staked TONs remain yours",
+                "ownership": "Staked GRAMs remain yours",
                 "withdraw": "Withdraw and Top Up at any time",
-                "successTitle": "{{amount}} TON staked",
-                "successEtimation": "Your estimated yearly earnings are {{amount}}\u00A0TON\u00A0(${{price}}).",
-                "successNote": "Your staked TON will be activated once the next cycle starts."
+                "successTitle": "{{amount}} GRAM staked",
+                "successEtimation": "Your estimated yearly earnings are {{amount}}\u00A0GRAM\u00A0(${{price}}).",
+                "successNote": "Your staked GRAM will be activated once the next cycle starts."
             },
             "pool": {
                 "balance": "Total Stake",
@@ -556,7 +556,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             },
             "unstakeLiquid": {
                 "title": "Withdraw your wsTON",
-                "message": "You can withdraw funds directly after the end of the cycle or swap instantly wsTON to TON on "
+                "message": "You can withdraw funds directly after the end of the cycle or swap instantly wsTON to GRAM on "
             },
             "unstakeLiquidUsde": {
                 "title": "Withdraw your tsUSDe",
@@ -588,9 +588,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "withdrawFee": "Withdraw Fee",
                 "withdrawRequestFee": "Withdraw request Fee",
                 "withdrawCompleteFee": "Withdrawal completion request Fee",
-                "depositFeeDescription": "TON amount that will be deducted from deposit amount to cover the deposit action fees, unused amount will be returned to your wallet balance",
-                "withdrawFeeDescription": "TON transfer amount needed to cover the withdraw action fees, unused amount will be returned to your wallet balance",
-                "withdrawCompleteDescription": "TON transfer amount needed to cover the withdraw completion action fees, unused amount will be returned to your wallet balance",
+                "depositFeeDescription": "GRAM amount that will be deducted from deposit amount to cover the deposit action fees, unused amount will be returned to your wallet balance",
+                "withdrawFeeDescription": "GRAM transfer amount needed to cover the withdraw action fees, unused amount will be returned to your wallet balance",
+                "withdrawCompleteDescription": "GRAM transfer amount needed to cover the withdraw completion action fees, unused amount will be returned to your wallet balance",
                 "blockchainFee": "Blockhain fee",
                 "cooldownTitle": "Simplified period",
                 "cooldownActive": "Active",
@@ -599,10 +599,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "cooldownAlert": "At the beginning of each staking cycle, the Simplified Period is active. During this period you don't have to wait for the cycle to end in order to withdraw or top up - it happens instantly, and you don't have to send a second transaction to withdraw, which halves the withdrawal fee. You can transfer funds from one pool to another without losing cycle profits if the Simplified Period is active in both pools",
                 "lockedAlert": "While the staking cycle is in progress withdrawals and deposits are pending. All transactions take effect once the cycle ends"
             },
-            "minAmountWarning": "Minimum amount is {{minAmount}} TON",
+            "minAmountWarning": "Minimum amount is {{minAmount}} GRAM",
             "tryAgainLater": "Please, try again later",
             "banner": {
-                "estimatedEarnings": "Your estimated yearly earnings will decrease by {{amount}}\u00A0TON\u00A0({{price}})",
+                "estimatedEarnings": "Your estimated yearly earnings will decrease by {{amount}}\u00A0GRAM\u00A0({{price}})",
                 "estimatedEarningsDev": "Your estimated yearly earnings will decrease",
                 "message": "Are you sure about the unstaking?"
             },
@@ -643,6 +643,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "addNew": "Add new account",
                 "network": "{{networkName}} network",
             },
+            "physicalCard": {
+                "supportMessage": "Hello, I have a question about my physical Holders card delivery.",
+            },
             "pageTitles": {
                 "general": "Tonhub Cards",
                 "card": "Tonhub Card",
@@ -650,7 +653,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "cardCredentials": "Card Details",
                 "cardLimits": "{{cardNumber}} Card Limits",
                 "cardLimitsDefault": "Card Limits",
-                "cardDeposit": "Top Up TON",
+                "cardDeposit": "Top Up GRAM",
                 "transfer": "Transfer",
                 "cardSmartContract": "Card Smart Contract",
                 "setUpCard": "Set up the card",
@@ -660,7 +663,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "card": "Card",
                 "cards": "Holders cards",
                 "title": "Tonhub card {{cardNumber}}",
-                "defaultSubtitle": "Pay with USDT or TON everywhere by card",
+                "defaultSubtitle": "Pay with USDT or GRAM everywhere by card",
                 "defaultTitle": "Tonhub card",
                 "eurSubtitle": "Tonhub EUR",
                 "type": {
@@ -982,7 +985,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "title": "How the checkout works",
             "message": "Fill in the required fields -> Select cryptocurrency and specify wallet address and the amount to buy -> Proceed to checkout -> Enter your billing details correctly. Your credit card payment is securely processed by our Partners -> Complete purchase. No account needed!"
         },
-        "title": "Buy TON with credit card for USD, EUR and RUB",
+        "title": "Buy GRAM with credit card for USD, EUR and RUB",
         "description": "You will be taken to Neocrypto. Services relating to payments are provided by Neocrypto, which is a separate platform owned by a third party\n\nPlease read and agree to Neocrypto's Terms of Service before using their service",
         "doNotShow": "Do not show it again for Neocrypto",
         "termsAndPrivacy": "I have read and agree to the ",
@@ -994,7 +997,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     "known": {
         "deposit": "Deposit",
         "depositOk": "Deposit accepted",
-        "withdraw": "Withdrawal request of {{coins}} TON",
+        "withdraw": "Withdrawal request of {{coins}} GRAM",
         "withdrawAll": "Request withdraw of all coins",
         "withdrawLiquid": "Withdraw",
         "withdrawCompleted": "Withdraw completed",
@@ -1006,7 +1009,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "tokenReceived": "Token received",
         "holders": {
             "topUpTitle": "Top up amount",
-            "accountTopUp": "Top up of {{amount}} TON",
+            "accountTopUp": "Top up of {{amount}} GRAM",
             "accountJettonTopUp": "Account top up",
             "limitsChange": "Limits change",
             "limitsTitle": "Limits",
@@ -1040,9 +1043,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "noAccounts": "You have no accounts yet"
     },
     "spamFilter": {
-        "minAmount": "Min TON amount",
+        "minAmount": "Min GRAM amount",
         "dontShowComments": "Don't show comments on SPAM transactions",
-        "minAmountDescription": "Transactions with TON amount less than {{amount}} will be automatically marked as SPAM",
+        "minAmountDescription": "Transactions with GRAM amount less than {{amount}} will be automatically marked as SPAM",
         "applyConfig": "Apply selected SPAM filter settings",
         "denyList": "Manual spam filter",
         "denyListEmpty": "No blocked addresses",
@@ -1125,7 +1128,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "title": "Are you sure you want to Delete Account?",
         "action": "Delete account and all data",
         "logOutAndDelete": "Log Out and Delete all data",
-        "description": "This action will delete all data and currenly selected wallet from this device and your blockchain account\nYou need to transfer all your TON coins to another wallet. Before proceeding, make sure that you have more than {{amount}} TON on your account to complete the transaction",
+        "description": "This action will delete all data and currenly selected wallet from this device and your blockchain account\nYou need to transfer all your GRAM coins to another wallet. Before proceeding, make sure that you have more than {{amount}} GRAM on your account to complete the transaction",
         "complete": "Account deletion completed",
         "error": {
             "hasNfts": "You have NFTs in your wallet, in order to delete the account, please send them to another wallet.",
@@ -1135,7 +1138,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         },
         "confirm": {
             "title": "Are you sure you want to delete your account and all data from this application?",
-            "message": "This action will delete your account and all data from this application and transfer all your TON coins to wallet address you specified.\nPlease, check the recipient address carefully before proceeding. Standard blockchain fee is charged for this transaction."
+            "message": "This action will delete your account and all data from this application and transfer all your GRAM coins to wallet address you specified.\nPlease, check the recipient address carefully before proceeding. Standard blockchain fee is charged for this transaction."
         },
         "checkRecipient": "Check recipient",
         "checkRecipientDescription": "To make you account inactive you have to transfer all funds to another wallet (recipient address). Please, check the address carefully before proceeding"
@@ -1330,7 +1333,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "title_2": "What do you need to do?",
         "description_2": "Click the button on the previous screen and authorize us to display all addresses in the app in the new format. You will be able to revert back to the old format in your settings.",
         "title_3": "What happens to the old address?",
-        "description_3": "All TONs, tokens, NFTs and other assets sent to your old address will continue to flow to your wallet.",
+        "description_3": "All GRAMs, tokens, NFTs and other assets sent to your old address will continue to flow to your wallet.",
         "description_4": "Technical details of the upgrade can be found at",
         "action": "Use {{format}}",
         "oldAddress": "Old address",
@@ -1407,14 +1410,14 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "update": {
             "title": "Update wallet to W5",
             "subtitle_1": "Gasless USDT transfers",
-            "description_1": "You no longer need TON to send USDT. Transaction fees can be covered with your token balance.",
+            "description_1": "You no longer need GRAM to send USDT. Transaction fees can be covered with your token balance.",
             "subtitle_2": "Save on fees",
             "description_2": "W5 allows to increase the number of operations in a single transaction by 60 times and significantly save on fees.",
             "subtitle_3": "Your seed phrase is unchanged",
             "description_3": "V4 and W5 wallets have the same seed phrase. You can always switch versions by selecting the desired address at the top of the main screen.",
             "switch_button": "Switch to W5"
         },
-        "gaslessInfo": "TON isn't required to pay gas fee when sending this token. The fee will be deducted directly from your token balance."
+        "gaslessInfo": "GRAM isn't required to pay gas fee when sending this token. The fee will be deducted directly from your token balance."
     },
     "browser": {
         "listings": {
@@ -1467,12 +1470,12 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "callToAction": "Update Tonhub"
     },
     "savings": {
-        "ton": "TON saving account",
+        "ton": "GRAM saving account",
         "usdt": "USDT saving account",
         "general": "{{symbol}} saving account",
     },
     "spending": {
-        "ton": "TON spending account",
+        "ton": "GRAM spending account",
         "usdt": "USDT spending account",
         "general": "{{symbol}} spending account"
     },

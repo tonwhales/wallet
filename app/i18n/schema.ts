@@ -645,6 +645,9 @@ export type LocalizationSchema = {
                 addNew: string,
                 network: string,
             },
+            physicalCard: {
+                supportMessage: string,
+            },
             pageTitles: {
                 general: string,
                 card: string,

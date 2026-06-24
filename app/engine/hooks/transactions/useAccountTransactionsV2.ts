@@ -16,6 +16,7 @@ import { mapJettonFullToMasterState } from '../../../utils/jettons/mapJettonToMa
 import { getHintFull } from '../../../utils/jettons/hintSortFilter';
 import { JettonFull } from '../../api/fetchHintsFull';
 import { saveErrorLog } from '../../../storage';
+import { NATIVE_DISPLAY_SYMBOL } from '../../../utils/formatCurrency';
 
 const PAGE_SIZE = 16;
 const REFRESH_TIMEOUT = 35000;
@@ -182,7 +183,7 @@ export const formatTransactions = async (transactions: TonTransaction[], isTestn
                 const opAddress = actualItem.kind === 'token' ? operation.address : message.friendlyTarget;
                 const contractInfo = await fetchContractInfo(opAddress);
                 const symbolText = actualItem.kind === 'ton'
-                    ? ' TON'
+                    ? ` ${NATIVE_DISPLAY_SYMBOL}`
                     : (message.jettonMaster?.symbol ? ` ${message.jettonMaster.symbol}` : '')
                 result.push({ ...tx, message, contractInfo, symbolText });
             }
@@ -208,7 +209,7 @@ export const formatTransactions = async (transactions: TonTransaction[], isTestn
                 const contractInfo = await fetchContractInfo(opAddress);
                 const { isSCAM } = jettonHint ? getHintFull(jettonHint as JettonFull, isTestnet) : { isSCAM: false };
                 const symbolText = actualItem.kind === 'ton'
-                    ? ' TON'
+                    ? ` ${NATIVE_DISPLAY_SYMBOL}`
                     : (jettonMaster?.symbol
                         ? ` ${jettonMaster.symbol}${isSCAM ? ' • SCAM' : ''}`
                         : '')

@@ -26,6 +26,12 @@ export const CurrencySymbols: { [key: string]: { symbol: string, end?: boolean, 
   [PrimaryCurrency.Jpy]: { symbol: '¥', end: true, label: 'Japanese Yen' },
 };
 
+// Display-only symbol for the native TON-chain coin. "Toncoin" (ticker TON) was
+// rebranded to "Gram" (GRAM), effective 2026-06-15; the TON network/chain name is
+// unchanged. Internal codes/discriminators stay 'ton'/'TON' — this is purely what
+// the user sees as the native-coin suffix/symbol.
+export const NATIVE_DISPLAY_SYMBOL = 'GRAM';
+
 export function formatAmount(amount: string) {
   const { decimalSeparator } = getNumberFormatSettings();
   return amount.replace('.', decimalSeparator);

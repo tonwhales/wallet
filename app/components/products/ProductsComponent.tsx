@@ -24,6 +24,7 @@ import { HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment
 import { W5Banner } from "./W5Banner"
 import { HoldersCustomBanner } from "../../engine/api/holders/fetchAddressInviteCheck"
 import { HoldersBanner } from "./HoldersBanner"
+import { HoldersDataDrivenBanner } from "./HoldersDataDrivenBanner"
 import { SavingsProduct } from "./savings/SavingsProduct"
 import { PaymentOtpBanner } from "../holders/PaymentOtpBanner"
 import { HoldersChangellyBanner } from "./HoldersChangellyBanner"
@@ -55,7 +56,13 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     const inviteCheck = useIsHoldersInvited(selected!.address, isTestnet);
     const [isWalletMode] = useAppMode(selected!.address);
     const hasHoldersAccounts = (holdersAccounts?.accounts?.length ?? 0) > 0;
-    const showHoldersBanner = !hasHoldersAccounts && inviteCheck?.allowed;
+    // Data-driven Altery banner stack (server-decided count/order). Shown EVEN with accounts — issue-card /
+    // physical banners target users who already hold accounts.
+    const dataDrivenBanners = inviteCheck?.allowed ? (inviteCheck.banners ?? []) : [];
+    const hasDataDrivenBanners = dataDrivenBanners.length > 0;
+    // Legacy single banner stays pre-account-onboarding only, and is suppressed when a data-driven stack
+    // is present (the stack replaces it).
+    const showHoldersBanner = !hasHoldersAccounts && inviteCheck?.allowed && !hasDataDrivenBanners;
     const holdersBanner: HoldersBannerType = !!inviteCheck?.banner ? { type: 'custom', banner: inviteCheck.banner } : { type: 'built-in' };
     const holderBannerContent = showHoldersBanner ? holdersBanner : null;
     const tokens = useSolanaTokens(selected.solanaAddress, false);
@@ -142,6 +149,19 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                             illustration={{ uri: banners.product.image }}
                             reverse
                         />
+                    </View>
+                )}
+
+                {hasDataDrivenBanners && (
+                    <View style={{ paddingHorizontal: 16 }}>
+                        {dataDrivenBanners.map((b) => (
+                            <HoldersDataDrivenBanner
+                                key={b.id}
+                                banner={b}
+                                address={selected.address}
+                                screen="Home"
+                            />
+                        ))}
                     </View>
                 )}
 

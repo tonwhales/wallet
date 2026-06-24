@@ -10,6 +10,7 @@ import { PriceComponent } from "../../../components/PriceComponent";
 import { PerfText } from "../../../components/basic/PerfText";
 import { PerfView } from "../../../components/basic/PerfView";
 import { ThemeType } from "../../../engine/state/theme";
+import { NATIVE_DISPLAY_SYMBOL } from "../../../utils/formatCurrency";
 
 export const HoldersCardNotification = memo(({
     notification,
@@ -76,7 +77,7 @@ export const HoldersCardNotification = memo(({
                                     value={BigInt(notification.data.amount)}
                                     precision={3}
                                 />
-                                {' TON'}
+                                {` ${NATIVE_DISPLAY_SYMBOL}`}
                             </PerfText>
                             <PriceComponent
                                 amount={BigInt(notification.data.amount)}

@@ -10,7 +10,7 @@ import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useRoute } from "@react-navigation/native";
-import { formatCurrency, formatInputAmount } from "../../utils/formatCurrency";
+import { formatCurrency, formatInputAmount, NATIVE_DISPLAY_SYMBOL } from "../../utils/formatCurrency";
 import { ValueComponent } from "../../components/ValueComponent";
 import { TransferAction } from "./StakingTransferFragment";
 import { useIsLedgerRoute, useLiquidStakingMember, useNetwork, usePrice, useSelectedAccount, useStakingPool, useStakingWalletConfig, useTheme } from "../../engine/hooks";
@@ -203,7 +203,7 @@ export const StakingCalculatorFragment = fragment(() => {
                             }}
                             suffix={priceText}
                             hideClearButton
-                            inputSuffix={'TON'}
+                            inputSuffix={NATIVE_DISPLAY_SYMBOL}
                         />
                     </View>
                     {(isLiquid ? !!liquidStaking : !!pool) && (validAmount !== null) && (

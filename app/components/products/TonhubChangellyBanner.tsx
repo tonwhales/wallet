@@ -6,6 +6,7 @@ import { View, Text, useWindowDimensions } from "react-native";
 import { Canvas, LinearGradient, Rect, vec } from "@shopify/react-native-skia";
 import { Image } from "expo-image";
 import { useTheme } from "../../engine/hooks";
+import { useAppConfig } from "../../engine/hooks/useAppConfig";
 import { Typography } from "../styles";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
@@ -16,17 +17,20 @@ const bannerId = 'tonhub-changelly-banner';
 export const TonhubChangellyBanner = memo(() => {
     const hiddenBanners = useHiddenBanners();
     const markBannerHidden = useMarkBannerHidden();
+    const appConfig = useAppConfig();
     const dimentions = useWindowDimensions();
     const theme = useTheme();
     const navigation = useTypedNavigation();
 
     const isHidden = hiddenBanners.includes(`${bannerId}`);
+    // Server-controlled (whales-connect features). Off by default → hidden unless explicitly enabled.
+    const isEnabled = appConfig.features?.tonhubChangellyBanner;
 
     const onPress = () => {
         navigation.navigateSwap();
     }
 
-    if (isHidden) {
+    if (isHidden || !isEnabled) {
         return null;
     }
 

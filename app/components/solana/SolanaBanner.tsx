@@ -6,6 +6,7 @@ import { View, Text, useWindowDimensions } from "react-native";
 import { Canvas, LinearGradient, Rect, vec } from "@shopify/react-native-skia";
 import { Image } from "expo-image";
 import { useSolanaSelectedAccount, useSolanaTokens, useTheme } from "../../engine/hooks";
+import { useAppConfig } from "../../engine/hooks/useAppConfig";
 import { Typography } from "../styles";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
@@ -16,6 +17,7 @@ const bannerId = 'solana-banner';
 export const SolanaBanner = memo(() => {
     const hiddenBanners = useHiddenBanners();
     const markBannerHidden = useMarkBannerHidden();
+    const appConfig = useAppConfig();
     const dimentions = useWindowDimensions();
     const theme = useTheme();
     const solanaAddress = useSolanaSelectedAccount()!;
@@ -25,6 +27,8 @@ export const SolanaBanner = memo(() => {
     const token = solanaTokens[0];
 
     const isHidden = hiddenBanners.includes(`${bannerId}-${solanaAddress}`);
+    // Server-controlled (whales-connect features). Off by default → hidden unless explicitly enabled.
+    const isEnabled = appConfig.features?.tonhubSolanaBanner;
 
     const onPress = () => {
         if (token) {
@@ -43,7 +47,7 @@ export const SolanaBanner = memo(() => {
         }
     }
 
-    if (isHidden) {
+    if (isHidden || !isEnabled) {
         return null;
     }
 

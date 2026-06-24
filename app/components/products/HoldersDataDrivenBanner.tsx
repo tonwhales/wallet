@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { View, Text, Pressable, StyleSheet, Image as RNImage } from "react-native";
 import { Image } from "expo-image";
 import i18n from "i18next";
@@ -80,6 +80,13 @@ export const HoldersDataDrivenBanner = memo(
             return src && src.height > 0 ? src.width / src.height : DEFAULT_ASPECT_RATIO;
         }, [banner.imageUrl, bundledArt]);
 
+        // The banner height is content-driven (title + button + padding) so long copy never clips, but it
+        // never shrinks below the artwork's natural height (measured width ÷ aspectRatio) — that keeps the
+        // art at its designed proportions for short copy. We need the laid-out width to turn the ratio into
+        // a concrete minHeight.
+        const [bannerWidth, setBannerWidth] = useState(0);
+        const minHeight = bannerWidth > 0 ? bannerWidth / aspectRatio : undefined;
+
         // Overlay colors flip with artwork brightness: dark art → white title + white pill (dark label);
         // light art → dark title + dark pill (white label).
         const titleColor = useLightArt ? "#1c1c1e" : theme.textUnchangeable;
@@ -139,15 +146,27 @@ export const HoldersDataDrivenBanner = memo(
 
         return (
             <Animated.View entering={FadeInUp} exiting={FadeOutDown}>
-                <Pressable onPress={onPress} style={({ pressed }) => [styles.pressable, { opacity: pressed ? 0.5 : 1 }]}>
-                    <Image style={[styles.image, { aspectRatio }]} source={imageSource} contentFit="cover" />
-                    {/* Overlay matches the dapp banner: title + pill button on the left ~64%, vertically centered.
-                        Art is always dark, so the title is white and the pill is white with dark text. */}
-                    <View style={styles.overlay}>
+                <Pressable
+                    onPress={onPress}
+                    onLayout={(e) => setBannerWidth(e.nativeEvent.layout.width)}
+                    style={({ pressed }) => [styles.pressable, { opacity: pressed ? 0.5 : 1 }]}
+                >
+                    {/* Artwork as a full-bleed background: the overlay (in normal flow) drives the banner
+                        height, the image just covers it. `contentPosition: right` pins the card graphic
+                        (always on the right of the art) so only the empty left gradient is cropped when the
+                        banner grows taller than the art's natural ratio. */}
+                    <Image style={styles.image} source={imageSource} contentFit="cover" contentPosition="right" />
+                    {/* Title pinned to the top band, pill button to the bottom band (matches the dapp), both on
+                        the left ~62% over the empty side of the art. The box grows with the title so long (e.g.
+                        Russian) copy never clips, and never shrinks below the art's natural height (`minHeight`)
+                        so short copy still shows the art at its designed proportions. */}
+                    <View style={[styles.overlay, minHeight != null ? { minHeight } : null]}>
                         <Text style={[styles.title, { color: titleColor }]}>{title}</Text>
-                        <View style={[styles.button, { backgroundColor: pillBackground }]}>
-                            <Text style={[Typography.medium15_20, { color: pillTextColor }]}>{action}</Text>
-                        </View>
+                    </View>
+                    {/* Pill button pinned to the bottom-left of the banner (left: 18, bottom: 12) so it lines
+                        up with the chevron baked into the artwork regardless of banner height. */}
+                    <View style={[styles.button, { backgroundColor: pillBackground }]}>
+                        <Text style={[Typography.medium15_20, { color: pillTextColor }]}>{action}</Text>
                     </View>
                 </Pressable>
             </Animated.View>
@@ -162,26 +181,24 @@ const styles = StyleSheet.create({
         overflow: "hidden",
     },
     image: {
-        width: "100%",
+        ...StyleSheet.absoluteFillObject,
     },
     overlay: {
-        position: "absolute",
-        top: 0,
-        bottom: 0,
-        left: 0,
-        maxWidth: "64%",
-        justifyContent: "center",
+        justifyContent: "space-between",
         alignItems: "flex-start",
-        gap: 10,
-        padding: 20,
+        paddingHorizontal: 20,
+        paddingVertical: 20,
     },
     title: {
+        maxWidth: "65%",
         fontSize: 15,
         lineHeight: 20,
         fontWeight: "600",
     },
     button: {
-        alignSelf: "flex-start",
+        position: "absolute",
+        left: 18,
+        bottom: 10,
         paddingHorizontal: 18,
         paddingVertical: 9,
         borderRadius: 12,

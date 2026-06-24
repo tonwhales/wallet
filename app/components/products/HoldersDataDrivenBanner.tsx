@@ -162,9 +162,11 @@ export const HoldersDataDrivenBanner = memo(
                         so short copy still shows the art at its designed proportions. */}
                     <View style={[styles.overlay, minHeight != null ? { minHeight } : null]}>
                         <Text style={[styles.title, { color: titleColor }]}>{title}</Text>
-                        <View style={[styles.button, { backgroundColor: pillBackground }]}>
-                            <Text style={[Typography.medium15_20, { color: pillTextColor }]}>{action}</Text>
-                        </View>
+                    </View>
+                    {/* Pill button pinned to the bottom-left of the banner (left: 18, bottom: 12) so it lines
+                        up with the chevron baked into the artwork regardless of banner height. */}
+                    <View style={[styles.button, { backgroundColor: pillBackground }]}>
+                        <Text style={[Typography.medium15_20, { color: pillTextColor }]}>{action}</Text>
                     </View>
                 </Pressable>
             </Animated.View>
@@ -188,14 +190,15 @@ const styles = StyleSheet.create({
         paddingVertical: 20,
     },
     title: {
-        maxWidth: "62%",
+        maxWidth: "65%",
         fontSize: 15,
         lineHeight: 20,
         fontWeight: "600",
     },
     button: {
-        alignSelf: "flex-start",
-        marginTop: 12,
+        position: "absolute",
+        left: 18,
+        bottom: 10,
         paddingHorizontal: 18,
         paddingVertical: 9,
         borderRadius: 12,

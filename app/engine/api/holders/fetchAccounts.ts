@@ -173,23 +173,32 @@ const cardPendingStatusSchema = z.union([
   z.literal('PENDING_FOR_PAYMENT')
 ]);
 
-const cardStatusSchema = z.union([
-  cardPendingStatusSchema,
-  z.literal('PENDING_CARD'),
-  z.literal('PENDING_CARD_ISSUE'),
-  z.literal('PENDING_CONTRACT'),
-  z.literal('WAITING_FOR_PAYMENT'),
-  z.literal('ACTIVE'),
-  z.literal('BLOCKED'),
-  z.literal('FROZEN'),
-  z.literal('CLOSED'),
-  z.literal('CLIENT_VERIFICATION'),
-  z.literal('CARD_VERIFICATION')
-]);
+const cardStatusSchema = z
+  .union([
+    cardPendingStatusSchema,
+    z.literal('PENDING_CARD'),
+    z.literal('PENDING_CARD_ISSUE'),
+    z.literal('PENDING_CONTRACT'),
+    z.literal('WAITING_FOR_PAYMENT'),
+    z.literal('WAITING_FOR_INVOICE'),
+    z.literal('ACTIVE'),
+    z.literal('BLOCKED'),
+    z.literal('FROZEN'),
+    z.literal('CLOSED'),
+    z.literal('CLOSING_AWAIT_PARTNER'),
+    z.literal('CLOSING_AWAIT_ZENPAY'),
+    z.literal('CANCELED'),
+    z.literal('CLIENT_VERIFICATION'),
+    z.literal('CARD_VERIFICATION')
+  ])
+  // A status this build does not know about must not fail the whole account list parse
+  // (one CANCELED card used to blank the accounts screen) — degrade it to CLOSED instead.
+  .catch('CLOSED');
 
 const cardPaymentSchema = z.union([z.literal('visa'), z.literal('mc')]);
 
-const cardDesignSchema = z.union([z.literal('BLACK_WAVES'), z.literal('DOGS')]);
+// Same guard as cardStatusSchema: a design added on the backend must not fail the list parse.
+const cardDesignSchema = z.union([z.literal('BLACK_WAVES'), z.literal('DOGS')]).catch('BLACK_WAVES');
 
 const cardSchema = z.object({
   id: z.string(),

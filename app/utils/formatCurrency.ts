@@ -32,6 +32,14 @@ export const CurrencySymbols: { [key: string]: { symbol: string, end?: boolean, 
 // the user sees as the native-coin suffix/symbol.
 export const NATIVE_DISPLAY_SYMBOL = 'GRAM';
 
+// Maps an internal coin ticker to what the user should see ('TON' -> 'GRAM', no-op otherwise)
+export function getCoinDisplaySymbol(symbol: string | null | undefined): string {
+  if (symbol === 'TON') {
+    return NATIVE_DISPLAY_SYMBOL;
+  }
+  return symbol ?? '';
+}
+
 export function formatAmount(amount: string) {
   const { decimalSeparator } = getNumberFormatSettings();
   return amount.replace('.', decimalSeparator);

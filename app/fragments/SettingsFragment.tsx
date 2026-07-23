@@ -232,6 +232,11 @@ export const SettingsFragment = fragment(() => {
                         title={t('settings.searchEngine')}
                         onPress={() => navigation.navigate('SearchEngine')}
                     />
+                    <ItemButton
+                        leftIcon={require('@assets/ic-services.png')}
+                        title={t('home.browser')}
+                        onPress={() => navigation.navigate('Browser')}
+                    />
                 </View>
 
                 <View style={{

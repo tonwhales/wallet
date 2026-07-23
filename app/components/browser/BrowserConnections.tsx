@@ -1,7 +1,7 @@
 import { memo, useCallback, useState } from 'react';
 import { useTheme } from '../../engine/hooks';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { useSafeBottomTabBarHeight } from '../../utils/useSafeBottomTabBarHeight';
 import { useDimensions } from '@react-native-community/hooks';
 import {
   View,
@@ -62,7 +62,7 @@ export const BrowserConnections = memo(
   ({ onScroll }: { onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void }) => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
-    const bottomBarHeight = useBottomTabBarHeight();
+    const bottomBarHeight = useSafeBottomTabBarHeight();
     const dimensions = useDimensions();
 
     let [apps, setApps] = useState(groupItems(getConnectionReferences()));

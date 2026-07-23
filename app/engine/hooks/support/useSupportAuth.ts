@@ -27,8 +27,13 @@ type IntercomLoginParams = {
 // (e.g. no network) can be retried on demand from useSupport
 let lastLoginParams: IntercomLoginParams | null = null;
 let loginQueue: Promise<void> = Promise.resolve();
+let activeLogin: { params: IntercomLoginParams, promise: Promise<void> } | null = null;
 
 function performIntercomLogin(params: IntercomLoginParams): Promise<void> {
+    // Re-join the in-flight attempt for the same params instead of queueing another logout/login cycle
+    if (activeLogin && activeLogin.params === params) {
+        return activeLogin.promise;
+    }
     // Chain attempts so concurrent logins can't interleave their logout/login calls
     const run = loginQueue.catch(() => { }).then(async () => {
         await Intercom.logout();
@@ -45,6 +50,13 @@ function performIntercomLogin(params: IntercomLoginParams): Promise<void> {
         }
     });
     loginQueue = run;
+    const attempt = { params, promise: run };
+    activeLogin = attempt;
+    run.catch(() => { }).then(() => {
+        if (activeLogin === attempt) {
+            activeLogin = null;
+        }
+    });
     return run;
 }
 
@@ -52,16 +64,22 @@ export function useIntercomLoginRetry() {
     const [, setIsLoggedIn] = useRecoilState(isLoggedInAtom);
 
     return useCallback(async () => {
-        if (!lastLoginParams) {
+        const params = lastLoginParams;
+        if (!params) {
             return false;
         }
         try {
-            await performIntercomLogin(lastLoginParams);
-            setIsLoggedIn(true);
+            await performIntercomLogin(params);
+            // Only report success for the latest login target — a newer login may already be underway
+            if (lastLoginParams === params) {
+                setIsLoggedIn(true);
+            }
             return true;
         } catch (error) {
             console.error(`Error logging in to Intercom: ${JSON.stringify(error)}`);
-            setIsLoggedIn(false);
+            if (lastLoginParams === params) {
+                setIsLoggedIn(false);
+            }
             return false;
         }
     }, []);
@@ -91,10 +109,15 @@ export function useSupportAuth() {
             try {
                 setIsLoggedIn(false);
                 await performIntercomLogin(params);
-                setIsLoggedIn(true);
+                // Guard against a stale continuation: a newer effect run may already be re-logging-in
+                if (lastLoginParams === params) {
+                    setIsLoggedIn(true);
+                }
             } catch (error) {
                 console.error(`Error logging in to Intercom: ${JSON.stringify(error)}`);
-                setIsLoggedIn(false);
+                if (lastLoginParams === params) {
+                    setIsLoggedIn(false);
+                }
             }
         })();
     }, [profile?.email, profile?.phone, profile?.userId, language, legalName]);

@@ -3,6 +3,8 @@ import { Address } from '@ton/core';
 import { useCallback, useEffect, useState } from 'react';
 import { useIsLedgerRoute, useNetwork, useSupportAuthState } from '..';
 import { MixpanelEvent, trackEvent } from '../../../analytics/mixpanel';
+import { useToaster } from '../../../components/toast/ToastProvider';
+import { t } from '../../../i18n/t';
 import { getLedgerSelected } from '../../../storage/appState';
 import { useSelectedAccount } from '../appstate';
 import { useIntercomLoginRetry } from './useSupportAuth';
@@ -17,11 +19,12 @@ export const useSupport = () => {
 	const [notifications, setNotifications] = useState(0);
 	const isLoggedIn = useSupportAuthState();
 	const retryLogin = useIntercomLoginRetry();
+	const toaster = useToaster();
 
 	useEffect(() => {
 		Intercom.getUnreadConversationCount().then((count) => {
 			setNotifications(count);
-		});
+		}).catch(() => { });
 
 		const subscription = Intercom.addEventListener(IntercomEvents.IntercomUnreadCountDidChange, (event) => {
 			setNotifications(event.count ?? 0);
@@ -38,15 +41,21 @@ export const useSupport = () => {
 		if (isLoggedIn) {
 			return true;
 		}
-		return await retryLogin();
-	}, [isLoggedIn, retryLogin]);
+		if (await retryLogin()) {
+			return true;
+		}
+		toaster.show({ message: t('common.somethingWentWrong'), type: 'error' });
+		return false;
+	}, [isLoggedIn, retryLogin, toaster]);
 
 	const onSupport = useCallback(async () => {
 		trackEvent(MixpanelEvent.ButtonPress, { button: 'support', isLoggedIn });
 		if (!(await ensureLoggedIn())) {
 			return;
 		}
-		Intercom.presentSpace(Space.messages);
+		try {
+			await Intercom.presentSpace(Space.messages);
+		} catch { }
 	}, [isLoggedIn, ensureLoggedIn]);
 
 	const onSupportNew = useCallback(async () => {
@@ -54,7 +63,9 @@ export const useSupport = () => {
 		if (!(await ensureLoggedIn())) {
 			return;
 		}
-		await Intercom.presentMessageComposer();
+		try {
+			await Intercom.presentMessageComposer();
+		} catch { }
 	}, [isLoggedIn, ensureLoggedIn]);
 
     const onSupportWithMessage = useCallback(async (options?: { message?: string }) => {
@@ -62,7 +73,9 @@ export const useSupport = () => {
         if (!(await ensureLoggedIn())) {
             return;
         }
-        await Intercom.presentMessageComposer(options?.message);
+        try {
+            await Intercom.presentMessageComposer(options?.message);
+        } catch { }
     }, [isLoggedIn, ensureLoggedIn])
 
 	const onHelpCenter = useCallback(async () => {

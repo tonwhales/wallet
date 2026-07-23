@@ -130,6 +130,10 @@ export const SimpleTransferAmount = memo(forwardRef(({
         setAmount(prev => formatInputAmount(newVal, jetton?.decimals ?? decimals ?? 9, { skipFormattingDecimals: true }, prev));
     }, [jetton?.decimals, decimals])
 
+    // Only the native coin is rebranded to GRAM — a jetton/extra currency that happens
+    // to use the 'TON' ticker (e.g. scam tokens) must keep showing its raw symbol
+    const displaySymbol = (jetton || extraCurrency) ? symbol : getCoinDisplaySymbol(symbol);
+
     const onNavigateAssets = useCallback(() => {
         navigation.navigateAssets({
             simpleTransferAssetCallback: onAssetSelected,
@@ -162,7 +166,7 @@ export const SimpleTransferAmount = memo(forwardRef(({
                                 numberOfLines={2}
                                 ellipsizeMode={'tail'}
                             >
-                                {getCoinDisplaySymbol(symbol)}
+                                {displaySymbol}
                             </Text>
                             {isSCAM && (
                                 <Text
@@ -202,7 +206,7 @@ export const SimpleTransferAmount = memo(forwardRef(({
                     precision={4}
                     value={balance}
                     decimals={_decimals}
-                    suffix={symbol ? ` ${getCoinDisplaySymbol(symbol)}` : ''}
+                    suffix={symbol ? ` ${displaySymbol}` : ''}
                 />
             </Text>
             <Pressable
@@ -235,7 +239,7 @@ export const SimpleTransferAmount = memo(forwardRef(({
                 flexGrow: 1
             }, Typography.regular17_24, { lineHeight: undefined }]}
             suffix={priceText}
-            ticker={getCoinDisplaySymbol(symbol) || NATIVE_DISPLAY_SYMBOL}
+            ticker={displaySymbol || NATIVE_DISPLAY_SYMBOL}
             cursorColor={theme.accent}
         />
     ), [onInputFocus, onValueChange, amountError, priceText, symbol, amount, theme])

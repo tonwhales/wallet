@@ -20,7 +20,7 @@ type DeepLinkResolveParams = {
 function navigateToScreen(navigation: TypedNavigation, type: DeepLinkType) {
     switch (type) {
         case 'new-wallet':
-            navigation.navigateWalletCreate({ additionalWallet: true });
+            navigation.navigate('WalletCreate', { additionalWallet: true });
             break;
         case 'deposit':
             navigation.navigateReceiveAssets({ title: t('wallet.actions.deposit') });

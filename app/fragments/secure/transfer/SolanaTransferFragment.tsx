@@ -4,13 +4,13 @@ import { useParams } from "../../../utils/useParams";
 import { SolanaOrder } from "../ops/Order"
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../../../components/ScreenHeader";
-import { useSolanaClients, useSolanaSelectedAccount, useSolanaToken, useTheme, useRegisterPendingSolana, useSolanaTransactionFromOrder, useForcedAvatarType } from "../../../engine/hooks";
+import { useSolanaClients, useSolanaSelectedAccount, useSolanaToken, useTheme, useRegisterPendingSolana, useSolanaTransactionFromOrder, useCurrentAddress, useNetwork, useForcedAvatarType } from "../../../engine/hooks";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ItemGroup } from "../../../components/ItemGroup";
 import { Typography } from "../../../components/styles";
 import { t } from "../../../i18n/t";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { copyText } from "../../../utils/copyText";
 import { ToastDuration, useToaster } from "../../../components/toast/ToastProvider";
 import { RoundButton } from "../../../components/RoundButton";
@@ -25,6 +25,8 @@ import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { TransferInstructions } from "../components/TransferInstructions";
 import { SolanaTransactionAppHeader } from "./SolanaTransactionAppHeader";
 import { SolanaTransferFees } from "../../solana/transfer/components/SolanaTransferFees";
+import { trackMaestraSent } from "../../../analytics/maestra";
+import { useHoldersProfile } from "../../../engine/hooks/holders/useHoldersProfile";
 import { SolanaTransferParams, paramsToTransfer } from "./solanaTransferParams";
 
 export { SolanaTransferParams } from "./solanaTransferParams";
@@ -36,10 +38,13 @@ const TransferOrder = (props: { order: SolanaOrder, callback?: (ok: boolean, sig
     const solanaClients = useSolanaClients();
     const authContext = useKeysAuth();
     const solanaAddress = useSolanaSelectedAccount()!;
+    const { tonAddress } = useCurrentAddress();
+    const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const token = useSolanaToken(solanaAddress, order.token?.mint);
     const registerPending = useRegisterPendingSolana(solanaAddress);
     const transaction = useSolanaTransactionFromOrder(order, solanaAddress, solanaClients);
+    const profile = useHoldersProfile(tonAddress!.toString({ testOnly: isTestnet })).data;
 
     const forceAvatar = useForcedAvatarType({ address: order.target });
 
@@ -66,6 +71,16 @@ const TransferOrder = (props: { order: SolanaOrder, callback?: (ok: boolean, sig
                 order,
                 sender: solanaAddress
             });
+
+            if (!isTestnet) {
+                trackMaestraSent({
+                    amount: amount,
+                    currency: token?.symbol ?? 'SOL',
+                    walletID: solanaAddress,
+                    tonhubID: profile?.userId,
+                    transactionID: pending.id
+                });
+            }
 
             registerPending(pending);
             callback?.(true, pending.id);
@@ -206,7 +221,7 @@ const TransferOrder = (props: { order: SolanaOrder, callback?: (ok: boolean, sig
                     <View style={{ height: 54 }} />
                 </View>
             </ScrollView>
-            <View style={{ paddingHorizontal: 16 }}>
+            <View style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
                 <RoundButton
                     title={t('common.confirm')}
                     action={doSend}
@@ -265,7 +280,7 @@ export const SolanaTransferFragment = fragment(() => {
                 onBackPressed={navigation.goBack}
                 onClosePressed={() => navigation.navigateAndReplaceAll('Home')}
             />
-            <View style={{ flexGrow: 1 }}>
+            <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
                 <TransferLoaded {...params} />
             </View>
         </View>

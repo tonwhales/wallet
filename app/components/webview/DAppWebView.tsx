@@ -320,9 +320,9 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
     }, [navigationOptions.backPolicy, onClose, loaded]);
 
     useEffect(() => {
-        const listener = BackHandler.addEventListener('hardwareBackPress', onHardwareBackPress);
+        BackHandler.addEventListener('hardwareBackPress', onHardwareBackPress);
         return () => {
-            listener.remove();
+            BackHandler.removeEventListener('hardwareBackPress', onHardwareBackPress);
         }
     }, [onHardwareBackPress]);
 
@@ -430,14 +430,15 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                         backgroundColor: theme.surfaceOnBg,
                         flexGrow: 1, flexBasis: 0, height: '100%',
                         alignSelf: 'stretch'
-                    }
+                    },
+                    Platform.select({ android: { marginTop: 8 } })
                 ]}
                 injectedJavaScript={checkLocalStorageScript}
                 startInLoadingState={true}
                 autoManageStatusBarEnabled={false}
                 allowFileAccessFromFileURLs={false}
                 allowUniversalAccessFromFileURLs={false}
-                decelerationRate={(Platform.OS === 'ios' ? 'normal' : 0.998) as 'normal'}
+                decelerationRate={'normal'}
                 allowsInlineMediaPlayback={true}
                 keyboardDisplayRequiresUserAction={false}
                 bounces={false}

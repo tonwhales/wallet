@@ -159,8 +159,8 @@ const SimpleTransferComponent = () => {
     }, [selectedInput]);
 
     useEffect(() => {
-        const listener = BackHandler.addEventListener('hardwareBackPress', backHandler);
-        return () => listener.remove();
+        BackHandler.addEventListener('hardwareBackPress', backHandler);
+        return () => BackHandler.removeEventListener('hardwareBackPress', backHandler);
     }, [backHandler]);
 
     const resetInput = () => {

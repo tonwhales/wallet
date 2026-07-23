@@ -29,9 +29,8 @@ export const SelectedWallet = memo(({ onLightBackground, ledgerName, headerConte
     const [walletSettings] = useWalletSettings(address);
 
     const onAccountPress = useCallback(() => {
-        const addressesCount = getAppState().addresses.length + ledgerContext.wallets.length;
-        navigation.navigateAccountSelector({ addressesCount });
-    }, [ledgerContext.wallets.length]);
+        navigation.navigate('AccountSelector');
+    }, []);
 
     if (!address) {
         return null;

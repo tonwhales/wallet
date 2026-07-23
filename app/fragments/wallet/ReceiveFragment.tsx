@@ -26,6 +26,9 @@ import { encodeURL } from "@solana/pay";
 import { PublicKey } from "@solana/web3.js";
 import CopyIcon from '@assets/ic-copy.svg';
 import { RoundButton } from "../../components/RoundButton";
+import { MaestraEvent, trackMaestraEvent } from "../../analytics/maestra";
+import { useHoldersProfile } from "../../engine/hooks/holders/useHoldersProfile";
+import { NATIVE_DISPLAY_SYMBOL } from "../../utils/formatCurrency";
 
 type ReceiveableAssetContent = {
     icon: string | null | undefined;
@@ -78,10 +81,6 @@ export const ReceiveFragment = fragment(() => {
     const tonAsset = isTon ? asset as ReceiveableTonAsset : undefined;
     const solanaAsset = isTon ? undefined : asset as ReceiveableSolanaAsset;
 
-    const bottomPadding = useMemo(() => {
-        return safeArea.bottom + 16;
-    }, []);
-
     const tonAddress = useMemo(() => {
         if (!isTon) {
             return undefined;
@@ -98,6 +97,8 @@ export const ReceiveFragment = fragment(() => {
         return selected!.address;
     }, [selected, addr, isTon]);
 
+    const profile = useHoldersProfile(selected?.address?.toString({ testOnly: network.isTestnet })).data;
+
     const holdersAssetTarget = tonAsset?.holders?.address
         ? mapHoldersAccountTarget(tonAsset.holders)
         : undefined;
@@ -113,6 +114,13 @@ export const ReceiveFragment = fragment(() => {
         ? (tonAsset?.content?.icon || jettonAssetcontent?.icon)
         : solanaAsset?.content?.icon;
     const name = asset?.content?.name;
+
+    useEffect(() => {
+        if (network.isTestnet) {
+            return;
+        }
+        trackMaestraEvent(MaestraEvent.ViewReceivePage, { walletID: selected?.address?.toString()!, tonhubID: profile?.userId });
+    }, []);
 
     const friendly = useMemo(() => {
         if (!isTon) {
@@ -284,7 +292,7 @@ export const ReceiveFragment = fragment(() => {
         qrCodeSize = qrCodeSize * 0.8;
     }
 
-    const title = `${isHolders ? t('receive.deposit') : t('receive.title')} ${name ?? (isSolana ? 'SOL' : 'TON')}`;
+    const title = `${isHolders ? t('receive.deposit') : t('receive.title')} ${name ?? (isSolana ? 'SOL' : NATIVE_DISPLAY_SYMBOL)}`;
 
     const navigateToExchanges = () => {
         let params: ExchangesFragmentParams | undefined;
@@ -336,7 +344,8 @@ export const ReceiveFragment = fragment(() => {
                     }), {
                         alignItems: 'center',
                         gap: 16,
-                        paddingVertical: 0
+                        paddingVertical: capturing ? 16 : 0,
+                        marginTop: capturing ? -16 : 0
                     }]}
                 >
                     {isHolders ? (
@@ -367,7 +376,7 @@ export const ReceiveFragment = fragment(() => {
                                 { color: theme.warning, flexShrink: 1 },
                                 Typography.regular15_20
                             ]}>
-                                {t('receive.holdersJettonWarning', { symbol: (!!holdersJetton && jetton?.symbol) ? jetton?.symbol : 'TON' })}
+                                {t('receive.holdersJettonWarning', { symbol: (!!holdersJetton && jetton?.symbol) ? jetton?.symbol : NATIVE_DISPLAY_SYMBOL })}
                             </Text>
                         </Animated.View>
                     ) : (
@@ -480,7 +489,7 @@ export const ReceiveFragment = fragment(() => {
                             borderRadius: 40, paddingHorizontal: 16,
                             flexShrink: 1, maxWidth: 224, alignSelf: 'center',
                             paddingVertical: 8,
-                            marginTop: 8
+                            marginTop: capturing ? 0 : 8
                         }}
                         entering={FadeInUp}
                         exiting={FadeOutDown}
@@ -508,15 +517,17 @@ export const ReceiveFragment = fragment(() => {
                         </Pressable>
                     </Animated.View>
                 )}
-                <View
+                <Animated.View
                     style={{
                         backgroundColor: theme.surfaceOnElevation,
                         borderRadius: 40, paddingHorizontal: 16, gap: 8,
                         flexShrink: 1,
-                        marginTop: 8,
+                        marginTop: (capturing && !isLedger) ? 0 : 8,
                         alignSelf: 'center',
                         paddingVertical: 8
                     }}
+                    entering={FadeInUp}
+                    exiting={FadeOutDown}
                 >
                     <Pressable
                         style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
@@ -539,9 +550,14 @@ export const ReceiveFragment = fragment(() => {
                             </Text>
                         </View>
                     </Pressable>
-                </View>
+                </Animated.View>
             </ScrollView>
-            <View style={{ gap: 8, width: '100%', paddingHorizontal: 16, paddingBottom: bottomPadding }}>
+            <View style={{
+                gap: 8, width: '100%', paddingHorizontal: 16, paddingBottom: Platform.select({
+                    android: safeArea.bottom + 16,
+                    ios: safeArea.bottom + 16
+                })
+            }}>
                 <RoundButton title={t('receive.fromExchange')} onPress={navigateToExchanges} />
                 <RoundButton display="secondary" title={t('receive.fromAnotherWallet')} onPress={() => navigation.navigateSwap()} />
             </View>

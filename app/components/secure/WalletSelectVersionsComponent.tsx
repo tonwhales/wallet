@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { t } from "../../i18n/t";
 import { useAppState, useNetwork, useTheme } from "../../engine/hooks";
+import { NATIVE_DISPLAY_SYMBOL } from "../../utils/formatCurrency";
 import { Typography } from "../styles";
 import { RoundButton } from "../RoundButton";
 import { LinearGradient } from 'expo-linear-gradient';
@@ -144,7 +145,7 @@ export const WalletSelectVersionsComponent = React.memo((props: {
                             )}
                         </View>
                         <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
-                            {balances[item.address] ?? '~'} TON
+                            {`${balances[item.address] ?? '~'} ${NATIVE_DISPLAY_SYMBOL}`}
                         </Text>
                     </View>
                     <View style={{

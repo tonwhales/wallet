@@ -10,8 +10,9 @@ import { RoundButton } from '../../components/RoundButton';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { warn } from '../../utils/log';
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
+import * as ScreenCapture from 'expo-screen-capture';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { MnemonicsView } from '../../components/secure/MnemonicsView';
 import { useNetwork, useTheme } from '../../engine/hooks';
@@ -41,6 +42,19 @@ export const WalletCreateFragment = systemFragment(() => {
             })();
         }
     }, []);
+
+    useLayoutEffect(() => {
+        let subscription: ScreenCapture.Subscription;
+        if (!state?.saved) {
+            subscription = ScreenCapture.addScreenshotListener(() => {
+                navigation.navigateScreenCapture();
+            });
+        }
+
+        return () => {
+            subscription?.remove();
+        }
+    }, [navigation, state]);
 
     return (
         <View

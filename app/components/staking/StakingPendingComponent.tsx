@@ -9,6 +9,7 @@ import { StakingPoolMember } from "../../engine/types";
 import { useTheme } from "../../engine/hooks";
 import { Typography } from "../styles";
 import { useKnownPools } from "../../utils/KnownPools";
+import { NATIVE_DISPLAY_SYMBOL } from "../../utils/formatCurrency";
 
 export const StakingPendingComponent = memo((
     {
@@ -87,7 +88,7 @@ export const StakingPendingComponent = memo((
                     </View>
                     <View style={{ alignItems: 'flex-end' }}>
                         <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
-                            {parseFloat(parseFloat(fromNano(member.pendingDeposit)).toFixed(3)) + ' ' + 'TON'}
+                            {parseFloat(parseFloat(fromNano(member.pendingDeposit)).toFixed(3)) + ' ' + NATIVE_DISPLAY_SYMBOL}
                         </Text>
                         <PriceComponent
                             amount={member.pendingDeposit}
@@ -128,7 +129,7 @@ export const StakingPendingComponent = memo((
                         </View>
                         <View style={{ alignItems: 'flex-end' }}>
                             <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
-                                {parseFloat(parseFloat(fromNano(member.pendingWithdraw)).toFixed(3)) + ' ' + 'TON'}
+                                {parseFloat(parseFloat(fromNano(member.pendingWithdraw)).toFixed(3)) + ' ' + NATIVE_DISPLAY_SYMBOL}
                             </Text>
                             <PriceComponent
                                 amount={member.pendingWithdraw}
@@ -184,7 +185,7 @@ export const StakingPendingComponent = memo((
                             </View>
                             <View>
                                 <Text style={[{ color: theme.textPrimary, marginBottom: 2 }, Typography.semiBold17_24]}>
-                                    {parseFloat(parseFloat(fromNano(member.withdraw)).toFixed(3)) + ' ' + 'TON'}
+                                    {parseFloat(parseFloat(fromNano(member.withdraw)).toFixed(3)) + ' ' + NATIVE_DISPLAY_SYMBOL}
                                 </Text>
                                 <PriceComponent
                                     amount={member.withdraw}

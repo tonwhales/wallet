@@ -3,7 +3,7 @@ import { BrowserListingsWithCategory, useBrowserListings } from "../../engine/ho
 import { t } from "../../i18n/t";
 import { BrowserBanners } from "./BrowserBanners";
 import { BrowserCategories } from "./BrowserCategories";
-import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { useSafeBottomTabBarHeight } from "../../utils/useSafeBottomTabBarHeight";
 import { NativeScrollEvent, NativeSyntheticEvent, Platform } from "react-native";
 import Animated from "react-native-reanimated";
 import { useHoldersBrowserListings } from "../../engine/hooks/banners/useHoldersBrowserListings";
@@ -37,7 +37,7 @@ export const BrowserListings = memo(({
     onScroll?: ((event: NativeSyntheticEvent<NativeScrollEvent>) => void)
 }) => {
     const holdersBrowserListings = useHoldersBrowserListings() || [];
-    const bottomBarHeight = useBottomTabBarHeight();
+    const bottomBarHeight = useSafeBottomTabBarHeight();
     const { banners, list } = useMemo(() => {
         let banners: BrowserBannerItem[] = [];
         const list = new Map<string, ListingsCategory>();

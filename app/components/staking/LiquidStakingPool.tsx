@@ -12,6 +12,7 @@ import { useIsLedgerRoute, useLiquidStakingMember, useNetwork, useStakingApy, us
 import { useLiquidStaking } from "../../engine/hooks/staking/useLiquidStaking";
 import { Typography } from "../styles";
 import { ItemHeader } from "../ItemHeader";
+import { NATIVE_DISPLAY_SYMBOL } from "../../utils/formatCurrency";
 
 import StakingIcon from '@assets/ic_staking.svg';
 
@@ -207,7 +208,7 @@ export const LiquidStakingPool = memo((
                                         centFontStyle={{ opacity: 0.5 }}
                                     />
                                     <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
-                                        {' TON'}
+                                        {` ${NATIVE_DISPLAY_SYMBOL}`}
                                     </Text>
                                 </Text>
                                 <PriceComponent

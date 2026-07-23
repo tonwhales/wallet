@@ -6,6 +6,7 @@ import { Typography } from "../styles";
 import { PriceComponent } from "../PriceComponent";
 import { ItemDivider } from "../ItemDivider";
 import { t } from "../../i18n/t";
+import { NATIVE_DISPLAY_SYMBOL } from "../../utils/formatCurrency";
 
 export const LiquidStakingMember = memo(({ balance, rateWithdraw }: { balance: bigint, rateWithdraw: bigint, }) => {
     const theme = useTheme();
@@ -83,7 +84,7 @@ export const LiquidStakingMember = memo(({ balance, rateWithdraw }: { balance: b
                     <ValueComponent
                         value={rateWithdraw}
                         precision={9}
-                        suffix={' TON'}
+                        suffix={` ${NATIVE_DISPLAY_SYMBOL}`}
                     />
                 </Text>
             </View>

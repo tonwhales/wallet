@@ -22,6 +22,8 @@ import { MixpanelEvent, trackEvent } from "../../../analytics/mixpanel";
 import { Typography } from "../../../components/styles";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
 import { Address } from "@ton/core";
+import { MaestraEvent, trackMaestraEvent } from "../../../analytics/maestra";
+
 export type HoldersLandingComponentProps = {
     endpoint: string,
     onEnrollType: HoldersAppParams,
@@ -59,6 +61,13 @@ export const HoldersLandingComponent = memo(({ endpoint, onEnrollType, inviteId,
         return () => {
             isComponentMounted.current = false;
         };
+    }, []);
+
+    useEffect(() => {
+        if (isTestnet) {
+            return;
+        }
+        trackMaestraEvent(MaestraEvent.ViewCardIssuePage, { walletID: address!.toString() });
     }, []);
 
     // Anim

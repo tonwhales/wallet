@@ -1,6 +1,5 @@
 import { useCallback, useRef, useMemo, useEffect } from "react";
-import { View, Text, ScrollView } from "react-native";
-import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import { View, Text, ScrollView, KeyboardAvoidingView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
@@ -30,7 +29,12 @@ import { useSpecialJetton } from "../../engine/hooks/jettons/useSpecialJetton";
 import { toBnWithDecimals } from "../../utils/withDecimals";
 import { SOLANA_USDC_MINT_MAINNET } from "../../utils/solana/address";
 import { useChangellyEvents } from "../../engine/hooks/changelly/useChangellyEvents";
-import { ExchangeRateIcon, NetworkFeeIcon, ResultIcon, SendAmountIcon, ToAccountIcon } from "@assets";
+
+import ExchangeRateIcon from '@assets/order/exchange-rate.svg';
+import NetworkFeeIcon from '@assets/order/network-fee.svg';
+import SendAmountIcon from '@assets/order/send-amount.svg';
+import ToAccountIcon from '@assets/order/to-account.svg';
+import ResultIcon from '@assets/order/result.svg';
 
 export type ChangellyOrderFragmentParams = {
     changellyTransaction: ChangellyTransactionModel;
@@ -52,7 +56,7 @@ export const ChangellyOrderFragment = fragment(() => {
     const specialJetton = useSpecialJetton(tonAddress);
     const token = useSolanaToken(solanaAddress!, SOLANA_USDC_MINT_MAINNET);
     const { onSupport } = useSupport();
-
+    
     const { changellyTransaction, isAfterCreation } = useParams<ChangellyOrderFragmentParams>()
     const { amountExpectedFrom,
         fromCurrency,
@@ -180,6 +184,8 @@ export const ChangellyOrderFragment = fragment(() => {
                 }
                 break;
             case 'ton':
+            // Changelly ticker for the native coin after the Gram rebrand
+            case 'gram':
                 const tonAmount = toBnWithDecimals(amount, 9);
                 navigation.navigateSimpleTransfer({
                     amount: tonAmount,
@@ -198,6 +204,7 @@ export const ChangellyOrderFragment = fragment(() => {
                     token: null,
                     callback: onSendCallback
                 })
+                break;
             case 'usdcsol':
                 const usdcSolAmount = toNano(amount);
                 navigation.navigateSolanaSimpleTransfer({
@@ -207,6 +214,7 @@ export const ChangellyOrderFragment = fragment(() => {
                     token: token?.address,
                     callback: onSendCallback
                 })
+                break;
         }
     }, [transactionId, amount, token, targetAddressDisplayValue, isLedger, specialJetton, fromCurrency])
 
@@ -214,6 +222,7 @@ export const ChangellyOrderFragment = fragment(() => {
         return isInitial &&
             (fromCurrency === 'usdton'
                 || fromCurrency === 'ton'
+                || fromCurrency === 'gram'
                 || fromCurrency === 'sol'
                 || fromCurrency === 'usdcsol')
             && !isDepositFromTonhubDone
@@ -285,9 +294,12 @@ export const ChangellyOrderFragment = fragment(() => {
                 behavior={Platform.OS === 'ios' ? 'position' : undefined}
                 style={[
                     { marginHorizontal: 16 },
-                    Platform.select({ android: { marginBottom: safeArea.bottom + 16 } })
+                    Platform.select({
+                        android: { marginBottom: safeArea.bottom + 16 },
+                        ios: { marginBottom: safeArea.bottom + 16 }
+                    })
                 ]}
-                keyboardVerticalOffset={Platform.OS === 'ios' ? 32 : 0}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? safeArea.top + 32 : 0}
             >
                 {isAfterCreation ? (
                     <>

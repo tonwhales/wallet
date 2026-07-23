@@ -3,6 +3,7 @@ import { fragment } from "../../fragment";
 import { StatusBar } from "expo-status-bar";
 import { useBounceableWalletFormat, useCreateDomainKeyIfNeeded, useDAppBridge, useNetwork, usePrice, useTheme } from "../../engine/hooks";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { usePermissions } from "expo-notifications";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getCurrentAddress } from "../../storage/appState";
 import i18n from 'i18next';
@@ -28,7 +29,6 @@ import { ItemButton } from "../../components/ItemButton";
 import { t } from "../../i18n/t";
 import { tonhubBridgeSource } from "../apps/components/inject/createInjectSource";
 import { getPlatform } from "../../engine/tonconnect/config";
-import { usePushPermissions } from "../../utils";
 
 import Chevron from '@assets/ic-chevron-down.svg';
 
@@ -42,7 +42,7 @@ export const DevDAppWebViewFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const createDomainKeyIfNeeded = useCreateDomainKeyIfNeeded();
     const theme = useTheme();
-    const pushPemissions = usePushPermissions();
+    const [pushPemissions,] = usePermissions();
     const [, currency] = usePrice();
     const [bounceableFormat,] = useBounceableWalletFormat();
 

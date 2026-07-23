@@ -6,6 +6,7 @@ import { ValueComponent } from "../ValueComponent";
 import { ThemeType } from "../../engine/state/theme";
 import { usePoolApy, useStakingApy, useTheme } from "../../engine/hooks";
 import { StakingPoolMember } from "../../engine/types";
+import { NATIVE_DISPLAY_SYMBOL } from "../../utils/formatCurrency";
 import { fromNano, toNano } from "@ton/core";
 
 const priceTextStyle = (theme: ThemeType) => ({ color: theme.textSecondary, fontSize: 15, fontWeight: '400' }) as StyleProp<TextStyle>;
@@ -73,7 +74,7 @@ export const StakingCalcComponent = memo((
                             }}>
                                 {'≈ '}
                                 <ValueComponent precision={2} value={toNano(yearly.toFixed(3))} />
-                                {' TON'}
+                                {` ${NATIVE_DISPLAY_SYMBOL}`}
                             </Text>
                             <PriceComponent
                                 amount={toNano(yearly.toFixed(3))}
@@ -125,7 +126,7 @@ export const StakingCalcComponent = memo((
                                     }}>
                                         {'≈ '}
                                         <ValueComponent precision={2} value={toNano(yearlyPlus.toFixed(3))} />
-                                        {' TON'}
+                                        {` ${NATIVE_DISPLAY_SYMBOL}`}
                                     </Text>
                                     <PriceComponent
                                         amount={toNano(yearlyPlus.toFixed(3))}
@@ -167,7 +168,7 @@ export const StakingCalcComponent = memo((
                     <Text style={itemValueTextStyle(theme)}>
                         {'≈ '}
                         <ValueComponent precision={monthly < 0.01 ? 8 : 2} value={toNano(yearly.toFixed(3))} />
-                        {' TON'}
+                        {` ${NATIVE_DISPLAY_SYMBOL}`}
                     </Text>
                     <PriceComponent
                         amount={toNano(yearly.toFixed(3))}
@@ -193,7 +194,7 @@ export const StakingCalcComponent = memo((
                     <Text style={itemValueTextStyle(theme)}>
                         {'≈ '}
                         <ValueComponent precision={monthly < 0.01 ? 8 : 2} value={toNano(monthly.toFixed(3))} />
-                        {' TON'}
+                        {` ${NATIVE_DISPLAY_SYMBOL}`}
                     </Text>
                     <PriceComponent
                         amount={toNano(monthly.toFixed(3))}
@@ -219,7 +220,7 @@ export const StakingCalcComponent = memo((
                     <Text style={itemValueTextStyle(theme)}>
                         {'≈ '}
                         <ValueComponent precision={daily < 0.01 ? 8 : 2} value={toNano(daily.toFixed(3))} />
-                        {' TON'}
+                        {` ${NATIVE_DISPLAY_SYMBOL}`}
                     </Text>
                     <PriceComponent
                         amount={toNano(daily.toFixed(3))}

@@ -15,6 +15,7 @@ import * as Haptics from 'expo-haptics';
 import { ScreenHeader, useScreenHeader } from '../../components/ScreenHeader';
 import { Avatar, avatarColors } from '../../components/avatar/Avatar';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import * as ScreenCapture from 'expo-screen-capture';
 import { useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
 import { MnemonicsView } from '../../components/secure/MnemonicsView';
 import { ToastDuration, useToaster } from '../../components/toast/ToastProvider';
@@ -67,6 +68,11 @@ export const WalletBackupFragment = systemFragment(() => {
     }, [address]);
 
     useEffect(() => {
+        let subscription: ScreenCapture.Subscription;
+        subscription = ScreenCapture.addScreenshotListener(() => {
+            navigation.navigateScreenCapture();
+        });
+
         (async () => {
             try {
                 let keys = await authContext.authenticate({
@@ -80,6 +86,10 @@ export const WalletBackupFragment = systemFragment(() => {
                 return;
             }
         })();
+
+        return () => {
+            subscription?.remove();
+        };
     }, []);
 
     useScreenHeader(

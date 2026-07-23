@@ -19,6 +19,13 @@ import { ConfirmLegal } from "../../components/ConfirmLegal";
 import { sharedStoragePersistence } from "../../storage/storage";
 import ChangellyLogo from '../../../assets/changelly.svg';
 import { CHANGELLY_PRIVACY_URL, CHANGELLY_TERMS_URL } from "../../utils/constants";
+import { MaestraEvent, trackMaestraEvent } from "../../analytics/maestra";
+import { useHoldersProfile } from "../../engine/hooks/holders/useHoldersProfile";
+import { XAUT0MintAddress } from "../../secure/KnownWallets";
+
+const swapUnsupportedMints = new Set([
+    XAUT0MintAddress,
+]);
 
 type ListItem = { type: AssetType.TON }
     | { type: AssetType.SPECIAL }
@@ -35,6 +42,7 @@ export const SwapFragment = fragment(() => {
     const { tonAddress, solanaAddress, isLedger } = useCurrentAddress();
     const tokens = useSolanaTokens(solanaAddress!, isLedger);
     const [accepted, setAccepted] = useState(sharedStoragePersistence.getBoolean(skipLegalChangelly));
+    const profile = useHoldersProfile(tonAddress!.toString({ testOnly: isTestnet })).data;
 
     const solanaTokens: SolanaToken[] = tokens?.data ?? [];
 
@@ -91,7 +99,7 @@ export const SwapFragment = fragment(() => {
 
     const renderSectionHeader = useCallback(() => {
         return (
-            <Text style={[{ color: theme.textSecondary, marginBottom: 16 }, Typography.regular17_24]}>
+            <Text style={[{ color: theme.textSecondary, marginVertical: 16 }, Typography.regular17_24]}>
                 {t('order.chooseAsset')}
             </Text>
         );
@@ -102,14 +110,23 @@ export const SwapFragment = fragment(() => {
             { type: AssetType.TON },
             { type: AssetType.SPECIAL },
             { type: AssetType.SOLANA },
-            ...solanaTokens.map((t) => ({
-                type: AssetType.SOLANA_TOKEN as AssetType.SOLANA_TOKEN,
-                token: t
-            }))
+            ...solanaTokens
+                .filter((t) => !swapUnsupportedMints.has(t.address))
+                .map((t) => ({
+                    type: AssetType.SOLANA_TOKEN as AssetType.SOLANA_TOKEN,
+                    token: t
+                }))
         ]
     }
 
     const itemsList = [defaultSection];
+
+    useEffect(() => {
+        if (isTestnet) {
+            return;
+        }
+        trackMaestraEvent(MaestraEvent.ViewSwapPage, { walletID: tonAddress.toString(), tonhubID: profile?.userId });
+    }, []);
 
     return (
         <View style={{ flexGrow: 1 }}>
@@ -148,7 +165,7 @@ export const SwapFragment = fragment(() => {
                     removeClippedSubviews={true}
                     stickySectionHeadersEnabled={false}
                     ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
-                    style={{ flexGrow: 1, flexBasis: 0 }}
+                    style={{ flexGrow: 1, flexBasis: 0, marginTop: 16 }}
                     contentContainerStyle={{ paddingHorizontal: 16 }}
                     contentInset={{ bottom: safeArea.bottom + 16 }}
                     keyExtractor={(item, index) => `swap-asset-${index}`}

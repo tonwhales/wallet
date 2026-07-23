@@ -331,8 +331,10 @@ export const HoldersAppComponent = memo((
         if (event.url === 'about:blank') {
             return false;
         }
-        
-        return true;
+
+        // Resolve linking
+        Linking.openURL(event.url);
+        return false;
     }, [endpoint, isTestnet]);
 
     //

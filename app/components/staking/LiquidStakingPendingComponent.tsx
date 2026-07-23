@@ -10,6 +10,7 @@ import { Typography } from "../styles";
 import { LiquidPendingWithdraw } from "./LiquidPendingWithdraw";
 import { getLiquidStakingAddress } from "../../utils/KnownPools";
 import { storeLiquidCollect } from "../../utils/LiquidStakingContract";
+import { NATIVE_DISPLAY_SYMBOL } from "../../utils/formatCurrency";
 
 export const LiquidStakingPendingComponent = memo((
     {
@@ -154,7 +155,7 @@ export const LiquidStakingPendingComponent = memo((
                             <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                                 {parseFloat(parseFloat(fromNano(ready.reduce((s, c) => s + c, 0n))).toFixed(3))}
                                 <Text style={{ color: theme.textSecondary }}>
-                                    {' TON'}
+                                    {` ${NATIVE_DISPLAY_SYMBOL}`}
                                 </Text>
                             </Text>
                             <PriceComponent

@@ -14,6 +14,7 @@ import { useHoldersAccountStatus, useNetwork, useSelectedAccount, useSolanaSelec
 import { ProductsComponent } from '../../components/products/ProductsComponent';
 import { SelectedAccount } from '../../engine/types';
 import { WalletSkeleton } from '../../components/skeletons/WalletSkeleton';
+import { PerformanceMeasureView } from '@shopify/react-native-performance';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { useFocusEffect } from '@react-navigation/native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
@@ -49,6 +50,7 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount & 
     const specialJetton = useSpecialJetton(address);
     const specialJettonWallet = specialJetton?.wallet?.toString({ testOnly: network.isTestnet });
     const [isWalletMode] = useAppMode(address);
+
     const [isRefreshing, setIsRefreshing] = useState(false);
 
     const { walletCardHeight, walletHeaderHeight, scrollHandler, scrollOffsetSv, headerTopPadding } = useWalletCardLayoutHelper()
@@ -155,7 +157,6 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount & 
                         onRefresh={onRefresh}
                         tintColor={theme.textUnchangeable}
                         style={{ zIndex: 2000 }}
-                        progressViewOffset={walletHeaderHeight}
                     />
                 }
             >
@@ -229,11 +230,16 @@ export const WalletFragment = fragment(() => {
     return (
         <>
             <StatusBar style={'light'} />
-            {(!selectedAcc || !solanaAddress) ? (skeleton) : (
-                <Suspense fallback={skeleton}>
-                    <WalletComponent selectedAcc={{ ...selectedAcc, solanaAddress }} />
-                </Suspense>
-            )}
+            <PerformanceMeasureView
+                interactive={selectedAcc !== undefined}
+                screenName={'Wallet'}
+            >
+                {(!selectedAcc || !solanaAddress) ? (skeleton) : (
+                    <Suspense fallback={skeleton}>
+                        <WalletComponent selectedAcc={{ ...selectedAcc, solanaAddress }} />
+                    </Suspense>
+                )}
+            </PerformanceMeasureView>
         </>
     );
 });

@@ -13,6 +13,7 @@ import { BrowserSearch } from '../../components/browser/BrowserSearch';
 import Animated, { Easing, SharedValue, cancelAnimation, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQRCodeHandler } from '../../engine/hooks/qrcode/useQRCodeHandler';
+import { BackButton } from '../../components/navigation/BackButton';
 
 export const BrowserFragment = fragment(() => {
     const theme = useTheme();
@@ -95,6 +96,9 @@ export const BrowserFragment = fragment(() => {
                         marginTop: 0,
                         paddingTop: safeArea.top,
                     }}
+                    leftAction={
+                        <BackButton style={{ marginTop: safeArea.top }} />
+                    }
                     rightAction={
                         <Pressable
                             style={({ pressed }) => ({

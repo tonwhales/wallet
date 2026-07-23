@@ -7,7 +7,7 @@ import { CoinItem } from "./CoinItem";
 import { ThemeType } from "../../../engine/state/theme";
 import { AssetViewType } from "../../../fragments/wallet/AssetsFragment";
 import { usePrice } from "../../../engine/hooks";
-import { usdyMintAddress } from "../../../secure/KnownWallets";
+import { usdyMintAddress, XAUT0MintAddress } from "../../../secure/KnownWallets";
 
 export const SolanaTokenProduct = memo(({
     theme,
@@ -25,9 +25,13 @@ export const SolanaTokenProduct = memo(({
     isSelected?: boolean
 }) => {
     const navigation = useTypedNavigation();
-    const [, , , usdyPriceData] = usePrice();
+    const [, , , usdyPriceData, XAUT0PriceData] = usePrice();
     const usdyPrice = usdyPriceData.price.usd;
-    const rate = token.address === usdyMintAddress ? usdyPrice : 1;
+    const xaut0Price = XAUT0PriceData.price.usd;
+    const rate = token.address === usdyMintAddress
+        ? usdyPrice
+        : token.address === XAUT0MintAddress
+            ? xaut0Price : 1;
 
     const decimals = token.decimals ?? 6;
     const balance = token.amount ?? 0n;

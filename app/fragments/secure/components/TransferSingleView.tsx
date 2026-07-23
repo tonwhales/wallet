@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { memo, useCallback } from "react";
-import { ScrollView, View, Text, Pressable, Alert, Platform } from "react-native";
+import { ScrollView, View, Text, Pressable, Alert } from "react-native";
 import { RoundButton } from "../../../components/RoundButton";
 import { t } from "../../../i18n/t";
 import { ItemGroup } from "../../../components/ItemGroup";
@@ -18,7 +18,7 @@ import { holdersUrl as resolveHoldersUrl } from "../../../engine/api/holders/fet
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
 import { Jetton, StoredOperation } from "../../../engine/types";
 import { AboutIconButton } from "../../../components/AboutIconButton";
-import { formatAmount, formatCurrency } from "../../../utils/formatCurrency";
+import { formatAmount, formatCurrency, NATIVE_DISPLAY_SYMBOL } from "../../../utils/formatCurrency";
 import { Avatar, avatarColors } from "../../../components/avatar/Avatar";
 import { AddressContact } from "../../../engine/hooks/contacts/useAddressBook";
 import { valueText } from "../../../components/ValueComponent";
@@ -35,9 +35,12 @@ import { HoldersOp, HoldersOpView } from "../../../components/transfer/HoldersOp
 import { ItemSwitch } from "../../../components/Item";
 import { Image } from 'expo-image';
 import { useExtraCurrencyMap } from "../../../engine/hooks/jettons/useExtraCurrencyMap";
+
+import WithStateInit from '@assets/ic_sign_contract.svg';
+import IcAlert from '@assets/ic-alert.svg';
+import SignLock from '@assets/ic_sign_lock.svg';
 import { TransferEstimate } from "../transfer/TransferFragment";
 import { useAddressFormatsHistory } from "../../../engine/hooks";
-import { IcAlert, SignLock, WithStateInit } from "@assets";
 
 const TxAvatar = memo(({
     address,
@@ -170,11 +173,11 @@ export const TransferSingleView = memo(({
 
     const feesString = useMemo(() => {
         if (fees.type !== 'gasless') {
-            return `${formatAmount(fromNano(fees.value))} TON`;
+            return `${formatAmount(fromNano(fees.value))} ${NATIVE_DISPLAY_SYMBOL}`;
         }
         if (fees.type === 'gasless') {
             if (!isGasless) {
-                return `${formatAmount(fromNano(fees.tonFees))} TON`;
+                return `${formatAmount(fromNano(fees.tonFees))} ${NATIVE_DISPLAY_SYMBOL}`;
             }
 
             return (!!jetton && !!jetton?.decimals)
@@ -272,7 +275,7 @@ export const TransferSingleView = memo(({
 
         const textArr = valueText({ value, decimals });
 
-        return `-${textArr.join('')} ${!jettonAmountString ? 'TON' : jetton?.symbol ?? ''}`
+        return `-${textArr.join('')} ${!jettonAmountString ? NATIVE_DISPLAY_SYMBOL : jetton?.symbol ?? ''}`
     }, [amount, jettonAmountString, jetton]);
 
     const extraCurrencyTextMap = useMemo(() => {
@@ -648,7 +651,7 @@ export const TransferSingleView = memo(({
                                         </Text>
                                         <View style={{ alignItems: 'flex-end', flexShrink: 1, marginLeft: 8 }}>
                                             <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
-                                                {isGasless ? feesString : fromNano(amount) + ' TON'}
+                                                {isGasless ? feesString : fromNano(amount) + ` ${NATIVE_DISPLAY_SYMBOL}`}
                                             </Text>
                                         </View>
                                     </View>
@@ -736,10 +739,7 @@ export const TransferSingleView = memo(({
                 </View>
             </ScrollView>
             {!!doSend && (
-                <View style={[
-                    { paddingHorizontal: 16 },
-                    Platform.select({ android: { paddingBottom: 16 } })
-                ]}>
+                <View style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
                     <RoundButton
                         title={t('common.confirm')}
                         action={onSend}

@@ -1,5 +1,5 @@
 import { memo, useCallback, useMemo } from "react";
-import { View, Text, useWindowDimensions, Pressable, SectionList, FlatList } from "react-native";
+import { View, Text, useWindowDimensions, Pressable, SectionList } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
@@ -13,6 +13,7 @@ import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StatusBar } from "expo-status-bar";
 import { Platform } from "react-native";
 import { AssetsListItem } from "../../components/jettons/AssetsListItem";
+import { FlashList } from "@shopify/flash-list";
 import { Typography } from "../../components/styles";
 import { Image } from "expo-image";
 import { JettonFull } from "../../engine/api/fetchHintsFull";
@@ -27,6 +28,7 @@ import { ExtraCurrencyHint } from "../../engine/api/fetchExtraCurrencyHints";
 import { SimpleTransferAsset } from "../secure/simpleTransfer/hooks/useSimpleTransfer";
 import { ExtraCurrencyProductItem } from "../../components/products/ExtraCurrencyProductItem";
 import { ASSET_ITEM_HEIGHT } from "../../utils/constants";
+import { NATIVE_DISPLAY_SYMBOL } from "../../utils/formatCurrency";
 import { SolanaToken } from "../../engine/api/solana/fetchSolanaTokens";
 import { solanaAddressFromPublicKey } from "../../utils/solana/address";
 import { SolanaTokenProduct } from "../../components/products/savings/SolanaTokenProduct";
@@ -54,7 +56,7 @@ const NativeAssetItem = memo((params: {
     selectable: boolean,
     isSelected: boolean
     viewType: AssetViewType
-    symbol: 'TON' | 'SOL'
+    symbol: 'GRAM' | 'SOL'
 }) => {
     const { onSelected, balance, selectable, isSelected, viewType, symbol } = params;
     const theme = useTheme();
@@ -491,7 +493,7 @@ export const AssetsFragment = fragment(() => {
                         selectable={!!simpleTransferAssetCallback || !!assetCallback}
                         isSelected={!selectedAsset || (selectedAsset.type === 'address' && selectedAsset.address.equals(owner))}
                         viewType={viewType}
-                        symbol="TON"
+                        symbol={NATIVE_DISPLAY_SYMBOL}
                     />
                 );
         }
@@ -559,9 +561,11 @@ export const AssetsFragment = fragment(() => {
                     ListFooterComponent={<View style={{ height: Platform.OS === 'android' ? safeArea.bottom + 16 : 0 }} />}
                 />
             ) : (
-                <FlatList
+                <FlashList
                     data={itemsList as ListItem[]}
                     renderItem={renderItem}
+                    // to see less blank space
+                    estimatedItemSize={80}
                     ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
                     style={{ flexGrow: 1, flexBasis: 0, marginTop: 16 }}
                     contentContainerStyle={{ paddingHorizontal: 16 }}

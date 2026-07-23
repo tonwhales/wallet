@@ -20,7 +20,10 @@ export function useSupportAuthState() {
 type IntercomLoginParams = {
     profile: { email?: string, userId?: string, phone?: string } | null | undefined,
     legalName: string | undefined,
-    language: string
+    language: string,
+    // Wallet address goes to Intercom only as a custom attribute — never as userId,
+    // so a later Holders enrollment keeps the same Intercom identity (account.id)
+    address: string | undefined
 };
 
 // The login attempt state lives at module level so a failed startup login
@@ -39,13 +42,17 @@ function performIntercomLogin(params: IntercomLoginParams): Promise<void> {
         await Intercom.logout();
         if (!params.profile) {
             await Intercom.loginUnidentifiedUser();
+            if (params.address) {
+                await Intercom.updateUser({ customAttributes: { ton_address: params.address } });
+            }
         } else {
             await Intercom.loginUserWithUserAttributes({
                 email: params.profile.email,
                 userId: params.profile.userId,
                 name: params.legalName,
                 phone: params.profile.phone,
-                languageOverride: params.language
+                languageOverride: params.language,
+                ...(params.address ? { customAttributes: { ton_address: params.address } } : {})
             });
         }
     });
@@ -102,8 +109,21 @@ export function useSupportAuth() {
 
     const [, setIsLoggedIn] = useRecoilState(isLoggedInAtom);
 
+    // Keep the ton_address attribute fresh on wallet switches that don't re-login
+    // (switching between non-Holders wallets changes no login deps). Chained after
+    // the login queue so the attribute lands on the freshly logged-in identity.
     useEffect(() => {
-        const params: IntercomLoginParams = { profile, legalName, language };
+        if (!address) {
+            return;
+        }
+        loginQueue
+            .catch(() => { })
+            .then(() => Intercom.updateUser({ customAttributes: { ton_address: address } }))
+            .catch(() => { });
+    }, [address]);
+
+    useEffect(() => {
+        const params: IntercomLoginParams = { profile, legalName, language, address };
         lastLoginParams = params;
         (async () => {
             try {

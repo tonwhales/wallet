@@ -190,7 +190,7 @@ export const SimpleTransferAmount = memo(forwardRef(({
                 </View>
             </Pressable>
         );
-    }, [onNavigateAssets, network.isTestnet, jetton, symbol, isSCAM, theme]);
+    }, [onNavigateAssets, network.isTestnet, jetton, symbol, displaySymbol, isSCAM, theme]);
 
     const _decimals = selectedAsset?.type === 'extraCurrency' ? extraCurrency?.preview?.decimals : decimals;
 
@@ -218,7 +218,7 @@ export const SimpleTransferAmount = memo(forwardRef(({
                 </Text>
             </Pressable>
         </View>
-    ), [balance, jetton?.decimals, jetton?.symbol, onAddAll, decimals, theme])
+    ), [balance, jetton?.decimals, jetton?.symbol, symbol, displaySymbol, onAddAll, decimals, theme])
 
     const onFocus = useCallback(() => onInputFocus(1), [])
 
@@ -242,7 +242,7 @@ export const SimpleTransferAmount = memo(forwardRef(({
             ticker={displaySymbol || NATIVE_DISPLAY_SYMBOL}
             cursorColor={theme.accent}
         />
-    ), [onInputFocus, onValueChange, amountError, priceText, symbol, amount, theme])
+    ), [onInputFocus, onValueChange, amountError, priceText, symbol, displaySymbol, amount, theme])
 
     const amountErrorLabel = useMemo(() => amountError && (
         <Animated.View

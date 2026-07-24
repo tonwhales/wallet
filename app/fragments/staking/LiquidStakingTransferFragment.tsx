@@ -14,7 +14,7 @@ import { ValueComponent } from '../../components/ValueComponent';
 import { useParams } from '../../utils/useParams';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useState } from 'react';
 import { ScreenHeader } from '../../components/ScreenHeader';
-import { formatCurrency } from '../../utils/formatCurrency';
+import { formatCurrency, NATIVE_DISPLAY_SYMBOL } from '../../utils/formatCurrency';
 import { Address, Builder, beginCell, fromNano, toNano } from '@ton/core';
 import { useAccountLite, useIsLedgerRoute, useLiquidStakingMember, useNetwork, usePrice, useSelectedAccount, useTheme } from '../../engine/hooks';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
@@ -344,7 +344,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
         const isDeposit = params?.action === 'top_up';
 
         if (isDeposit && validAmount > balance) {
-            return t('transfer.error.notEnoughJettons', { symbol: 'TON' });
+            return t('transfer.error.notEnoughJettons', { symbol: NATIVE_DISPLAY_SYMBOL });
         }
         if (!isDeposit && validWsTonAmount && validWsTonAmount > balance) {
             return t('transfer.error.notEnoughJettons', { symbol: 'wsTON' });
@@ -520,7 +520,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
                                             <Text style={{ color: theme.textSecondary }}>
                                                 {t('wallet.actions.receive')}
                                             </Text>
-                                            {' TON'}
+                                            {` ${NATIVE_DISPLAY_SYMBOL}`}
                                         </Text>
                                         <Text
                                             numberOfLines={1}
@@ -554,7 +554,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
                                     }]}
                                     suffix={priceText}
                                     hideClearButton
-                                    inputSuffix={'TON'}
+                                    inputSuffix={NATIVE_DISPLAY_SYMBOL}
                                 />
                             </View>
                         </>
@@ -596,7 +596,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
                                             <Text style={{ color: theme.textSecondary }}>
                                                 {t('common.send')}
                                             </Text>
-                                            {' TON'}
+                                            {` ${NATIVE_DISPLAY_SYMBOL}`}
                                         </Text>
                                         <Text
                                             numberOfLines={1}
@@ -652,7 +652,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
                                     }]}
                                     suffix={priceText}
                                     hideClearButton
-                                    inputSuffix={'TON'}
+                                    inputSuffix={NATIVE_DISPLAY_SYMBOL}
                                     error={amountError}
                                 />
                             </View>
@@ -746,11 +746,11 @@ export const LiquidStakingTransferFragment = fragment(() => {
                             {t('products.staking.pools.rateTitle')}
                         </Text>
                         <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
-                            {params.action === 'withdraw' ? '1 wsTON = ' : '1 TON = '}
+                            {params.action === 'withdraw' ? '1 wsTON = ' : `1 ${NATIVE_DISPLAY_SYMBOL} = `}
                             <ValueComponent
                                 value={(params.action === 'withdraw' ? liquidStaking?.rateWithdraw : liquidStaking?.rateDeposit) ?? 0n}
                                 precision={9}
-                                suffix={params.action === 'withdraw' ? ' TON' : ' wsTON'}
+                                suffix={params.action === 'withdraw' ? ` ${NATIVE_DISPLAY_SYMBOL}` : ' wsTON'}
                             />
                         </Text>
                         <ItemDivider marginHorizontal={0} marginVertical={20} />
@@ -768,7 +768,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
                                                     : (liquidStaking?.extras.depositFee ?? 0n) + (liquidStaking?.extras.receiptPrice ?? 0n)
                                             }
                                             precision={9}
-                                            suffix={' TON'}
+                                            suffix={` ${NATIVE_DISPLAY_SYMBOL}`}
                                         />
                                     </Text>
                                     <PriceComponent

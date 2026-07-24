@@ -50,7 +50,7 @@ import { HoldersLandingFragment } from './fragments/holders/HoldersLandingFragme
 import { HoldersAppFragment } from './fragments/holders/HoldersAppFragment';
 import { BiometricsSetupFragment } from './fragments/BiometricsSetupFragment';
 import { KeyStoreMigrationFragment } from './fragments/secure/KeyStoreMigrationFragment';
-import { useLanguage, useNetwork, useSupportAuth, useTheme } from './engine/hooks';
+import { useAllowedDomains, useLanguage, useNetwork, useSupportAuth, useTheme } from './engine/hooks';
 import { useNavigationTheme } from './engine/hooks';
 import { useRecoilValue } from 'recoil';
 import { appStateAtom } from './engine/state/appState';
@@ -100,7 +100,7 @@ import { W5UpdateFragment } from './fragments/W5UpdateFragment';
 import { JettonTransactionPreviewFragment } from './fragments/wallet/JettonTransactionPreviewFragment';
 import { AddressBookFragment } from './fragments/contacts/AddressBookFragment';
 import { ExchangesFragment } from './fragments/wallet/ExchangesFragment';
-import { ReceiveAssetsFragmentParams } from './fragments/wallet/ReceiveAssetsFragment';
+import { ReceiveAssetsFragment } from './fragments/wallet/ReceiveAssetsFragment';
 import { LanguageFragment } from './fragments/LanguageFragment';
 import { MixpanelEvent, trackEvent } from './analytics/mixpanel';
 import { CachedLinking } from './utils/CachedLinking';
@@ -125,11 +125,13 @@ import { ChangellyListFragment } from './fragments/integrations/ChangellyListFra
 import { ChangellyCalculationFragment } from './fragments/integrations/ChangellyCalculationFragment';
 import { ChangellyOrderFragment } from './fragments/integrations/ChangellyOrderFragment';
 import { SwapFragment } from './fragments/wallet/SwapFragment';
+import { isLatestIos } from './utils/isLatestIos';
 import { HoldersAIChatFragment } from './fragments/holders/HoldersAIChatFragment';
+import { BrowserFragment } from './fragments/connections/BrowserFragment';
+import { MaestraEvent, trackMaestraEvent } from './analytics/maestra';
 import { DogsInviteFragment } from './fragments/holders/DogsInviteFragment';
-import { trackMaestraAuth } from './analytics/maestra';
-import { useHoldersProfile } from './engine/hooks/holders/useHoldersProfile';
-import { isAfterGlassIOS } from './utils';
+import { PGPExportFragment } from './fragments/secure/PGPExportFragment';
+import { PGPImportFragment } from './fragments/secure/PGPImportFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -246,7 +248,7 @@ function transparentModalScreen(name: string, component: React.ComponentType<any
             name={name}
             component={component}
             options={{
-                presentation: isAfterGlassIOS ? 'containedTransparentModal' : 'modal',
+                presentation: isLatestIos ? 'containedTransparentModal' : 'modal',
                 headerShown: false,
                 contentStyle: { backgroundColor: Platform.OS === 'ios' ? 'transparent' : theme.backgroundPrimary },
             }}
@@ -275,17 +277,20 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('DeveloperToolsStorage', DevStorageFragment, safeArea),
     genericScreen('DeveloperToolsErrorLogs', DevErrorLogsFragment, safeArea),
     genericScreen('DevDAppWebView', DevDAppWebViewFragment, safeArea, true, 0),
+    genericScreen('PGPExport', PGPExportFragment, safeArea, true, 0),
+    genericScreen('PGPImport', PGPImportFragment, safeArea, true, 0),
 
     modalScreen('PasscodeSetupInit', PasscodeSetupFragment, safeArea),
     modalScreen('KeyStoreMigration', KeyStoreMigrationFragment, safeArea),
 
     // Wallet
     fullScreen('Home', HomeFragment),
+    fullScreen('Browser', BrowserFragment),
     modalScreen('SimpleTransfer', SimpleTransferFragment, safeArea),
     modalScreen('Transfer', TransferFragment, safeArea),
     modalScreen('Receive', ReceiveFragment, safeArea),
-    modalScreen('ReceiveAssets', ReceiveAssetsFragmentParams, safeArea),
-    modalScreen('LedgerReceiveAssets', ReceiveAssetsFragmentParams, safeArea),
+    modalScreen('ReceiveAssets', ReceiveAssetsFragment, safeArea),
+    modalScreen('LedgerReceiveAssets', ReceiveAssetsFragment, safeArea),
     modalScreen('Swap', SwapFragment, safeArea),
     modalScreen('ReceiveAssetsJettons', AssetsFragment, safeArea),
     modalScreen('ChangellyList', ChangellyListFragment, safeArea),
@@ -425,10 +430,8 @@ export const Navigation = memo(() => {
     const { isTestnet } = useNetwork();
     const [lang] = useLanguage();
 
-    // Get selected address for Maestra auth
-    const selectedAddress = appState.addresses[appState.selected];
-    const addressString = selectedAddress?.address?.toString({ testOnly: isTestnet });
-    const profile = useHoldersProfile(addressString);
+    // Prefetch allowed domains for navigation protection
+    useAllowedDomains();
 
     const initial = useMemo(() => {
         const lastLink = CachedLinking.getLastLink();
@@ -449,16 +452,21 @@ export const Navigation = memo(() => {
     }, [mounted]);
     const hideSplash = mounted && !isRestoring;
 
-    // Track Maestra auth for authorized users
     useEffect(() => {
         if (isTestnet) {
             return;
         }
-        const userId = profile.data?.userId;
-        if (userId) {
-            trackMaestraAuth(userId);
+        const selectedAddress = appState.addresses[appState.selected];
+
+        if (selectedAddress) {
+            trackMaestraEvent(MaestraEvent.SessionStart, {
+                walletID: selectedAddress.address.toString(),
+                customFields: {
+                    language: lang ?? 'en'
+                }
+            });
         }
-    }, [isTestnet, profile.data?.userId]);
+    }, [appState.addresses.length, appState.selected, isTestnet, lang]);
 
     useEffect(() => {
         const apnsSubscription = setupAPNsTokenHandler();

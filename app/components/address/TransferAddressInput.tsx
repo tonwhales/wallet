@@ -18,9 +18,10 @@ import { useAddressBookContext } from "../../engine/AddressBookContext";
 import { Typography } from "../styles";
 import { HoldersAccountsSearch } from "./HoldersAccountsSearch";
 import { hasDirectTonDeposit } from "../../utils/holders/hasDirectDeposit";
+
+import IcChevron from '@assets/ic_chevron_forward.svg';
 import { AddressConfirmationRequest } from "../../fragments/secure/simpleTransfer/components/AddressConfirmationRequest";
 import { isSolanaAddress } from "../../utils/solana/address";
-import { IcChevron } from "@assets";
 
 type TransferAddressInputProps = {
     acc: Address,

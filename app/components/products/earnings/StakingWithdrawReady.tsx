@@ -9,6 +9,7 @@ import { Typography } from "../../styles";
 import { PriceComponent } from "../../PriceComponent";
 import { t } from "../../../i18n/t";
 import { useKnownPools } from "../../../utils/KnownPools";
+import { NATIVE_DISPLAY_SYMBOL } from "../../../utils/formatCurrency";
 
 export const StakingWithdrawReady = memo(({ address, isLedger }: { address: Address, isLedger?: boolean }) => {
     const { isTestnet } = useNetwork();
@@ -78,7 +79,7 @@ export const StakingWithdrawReady = memo(({ address, isLedger }: { address: Addr
                         </View>
                         <View style={{ alignItems: 'flex-end' }}>
                             <Text style={[{ color: theme.accentGreen, marginBottom: 2 }, Typography.semiBold17_24]}>
-                                {parseFloat(parseFloat(fromNano(p.withdraw)).toFixed(3)) + ' ' + 'TON'}
+                                {parseFloat(parseFloat(fromNano(p.withdraw)).toFixed(3)) + ' ' + NATIVE_DISPLAY_SYMBOL}
                             </Text>
                             <PriceComponent
                                 amount={p.withdraw}

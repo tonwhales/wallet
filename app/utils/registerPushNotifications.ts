@@ -10,10 +10,8 @@ const { MaestraModule } = NativeModules;
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
         shouldShowAlert: true,
-		shouldPlaySound: false,
-		shouldSetBadge: false,
-		shouldShowBanner: true,
-		shouldShowList: true
+        shouldPlaySound: false,
+        shouldSetBadge: false,
     }),
 });
 

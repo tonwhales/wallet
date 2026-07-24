@@ -10,6 +10,7 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { ValueComponent } from '../../components/ValueComponent';
+import { NATIVE_DISPLAY_SYMBOL } from '../../utils/formatCurrency';
 import { WalletAddress } from '../../components/address/WalletAddress';
 import LottieView from 'lottie-react-native';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -240,7 +241,7 @@ export const MigrationFragment = systemFragment(() => {
                                             <ValueComponent
                                                 value={v.balance.coins ?? 0n}
                                                 precision={4}
-                                                suffix={'TON'}
+                                                suffix={NATIVE_DISPLAY_SYMBOL}
                                             />
                                         </Text>
                                     </View>

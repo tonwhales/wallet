@@ -14,7 +14,6 @@ import { StatusBar } from "expo-status-bar";
 
 import IcLogout from '@assets/ic-alert-red.svg';
 import Support from '@assets/ic-support.svg';
-import { Typography } from "../components/styles";
 
 export const LogoutFragment = fragment(() => {
     const theme = useTheme();
@@ -58,10 +57,10 @@ export const LogoutFragment = fragment(() => {
     }, [isShown, onAccountDeleted]);
 
     return (
-        <View style={[
-            { flexGrow: 1 },
-            Platform.select({ android: { paddingBottom: safeArea.bottom } })
-        ]}>
+        <View style={{
+            flexGrow: 1,
+            paddingBottom: safeArea.bottom
+        }}>
             <StatusBar style={Platform.select({
                 android: theme.style === 'dark' ? 'light' : 'dark',
                 ios: 'light'
@@ -82,11 +81,20 @@ export const LogoutFragment = fragment(() => {
                 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <IcLogout width={24} height={24} color={theme.accentRed} />
-                        <Text style={[{ marginLeft: 12, color: theme.accentRed }, Typography.semiBold17_24]}>
+                        <Text style={{
+                            fontSize: 17, lineHeight: 24,
+                            marginLeft: 12,
+                            fontWeight: '600',
+                            color: theme.accentRed,
+                        }}>
                             {t('common.attention')}
                         </Text>
                     </View>
-                    <Text style={[{ color: theme.accentRed }, Typography.regular15_20]}>
+                    <Text style={{
+                        fontSize: 15, lineHeight: 20,
+                        fontWeight: '400',
+                        color: theme.accentRed,
+                    }}>
                         {t('logout.logoutDescription')}
                     </Text>
                 </View>
@@ -108,11 +116,14 @@ export const LogoutFragment = fragment(() => {
                     />
                 </View>
                 <View style={{ flexGrow: 1 }} />
-                <RoundButton
-                    title={t('settings.disconnectWalletWithName', { name: shortWalletName })}
-                    onPress={showLogoutActSheet}
-                    display={'default'}
-                />
+                <View style={{ marginBottom: 16 }}>
+                    <RoundButton
+                        title={t('settings.disconnectWalletWithName', { name: shortWalletName })}
+                        onPress={showLogoutActSheet}
+                        display={'default'}
+                        style={{ marginBottom: 16 }}
+                    />
+                </View>
             </View>
         </View>
     );

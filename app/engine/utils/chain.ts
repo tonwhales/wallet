@@ -1,3 +1,4 @@
+import { NATIVE_DISPLAY_SYMBOL } from "../../utils/formatCurrency";
 import { Currency } from "../types/deposit";
 
 export function getChainNameByChain(chain?: string): string {
@@ -61,7 +62,8 @@ export function getCoinInfoByCurrency(currency: Currency) {
     case Currency.Ton:
       return {
         blockchain: 'ton',
-        name: 'TON',
+        // Display name of the native coin (Toncoin -> Gram rebrand); the chain itself stays 'ton'
+        name: NATIVE_DISPLAY_SYMBOL,
       };
     case Currency.UsdTon:
       return {
@@ -102,6 +104,9 @@ export const KNOWN_TICKERS: { [key: string]: string } = {
   usdcsol: 'solana',
   sol: 'solana',
   ton: 'ton',
+  // Changelly renamed the native TON-chain coin ticker after the Gram rebrand;
+  // 'ton' is kept above for historical transactions
+  gram: 'ton',
 };
 
 export function getKnownCurrencyFromName(name: string): Currency | undefined {
@@ -114,7 +119,7 @@ export function getKnownCurrencyFromName(name: string): Currency | undefined {
   if (name.toLowerCase() === 'sol') {
     return Currency.Sol;
   }
-  if (name.toLowerCase() === 'ton') {
+  if (name.toLowerCase() === 'ton' || name.toLowerCase() === 'gram') {
     return Currency.Ton;
   }
   if (name.toLowerCase() === 'btc') {

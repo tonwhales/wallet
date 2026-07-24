@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Linking, Platform, View, StyleSheet } from 'react-native';
+import { ActivityIndicator, Linking, View, StyleSheet } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { ShouldStartLoadRequest } from 'react-native-webview/lib/WebViewTypes';
@@ -99,7 +99,7 @@ export const ConnectAppComponent = memo((props: {
                     autoManageStatusBarEnabled={false}
                     allowFileAccessFromFileURLs={false}
                     allowUniversalAccessFromFileURLs={false}
-                    decelerationRate={(Platform.OS === 'ios' ? 'normal' : 0.998) as 'normal'}
+                    decelerationRate="normal"
                     allowsInlineMediaPlayback={true}
                     onShouldStartLoadWithRequest={loadWithRequest}
                     {...webViewProps}

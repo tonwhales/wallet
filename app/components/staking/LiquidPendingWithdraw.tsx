@@ -7,6 +7,7 @@ import { PriceComponent } from "../PriceComponent";
 import { ItemDivider } from "../ItemDivider";
 import { useTheme } from "../../engine/hooks";
 import { fromBnWithDecimals } from "../../utils/withDecimals";
+import { NATIVE_DISPLAY_SYMBOL } from "../../utils/formatCurrency";
 import { toNano } from "@ton/core";
 
 export const LiquidPendingWithdraw = memo(({
@@ -73,7 +74,7 @@ export const LiquidPendingWithdraw = memo(({
                     <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                         {_amount.toFixed(3)}
                         <Text style={{ color: theme.textSecondary }}>
-                            {symbol || ' TON'}
+                            {symbol || ` ${NATIVE_DISPLAY_SYMBOL}`}
                         </Text>
                     </Text>
                     <PriceComponent

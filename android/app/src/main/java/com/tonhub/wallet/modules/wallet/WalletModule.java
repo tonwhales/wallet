@@ -65,95 +65,8 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
     private static final int SET_DEFAULT_PAYMENTS_REQUEST_CODE = 5;
     private static final int REQUEST_CREATE_WALLET = 4;
     public static final String GOOGLE_PAY_TP_HCE_SERVICE = "com.google.android.gms.tapandpay.hce.service.TpHceService";
-    
-    private static final String API_URL_STAGING = "https://card-staging.whales-api.com";
-    private static final String API_URL_PROD = "https://card-prod.whales-api.com";
-
-    // Platform-prefixed error codes for wallet operations
-    private static final String ERROR_PROVISION_IN_PROGRESS = "android.tapandpay.provision.in_progress";
-    private static final String ERROR_NO_ACTIVE_WALLET = "android.tapandpay.provision.no_active_wallet";
-    private static final String ERROR_ATTESTATION = "android.tapandpay.provision.attestation_error";
-    private static final String ERROR_WALLET_CREATE_FAILED = "android.tapandpay.wallet.create_failed";
-    private static final String ERROR_NO_ACTIVITY = "android.tapandpay.provision.no_activity";
-    private static final String ERROR_OPC_FETCH_FAILED = "android.tapandpay.provision.opc_fetch_failed";
-    private static final String ERROR_API = "android.tapandpay.api_error";
-    private static final String ERROR_NETWORK = "android.tapandpay.network_error";
-    private static final String ERROR_JSON = "android.tapandpay.json_error";
-    private static final String ERROR_SET_DEFAULT_IN_PROGRESS = "android.tapandpay.set_default.in_progress";
-
-    /**
-     * Custom exception class that carries a structured error code.
-     */
-    private static class WalletException extends Exception {
-        private final String code;
-        @Nullable
-        private final String nativeCode;
-
-        WalletException(String code, String message) {
-            super(message);
-            this.code = code;
-            this.nativeCode = null;
-        }
-
-        WalletException(String code, String message, @Nullable String nativeCode) {
-            super(message);
-            this.code = code;
-            this.nativeCode = nativeCode;
-        }
-
-        WalletException(String code, String message, Throwable cause) {
-            super(message, cause);
-            this.code = code;
-            this.nativeCode = null;
-        }
-
-        public String getCode() {
-            return code;
-        }
-
-        @Nullable
-        public String getNativeCode() {
-            return nativeCode;
-        }
-    }
-
-    /**
-     * Maps an exception to a WalletException with appropriate error code.
-     */
-    private WalletException mapException(Throwable e, String defaultCode) {
-        if (e instanceof WalletException) {
-            return (WalletException) e;
-        }
-        if (e instanceof CompletionException && e.getCause() != null) {
-            return mapException(e.getCause(), defaultCode);
-        }
-        if (e instanceof ApiException) {
-            ApiException apiException = (ApiException) e;
-            int statusCode = apiException.getStatusCode();
-            if (statusCode == 15002) {
-                return new WalletException(ERROR_NO_ACTIVE_WALLET, "No active wallet", String.valueOf(statusCode));
-            }
-            return new WalletException(ERROR_API, e.getMessage(), String.valueOf(statusCode));
-        }
-        if (e instanceof IOException) {
-            return new WalletException(ERROR_NETWORK, e.getMessage());
-        }
-        if (e instanceof JSONException) {
-            return new WalletException(ERROR_JSON, e.getMessage());
-        }
-        return new WalletException(defaultCode, e.getMessage() != null ? e.getMessage() : "Unknown error");
-    }
-
-    /**
-     * Rejects a promise with a structured error code.
-     */
-    private void rejectWithCode(Promise promise, Throwable e, String defaultCode) {
-        WalletException walletException = mapException(e, defaultCode);
-        promise.reject(walletException.getCode(), walletException.getMessage(), walletException);
-    }
 
     private final TapAndPayClient tapAndPayClient;
-    private final OkHttpClient httpClient;
 
     @Nullable
     private ProvisionRequest currentProvisioning;
@@ -166,11 +79,6 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
     public WalletModule(ReactApplicationContext reactContext) {
         super(reactContext);
         tapAndPayClient = TapAndPay.getClient(reactContext);
-        httpClient = new OkHttpClient.Builder()
-                .connectTimeout(30, TimeUnit.SECONDS)
-                .readTimeout(30, TimeUnit.SECONDS)
-                .writeTimeout(30, TimeUnit.SECONDS)
-                .build();
         reactContext.addActivityEventListener(this);
     }
 
@@ -256,7 +164,7 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
     @SuppressWarnings("unused")
     private void listTokens(Promise promise) {
         getTokenInfoList().thenAccept(promise::resolve).exceptionally(e -> {
-            rejectWithCode(promise, e, ERROR_API);
+            promise.reject(e);
             return null;
         });
     }
@@ -300,7 +208,7 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
     @SuppressWarnings("unused")
     private void checkIfCardIsAlreadyAdded(String primaryAccountNumberSuffix, Promise promise) {
         isCardAddedFuture(primaryAccountNumberSuffix).thenAccept(promise::resolve).exceptionally(e -> {
-            rejectWithCode(promise, e, ERROR_API);
+            promise.reject(e);
             return null;
         });
     }
@@ -364,7 +272,7 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
         sequentialProcessing.thenAccept((res) -> {
             promise.resolve(cardIds);
         }).exceptionally(e -> {
-            rejectWithCode(promise, e, ERROR_API);
+            promise.reject(e);
             return null;
         });
     }
@@ -402,8 +310,7 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
         }
 
         if (isDefaultWalletFuture != null) {
-            promise.reject(ERROR_SET_DEFAULT_IN_PROGRESS, "Another set default wallet is in progress",
-                    new WalletException(ERROR_SET_DEFAULT_IN_PROGRESS, "Another set default wallet is in progress"));
+            promise.reject(new Exception("Another set default wallet is in progress"));
             return;
         }
 
@@ -416,7 +323,7 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
         isDefaultWalletFuture = new CompletableFuture<>();
 
         isDefaultWalletFuture.thenAccept(promise::resolve).exceptionally(e -> {
-            rejectWithCode(promise, e, ERROR_API);
+            promise.reject(e);
             return null;
         });
     }
@@ -468,14 +375,16 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
                 // Update the view with the result
                 promise.resolve(task.getResult());
             } else {
-                Exception exception = task.getException();
-                rejectWithCode(promise, exception != null ? exception : new Exception("Unknown error"), ERROR_API);
+                ApiException apiException = (ApiException) task.getException();
+                promise.reject(apiException);
             }
         });
     }
 
     private void fetchOPC(OPCRequest req) {
-        String url = req.isTestnet ? API_URL_STAGING : API_URL_PROD;
+        String url = req.isTestnet ? "https://card-staging.whales-api.com" : "https://card-prod.whales-api.com";
+
+        OkHttpClient client = new OkHttpClient();
 
         JSONObject body = new JSONObject();
         JSONObject params = new JSONObject();
@@ -488,8 +397,7 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
             body.put("token", req.token);
             body.put("id", req.cardId);
         } catch (JSONException e) {
-            req.future.completeExceptionally(new WalletException(ERROR_JSON, "Failed to build OPC request: " + e.getMessage(), e));
-            return;
+            req.future.completeExceptionally(e);
         }
 
         RequestBody requestBody = RequestBody.create(body.toString(), MediaType.parse("application/json"));
@@ -498,10 +406,10 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
         Request request = new Request.Builder().url(url + "/v2/card/get/google/provisioning/data").post(requestBody)
                 .build();
 
-        httpClient.newCall(request).enqueue(new Callback() {
+        client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                req.future.completeExceptionally(new WalletException(ERROR_NETWORK, "Network error fetching OPC: " + e.getMessage(), e));
+                req.future.completeExceptionally(e);
             }
 
             @Override
@@ -516,32 +424,31 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
                         try {
                             json = new JSONObject(body);
                         } catch (JSONException e) {
-                            req.future.completeExceptionally(new WalletException(ERROR_JSON, "Failed to parse OPC response: " + e.getMessage(), e));
-                            return;
+                            req.future.completeExceptionally(e);
                         }
                         try {
                             if (json.has("error")) {
-                                req.future.completeExceptionally(new WalletException(ERROR_OPC_FETCH_FAILED, "Server error: " + json.getString("error")));
+                                req.future.completeExceptionally(new Exception(json.getString("error")));
                             } else if (json.has("data")) {
                                 JSONObject data = json.getJSONObject("data");
 
                                 if (data.has("encryptedData")) {
                                     req.future.complete(data.getString("encryptedData"));
                                 } else {
-                                    req.future.completeExceptionally(new WalletException(ERROR_OPC_FETCH_FAILED, "Missing encryptedData in response"));
+                                    req.future.completeExceptionally(new Exception("Missing encryptedData"));
                                 }
                             } else {
-                                req.future.completeExceptionally(new WalletException(ERROR_OPC_FETCH_FAILED, "Missing data in response"));
+                                req.future.completeExceptionally(new Exception("Missing data"));
                             }
                         } catch (JSONException e) {
-                            req.future.completeExceptionally(new WalletException(ERROR_JSON, "Failed to parse OPC data: " + e.getMessage(), e));
+                            req.future.completeExceptionally(e);
                         }
                     } else {
-                        req.future.completeExceptionally(new WalletException(ERROR_OPC_FETCH_FAILED, "Empty response body"));
+                        req.future.completeExceptionally(new Exception("Empty body"));
                     }
 
                 } else {
-                    req.future.completeExceptionally(new WalletException(ERROR_OPC_FETCH_FAILED, "Failed to fetch OPC: HTTP " + response.code()));
+                    req.future.completeExceptionally(new Exception("Failed to fetch OPC"));
                 }
             }
         });
@@ -569,11 +476,142 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
         return future;
     }
 
-    /**
-     * Executes the core provisioning logic: fetches OPC data and initiates push tokenization.
-     * This is the shared implementation used by both pushProvision and pushProvisionWithTokeStatusCheck.
-     */
-    private void executeProvisioning(ProvisionRequest req) {
+    private void pushProvisionWithTokeStatusCheck(ProvisionRequest req) {
+        if (currentProvisioning != null) {
+            req.completableFuture.completeExceptionally(new Exception("Another provisioning is in progress"));
+            return;
+        }
+
+        this.currentProvisioning = req;
+
+        this.shouldOpenInWallet(req.lastDigits).thenAccept((tokenStatus) -> {
+            if (tokenStatus != null && tokenStatus.issuerToken != null) {
+                // open in wallet
+                ViewTokenRequest request = new ViewTokenRequest.Builder()
+                        .setTokenServiceProvider(TapAndPay.CARD_NETWORK_VISA).setIssuerTokenId(tokenStatus.issuerToken)
+                        .build();
+                tapAndPayClient.viewToken(request).addOnCompleteListener(new OnCompleteListener<PendingIntent>() {
+                    @Override
+                    public void onComplete(@NonNull Task<PendingIntent> task) {
+                        if (task.isSuccessful()) {
+                            try {
+                                task.getResult().send();
+                            } catch (PendingIntent.CanceledException e) {
+                            }
+                        } else {
+                            ApiException apiException = (ApiException) task.getException();
+                        }
+                    }
+                });
+                this.currentProvisioning.completableFuture.complete(false);
+                this.currentProvisioning = null;
+            } else {
+                CompletableFuture<String> futureOpc = new CompletableFuture<>();
+                CompletableFuture<String> walletIdFuture = this.getActiveWalletId();
+                CompletableFuture<String> stableHardwareIdFuture = this.getStableHardwareId();
+
+                // await for both walletId and stableHardwareId
+                walletIdFuture
+                        .thenCombine(stableHardwareIdFuture, (walletId, stableHardwareId) -> new OPCRequest(req.cardId,
+                                req.token, walletId, stableHardwareId, req.isTestnet, futureOpc))
+                        .exceptionally(e -> {
+                            // if exception is TAP_AND_PAY_NO_ACTIVE_WALLET There is no active wallet ->
+                            // create wallet
+                            Throwable cause = e instanceof CompletionException ? e.getCause() : e;
+                            String causeMessage = cause != null ? cause.getMessage() : null;
+
+                            if (cause instanceof ApiException
+                                    || (causeMessage != null && causeMessage.contains("15002"))) {
+                                ApiException apiException = (ApiException) cause;
+                                if (apiException.getStatusCode() == 15002) {
+                                    createWallet().thenAccept(res -> {
+                                        if (res) {
+                                            CompletableFuture<String> walletIdFuture2 = this.getActiveWalletId();
+                                            CompletableFuture<String> stableHardwareIdFuture2 = this
+                                                    .getStableHardwareId();
+
+                                            walletIdFuture2.thenCombine(stableHardwareIdFuture2,
+                                                    (walletId, stableHardwareId) -> {
+                                                        return new OPCRequest(req.cardId, req.token, walletId,
+                                                                stableHardwareId, req.isTestnet, futureOpc);
+                                                    }).exceptionally(e2 -> {
+                                                        req.completableFuture.completeExceptionally(e2);
+                                                        return null;
+                                                    }).thenAccept(this::fetchOPC).exceptionally(e2 -> {
+                                                        req.completableFuture.completeExceptionally(e2);
+                                                        return null;
+                                                    });
+                                        } else {
+                                            req.completableFuture
+                                                    .completeExceptionally(new Exception("Failed to create wallet"));
+                                        }
+                                    });
+                                } else {
+                                    req.completableFuture.completeExceptionally(e);
+                                }
+                            } else {
+                                req.completableFuture.completeExceptionally(e);
+                            }
+                            return null;
+                        }).thenAccept(this::fetchOPC).exceptionally(e -> {
+                            req.completableFuture.completeExceptionally(e);
+                            return null;
+                        });
+
+                futureOpc.thenAccept(opc -> {
+                    // UserAddress userAddress = UserAddress.newBuilder()
+                    // .setName(req.name)
+                    // .setAddress1(req.address1)
+                    // .setLocality(req.locality)
+                    // .setAdministrativeArea(req.administrativeArea)
+                    // .setCountryCode(req.countryCode)
+                    // .setPostalCode(req.postalCode)
+                    // .setPhoneNumber(req.phoneNumber)
+                    // .build();
+
+                    PushTokenizeRequest pushTokenizeRequest = new PushTokenizeRequest.Builder()
+                            .setOpaquePaymentCard(opc.getBytes()).setNetwork(TapAndPay.CARD_NETWORK_VISA)
+                            .setTokenServiceProvider(TapAndPay.TOKEN_PROVIDER_VISA).setDisplayName(req.displayName)
+                            .setLastDigits(req.lastDigits)
+                            // .setUserAddress(userAddress)
+                            .build();
+
+                    Activity currentActivity = getReactApplicationContext().getCurrentActivity();
+
+                    if (currentActivity != null) {
+                        tapAndPayClient.pushTokenize(currentActivity, pushTokenizeRequest, REQUEST_CODE_PUSH_TOKENIZE);
+                    } else {
+                        if (this.currentProvisioning != null) {
+                            this.currentProvisioning.completableFuture
+                                    .completeExceptionally(new Exception("No current activity"));
+                            this.currentProvisioning = null;
+                        }
+                    }
+                }).exceptionally(e -> {
+                    if (this.currentProvisioning != null) {
+                        this.currentProvisioning.completableFuture.completeExceptionally(e);
+                        this.currentProvisioning = null;
+                    }
+                    return null;
+                });
+            }
+        }).exceptionally(e -> {
+            if (this.currentProvisioning != null) {
+                this.currentProvisioning.completableFuture.completeExceptionally(e);
+                this.currentProvisioning = null;
+            }
+            return null;
+        });
+    }
+
+    private void pushProvision(ProvisionRequest req) {
+        if (currentProvisioning != null) {
+            req.completableFuture.completeExceptionally(new Exception("Another provisioning is in progress"));
+            return;
+        }
+
+        this.currentProvisioning = req;
+
         CompletableFuture<String> futureOpc = new CompletableFuture<>();
         CompletableFuture<String> walletIdFuture = this.getActiveWalletId();
         CompletableFuture<String> stableHardwareIdFuture = this.getStableHardwareId();
@@ -599,34 +637,45 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
                                                 return new OPCRequest(req.cardId, req.token, walletId, stableHardwareId,
                                                         req.isTestnet, futureOpc);
                                             }).exceptionally(e2 -> {
-                                                req.completableFuture.completeExceptionally(mapException(e2, ERROR_API));
+                                                req.completableFuture.completeExceptionally(e2);
                                                 return null;
                                             }).thenAccept(this::fetchOPC).exceptionally(e2 -> {
-                                                req.completableFuture.completeExceptionally(mapException(e2, ERROR_OPC_FETCH_FAILED));
+                                                req.completableFuture.completeExceptionally(e2);
                                                 return null;
                                             });
                                 } else {
                                     req.completableFuture
-                                            .completeExceptionally(new WalletException(ERROR_WALLET_CREATE_FAILED, "Failed to create wallet"));
+                                            .completeExceptionally(new Exception("Failed to create wallet"));
                                 }
                             });
                         } else {
-                            req.completableFuture.completeExceptionally(mapException(e, ERROR_API));
+                            req.completableFuture.completeExceptionally(e);
                         }
                     } else {
-                        req.completableFuture.completeExceptionally(mapException(e, ERROR_API));
+                        req.completableFuture.completeExceptionally(e);
                     }
                     return null;
                 }).thenAccept(this::fetchOPC).exceptionally(e -> {
-                    req.completableFuture.completeExceptionally(mapException(e, ERROR_OPC_FETCH_FAILED));
+                    req.completableFuture.completeExceptionally(e);
                     return null;
                 });
 
         futureOpc.thenAccept(opc -> {
+            // UserAddress userAddress = UserAddress.newBuilder()
+            // .setName(req.name)
+            // .setAddress1(req.address1)
+            // .setLocality(req.locality)
+            // .setAdministrativeArea(req.administrativeArea)
+            // .setCountryCode(req.countryCode)
+            // .setPostalCode(req.postalCode)
+            // .setPhoneNumber(req.phoneNumber)
+            // .build();
+
             PushTokenizeRequest pushTokenizeRequest = new PushTokenizeRequest.Builder()
                     .setOpaquePaymentCard(opc.getBytes()).setNetwork(TapAndPay.CARD_NETWORK_VISA)
                     .setTokenServiceProvider(TapAndPay.TOKEN_PROVIDER_VISA).setDisplayName(req.displayName)
                     .setLastDigits(req.lastDigits)
+                    // .setUserAddress(userAddress)
                     .build();
 
             Activity currentActivity = getReactApplicationContext().getCurrentActivity();
@@ -636,72 +685,17 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
             } else {
                 if (this.currentProvisioning != null) {
                     this.currentProvisioning.completableFuture
-                            .completeExceptionally(new WalletException(ERROR_NO_ACTIVITY, "No current activity available"));
+                            .completeExceptionally(new Exception("No current activity"));
                     this.currentProvisioning = null;
                 }
             }
         }).exceptionally(e -> {
             if (this.currentProvisioning != null) {
-                this.currentProvisioning.completableFuture.completeExceptionally(mapException(e, ERROR_OPC_FETCH_FAILED));
+                this.currentProvisioning.completableFuture.completeExceptionally(e);
                 this.currentProvisioning = null;
             }
             return null;
         });
-    }
-
-    /**
-     * Pushes provisioning with token status check.
-     * If the card is already partially provisioned, opens it in the wallet instead.
-     */
-    private void pushProvisionWithTokeStatusCheck(ProvisionRequest req) {
-        if (currentProvisioning != null) {
-            req.completableFuture.completeExceptionally(new WalletException(ERROR_PROVISION_IN_PROGRESS, "Another provisioning is in progress"));
-            return;
-        }
-
-        this.currentProvisioning = req;
-
-        this.shouldOpenInWallet(req.lastDigits).thenAccept((tokenStatus) -> {
-            if (tokenStatus != null && tokenStatus.issuerToken != null) {
-                // Card needs identity verification - open in wallet instead
-                ViewTokenRequest request = new ViewTokenRequest.Builder()
-                        .setTokenServiceProvider(TapAndPay.CARD_NETWORK_VISA).setIssuerTokenId(tokenStatus.issuerToken)
-                        .build();
-                tapAndPayClient.viewToken(request).addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        try {
-                            task.getResult().send();
-                        } catch (PendingIntent.CanceledException e) {
-                            // User cancelled - ignore
-                        }
-                    }
-                });
-                this.currentProvisioning.completableFuture.complete(false);
-                this.currentProvisioning = null;
-            } else {
-                executeProvisioning(req);
-            }
-        }).exceptionally(e -> {
-            if (this.currentProvisioning != null) {
-                this.currentProvisioning.completableFuture.completeExceptionally(mapException(e, ERROR_API));
-                this.currentProvisioning = null;
-            }
-            return null;
-        });
-    }
-
-    /**
-     * Pushes provisioning directly without checking token status.
-     * Currently unused - pushProvisionWithTokeStatusCheck is preferred.
-     */
-    private void pushProvision(ProvisionRequest req) {
-        if (currentProvisioning != null) {
-            req.completableFuture.completeExceptionally(new WalletException(ERROR_PROVISION_IN_PROGRESS, "Another provisioning is in progress"));
-            return;
-        }
-
-        this.currentProvisioning = req;
-        executeProvisioning(req);
     }
 
     @ReactMethod
@@ -717,7 +711,7 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
         future.thenAccept(res -> {
             promise.resolve(res);
         }).exceptionally(e -> {
-            rejectWithCode(promise, e, ERROR_API);
+            promise.reject(e);
             return null;
         }).thenRun(() -> {
             this.currentProvisioning = null;
@@ -742,7 +736,7 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
                 // this and alert your users.
 
                 this.currentProvisioning.completableFuture
-                        .completeExceptionally(new WalletException(ERROR_ATTESTATION, "Device attestation error"));
+                        .completeExceptionally(new Exception("Device attestation error"));
 
                 break;
             case Activity.RESULT_OK:
@@ -767,8 +761,8 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
             if (task.isSuccessful()) {
                 promise.resolve(task.getResult());
             } else {
-                Exception exception = task.getException();
-                rejectWithCode(promise, exception != null ? exception : new Exception("Unknown error"), ERROR_API);
+                ApiException apiException = (ApiException) task.getException();
+                promise.reject(apiException);
             }
         });
     }

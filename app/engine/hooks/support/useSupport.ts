@@ -3,8 +3,11 @@ import { Address } from '@ton/core';
 import { useCallback, useEffect, useState } from 'react';
 import { useIsLedgerRoute, useNetwork, useSupportAuthState } from '..';
 import { MixpanelEvent, trackEvent } from '../../../analytics/mixpanel';
+import { useToaster } from '../../../components/toast/ToastProvider';
+import { t } from '../../../i18n/t';
 import { getLedgerSelected } from '../../../storage/appState';
 import { useSelectedAccount } from '../appstate';
+import { useIntercomLoginRetry } from './useSupportAuth';
 
 export const useSupport = () => {
 	const network = useNetwork();
@@ -15,40 +18,65 @@ export const useSupport = () => {
 	const address = _address?.toString({ testOnly: network.isTestnet });
 	const [notifications, setNotifications] = useState(0);
 	const isLoggedIn = useSupportAuthState();
+	const retryLogin = useIntercomLoginRetry();
+	const toaster = useToaster();
 
 	useEffect(() => {
 		Intercom.getUnreadConversationCount().then((count) => {
 			setNotifications(count);
-		});
+		}).catch(() => { });
 
-		Intercom.addEventListener(IntercomEvents.IntercomUnreadCountDidChange, (event) => {
+		const subscription = Intercom.addEventListener(IntercomEvents.IntercomUnreadCountDidChange, (event) => {
 			setNotifications(event.count ?? 0);
 		});
+
+		return () => {
+			subscription.remove();
+		};
 	}, []);
+
+	// If the startup Intercom login failed (e.g. no network), retry it on demand
+	// instead of silently ignoring the tap
+	const ensureLoggedIn = useCallback(async () => {
+		if (isLoggedIn) {
+			return true;
+		}
+		if (await retryLogin()) {
+			return true;
+		}
+		toaster.show({ message: t('common.somethingWentWrong'), type: 'error' });
+		return false;
+	}, [isLoggedIn, retryLogin, toaster]);
 
 	const onSupport = useCallback(async () => {
 		trackEvent(MixpanelEvent.ButtonPress, { button: 'support', isLoggedIn });
-		if (!isLoggedIn) {
+		if (!(await ensureLoggedIn())) {
 			return;
 		}
-		Intercom.presentSpace(Space.messages);
-	}, [isLoggedIn]);
+		try {
+			await Intercom.presentSpace(Space.messages);
+		} catch { }
+	}, [isLoggedIn, ensureLoggedIn]);
 
 	const onSupportNew = useCallback(async () => {
 		trackEvent(MixpanelEvent.ButtonPress, { button: 'support_new', isLoggedIn });
-		if (!isLoggedIn) {
+		if (!(await ensureLoggedIn())) {
 			return;
 		}
-		await Intercom.presentMessageComposer();
-	}, [isLoggedIn]);
+		try {
+			await Intercom.presentMessageComposer();
+		} catch { }
+	}, [isLoggedIn, ensureLoggedIn]);
 
     const onSupportWithMessage = useCallback(async (options?: { message?: string }) => {
         trackEvent(MixpanelEvent.ButtonPress, { button: 'support_with_message', isLoggedIn });
-        if (!isLoggedIn) {
+        if (!(await ensureLoggedIn())) {
             return;
         }
-        await Intercom.presentMessageComposer(options?.message);
-    }, [isLoggedIn])
+        try {
+            await Intercom.presentMessageComposer(options?.message);
+        } catch { }
+    }, [isLoggedIn, ensureLoggedIn])
 
 	const onHelpCenter = useCallback(async () => {
 		trackEvent(MixpanelEvent.ButtonPress, { button: 'help_center', isLoggedIn });

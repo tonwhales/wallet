@@ -27,7 +27,7 @@ export const WalletHeader = memo(({ address, height, walletCardHeight, scrollOff
     const rates = useRates(['ton'], ['usd'])?.rates;
     const diff = rates?.TON?.diff24h?.USD;
     const isNegative = diff?.startsWith('−');
-    const { onHelpCenter, notifications } = useSupport();
+    const { onSupport, notifications } = useSupport();
     const diffTextColor = isNegative ? theme.accentRed : theme.accentGreen;
 
     const animatedStyle = useAnimatedStyle(() => ({
@@ -64,7 +64,7 @@ export const WalletHeader = memo(({ address, height, walletCardHeight, scrollOff
                 )}
             </View>
         )
-    }, [])
+    }, [notifications, theme.accentRed])
 
     return (
         <Animated.View
@@ -136,7 +136,7 @@ export const WalletHeader = memo(({ address, height, walletCardHeight, scrollOff
                                             { flexDirection: 'row', alignItems: 'center', gap: 8 },
                                             { opacity: pressed ? 0.8 : 1 }
                                         ]}
-                                        onPress={onHelpCenter}
+                                        onPress={onSupport}
                                     >
                                         {supportIcon}
                                     </Pressable>
@@ -158,7 +158,7 @@ export const WalletHeader = memo(({ address, height, walletCardHeight, scrollOff
                                         { flexDirection: 'row', alignItems: 'center', gap: 8 },
                                         { opacity: pressed ? 0.8 : 1 }
                                     ]}
-                                    onPress={onHelpCenter}
+                                    onPress={onSupport}
                                 >
                                     <Text style={[{ color: theme.textUnchangeable }, Typography.medium15_20]}>
                                         {t('settings.support.title')}

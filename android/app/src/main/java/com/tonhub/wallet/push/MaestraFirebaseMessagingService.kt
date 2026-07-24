@@ -39,5 +39,4 @@ class MaestraFirebaseMessagingService : FirebaseMessagingService() {
             channelDescription = channelDescription
         )
     }
-}
-
+} 

@@ -1,0 +1,145 @@
+import React, { memo } from "react";
+import { View, Text, Pressable, StyleSheet } from "react-native";
+import { useTheme } from "../../engine/hooks";
+import i18n from 'i18next';
+import { Image } from 'expo-image';
+import { HoldersBannerContent } from "../../engine/api/holders/fetchAddressInviteCheck";
+import { Typography } from "../styles";
+import { LinearGradient } from "expo-linear-gradient";
+import { ItemDivider } from "../ItemDivider";
+import { BlurView } from "expo-blur";
+
+const gradientColors = ['#3F33CC', '#B341D9'];
+
+export type CardActionBannerProps = {
+    onPress: () => void;
+    content?: HoldersBannerContent;
+    gradient?: boolean;
+    imageComponent?: React.ReactNode;
+    titleComponent?: React.ReactNode;
+    subtitleComponent?: React.ReactNode;
+    actionComponent?: React.ReactNode;
+    closeComponent?: React.ReactNode;
+}
+
+export const CardActionBanner = memo(({ onPress, content, gradient, imageComponent, titleComponent, subtitleComponent, actionComponent, closeComponent }: CardActionBannerProps) => {
+    const theme = useTheme();
+    const lang = i18n.language === 'ru' ? 'ru' : 'en';
+    const title = content?.title[lang] || content?.title.en;
+    const subtitle = content?.subtitle[lang] || content?.subtitle.en;
+    const action = content?.action[lang] || content?.action.en;
+
+    const textColor = gradient ? theme.textUnchangeable : theme.textPrimary;
+    const actionTextcolor = gradient ? theme.textUnchangeable : theme.accent;
+
+    return (
+        <Pressable
+            onPress={onPress}
+            style={({ pressed }) => {
+                return [
+                    styles.pressable,
+                    { opacity: pressed ? 0.5 : 1, backgroundColor: theme.surfaceOnBg, padding: 20 }
+                ]
+            }}
+        >
+            {gradient && (
+                <LinearGradient
+                    style={styles.gradient}
+                    colors={gradientColors}
+                    start={[0, 1]}
+                    end={[1, 0]}
+                />
+            )}
+            <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', gap: 8 }}>
+                <View style={{
+                    justifyContent: 'space-between',
+                    flexGrow: 1, flexShrink: 1,
+                    gap: 7
+                }}>
+                    {titleComponent || (
+                        <Text style={[{ color: textColor }, Typography.semiBold17_24]}
+                            ellipsizeMode={'tail'}
+                            numberOfLines={2}
+                        >
+                            {title}
+                        </Text>
+                    )}
+                    {subtitleComponent || (
+                        <Text
+                            style={[{ flex: 1, flexShrink: 1, color: textColor, opacity: 0.8, marginBottom: 8 }, Typography.regular15_20]}
+                            ellipsizeMode={'tail'}
+                            numberOfLines={3}
+                            adjustsFontSizeToFit={true}
+                            minimumFontScale={0.95}
+                        >
+                            {subtitle}
+                        </Text>
+                    )}
+                </View>
+                {imageComponent || (
+                    <Image
+                        style={[styles.img_action, { marginBottom: -44, marginRight: -8 }]}
+                        source={require('@assets/banners/holders-banner-card-action.png')}
+                    />
+                )}
+            </View>
+            {gradient ? (
+                <BlurView
+                    style={{
+                        position: 'absolute',
+                        borderRadius: 20,
+                        left: 0, right: 0,
+                        bottom: 0,
+                        height: 60
+                    }}
+                    intensity={50}
+                    tint={theme.style === 'dark' ? 'dark' : 'light'}
+                />
+            ) : (
+                <View style={{
+                    backgroundColor: theme.surfaceOnBg,
+                    position: 'absolute',
+                    borderRadius: 20,
+                    left: 0, right: 0,
+                    bottom: 0,
+                    height: 60
+                }} />
+            )}
+            <View>
+                {gradient ? (null) : (
+                    <ItemDivider marginVertical={0} marginHorizontal={1} />
+                )}
+                <View style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 16, justifyContent: 'space-between' }}>
+                    {actionComponent || (
+                        <Text style={[{ color: actionTextcolor }, Typography.semiBold17_24]}>
+                            {action}
+                        </Text>
+                    )}
+                    <Image
+                        source={require('@assets/ic-chevron-right.png')}
+                        style={{ height: 16, width: 16, tintColor: theme.iconPrimary }}
+                    />
+                </View>
+            </View>
+            {closeComponent}
+        </Pressable>
+    );
+});
+
+const styles = StyleSheet.create({
+    gradient: {
+        position: 'absolute',
+        borderRadius: 20,
+        left: 0, right: 0,
+        top: 0, bottom: 0
+    },
+    pressable: {
+        minHeight: 106,
+        borderRadius: 20,
+        overflow: 'hidden',
+    },
+    img_action: {
+        width: 116,
+        height: 126
+    },
+});

@@ -89,6 +89,7 @@ export const Queries = {
         GaslessConfig: () => ['jettons', 'gaslessConfig'],
         Rates: (masterAddress: string) => ['jettons', 'rates', masterAddress],
     }),
+    AllowedDomains: () => ['protect', 'allowedDomains'],
     TonPrice: () => ['tonPrice'],
     Rates: (tokens: string, currencies: string) => ['rates', tokens, currencies],
     Apps: (url: string) => ({

@@ -17,6 +17,7 @@ import { StakingPoolType } from "./StakingPoolsFragment";
 import { useFocusEffect } from "@react-navigation/native";
 import { StakingAnalyticsComponent } from "../../components/staking/StakingAnalyticsComponent";
 import { useIsLedgerRoute, useNetwork, usePendingActions, useSelectedAccount, useStakingPool, useStakingWalletConfig, useTheme } from "../../engine/hooks";
+import { NATIVE_DISPLAY_SYMBOL } from "../../utils/formatCurrency";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, toNano } from "@ton/core";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
@@ -217,7 +218,7 @@ export const StakingFragment = fragment(() => {
                                 precision={4}
                                 centFontStyle={{ opacity: 0.5 }}
                             />
-                            <Text style={{ color: theme.textSecondary }}>{' TON'}</Text>
+                            <Text style={{ color: theme.textSecondary }}>{` ${NATIVE_DISPLAY_SYMBOL}`}</Text>
                         </Text>
                         <View style={{
                             flexDirection: 'row', alignItems: 'center',

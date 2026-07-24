@@ -233,7 +233,7 @@ export const AppComponent = memo((props: {
                     autoManageStatusBarEnabled={false}
                     allowFileAccessFromFileURLs={false}
                     allowUniversalAccessFromFileURLs={false}
-                    decelerationRate={(Platform.OS === 'ios' ? 'normal' : 0.998) as 'normal'}
+                    decelerationRate="normal"
                     allowsInlineMediaPlayback={true}
                     injectedJavaScriptBeforeContentLoaded={injectSource}
                     onShouldStartLoadWithRequest={loadWithRequest}

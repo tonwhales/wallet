@@ -645,6 +645,9 @@ export type LocalizationSchema = {
                 addNew: string,
                 network: string,
             },
+            physicalCard: {
+                supportMessage: string,
+            },
             pageTitles: {
                 general: string,
                 card: string,
@@ -745,6 +748,10 @@ export type LocalizationSchema = {
                 failedAction: string,
                 dogsTitle: string,
                 dogsSubtitle: string,
+            },
+            dogsbanner: {
+                subtitle: string,
+                action: string,
             },
             transaction: {
                 type: {

@@ -159,7 +159,8 @@ export const BrowserExtensions = memo(({ onScroll }: { onScroll?: (event: Native
           />
         </View>
       ))}
-      <View style={{ height: bottomBarHeight + safeArea.top + safeArea.bottom + 256 }} />
+      {/* bottomBarHeight already includes the bottom safe-area inset */}
+      <View style={{ height: bottomBarHeight + safeArea.top + 256 }} />
     </Animated.ScrollView>
   );
 },

@@ -164,7 +164,8 @@ export const BrowserConnections = memo(
             </View>
           ))}
         </View>
-        <View style={{ height: Platform.OS === 'android' ? 64 : safeArea.bottom }} />
+        {/* iOS bottom clearance comes from contentInset (safe bottom tab bar height) */}
+        <View style={{ height: Platform.OS === 'android' ? 64 : 0 }} />
       </Animated.ScrollView>
     );
   },

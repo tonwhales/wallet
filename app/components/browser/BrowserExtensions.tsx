@@ -15,7 +15,7 @@ import { t } from '../../i18n/t';
 import { getDomainKey } from '../../engine/state/domainKeys';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { extractDomain } from '../../engine/utils/extractDomain';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { useSafeBottomTabBarHeight } from '../../utils/useSafeBottomTabBarHeight';
 import { useDimensions } from '@react-native-community/hooks';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { holdersUrl as resolveHoldersUrl } from '../../engine/api/holders/fetchUserState';
@@ -31,7 +31,7 @@ export const BrowserExtensions = memo(({ onScroll }: { onScroll?: (event: Native
   const theme = useTheme();
   const safeArea = useSafeAreaInsets();
   const { isTestnet } = useNetwork();
-  const bottomBarHeight = useBottomTabBarHeight();
+  const bottomBarHeight = useSafeBottomTabBarHeight();
   const dimensions = useDimensions();
   const navigation = useTypedNavigation();
   const [installedExtensions] = useExtensions();
@@ -159,7 +159,8 @@ export const BrowserExtensions = memo(({ onScroll }: { onScroll?: (event: Native
           />
         </View>
       ))}
-      <View style={{ height: bottomBarHeight + safeArea.top + safeArea.bottom + 256 }} />
+      {/* bottomBarHeight already includes the bottom safe-area inset */}
+      <View style={{ height: bottomBarHeight + safeArea.top + 256 }} />
     </Animated.ScrollView>
   );
 },

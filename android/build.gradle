@@ -6,7 +6,8 @@ buildscript {
         minSdkVersion = 26
         compileSdkVersion = 34
         targetSdkVersion = 35
-        kotlinVersion = "1.8.10"
+        // 1.9.x is required to compile against intercom-android 15.x (built with Kotlin 1.9 metadata)
+        kotlinVersion = "1.9.24"
         ndkVersion = "24.0.8215888"
     }
     repositories {
@@ -14,6 +15,11 @@ buildscript {
         mavenCentral()
     }
     dependencies {
+        // Newer standalone R8/D8: AGP 7.4.2's built-in D8 NPEs ("Error while dexing")
+        // on late-2024 androidx/intercom artifacts pulled in by intercom-sdk 15.14
+        // (fragment 1.8.5, constraintlayout 2.2.0, profileinstaller 1.4.0). Must be
+        // declared BEFORE the android gradle plugin to take precedence on the classpath.
+        classpath('com.android.tools:r8:8.3.37')
         classpath('com.android.tools.build:gradle:7.4.2')
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
         classpath 'com.google.gms:google-services:4.3.15'

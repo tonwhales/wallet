@@ -3,7 +3,7 @@ import { Text, View, Pressable } from "react-native";
 import Animated, { FadeOut, FadeIn, LinearTransition, Easing, FadeInUp, FadeOutDown } from 'react-native-reanimated';
 import { useTypedNavigation } from '../../../../utils/useTypedNavigation';
 import { t } from '../../../../i18n/t';
-import { formatInputAmount, NATIVE_DISPLAY_SYMBOL } from '../../../../utils/formatCurrency';
+import { formatInputAmount, getCoinDisplaySymbol, NATIVE_DISPLAY_SYMBOL } from '../../../../utils/formatCurrency';
 import { ValueComponent } from '../../../../components/ValueComponent';
 import { useNetwork, useTheme } from '../../../../engine/hooks';
 import { ItemDivider } from '../../../../components/ItemDivider';
@@ -130,6 +130,10 @@ export const SimpleTransferAmount = memo(forwardRef(({
         setAmount(prev => formatInputAmount(newVal, jetton?.decimals ?? decimals ?? 9, { skipFormattingDecimals: true }, prev));
     }, [jetton?.decimals, decimals])
 
+    // Only the native coin is rebranded to GRAM — a jetton/extra currency that happens
+    // to use the 'TON' ticker (e.g. scam tokens) must keep showing its raw symbol
+    const displaySymbol = (jetton || extraCurrency) ? symbol : getCoinDisplaySymbol(symbol);
+
     const onNavigateAssets = useCallback(() => {
         navigation.navigateAssets({
             simpleTransferAssetCallback: onAssetSelected,
@@ -162,7 +166,7 @@ export const SimpleTransferAmount = memo(forwardRef(({
                                 numberOfLines={2}
                                 ellipsizeMode={'tail'}
                             >
-                                {symbol}
+                                {displaySymbol}
                             </Text>
                             {isSCAM && (
                                 <Text
@@ -186,7 +190,7 @@ export const SimpleTransferAmount = memo(forwardRef(({
                 </View>
             </Pressable>
         );
-    }, [onNavigateAssets, network.isTestnet, jetton, symbol, isSCAM, theme]);
+    }, [onNavigateAssets, network.isTestnet, jetton, symbol, displaySymbol, isSCAM, theme]);
 
     const _decimals = selectedAsset?.type === 'extraCurrency' ? extraCurrency?.preview?.decimals : decimals;
 
@@ -202,7 +206,7 @@ export const SimpleTransferAmount = memo(forwardRef(({
                     precision={4}
                     value={balance}
                     decimals={_decimals}
-                    suffix={symbol ? ` ${symbol}` : ''}
+                    suffix={symbol ? ` ${displaySymbol}` : ''}
                 />
             </Text>
             <Pressable
@@ -214,7 +218,7 @@ export const SimpleTransferAmount = memo(forwardRef(({
                 </Text>
             </Pressable>
         </View>
-    ), [balance, jetton?.decimals, jetton?.symbol, onAddAll, decimals, theme])
+    ), [balance, jetton?.decimals, jetton?.symbol, symbol, displaySymbol, onAddAll, decimals, theme])
 
     const onFocus = useCallback(() => onInputFocus(1), [])
 
@@ -235,10 +239,10 @@ export const SimpleTransferAmount = memo(forwardRef(({
                 flexGrow: 1
             }, Typography.regular17_24, { lineHeight: undefined }]}
             suffix={priceText}
-            ticker={symbol === 'TON' ? NATIVE_DISPLAY_SYMBOL : (symbol || NATIVE_DISPLAY_SYMBOL)}
+            ticker={displaySymbol || NATIVE_DISPLAY_SYMBOL}
             cursorColor={theme.accent}
         />
-    ), [onInputFocus, onValueChange, amountError, priceText, symbol, amount, theme])
+    ), [onInputFocus, onValueChange, amountError, priceText, symbol, displaySymbol, amount, theme])
 
     const amountErrorLabel = useMemo(() => amountError && (
         <Animated.View
@@ -258,7 +262,7 @@ export const SimpleTransferAmount = memo(forwardRef(({
             layout={LinearTransition.duration(200).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
         >
             <PressableChip
-                text={t('transfer.changeJetton', { symbol: holdersTargetSymbol })}
+                text={t('transfer.changeJetton', { symbol: getCoinDisplaySymbol(holdersTargetSymbol) })}
                 style={{ backgroundColor: theme.accent }}
                 textStyle={{ color: theme.textUnchangeable }}
                 onPress={onChangeJetton}

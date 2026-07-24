@@ -66,7 +66,7 @@ export const SettingsFragment = fragment(() => {
     const showHoldersItem = !isLedger && hasHoldersProducts;
     const ledgerContext = useLedgerTransport();
     const [, switchAppToWalletMode] = useAppMode(selected?.address);
-    const { onSupport } = useSupport();
+    const { onSupport, notifications } = useSupport();
     const hasHoldersAccounts = (holdersAccounts?.accounts?.length ?? 0) > 0;
     // Data-driven Altery banner stack (server-decided). Shown even with accounts; the legacy single banner
     // stays pre-account-onboarding only and is suppressed while a stack is present.
@@ -232,6 +232,11 @@ export const SettingsFragment = fragment(() => {
                         title={t('settings.searchEngine')}
                         onPress={() => navigation.navigate('SearchEngine')}
                     />
+                    <ItemButton
+                        leftIcon={require('@assets/ic-services.png')}
+                        title={t('home.browser')}
+                        onPress={() => navigation.navigate('Browser')}
+                    />
                 </View>
 
                 <View style={{
@@ -242,7 +247,18 @@ export const SettingsFragment = fragment(() => {
                     alignItems: 'center'
                 }}>
                     <ItemButton
-                        leftIconComponent={<IcSupport width={24} height={24} />}
+                        leftIconComponent={
+                            <View style={{ height: 24, width: 24 }}>
+                                <IcSupport width={24} height={24} />
+                                {notifications > 0 && (
+                                    <View style={{
+                                        position: 'absolute', top: -2, right: -2,
+                                        backgroundColor: theme.accentRed,
+                                        borderRadius: 5, width: 10, height: 10
+                                    }} />
+                                )}
+                            </View>
+                        }
                         title={t('settings.support.title')}
                         onPress={onSupport}
                     />

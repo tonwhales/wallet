@@ -1466,7 +1466,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "settingsDescription": 'Авторизация обязательна для отображения банковских продуктов. Чувствительные данные будут скрыты, пока вы не включите авторизацию',
     },
     "update": {
-        "callToAction": 'Обновить Tonhub'
+        "callToAction": 'Обновить Tonhub',
+        "forceTitle": 'Требуется обновление',
+        "forceDescription": 'Эта версия Tonhub больше не поддерживается. Обновите приложение, чтобы продолжить.',
+        "forceSupport": 'Написать в поддержку'
     },
     "savings": {
         "ton": "Сберегательный счет в GRAM",

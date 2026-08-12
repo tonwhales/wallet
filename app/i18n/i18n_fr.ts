@@ -1466,7 +1466,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "settingsDescription": "Une authentification est requise car l'application affiche des produits bancaires. Les données sensibles seront masquées jusqu'à l'activation de l'authentification."
     },
     "update": {
-        "callToAction": "Mettez à jour Tonhub"
+        "callToAction": "Mettez à jour Tonhub",
+        "forceTitle": "Mise à jour requise",
+        "forceDescription": "Cette version de Tonhub n'est plus prise en charge. Mettez à jour l'application pour continuer.",
+        "forceSupport": "Contacter le support"
     },
     "savings": {
         "ton": "Compte d'épargne GRAM",

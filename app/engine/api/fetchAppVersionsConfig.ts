@@ -2,17 +2,18 @@ import axios from "axios";
 import { z } from "zod";
 import { whalesConnectEndpoint } from "../clients";
 
+const platformVersionsScheme = z.object({
+    // Below this version the app is unusable and shows a non-dismissable update dialog.
+    // Optional: older configs have no minimal version, which means no hard update at all
+    minimal: z.string().optional(),
+    critical: z.string(),
+    latest: z.string(),
+    url: z.string()
+});
+
 export const appVersionsScheme = z.object({
-    ios: z.object({
-        critical: z.string(),
-        latest: z.string(),
-        url: z.string()
-    }),
-    android: z.object({
-        critical: z.string(),
-        latest: z.string(),
-        url: z.string()
-    })
+    ios: platformVersionsScheme,
+    android: platformVersionsScheme
 });
 
 const appVersionsDatedScheme = z.intersection(

@@ -56,6 +56,7 @@ import { useRecoilValue } from 'recoil';
 import { appStateAtom } from './engine/state/appState';
 import { useBlocksWatcher } from './engine/accountWatcher';
 import { HintsPrefetcher } from './components/HintsPrefetcher';
+import { ForceUpdateGate } from './components/ForceUpdateGate';
 import { useHoldersWatcher } from './engine/holdersWatcher';
 import { registerForPushNotificationsAsync, registerPushToken, setupAPNsTokenHandler } from './utils/registerPushNotifications';
 import * as Notifications from 'expo-notifications';
@@ -594,6 +595,7 @@ export const Navigation = memo(() => {
             <TonconnectWatcher />
             <SessionWatcher navRef={navigationRef} />
             <Splash hide={hideSplash} />
+            <ForceUpdateGate />
         </View>
     );
 });

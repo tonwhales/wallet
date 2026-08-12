@@ -1466,7 +1466,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "settingsDescription": "Запит на аутентифікацію потрібен, оскільки додаток відображає банківські продукти. Чутливі дані будуть приховані, доки ви не увімкнете аутентифікацію"
     },
     "update": {
-        "callToAction": "Оновити Tonhub"
+        "callToAction": "Оновити Tonhub",
+        "forceTitle": "Потрібне оновлення",
+        "forceDescription": "Ця версія Tonhub більше не підтримується. Оновіть застосунок, щоб продовжити.",
+        "forceSupport": "Написати у підтримку"
     },
     "savings": {
         "ton": "GRAM ощадний рахунок",

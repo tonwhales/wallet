@@ -78,3 +78,5 @@ android/app/netmain
 android/app/nettest
 
 sentry.properties
+# Machine-specific node path for the RN build scripts — must not be committed
+ios/.xcode.env.local

@@ -34,6 +34,7 @@ export enum MixpanelEvent {
     WalletImport = 'wallet_import',
     WalletNewSeedCreated = 'wallet_new_seed_created',
     WalletSeedImported = 'wallet_seed_imported',
+    ForceUpdate = 'force_update',
 }
 
 export const devKey = keys.MIXPANEL_DEV;

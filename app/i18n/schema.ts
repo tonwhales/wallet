@@ -1469,6 +1469,9 @@ export type LocalizationSchema = {
     },
     update: {
         callToAction: string,
+        forceTitle: string,
+        forceDescription: string,
+        forceSupport: string,
     },
     savings: {
         general: string,

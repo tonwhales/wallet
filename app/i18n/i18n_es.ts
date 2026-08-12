@@ -1191,7 +1191,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "settingsDescription": "Se requiere solicitud de autenticación ya que la aplicación muestra productos bancarios. Los datos sensibles estarán ocultos hasta que actives la autenticación"
     },
     "update": {
-        "callToAction": "Actualizar Tonhub"
+        "callToAction": "Actualizar Tonhub",
+        "forceTitle": "Actualización requerida",
+        "forceDescription": "Esta versión de Tonhub ya no es compatible. Actualiza la aplicación para continuar.",
+        "forceSupport": "Contactar con soporte"
     },
     "logout": {
         "title": "¿Estás seguro de que quieres cerrar sesión de {{name}}?",

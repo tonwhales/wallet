@@ -14,15 +14,21 @@ import { MixpanelEvent, trackEvent } from "../analytics/mixpanel";
 // Blocks the whole app when the running build is older than the minimal version
 // the backend still supports. Mounted next to the navigation container (not inside
 // a screen), so it covers every route — onboarding, wallet, cards webview, Ledger
-export const ForceUpdateGate = memo(() => {
+export const ForceUpdateGate = memo(({ ready }: { ready: boolean }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const versions = useAppVersionsConfig();
     const isLoggedIn = useSupportAuthState();
     const retryLogin = useIntercomLoginRetry();
 
-    const url = forceUpdateUrl(versions.data);
-    const isBlocked = !!url;
+    // Never block on the persisted copy of the config. react-query hydrates it from disk
+    // before any request goes out, so a `minimal` that has since been lifted would lock
+    // the user out of a perfectly fine build until the next refetch. Only a response
+    // received in this session may block — offline or mid-request means no block.
+    const url = versions.isFetchedAfterMount ? forceUpdateUrl(versions.data) : null;
+    // `ready` keeps the modal from being presented while the app is still starting up:
+    // showing it over the splash left the splash stuck on screen for tens of seconds
+    const isBlocked = !!url && ready;
 
     const trackedRef = useRef(false);
     useEffect(() => {

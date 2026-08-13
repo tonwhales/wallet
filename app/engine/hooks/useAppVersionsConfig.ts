@@ -11,9 +11,12 @@ export function useAppVersionsConfig() {
         queryFn: async () => fetchAppVersionsConfig(isTestnet),
         refetchOnMount: true,
         refetchOnWindowFocus: true,
-        staleTime: 1000 * 60 * 5, // 5 minutes
-        // The hard update gate reads the same query, so keep polling — a version bump
-        // must reach a running app without waiting for a restart (and lift the same way)
-        refetchInterval: 1000 * 60 * 5,
+        // Short staleTime: the hard update gate blocks the whole app based on this config,
+        // so a launch must confirm it against the server instead of trusting the persisted
+        // copy — a lifted `minimal` has to reach the user on the next launch. Not zero, so
+        // remounting the version banner while navigating doesn't refetch on every screen
+        staleTime: 1000 * 30,
+        // Keep polling too, so a config change reaches a running app without a restart
+        refetchInterval: 1000 * 60 * 2,
     })
 }

@@ -595,7 +595,7 @@ export const Navigation = memo(() => {
             <TonconnectWatcher />
             <SessionWatcher navRef={navigationRef} />
             <Splash hide={hideSplash} />
-            <ForceUpdateGate />
+            <ForceUpdateGate ready={hideSplash} navRef={navigationRef} />
         </View>
     );
 });

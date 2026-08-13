@@ -10,7 +10,8 @@
     "eject": "expo eject",
     "postinstall": "patch-package",
     "version": "node configure.js",
-    "adb": "adb reverse tcp:8081 tcp:8081"
+    "adb": "adb reverse tcp:8081 tcp:8081",
+    "test": "jest"
   },
   "dependencies": {
     "@babel/plugin-proposal-private-methods": "^7.16.11",

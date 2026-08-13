@@ -27,6 +27,28 @@ export function forceUpdateUrl(config: AppVersionsConfig | null | undefined): st
     }
 }
 
+export type ForceUpdateState = {
+    config: AppVersionsConfig | null | undefined,
+    // react-query state of the versions request
+    isSuccess: boolean,
+    dataUpdatedAt: number,
+    // when the gate mounted — anything older than this came off disk, not the network
+    mountedAt: number,
+    // the app has finished starting up (splash gone)
+    ready: boolean
+};
+
+// Decides whether the app must be blocked right now. Kept out of the component so the
+// conditions that lock a user out of their wallet are testable rather than implied.
+// Every uncertain state resolves to "do not block": a config that only exists in the
+// persisted cache, a request that failed, or an app that is still starting.
+export function forceUpdateState({ config, isSuccess, dataUpdatedAt, mountedAt, ready }: ForceUpdateState): string | null {
+    if (!ready || !isSuccess || dataUpdatedAt <= mountedAt) {
+        return null;
+    }
+    return forceUpdateUrl(config);
+}
+
 export function newVersionUrl(config: AppVersionsConfig): { url: string, isCiritical: boolean } | null {
     const currentVersion = Application.nativeApplicationVersion;
     const storeVersion = config[Platform.OS === 'android' ? 'android' : 'ios'];

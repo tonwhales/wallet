@@ -88,6 +88,19 @@ brew install yarn
 echo "===== Generating node_modules ====="
 yarn
 echo "===== Installing pods ====="
-PRODUCTION=1 pod install
+# Some pods are fetched straight from GitHub Releases (AppsFlyerFramework), which
+# intermittently answers 503 — under `set -e` that single hiccup kills the whole build.
+# Retry a couple of times before giving up.
+pod_attempt=1
+pod_max_attempts=3
+until PRODUCTION=1 pod install; do
+    if [ "$pod_attempt" -ge "$pod_max_attempts" ]; then
+        echo "===== pod install failed after $pod_max_attempts attempts ====="
+        exit 1
+    fi
+    echo "===== pod install failed (attempt $pod_attempt/$pod_max_attempts), retrying in 30s ====="
+    pod_attempt=$((pod_attempt + 1))
+    sleep 30
+done
 # the sed command from RN cant find the file... so we have to run it ourselves
 sed -i -e  $'s/ && (__IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_10_0)//' /Volumes/workspace/repository/ios/Pods/RCT-Folly/folly/portability/Time.h

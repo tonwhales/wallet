@@ -6,6 +6,7 @@ import { Typography } from "../../styles";
 import { Image } from "expo-image";
 import { useStakingApy, useTheme } from "../../../engine/hooks";
 import { t } from "../../../i18n/t";
+import { NATIVE_DISPLAY_SYMBOL } from "../../../utils/formatCurrency";
 
 export const StakingProductBanner = memo(({ isLedger, type = 'ton' }: { isLedger?: boolean, type?: 'ton' | 'usde' }) => {
     const navigation = useTypedNavigation();
@@ -22,7 +23,7 @@ export const StakingProductBanner = memo(({ isLedger, type = 'ton' }: { isLedger
             case 'ton':
                 return {
                     title: t('products.staking.title'),
-                    subtitle: t("products.staking.subtitle.join", { apy: apyWithFee ?? '8', tokenName: 'TON' }),
+                    subtitle: t("products.staking.subtitle.join", { apy: apyWithFee ?? '8', tokenName: NATIVE_DISPLAY_SYMBOL }),
                     image: require('@assets/staking-banner.png')
                 }
             case 'usde':

@@ -246,19 +246,22 @@ configurations.all {
    resolutionStrategy {
       // Keep your existing browser force
       force 'androidx.browser:browser:1.8.0'
-      // force an older version
-       force 'io.intercom.android:intercom-sdk-base:14.0.1'
+      // NOTE: intercom-sdk-base used to be force-pinned to 14.0.1 here because 15.x would not
+      // compile against Kotlin 1.8.10. That pin broke chat attachments (14.0.1 still requests the
+      // storage permissions we strip from the manifest; 14.1.0+ uses the system photo picker) and
+      // new-conversation creation with article workflows (fixed in 15.14.0), and it mismatched the
+      // @intercom/intercom-react-native 8.3.0 wrapper which targets intercom-sdk 15.14.+.
+      // Kotlin is now 1.9.24, so the SDK resolves to the version the wrapper expects.
        // Fix DEX-ing issue with lifecycle-livedata-core
        force 'androidx.lifecycle:lifecycle-livedata-core:2.6.2'
        force 'androidx.lifecycle:lifecycle-runtime:2.6.2'
        force 'androidx.lifecycle:lifecycle-common:2.6.2'
 
-       // Pin Kotlin stdlib to match project kotlinVersion (1.8.10)
+       // Pin Kotlin stdlib to match project kotlinVersion
        force "org.jetbrains.kotlin:kotlin-stdlib:${rootProject.ext.kotlinVersion}"
        force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${rootProject.ext.kotlinVersion}"
        force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${rootProject.ext.kotlinVersion}"
 
-       // Pin annotation-jvm to a version compatible with Kotlin 1.8.x
        force 'androidx.annotation:annotation:1.7.1'
        force 'androidx.annotation:annotation-jvm:1.7.1'
    }

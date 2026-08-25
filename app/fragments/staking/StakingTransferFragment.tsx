@@ -19,7 +19,7 @@ import { createAddStakeCommand } from '../../utils/staking/createAddStakeCommand
 import { useParams } from '../../utils/useParams';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { ScreenHeader } from '../../components/ScreenHeader';
-import { formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
+import { formatCurrency, formatInputAmount, NATIVE_DISPLAY_SYMBOL } from '../../utils/formatCurrency';
 import { Address, Cell, beginCell, fromNano, toNano } from '@ton/core';
 import { useAccountLite, useIsLedgerRoute, useNetwork, usePrice, useSelectedAccount, useStakingPool, useTheme } from '../../engine/hooks';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
@@ -439,7 +439,7 @@ export const StakingTransferFragment = fragment(() => {
                             }}
                             suffix={priceText}
                             hideClearButton
-                            inputSuffix={'TON'}
+                            inputSuffix={NATIVE_DISPLAY_SYMBOL}
                         />
                     </View>
                     {!!minAmountWarn && (
@@ -499,7 +499,7 @@ export const StakingTransferFragment = fragment(() => {
                                     </Text>
                                     <View style={{ justifyContent: 'center', alignItems: 'flex-end' }}>
                                         <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
-                                            {`${fromNano(withdrawFee)} TON`}
+                                            {`${fromNano(withdrawFee)} ${NATIVE_DISPLAY_SYMBOL}`}
                                         </Text>
                                         <PriceComponent
                                             amount={withdrawFee}

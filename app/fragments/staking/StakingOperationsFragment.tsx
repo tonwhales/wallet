@@ -11,6 +11,7 @@ import { formatDate, formatTime } from "../../utils/dates";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { NominatorOperation } from "../../engine/api/fetchStakingNominator";
 import { useNetwork, useNominatorInfo, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { NATIVE_DISPLAY_SYMBOL } from "../../utils/formatCurrency";
 import { Address } from "@ton/core";
 
 import IcDeposit from "@assets/ic-top-up.svg";
@@ -83,7 +84,7 @@ export const StakingOperationComponent = memo(({ op }: { op: NominatorOperation 
                                 value={op.amount}
                                 precision={3}
                             />
-                            {' TON'}
+                            {` ${NATIVE_DISPLAY_SYMBOL}`}
                         </Text>
                         <PriceComponent
                             amount={op.amount}

@@ -6,6 +6,7 @@ import { LedgerAccount } from "../LedgerSelectAccountFragment";
 import Chevron from '@assets/ic-chevron-down.svg';
 import CircularProgress from "../../../components/CircularProgress/CircularProgress";
 import { useTheme } from "../../../engine/hooks";
+import { NATIVE_DISPLAY_SYMBOL } from "../../../utils/formatCurrency";
 
 export const AccountButton = memo(({
     acc,
@@ -76,7 +77,7 @@ export const AccountButton = memo(({
                                 value={acc.balance}
                                 precision={3}
                             />
-                            {' TON'}
+                            {` ${NATIVE_DISPLAY_SYMBOL}`}
                         </Text>
                         <Text style={{
                             fontWeight: '400',

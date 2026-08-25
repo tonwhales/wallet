@@ -127,6 +127,7 @@ import { ChangellyOrderFragment } from './fragments/integrations/ChangellyOrderF
 import { SwapFragment } from './fragments/wallet/SwapFragment';
 import { isLatestIos } from './utils/isLatestIos';
 import { HoldersAIChatFragment } from './fragments/holders/HoldersAIChatFragment';
+import { BrowserFragment } from './fragments/connections/BrowserFragment';
 import { MaestraEvent, trackMaestraEvent } from './analytics/maestra';
 import { DogsInviteFragment } from './fragments/holders/DogsInviteFragment';
 import { PGPExportFragment } from './fragments/secure/PGPExportFragment';
@@ -284,6 +285,7 @@ const navigation = (safeArea: EdgeInsets) => [
 
     // Wallet
     fullScreen('Home', HomeFragment),
+    fullScreen('Browser', BrowserFragment),
     modalScreen('SimpleTransfer', SimpleTransferFragment, safeArea),
     modalScreen('Transfer', TransferFragment, safeArea),
     modalScreen('Receive', ReceiveFragment, safeArea),

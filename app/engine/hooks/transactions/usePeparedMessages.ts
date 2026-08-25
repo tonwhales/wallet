@@ -10,6 +10,7 @@ import { getJettonHint } from "../jettons/useJetton";
 import { mapJettonFullToMasterState } from "../../../utils/jettons/mapJettonToMasterState";
 import { GaslessConfig } from "../../api/gasless/fetchGaslessConfig";
 import { saveErrorLog } from "../../../storage";
+import { NATIVE_DISPLAY_SYMBOL } from "../../../utils/formatCurrency";
 
 type PreparedMessageType = 'relayed' | 'message';
 
@@ -136,7 +137,7 @@ export const prepareMessages = (messages: StoredMessage[], testOnly: boolean, ow
             if (jettonAmount) {
                 amountString = `${fromBnWithDecimals(jettonAmount, jettonMaster?.decimals)} ${jettonMaster?.symbol}`;
             } else if (amount) {
-                amountString = fromNano(amount) + ' TON';
+                amountString = fromNano(amount) + ` ${NATIVE_DISPLAY_SYMBOL}`;
             }
 
             return {

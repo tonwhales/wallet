@@ -47,7 +47,7 @@ export const AiChatBanner = memo(({ address, }: { address: Address }) => {
     }
 
     const onPress = () => {
-        navigation.navigate('AIChatTab');
+        navigation.navigate('HoldersAIChat');
     }
 
     return (

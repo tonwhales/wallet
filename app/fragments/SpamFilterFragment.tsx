@@ -10,6 +10,7 @@ import { ItemSwitch } from "../components/Item";
 import { ContactItemView } from "../components/Contacts/ContactItemView";
 import { useDenyList, useDontShowComments, useNetwork, useRemoveFromDenyList, useSpamMinAmount, useTheme } from "../engine/hooks";
 import { Address, fromNano, toNano } from "@ton/core";
+import { NATIVE_DISPLAY_SYMBOL } from "../utils/formatCurrency";
 import { confirmAlert } from "../utils/confirmAlert";
 import { StatusBar } from "expo-status-bar";
 import { useKnownWallets } from "../secure/KnownWallets";
@@ -161,7 +162,7 @@ export const SpamFilterFragment = fragment(() => {
                                     flexShrink: 1
                                 }}
                                 hideClearButton
-                                inputSuffix={'TON'}
+                                inputSuffix={NATIVE_DISPLAY_SYMBOL}
                             />
                             <Text style={{
                                 fontWeight: '500',

@@ -21,6 +21,7 @@ import { getAssociatedTokenAddress } from '@solana/spl-token';
 import { isUSDCTransaction } from '../../../utils/solana/isUSDCTransaction';
 import { useFocusEffect } from '@react-navigation/native';
 import { saveErrorLog } from '../../../storage';
+import { NATIVE_DISPLAY_SYMBOL } from '../../../utils/formatCurrency';
 
 const DEFAULT_PAGE_SIZE = 32;
 const REFRESH_TIMEOUT = 35000;
@@ -258,7 +259,7 @@ export const formatTransactions = async (transactions: CommonTransaction[], isTe
                 const opAddress = actualItem.kind === 'token' ? operation.address : message.friendlyTarget;
                 const contractInfo = await fetchContractInfo(opAddress);
                 const symbolText = actualItem.kind === 'ton'
-                    ? ' TON'
+                    ? ` ${NATIVE_DISPLAY_SYMBOL}`
                     : (message.jettonMaster?.symbol ? ` ${message.jettonMaster.symbol}` : '')
                 result.push({
                     type: TransactionType.TON,
@@ -287,7 +288,7 @@ export const formatTransactions = async (transactions: CommonTransaction[], isTe
                 const contractInfo = await fetchContractInfo(opAddress);
                 const { isSCAM } = jettonHint ? getHintFull(jettonHint as JettonFull, isTestnet) : { isSCAM: false };
                 const symbolText = actualItem.kind === 'ton'
-                    ? ' TON'
+                    ? ` ${NATIVE_DISPLAY_SYMBOL}`
                     : (jettonMaster?.symbol
                         ? ` ${jettonMaster.symbol}${isSCAM ? ' • SCAM' : ''}`
                         : '')

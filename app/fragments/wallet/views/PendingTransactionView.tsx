@@ -24,6 +24,7 @@ import { useAddressBookContext } from "../../../engine/AddressBookContext";
 import { ASSET_ITEM_HEIGHT, TRANSACTION_AVATAR_SIZE, TRANSACTION_PROCESSING_TIMEOUT } from "../../../utils/constants";
 import { useAddressFormatsHistory } from "../../../engine/hooks";
 import { TransactionType } from "../../../engine/types";
+import { NATIVE_DISPLAY_SYMBOL } from "../../../utils/formatCurrency";
 
 export const PendingTransactionView = memo(({
     tx,
@@ -256,7 +257,7 @@ export const PendingTransactionView = memo(({
                                 centFontStyle={{ fontSize: 15 }}
                             />
                             <Text style={{ fontSize: 15 }}>
-                                {(body?.type === 'token' && !!body.jetton?.symbol) ? ` ${body.jetton.symbol}` : ' TON'}
+                                {(body?.type === 'token' && !!body.jetton?.symbol) ? ` ${body.jetton.symbol}` : ` ${NATIVE_DISPLAY_SYMBOL}`}
                             </Text>
                         </Text>
                     )}

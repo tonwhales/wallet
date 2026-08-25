@@ -8,6 +8,7 @@ import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
 import { Address, fromNano, toNano } from "@ton/core";
 import { useNetwork, usePoolApy, useStakingPool, useTheme } from "../../engine/hooks";
+import { NATIVE_DISPLAY_SYMBOL } from "../../utils/formatCurrency";
 import { Typography } from "../styles";
 import { StakingPoolCountdown } from "./StakingPoolCountdown";
 
@@ -233,7 +234,7 @@ export const StakingPool = memo((props: {
                                         centFontStyle={{ opacity: 0.5 }}
                                     />
                                     <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
-                                        {' TON'}
+                                        {` ${NATIVE_DISPLAY_SYMBOL}`}
                                     </Text>
                                 </Text>
                                 <PriceComponent

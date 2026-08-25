@@ -10,7 +10,7 @@ import { TypedNavigation } from "../../utils/useTypedNavigation";
 import { normalizeUrl } from "../../utils/url/resolveUrl";
 import axios from "axios";
 import { useToaster } from "../toast/ToastProvider";
-import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { useSafeBottomTabBarHeight } from "../../utils/useSafeBottomTabBarHeight";
 import { ScrollView } from "react-native-gesture-handler";
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { Image } from 'expo-image';
@@ -207,7 +207,7 @@ export const BrowserSearch = memo(({
     const searchRef = useRef<string>('');
     const [search, setSearch] = useState(searchRef.current);
     const toaster = useToaster();
-    const bottomBarHeight = useBottomTabBarHeight();
+    const bottomBarHeight = useSafeBottomTabBarHeight();
     const { suggestions, getSuggestions, searchEngine } = useWebSearchSuggestions(search);
     const [lockSelection, setLockSelection] = useState(false);
 

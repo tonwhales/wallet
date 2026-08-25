@@ -11,6 +11,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useKnownPools, getLiquidStakingAddress } from "../../utils/KnownPools";
 import { StakingAnalyticsComponent } from "../../components/staking/StakingAnalyticsComponent";
 import { useIsLedgerRoute, useLiquidStakingMember, useNetwork, usePendingActions, useSelectedAccount, useStakingApy, useTheme } from "../../engine/hooks";
+import { NATIVE_DISPLAY_SYMBOL } from "../../utils/formatCurrency";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, fromNano, toNano } from "@ton/core";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
@@ -269,7 +270,7 @@ export const LiquidStakingFragment = fragment(() => {
                                 precision={4}
                                 centFontStyle={{ opacity: 0.5 }}
                             />
-                            <Text style={{ color: theme.textSecondary }}>{' TON'}</Text>
+                            <Text style={{ color: theme.textSecondary }}>{` ${NATIVE_DISPLAY_SYMBOL}`}</Text>
                         </Text>
                         <View style={{
                             flexDirection: 'row', alignItems: 'center',

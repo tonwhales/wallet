@@ -23,6 +23,7 @@ import { HoldersAppParamsType } from './holders/HoldersAppFragment';
 import { lagnTitles } from '../i18n/i18n';
 import { HoldersBannerType } from '../components/products/ProductsComponent';
 import { HoldersBanner } from '../components/products/HoldersBanner';
+import { HoldersDataDrivenBanner } from '../components/products/HoldersDataDrivenBanner';
 import IcNewAddressFormat from '@assets/settings/ic-address-update.svg';
 import { useAppMode } from '../engine/hooks/appstate/useAppMode';
 import { SelectedWallet } from '../components/wallet/SelectedWallet';
@@ -65,9 +66,13 @@ export const SettingsFragment = fragment(() => {
     const showHoldersItem = !isLedger && hasHoldersProducts;
     const ledgerContext = useLedgerTransport();
     const [, switchAppToWalletMode] = useAppMode(selected?.address);
-    const { onSupport } = useSupport();
+    const { onSupport, notifications } = useSupport();
     const hasHoldersAccounts = (holdersAccounts?.accounts?.length ?? 0) > 0;
-    const showHoldersBanner = !isLedger && !hasHoldersAccounts && inviteCheck?.allowed;
+    // Data-driven Altery banner stack (server-decided). Shown even with accounts; the legacy single banner
+    // stays pre-account-onboarding only and is suppressed while a stack is present.
+    const dataDrivenBanners = !isLedger && inviteCheck?.allowed ? (inviteCheck.settingsBanners ?? []) : [];
+    const hasDataDrivenBanners = dataDrivenBanners.length > 0;
+    const showHoldersBanner = !isLedger && !hasHoldersAccounts && inviteCheck?.allowed && !hasDataDrivenBanners;
     const holdersBanner: HoldersBannerType = !!inviteCheck?.settingsBanner ? { type: 'custom', banner: inviteCheck.settingsBanner } : { type: 'built-in' };
     const holderBannerContent = showHoldersBanner ? holdersBanner : null;
     const needsEnrollment = holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
@@ -136,6 +141,14 @@ export const SettingsFragment = fragment(() => {
                 }}
                 contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
             >
+                {hasDataDrivenBanners && selected && dataDrivenBanners.map((b) => (
+                    <HoldersDataDrivenBanner
+                        key={b.id}
+                        banner={b}
+                        address={selected.address}
+                        screen="Settings"
+                    />
+                ))}
                 {!!holderBannerContent && selected && holderBannerContent.type === 'custom' && (
                     <HoldersBanner
                         onPress={onHoldersPress}
@@ -219,6 +232,11 @@ export const SettingsFragment = fragment(() => {
                         title={t('settings.searchEngine')}
                         onPress={() => navigation.navigate('SearchEngine')}
                     />
+                    <ItemButton
+                        leftIcon={require('@assets/ic-services.png')}
+                        title={t('home.browser')}
+                        onPress={() => navigation.navigate('Browser')}
+                    />
                 </View>
 
                 <View style={{
@@ -229,7 +247,18 @@ export const SettingsFragment = fragment(() => {
                     alignItems: 'center'
                 }}>
                     <ItemButton
-                        leftIconComponent={<IcSupport width={24} height={24} />}
+                        leftIconComponent={
+                            <View style={{ height: 24, width: 24 }}>
+                                <IcSupport width={24} height={24} />
+                                {notifications > 0 && (
+                                    <View style={{
+                                        position: 'absolute', top: -2, right: -2,
+                                        backgroundColor: theme.accentRed,
+                                        borderRadius: 5, width: 10, height: 10
+                                    }} />
+                                )}
+                            </View>
+                        }
                         title={t('settings.support.title')}
                         onPress={onSupport}
                     />

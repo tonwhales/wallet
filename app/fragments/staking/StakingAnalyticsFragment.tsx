@@ -13,6 +13,7 @@ import { PriceComponent } from "../../components/PriceComponent";
 import { formatDate } from "../../utils/dates";
 import { ReAnimatedCircularProgress } from "../../components/CircularProgress/ReAnimatedCircularProgress";
 import { useNetwork, useSelectedAccount, useStakingPool, useTheme } from "../../engine/hooks";
+import { NATIVE_DISPLAY_SYMBOL } from "../../utils/formatCurrency";
 import { Address, fromNano } from "@ton/core";
 import { useNominatorInfo } from "../../engine/hooks/staking/useNominatorInfo";
 import { NominatorPeriod } from "../../engine/api/fetchStakingNominator";
@@ -315,7 +316,7 @@ export const StakingAnalyticsFragment = fragment(() => {
                         marginRight: 8,
                         fontWeight: '500',
                         opacity: 0.5
-                    }}>{' TON'}</Text>
+                    }}>{` ${NATIVE_DISPLAY_SYMBOL}`}</Text>
                 </Text>
                 <View style={{
                     flexDirection: 'row', alignItems: 'center',

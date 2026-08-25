@@ -6,6 +6,7 @@ import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { t } from "../../../i18n/t";
 import { CoinItem } from "./CoinItem";
 import { Currency } from "../../../engine/types/deposit";
+import { NATIVE_DISPLAY_SYMBOL } from "../../../utils/formatCurrency";
 
 export const TonProductComponent = memo(({
     theme,
@@ -25,7 +26,7 @@ export const TonProductComponent = memo(({
     const balance = accountLite?.balance ?? 0n;
     const [bounceableFormat] = useBounceableWalletFormat();
     const addr = address?.toString({ bounceable: bounceableFormat, testOnly });
-    const symbol = 'TON';
+    const symbol = NATIVE_DISPLAY_SYMBOL;
 
     const onPress = () => {
         if (onSelect) {

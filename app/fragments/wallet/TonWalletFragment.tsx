@@ -14,6 +14,7 @@ import { WalletTransactions } from "./views/WalletTransactions";
 import { WalletActions } from "./views/WalletActions";
 import { Image } from "expo-image";
 import { ValueComponent } from "../../components/ValueComponent";
+import { NATIVE_DISPLAY_SYMBOL } from "../../utils/formatCurrency";
 
 export type TonWalletFragmentParams = { owner: string }
 
@@ -61,7 +62,7 @@ const TonWalletComponent = memo(({ owner }: TonWalletFragmentParams) => {
                                 numberOfLines={1}
                                 ellipsizeMode={'tail'}
                             >
-                                {'TON'}
+                                {NATIVE_DISPLAY_SYMBOL}
                             </Text>
                             <Image
                                 source={require('@assets/ic-verified.png')}
@@ -104,7 +105,7 @@ const TonWalletComponent = memo(({ owner }: TonWalletFragmentParams) => {
                                     precision={2}
                                     fontStyle={[Typography.semiBold32_38, { color: theme.textPrimary }]}
                                     centFontStyle={{ color: theme.textSecondary }}
-                                    suffix={' TON'}
+                                    suffix={` ${NATIVE_DISPLAY_SYMBOL}`}
                                 />
                                 <View>
                                     <PriceComponent

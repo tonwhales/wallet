@@ -8,10 +8,12 @@ import { Platform } from "react-native";
 export const TabHeader = memo(({
     title,
     style,
+    leftAction,
     rightAction
 }: {
     title: string,
     style?: StyleProp<ViewStyle>,
+    leftAction?: any,
     rightAction?: any
 }) => {
     const safeArea = useSafeAreaInsets();
@@ -40,6 +42,15 @@ export const TabHeader = memo(({
             >
                 {title}
             </Text>
+            {!!leftAction && (
+                <View style={{
+                    position: 'absolute', top: 0, bottom: 0, left: 16,
+                    justifyContent: 'center', alignItems: 'center',
+                    alignSelf: 'flex-start'
+                }}>
+                    {leftAction}
+                </View>
+            )}
             {!!rightAction && (
                 <View style={{
                     position: 'absolute', top: 0, bottom: 0, right: 16,

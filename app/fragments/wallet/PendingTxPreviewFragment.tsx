@@ -20,7 +20,7 @@ import { useAppState, useBounceableWalletFormat, useDontShowComments, useIsLedge
 import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings";
 import { Address, fromNano } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
-import { formatAmount, formatCurrency } from "../../utils/formatCurrency";
+import { formatAmount, formatCurrency, NATIVE_DISPLAY_SYMBOL } from "../../utils/formatCurrency";
 import { PerfText } from "../../components/basic/PerfText";
 import { Typography } from "../../components/styles";
 import { useAddressBookContext } from "../../engine/AddressBookContext";
@@ -336,7 +336,7 @@ const PendingTxPreview = () => {
                                 Typography.semiBold27_32
                             ]}
                         >
-                            {`${stringText[0]}${stringText[1]}${tx.body?.type !== 'token' ? ' TON' : (jetton?.symbol ? ' ' + jetton?.symbol : '')}`}
+                            {`${stringText[0]}${stringText[1]}${tx.body?.type !== 'token' ? ` ${NATIVE_DISPLAY_SYMBOL}` : (jetton?.symbol ? ' ' + jetton?.symbol : '')}`}
                         </Text>
                         {tx.body?.type !== 'token' && (
                             <PriceComponent

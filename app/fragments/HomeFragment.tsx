@@ -7,12 +7,11 @@ import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { t } from '../i18n/t';
 import { TransactionsFragment } from './wallet/TransactionsFragment';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { BrowserFragment } from './connections/BrowserFragment';
 import DeviceInfo from 'react-native-device-info';
-import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { getDeviceScreenCurve } from '../utils/iOSDeviceCurves';
 import { Platform } from 'react-native';
-import { useConnectPendingRequests, useHoldersAccountStatus, useIsConnectAppReady, useLinksSubscription, useNetwork, useSelectedAccount, useTheme } from '../engine/hooks';
+import { useConnectPendingRequests, useLinksSubscription, useNetwork, useSelectedAccount, useSupport, useTheme } from '../engine/hooks';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '../components/styles';
@@ -24,11 +23,14 @@ import { useAppMode } from '../engine/hooks/appstate/useAppMode';
 import { HoldersSettings } from './holders/components/HoldersSettings';
 import { HoldersTransactionsFragment } from './wallet/HoldersTransactionsFragment';
 import { useLedgerTransport } from './ledger/components/TransportContext';
-import { HoldersAIChatTab } from './holders/HoldersAIChatTab';
-import { holdersUrl, HoldersUserState } from '../engine/api/holders/fetchUserState';
 import { DeepLinkType } from '../utils/link-navigator/resolveAndNavigateToDeepLink';
+import IcSupportTab from '@assets/ic-support-tab.svg';
 
 const Tab = createBottomTabNavigator();
+
+// The Support tab never renders its own screen: tapping it is intercepted
+// and opens the native Intercom messages space instead
+const SupportTabPlaceholder = () => null;
 
 export type HomeFragmentProps = {
     navigateTo?: {
@@ -60,26 +62,8 @@ export const HomeFragment = fragment(() => {
     const [tonconnectRequests] = useConnectPendingRequests();
     const selected = useSelectedAccount();
     const [isWalletMode] = useAppMode(selected?.address);
-    const url = holdersUrl(isTestnet);
-    const holdersAccStatus = useHoldersAccountStatus(selected?.address).data;
+    const { onSupport, notifications } = useSupport();
     const ledgerContext = useLedgerTransport();
-    const isHoldersReady = useIsConnectAppReady(url, selected?.address?.toString({ testOnly: isTestnet }));
-
-    const needsEnrollment = useMemo(() => {
-        if (!isHoldersReady) {
-            return true;
-        }
-
-        if (!holdersAccStatus) {
-            return true;
-        }
-
-        if (holdersAccStatus.state === HoldersUserState.NeedEnrollment) {
-            return true;
-        }
-
-        return false;
-    }, [holdersAccStatus, isHoldersReady]);
 
     const [curve, setCurve] = useState<number | undefined>(undefined);
 
@@ -221,14 +205,25 @@ export const HomeFragment = fragment(() => {
                                 case 'Transactions':
                                     source = require('@assets/ic-history.png');
                                     break;
-                                case 'Browser':
-                                    source = require('@assets/ic-services.png');
-                                    break;
+                                case 'Support':
+                                    return (
+                                        <View style={{ height: 24, width: 24 }}>
+                                            <IcSupportTab
+                                                width={24}
+                                                height={24}
+                                                color={focused ? theme.accent : theme.iconPrimary}
+                                            />
+                                            {notifications > 0 && (
+                                                <View style={{
+                                                    position: 'absolute', top: -2, right: -2,
+                                                    backgroundColor: theme.accentRed,
+                                                    borderRadius: 5, width: 10, height: 10
+                                                }} />
+                                            )}
+                                        </View>
+                                    );
                                 case 'More':
                                     source = require('@assets/ic-settings.png');
-                                    break;
-                                case 'AIChatTab':
-                                    source = require('@assets/ic-ai-agent.png');
                                     break;
                             }
 
@@ -254,20 +249,17 @@ export const HomeFragment = fragment(() => {
                         name={'Transactions'}
                         component={isWalletMode ? TransactionsFragment : HoldersTransactionsFragment}
                     />
-                    {isWalletMode && (
-                        <Tab.Screen
-                            options={{ title: t('home.browser') }}
-                            name={'Browser'}
-                            component={BrowserFragment}
-                        />
-                    )}
-                    {!isWalletMode && !needsEnrollment && (
-                        <Tab.Screen
-                            options={{ title: t('aiChat.title') }}
-                            name={'AIChatTab'}
-                            component={HoldersAIChatTab}
-                        />
-                    )}
+                    <Tab.Screen
+                        options={{ title: t('settings.support.title') }}
+                        name={'Support'}
+                        component={SupportTabPlaceholder}
+                        listeners={{
+                            tabPress: (e) => {
+                                e.preventDefault();
+                                onSupport();
+                            }
+                        }}
+                    />
                     <Tab.Screen
                         options={{ title: t('home.settings'), unmountOnBlur: !isWalletMode }}
                         name={'More'}

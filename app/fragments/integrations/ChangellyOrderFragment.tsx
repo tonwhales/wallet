@@ -184,6 +184,8 @@ export const ChangellyOrderFragment = fragment(() => {
                 }
                 break;
             case 'ton':
+            // Changelly ticker for the native coin after the Gram rebrand
+            case 'gram':
                 const tonAmount = toBnWithDecimals(amount, 9);
                 navigation.navigateSimpleTransfer({
                     amount: tonAmount,
@@ -202,6 +204,7 @@ export const ChangellyOrderFragment = fragment(() => {
                     token: null,
                     callback: onSendCallback
                 })
+                break;
             case 'usdcsol':
                 const usdcSolAmount = toNano(amount);
                 navigation.navigateSolanaSimpleTransfer({
@@ -211,6 +214,7 @@ export const ChangellyOrderFragment = fragment(() => {
                     token: token?.address,
                     callback: onSendCallback
                 })
+                break;
         }
     }, [transactionId, amount, token, targetAddressDisplayValue, isLedger, specialJetton, fromCurrency])
 
@@ -218,6 +222,7 @@ export const ChangellyOrderFragment = fragment(() => {
         return isInitial &&
             (fromCurrency === 'usdton'
                 || fromCurrency === 'ton'
+                || fromCurrency === 'gram'
                 || fromCurrency === 'sol'
                 || fromCurrency === 'usdcsol')
             && !isDepositFromTonhubDone

@@ -110,6 +110,7 @@ export const Queries = {
     HoldersBrowserListings: (network: 'mainnet' | 'testnet') => (['browserListings', 'holders', network]),
 
     AppConfig: (network: 'mainnet' | 'testnet') => (['appConfig', network]),
+    Flags: (network: 'mainnet' | 'testnet', addresses: string[], appVersion: string, endpoint: string) => (['flags', network, addresses.join(','), appVersion, endpoint]),
 
     //
     // Solana

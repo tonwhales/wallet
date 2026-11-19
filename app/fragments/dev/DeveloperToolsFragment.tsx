@@ -36,6 +36,7 @@ import WebView from 'react-native-webview';
 import { holdersUrl } from '../../engine/api/holders/fetchUserState';
 import { useWebViewPreloader } from '../../components/WebViewPreloaderContext';
 import { setDogsInvShown } from '../../engine/holders/dogsUtils';
+import { DevFlagsSection } from './components/DevFlagsSection';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -231,6 +232,7 @@ export const DeveloperToolsFragment = fragment(() => {
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ItemButton title={t('devTools.switchNetwork')} onPress={switchNetworkAlert} hint={isTestnet ? 'Testnet' : 'Mainnet'} />
                         </View>
+                        <DevFlagsSection />
                         {Platform.OS === 'android' && (
                             <View style={{ marginHorizontal: 16, width: '100%' }}>
                                 <ItemButton title={'Screen protector'} onPress={() => setScreenProtector(value => !value)} hint={isScreenProtectorEnabled ? 'Enabled' : 'Disabled'} />

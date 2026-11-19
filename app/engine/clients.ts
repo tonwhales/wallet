@@ -2,8 +2,9 @@ import { TonClient4 } from '@ton/ton';
 import { QueryClient } from '@tanstack/react-query';
 import { Platform } from 'react-native';
 import * as Application from 'expo-application';
+import { resolveWhalesConnectEndpoint } from './resolveWhalesConnectEndpoint';
 
-export const whalesConnectEndpoint = 'https://connect.tonhubapi.com';
+export const whalesConnectEndpoint = resolveWhalesConnectEndpoint();
 
 const requestInterceptorMainnet = (config: any) => {
     config.headers['User-Agent'] = `Tonhub/${Application.nativeApplicationVersion} ${Platform.OS}`;

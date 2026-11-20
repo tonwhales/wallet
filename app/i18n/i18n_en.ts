@@ -1087,6 +1087,12 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "setup": "Setup",
                 "authenticate": "Continue with Passcode"
             },
+            "biometricsReenable": {
+                "title": "Enable biometrics again?",
+                "message": "Your device's biometrics were changed, so biometric authentication was turned off. You can turn it on again now.",
+                "enable": "Enable",
+                "notNow": "Not now"
+            },
             "biometricsCooldown": {
                 "title": "Biometrics cooldown",
                 "message": "Please, try again in later, or lock your device and unlock it again with devices passcode to enable biometrics"

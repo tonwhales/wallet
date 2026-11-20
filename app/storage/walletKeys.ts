@@ -1,5 +1,5 @@
 import { KeyPair, mnemonicToWalletKey } from "@ton/crypto";
-import { decryptData } from "./secureStorage";
+import { BiometricKeyUnavailableError, decryptData } from "./secureStorage";
 import { Platform } from "react-native";
 
 export type WalletKeys = {
@@ -22,6 +22,8 @@ export class SecureFailedLoadKeysError extends Error {
     }
 }
 
+export class SecureBiometricKeyInvalidatedError extends SecureFailedLoadKeysError { }
+
 /**
  * @throws {SecureAuthenticationCancelledError} If the user cancels the authentication.
  * @throws {SecureFailedLoadKeysError} If unable to load wallet keys.
@@ -34,6 +36,9 @@ export async function loadWalletKeys(secretKeyEnc: Buffer, passcode?: string): P
         let walletKey = await mnemonicToWalletKey(mnemonics);
         return { keyPair: walletKey, mnemonics };
     } catch (e) {
+        if (e instanceof BiometricKeyUnavailableError) {
+            throw new SecureBiometricKeyInvalidatedError();
+        }
         if (e instanceof Error) {
             if (Platform.OS === 'android' && e.message.includes('User canceled the authentication')) {
                 throw new SecureAuthenticationCancelledError();

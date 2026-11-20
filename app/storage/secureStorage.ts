@@ -12,6 +12,15 @@ export const passcodeLengthKey = 'passcode-length';
 
 export const biometricsEncKey = 'ton-biometrics-enc-key';
 export const biometricsStateKey = 'biometrics-state';
+export const biometricsReenablePendingKey = 'biometrics-reenable-pending';
+
+export class BiometricKeyUnavailableError extends Error {
+    name = 'BiometricKeyUnavailable';
+
+    constructor() {
+        super('Biometric key unavailable');
+    }
+}
 
 export enum BiometricsState {
     NotSet = 'not-set',
@@ -98,6 +107,9 @@ export async function getApplicationKey(passcode?: string) {
     if (storageType === 'secure-store') {
         let ex = await SecureStore.getItemAsync(ref);
         if (!ex) {
+            if (Platform.OS === 'ios') {
+                throw new BiometricKeyUnavailableError();
+            }
             throw Error('Broken keystore');
         }
         return Buffer.from(ex, 'base64');

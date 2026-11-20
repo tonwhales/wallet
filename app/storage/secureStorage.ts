@@ -107,10 +107,7 @@ export async function getApplicationKey(passcode?: string) {
     if (storageType === 'secure-store') {
         let ex = await SecureStore.getItemAsync(ref);
         if (!ex) {
-            if (Platform.OS === 'ios') {
-                throw new BiometricKeyUnavailableError();
-            }
-            throw Error('Broken keystore');
+            throw new BiometricKeyUnavailableError();
         }
         return Buffer.from(ex, 'base64');
     }

@@ -76,10 +76,10 @@ brew install cocoapods
 
 echo "===== Installing node ====="
 # have to add node yourself
-brew install node@20
+brew install node@22
 # link it to the path
 echo "===== Linking node ====="
-brew link node@20
+brew link node@22
 
 echo "===== Installing Yarn ====="
 brew install yarn

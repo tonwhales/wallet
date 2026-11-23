@@ -1087,6 +1087,12 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "setup": "Einrichten",
                 "authenticate": "Mit PIN-Code fortfahren"
             },
+            "biometricsReenable": {
+                "title": "Biometrie erneut aktivieren?",
+                "message": "Die Biometrie Ihres Geräts wurde geändert, daher wurde die biometrische Authentifizierung deaktiviert. Sie können sie jetzt wieder aktivieren.",
+                "enable": "Aktivieren",
+                "notNow": "Nicht jetzt"
+            },
             "biometricsCooldown": {
                 "title": "Abkühlphase für biometrische Daten",
                 "message": "Bitte versuchen Sie es später erneut, oder sperren Sie Ihr Gerät und entsperren Sie es wieder mit dem Gerätekennwort, um biometrische Daten zu aktivieren"

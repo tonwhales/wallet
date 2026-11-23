@@ -1,7 +1,7 @@
 import React, { createContext, memo, MutableRefObject, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import Animated, { BaseAnimationBuilder, EntryExitAnimationFunction, FadeOutUp, SlideInDown } from 'react-native-reanimated';
 import { Alert, Platform, StyleProp, ViewStyle } from 'react-native';
-import { SecureAuthenticationCancelledError, WalletKeys, loadWalletKeys } from '../../storage/walletKeys';
+import { SecureAuthenticationCancelledError, SecureBiometricKeyInvalidatedError, WalletKeys, loadWalletKeys } from '../../storage/walletKeys';
 import { PasscodeInput } from '../passcode/PasscodeInput';
 import { t } from '../../i18n/t';
 import { PasscodeState, getBiometricsState, BiometricsState, getPasscodeState, passcodeLengthKey, loadKeyStorageType } from '../../storage/secureStorage';
@@ -19,6 +19,7 @@ import { CloseButton } from '../navigation/CloseButton';
 import { SelectedAccount } from '../../engine/types';
 import { useAppBlur } from '../AppBlurContext';
 import { loadCurrentWalletKeysWithDelay } from '../../utils/walletAuth';
+import { markBiometricsReenablePending, offerBiometricsReenable } from '../../utils/biometricsReenable';
 
 export const lastAuthKey = 'lastAuthenticationAt';
 
@@ -180,8 +181,16 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                 if (e instanceof SecureAuthenticationCancelledError) {
                     // If cancelled - do nothing
                 } else {
+                    const keyInvalidated = e instanceof SecureBiometricKeyInvalidatedError;
+                    if (keyInvalidated) {
+                        markBiometricsReenablePending();
+                        setBiometricsState(BiometricsState.NotSet);
+                    }
+
                     // Check permissions
-                    const premissionsRes = await checkBiometricsPermissions(passcodeState);
+                    const premissionsRes = (keyInvalidated && passcodeState === PasscodeState.Set)
+                        ? 'use-passcode'
+                        : await checkBiometricsPermissions(passcodeState);
 
                     // Biometrics permission is not granted or blocked
                     if (premissionsRes === 'biometrics-permission-check') {
@@ -414,6 +423,8 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
 
                                 throw Error('Failed to load keys');
                             }
+
+                            void offerBiometricsReenable(pass, setBiometricsState);
 
                             // Remove auth view
                             setAuth(null);

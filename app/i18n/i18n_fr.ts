@@ -1087,6 +1087,12 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "setup": "Configurer",
                 "authenticate": "Continuer avec le code d'accès"
             },
+            "biometricsReenable": {
+                "title": "Réactiver la biométrie ?",
+                "message": "La biométrie de votre appareil a changé, l'authentification biométrique a donc été désactivée. Vous pouvez la réactiver maintenant.",
+                "enable": "Activer",
+                "notNow": "Pas maintenant"
+            },
             "biometricsCooldown": {
                 "title": "Temporisation biométrique",
                 "message": "Veuillez réessayer plus tard, ou verrouillez et déverrouillez votre appareil avec son code d'accès pour réactiver la biométrie"

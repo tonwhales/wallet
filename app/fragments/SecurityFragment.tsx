@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { ItemButton } from "../components/ItemButton"
 import { fragment } from "../fragment"
 import { t } from "../i18n/t"
-import { BiometricsState, PasscodeState } from "../storage/secureStorage"
+import { BiometricsState, PasscodeState, encryptAndStoreAppKeyWithBiometrics } from "../storage/secureStorage"
 import { useTypedNavigation } from "../utils/useTypedNavigation"
 import { useAppState, useHasHoldersProducts, useNetwork, useSelectedAccount, useSolanaSelectedAccount, useTheme } from '../engine/hooks';
 import { useEffect, useMemo, useState } from "react"
@@ -197,7 +197,8 @@ export const SecurityFragment = fragment(() => {
                                         try {
                                             setBiometricsToggleValue(newValue);
                                             if (newValue) {
-                                                await authContext.authenticateWithPasscode({ cancelable: true, backgroundColor: theme.elevation });
+                                                const { passcode } = await authContext.authenticateWithPasscode({ cancelable: true, backgroundColor: theme.elevation });
+                                                await encryptAndStoreAppKeyWithBiometrics(passcode);
                                             } else {
                                                 await authContext.authenticate({ cancelable: true, backgroundColor: theme.elevation });
                                             }

@@ -1089,6 +1089,12 @@ export type LocalizationSchema = {
                 setup: string,
                 authenticate: string,
             },
+            biometricsReenable: {
+                title: string,
+                message: string,
+                enable: string,
+                notNow: string,
+            },
             biometricsCooldown: {
                 title: string,
                 message: string,

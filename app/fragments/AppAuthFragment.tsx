@@ -9,8 +9,10 @@ import { PasscodeInput } from "../components/passcode/PasscodeInput";
 import { storage } from "../storage/storage";
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import { getCurrentAddress } from "../storage/appState";
-import { SecureAuthenticationCancelledError, loadWalletKeys } from "../storage/walletKeys";
-import { BiometricsState, getBiometricsState, passcodeLengthKey } from "../storage/secureStorage";
+import { SecureAuthenticationCancelledError, SecureBiometricKeyInvalidatedError, loadWalletKeys } from "../storage/walletKeys";
+import { BiometricsState, passcodeLengthKey } from "../storage/secureStorage";
+import { useBiometricsState, useSetBiometricsState } from "../engine/hooks/appstate";
+import { markBiometricsReenablePending, offerBiometricsReenable } from "../utils/biometricsReenable";
 import { Alert, AppState, NativeEventSubscription, Platform, View } from "react-native";
 import { useLogoutAndReset } from "../engine/hooks/accounts/useLogoutAndReset";
 import { useRoute } from "@react-navigation/native";
@@ -25,7 +27,8 @@ export const AppAuthFragment = fragment(() => {
     const network = useNetwork();
     const safeAreaInsets = useSafeAreaInsets();
     const { showActionSheetWithOptions } = useActionSheet();
-    const biometricsState = getBiometricsState();
+    const biometricsState = useBiometricsState();
+    const setBiometricsState = useSetBiometricsState();
     const useBiometrics = (biometricsState === BiometricsState.InUse);
     const logOutAndReset = useLogoutAndReset();
     const isAppStart = useRoute().name !== 'AppAuth';
@@ -113,7 +116,10 @@ export const AppAuthFragment = fragment(() => {
             await loadWalletKeys(acc.secretKeyEnc);
             onConfirmed();
         } catch (e) {
-            if (e instanceof SecureAuthenticationCancelledError) {
+            if (e instanceof SecureBiometricKeyInvalidatedError) {
+                markBiometricsReenablePending();
+                setBiometricsState(BiometricsState.NotSet);
+            } else if (e instanceof SecureAuthenticationCancelledError) {
                 Alert.alert(
                     t('security.auth.canceled.title'),
                     t('security.auth.canceled.message'),
@@ -157,6 +163,7 @@ export const AppAuthFragment = fragment(() => {
                         try {
                             await loadCurrentWalletKeysWithDelay(pass);
                             onConfirmed();
+                            void offerBiometricsReenable(pass, setBiometricsState);
                         } catch (e) {
                             setAuthInProgress?.(false);
                             setAttempts(attempts + 1);

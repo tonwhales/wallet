@@ -24,6 +24,10 @@ export function lastTwoApys(status?: StakingStatus | null): [number, number] {
         return v.id * 1000 < startValidation;
     });
 
+    if (filtered.length < 2) {
+        return [0, 0];
+    }
+
     const bounses_0 = (filtered[0].id * 1000 === startValidation)
         ? status.bonuses
         : BigInt(filtered[0].bonuses);
